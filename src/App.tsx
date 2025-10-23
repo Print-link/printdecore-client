@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import { Upload, FileText, Printer, X, CheckCircle, AlertCircle } from 'lucide-react';
+import axios from 'axios';
 
 interface UploadStatus {
   type: 'success' | 'error';
   message: string;
 }
+
+const printUrl = 'http://localhost:3000/api/print/submit';
 
 function App() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -50,32 +53,47 @@ function App() {
     }
   };
 
+  /**
+   * 🧩 Updated: Real upload logic using axios
+   */
   const handleUpload = async () => {
     if (!selectedFile) return;
 
     setUploading(true);
     setUploadStatus(null);
 
-    // Simulate upload API call
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Simulate successful upload
-      setUploadStatus({ 
-        type: 'success', 
-        message: `"${selectedFile.name}" sent to print queue successfully!` 
+      const formData = new FormData();
+      formData.append('pdfFile', selectedFile);
+      formData.append('submittedBy', 'frontend-user'); // Optional extra data
+      formData.append('copies', '1');
+      formData.append('color', 'true');
+      formData.append('duplex', 'false');
+
+      const response = await axios.post(printUrl, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
-      
-      // Clear file after 3 seconds
+
+      setUploadStatus({
+        type: 'success',
+        message: `"${selectedFile.name}" sent to print queue successfully!`,
+      });
+
+      console.log('✅ Server Response:', response.data);
+
+      // Reset after a short delay
       setTimeout(() => {
         setSelectedFile(null);
         setUploadStatus(null);
       }, 3000);
-    } catch (error) {
-      setUploadStatus({ 
-        type: 'error', 
-        message: 'Failed to send file to print queue. Please try again.' 
-      });
+    } catch (error: any) {
+      console.error('Upload Error:', error);
+      const errorMessage =
+        error.response?.data?.message ||
+        'Failed to send file to print queue. Please try again.';
+      setUploadStatus({ type: 'error', message: errorMessage });
     } finally {
       setUploading(false);
     }
@@ -86,7 +104,7 @@ function App() {
     setUploadStatus(null);
   };
 
-  const formatFileSize = (bytes: any) => {
+  const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return bytes + ' B';
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
@@ -106,9 +124,7 @@ function App() {
         {/* Upload Area */}
         <div
           className={`relative border-2 border-dashed rounded-xl p-8 transition-all ${
-            dragActive 
-              ? 'border-indigo-500 bg-indigo-50' 
-              : 'border-gray-300 bg-gray-50'
+            dragActive ? 'border-indigo-500 bg-indigo-50' : 'border-gray-300 bg-gray-50'
           }`}
           onDragEnter={handleDrag}
           onDragLeave={handleDrag}
@@ -144,9 +160,7 @@ function App() {
                   <p className="text-sm font-semibold text-gray-900 truncate">
                     {selectedFile.name}
                   </p>
-                  <p className="text-xs text-gray-500">
-                    {formatFileSize(selectedFile.size)}
-                  </p>
+                  <p className="text-xs text-gray-500">{formatFileSize(selectedFile.size)}</p>
                 </div>
               </div>
               <button
@@ -162,11 +176,13 @@ function App() {
 
         {/* Status Messages */}
         {uploadStatus && (
-          <div className={`mt-4 p-4 rounded-lg flex items-center ${
-            uploadStatus.type === 'success' 
-              ? 'bg-green-50 text-green-800' 
-              : 'bg-red-50 text-red-800'
-          }`}>
+          <div
+            className={`mt-4 p-4 rounded-lg flex items-center ${
+              uploadStatus.type === 'success'
+                ? 'bg-green-50 text-green-800'
+                : 'bg-red-50 text-red-800'
+            }`}
+          >
             {uploadStatus.type === 'success' ? (
               <CheckCircle className="w-5 h-5 mr-3 flex-shrink-0" />
             ) : (
@@ -182,8 +198,8 @@ function App() {
             onClick={handleUpload}
             disabled={uploading}
             className={`w-full mt-6 py-4 rounded-xl font-semibold text-white transition-all flex items-center justify-center ${
-              uploading 
-                ? 'bg-gray-400 cursor-not-allowed' 
+              uploading
+                ? 'bg-gray-400 cursor-not-allowed'
                 : 'bg-indigo-600 hover:bg-indigo-700 hover:shadow-lg'
             }`}
           >
@@ -200,25 +216,6 @@ function App() {
             )}
           </button>
         )}
-
-        {/* Info Section */}
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">How it works:</h3>
-          <ol className="space-y-2 text-sm text-gray-600">
-            <li className="flex items-start">
-              <span className="inline-flex items-center justify-center w-5 h-5 bg-indigo-100 text-indigo-600 rounded-full mr-3 mt-0.5 text-xs font-semibold flex-shrink-0">1</span>
-              <span>Upload your PDF file by dragging and dropping or clicking "Browse Files"</span>
-            </li>
-            <li className="flex items-start">
-              <span className="inline-flex items-center justify-center w-5 h-5 bg-indigo-100 text-indigo-600 rounded-full mr-3 mt-0.5 text-xs font-semibold flex-shrink-0">2</span>
-              <span>Click "Send to Print Queue" to submit your document</span>
-            </li>
-            <li className="flex items-start">
-              <span className="inline-flex items-center justify-center w-5 h-5 bg-indigo-100 text-indigo-600 rounded-full mr-3 mt-0.5 text-xs font-semibold flex-shrink-0">3</span>
-              <span>Your document will be sent to the default printer</span>
-            </li>
-          </ol>
-        </div>
       </div>
     </div>
   );
