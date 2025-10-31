@@ -1,4 +1,41 @@
-const BASE_URL = 'http://localhost:3000/api/clients';
+// API Configuration - Easy switching between localhost and production
+// To switch to localhost: change USE_LOCALHOST to true
+// Or use environment variable: VITE_API_BASE_URL
+const USE_LOCALHOST = false; // Set to true for localhost, false for production
+
+const PRODUCTION_BASE_URL = 'https://piper-server-prototype-ts.onrender.com/api/clients';
+const LOCALHOST_BASE_URL = 'http://localhost:3000/api/clients';
+const PRODUCTION_API_BASE = 'https://piper-server-prototype-ts.onrender.com/api';
+const LOCALHOST_API_BASE = 'http://localhost:3000/api';
+
+// Use environment variable if available, otherwise use config
+const getBaseUrl = (): string => {
+  if (import.meta.env.VITE_API_BASE_URL) {
+    return import.meta.env.VITE_API_BASE_URL;
+  }
+  return USE_LOCALHOST ? LOCALHOST_BASE_URL : PRODUCTION_BASE_URL;
+};
+
+const getApiBase = (): string => {
+  if (!USE_LOCALHOST) {
+    // Extract base URL and remove /clients if present
+    const envUrl = PRODUCTION_BASE_URL;
+    const base = envUrl.replace('/clients', '').replace('/api/clients', '/api');
+    return base;
+  }
+  return USE_LOCALHOST ? LOCALHOST_API_BASE : PRODUCTION_API_BASE;
+};
+
+const BASE_URL = getBaseUrl();
+
+// Log API configuration in development mode
+if (import.meta.env.DEV) {
+  console.log('🌐 API Configuration:', {
+    baseUrl: BASE_URL,
+    apiBase: getApiBase(),
+    source: import.meta.env.VITE_API_BASE_URL ? 'environment variable' : (USE_LOCALHOST ? 'localhost (config)' : 'production (config)'),
+  });
+}
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -167,7 +204,8 @@ class ApiService {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      const response = await fetch(`http://localhost:3000/api${endpoint}`, {
+      const apiBase = getApiBase();
+      const response = await fetch(`${apiBase}${endpoint}`, {
         method: 'POST',
         headers,
         body: formData,

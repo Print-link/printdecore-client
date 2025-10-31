@@ -97,14 +97,34 @@ Print job submissions are stored in localStorage and persist across sessions. Ea
 - Submission timestamp
 - Status (pending, completed, failed)
 
-## API Integration
+## API Configuration
 
-The application submits print jobs to:
-- Endpoint: `http://localhost:3000/api/print/submit`
-- Method: POST
-- Format: FormData with file and order details
+The application can be configured to use either a production server or localhost.
 
-Make sure your backend API is running and accessible at this endpoint.
+### Production (Default)
+- **Base URL**: `https://piper-server-prototype-ts.onrender.com/api/clients`
+- **File Upload**: `https://piper-server-prototype-ts.onrender.com/api/print/submit`
+
+### Localhost
+To switch to localhost, edit `src/services/api.ts`:
+```typescript
+const USE_LOCALHOST = true; // Change from false to true
+```
+
+### Environment Variable (Optional)
+You can also use environment variables:
+1. Create a `.env` file in the root directory
+2. Add: `VITE_API_BASE_URL=https://piper-server-prototype-ts.onrender.com/api/clients`
+
+The environment variable takes precedence over the `USE_LOCALHOST` flag.
+
+### API Endpoints
+- **Authentication**: `/api/clients/register`, `/api/clients/login`, `/api/clients/profile`
+- **File Upload**: `/api/print/submit`
+- **Method**: POST (for file uploads)
+- **Format**: FormData with file and order details
+
+Make sure your backend API is running and accessible at the configured endpoint.
 
 ## Features in Detail
 
