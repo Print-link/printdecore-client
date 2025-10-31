@@ -17,16 +17,16 @@ interface OrderDetails {
   description: string;
 }
 
-interface Submission {
-  id: string;
-  timestamp: string;
-  file: {
-    name: string;
-    size: number;
-  };
-  orderDetails: OrderDetails;
-  status: 'pending' | 'completed' | 'failed';
-}
+// interface Submission {
+//   id: string;
+//   timestamp: string;
+//   file: {
+//     name: string;
+//     size: number;
+//   };
+//   orderDetails: OrderDetails;
+//   status: 'pending' | 'completed' | 'failed';
+// }
 
 export const Home = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -107,11 +107,11 @@ export const Home = () => {
            orderDetails.location;
   };
 
-  const saveSubmission = (submission: Submission) => {
-    const submissions = JSON.parse(localStorage.getItem('submissions') || '[]');
-    submissions.unshift(submission); // Add to beginning
-    localStorage.setItem('submissions', JSON.stringify(submissions));
-  };
+  // const saveSubmission = (submission: Submission) => {
+  //   const submissions = JSON.parse(localStorage.getItem('submissions') || '[]');
+  //   submissions.unshift(submission); // Add to beginning
+  //   localStorage.setItem('submissions', JSON.stringify(submissions));
+  // };
 
   const handleUpload = async () => {
     if (!selectedFile || !isFormValid()) return;

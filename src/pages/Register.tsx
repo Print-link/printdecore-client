@@ -50,7 +50,7 @@ export const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-100 rounded-full mb-4">
@@ -62,7 +62,7 @@ export const Register = () => {
 
         {error && (
           <div className="mb-6 p-4 bg-red-50 text-red-800 rounded-lg flex items-center">
-            <AlertCircle className="w-5 h-5 mr-3 flex-shrink-0" />
+            <AlertCircle className="w-5 h-5 mr-3" />
             <p className="text-sm font-medium">{error}</p>
           </div>
         )}
