@@ -24,13 +24,13 @@ export const ProtectedLayout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen from-blue-50 to-indigo-100">
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
           <div className="flex items-center justify-between h-14 sm:h-16">
             <div className="flex items-center">
-              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-indigo-600">Print Queue</h1>
+              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-indigo-600">Piper Prints</h1>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-4">
               <span className="hidden sm:inline text-xs sm:text-sm text-gray-700">
@@ -55,7 +55,7 @@ export const ProtectedLayout = () => {
           <nav className="flex space-x-4 sm:space-x-8">
             <button
               onClick={() => handleTabChange('home')}
-              className={`flex items-center py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm transition-colors touch-manipulation ${
+              className={`flex items-center gap-2 py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm transition-colors touch-manipulation ${
                 activeTab === 'home'
                   ? 'border-indigo-600 text-indigo-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -66,7 +66,7 @@ export const ProtectedLayout = () => {
             </button>
             <button
               onClick={() => handleTabChange('history')}
-              className={`flex items-center py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm transition-colors touch-manipulation ${
+              className={`flex items-center gap-2 py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm transition-colors touch-manipulation ${
                 activeTab === 'history'
                   ? 'border-indigo-600 text-indigo-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'

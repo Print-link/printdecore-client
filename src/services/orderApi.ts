@@ -7,9 +7,9 @@ const PRODUCTION_API_BASE = 'https://piper-server-prototype-ts.onrender.com/api/
 const LOCALHOST_API_BASE = 'http://localhost:3000/api/clients';
 
 const getBaseUrl = (): string => {
-  if (import.meta.env.VITE_API_BASE_URL) {
-    return import.meta.env.VITE_API_BASE_URL;
-  }
+//   if (import.meta.env.VITE_API_BASE_URL) {
+//     return import.meta.env.VITE_API_BASE_URL;
+//   }
   return USE_LOCALHOST ? LOCALHOST_API_BASE : PRODUCTION_API_BASE;
 };
 

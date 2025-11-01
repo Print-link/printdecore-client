@@ -139,7 +139,7 @@ export const History = () => {
 
   return (
     <div className="w-full max-w-6xl mx-auto">
-      <div className="bg-white rounded-2xl p-4 sm:p-6">
+      <div className="rounded-2xl p-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-4">
           <div>
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Submission History</h2>
