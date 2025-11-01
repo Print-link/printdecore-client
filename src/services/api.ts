@@ -1,7 +1,7 @@
 // API Configuration - Easy switching between localhost and production
 // To switch to localhost: change USE_LOCALHOST to true
 // Or use environment variable: VITE_API_BASE_URL
-const USE_LOCALHOST = false; // Set to true for localhost, false for production
+const USE_LOCALHOST = true; // Set to true for localhost, false for production
 
 const PRODUCTION_BASE_URL = 'https://piper-server-prototype-ts.onrender.com/api/clients';
 const LOCALHOST_BASE_URL = 'http://localhost:3000/api/clients';

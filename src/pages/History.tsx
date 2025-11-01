@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react';
-import { FileText, Calendar, Clock, Package, MapPin, Info, CheckCircle, XCircle } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { FileText, Calendar, Clock, Package, MapPin, Info, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { getClientOrders } from '../services/orderApi';
 
 interface OrderDetails {
   artwork: string;
@@ -7,7 +9,7 @@ interface OrderDetails {
   height: string;
   quantity: string;
   location: string;
-  description: string;
+  description?: string;
 }
 
 interface Submission {
@@ -22,19 +24,72 @@ interface Submission {
 }
 
 export const History = () => {
+  const { user } = useAuth();
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [filter, setFilter] = useState<'all' | 'pending' | 'completed' | 'failed'>('all');
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadSubmissions = useCallback(async () => {
+    if (!user?._id) {
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await getClientOrders(user?._id);
+      
+      if (response.success && response.data?.orders) {
+        // Map backend orders to Submission interface
+        const mappedSubmissions: Submission[] = response.data.orders.map((order: any) => ({
+          id: order._id || order.id || Date.now().toString(),
+          timestamp: order.createdAt || order.timestamp || new Date().toISOString(),
+          file: {
+            name: order.pdfFile?.originalname || order.fileName || order.file?.name || 'Unknown file',
+            size: order.pdfFile?.size || order.fileSize || order.file?.size || 0,
+          },
+          orderDetails: {
+            artwork: order.artwork || '',
+            width: order.width || '',
+            height: order.height || '',
+            quantity: order.quantity?.toString() || '1',
+            location: order.location || '',
+            description: order.description || '',
+          },
+          status: (order.status || 'pending') as 'pending' | 'completed' | 'failed',
+        }));
+        
+        setSubmissions(mappedSubmissions);
+      } else {
+        setSubmissions([]);
+      }
+    } catch (err: any) {
+      console.error('Error loading submissions:', err);
+      setError(err.message || 'Failed to load submission history');
+      // Fallback to localStorage if API fails
+      const stored = localStorage.getItem('submissions');
+      if (stored) {
+        try {
+          setSubmissions(JSON.parse(stored));
+        } catch (parseError) {
+          console.error('Error parsing localStorage submissions:', parseError);
+        }
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user?._id]);
 
   useEffect(() => {
-    loadSubmissions();
-  }, []);
-
-  const loadSubmissions = () => {
-    const stored = localStorage.getItem('submissions');
-    if (stored) {
-      setSubmissions(JSON.parse(stored));
+    if (user?._id) {
+      loadSubmissions();
+    } else {
+      setIsLoading(false);
     }
-  };
+  }, [user?._id, loadSubmissions]);
 
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return bytes + ' B';
@@ -136,7 +191,22 @@ export const History = () => {
           </div>
         </div>
 
-        {filteredSubmissions.length === 0 ? (
+        {error && (
+          <div className="mb-4 p-4 bg-red-50 text-red-800 rounded-lg flex items-start">
+            <AlertCircle className="w-5 h-5 mr-3 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium">Error loading submissions</p>
+              <p className="text-xs mt-1">{error}</p>
+            </div>
+          </div>
+        )}
+
+        {isLoading ? (
+          <div className="text-center py-8 sm:py-12">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-3 sm:mb-4"></div>
+            <p className="text-gray-500 text-base sm:text-lg font-medium">Loading submissions...</p>
+          </div>
+        ) : filteredSubmissions.length === 0 ? (
           <div className="text-center py-8 sm:py-12">
             <FileText className="w-12 h-12 sm:w-16 sm:h-16 text-gray-300 mx-auto mb-3 sm:mb-4" />
             <p className="text-gray-500 text-base sm:text-lg font-medium">No submissions found</p>
