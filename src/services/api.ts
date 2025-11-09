@@ -49,7 +49,7 @@ export interface ApiResponse<T> {
 	errors?: unknown[];
 }
 
-interface ApiError extends Error {
+export interface ApiError extends Error {
 	status?: number;
 	statusText?: string;
 }
@@ -215,7 +215,7 @@ class ApiService {
 	}
 
 	// Upload file with FormData (for print jobs)
-	async uploadFile(formData: FormData, endpoint: string = "/print/submit") {
+	async uploadFile(formData: FormData, endpoint: string) {
 		const token = this.getToken();
 
 		try {
