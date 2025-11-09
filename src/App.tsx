@@ -8,7 +8,7 @@
 // }
 
 // const printUrl = 'http://localhost:3000/api/print/submit';
-// const FILE_STACK_API_KEY = process.env.REACT_APP_FILE_STACK_API_KEY;
+// const FILE_STACK_API_KEY = process.env.REACT_APP_FILE_STACK_API_KEY ||;
 
 // function App() {
 //   const [selectedFile, setSelectedFile] = useState<File | null>(null);
