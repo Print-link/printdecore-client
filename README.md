@@ -1,76 +1,151 @@
-# React + TypeScript + Vite
+# Print Queue Manager
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern React + TypeScript application for managing print job submissions with user authentication and submission history.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **User Authentication**
+  - Login page with email and password
+  - Registration page for new users
+  - Protected routes that require authentication
 
-## React Compiler
+- **Print Job Submission**
+  - Drag-and-drop file upload
+  - Support for multiple file formats (PDF, Images, Documents)
+  - Detailed order form with artwork, dimensions, quantity, and location
+  - Form validation and submission status feedback
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+- **Submission History**
+  - View all past print job submissions
+  - Filter submissions by status (All, Pending, Completed, Failed)
+  - Detailed view with file information, order details, and timestamps
+  - Status badges and icons for quick identification
 
-## Expanding the ESLint configuration
+- **Protected Layout**
+  - Tabbed interface for easy navigation between Home and History
+  - User profile display in header
+  - Logout functionality
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Tech Stack
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- **React 19** - UI library
+- **TypeScript** - Type safety
+- **Vite** - Build tool and dev server
+- **React Router DOM** - Client-side routing
+- **Tailwind CSS** - Styling
+- **Lucide React** - Icons
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Project Structure
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+src/
+├── components/
+│   ├── ProtectedLayout.tsx    # Main layout with header and tabs
+│   └── ProtectedRoute.tsx     # Route guard component
+├── contexts/
+│   └── AuthContext.tsx        # Authentication context and provider
+├── pages/
+│   ├── Login.tsx              # Login page
+│   ├── Register.tsx           # Registration page
+│   ├── Home.tsx               # Print job submission form
+│   └── History.tsx            # Submission history page
+├── App.tsx                    # Main app component with routing
+└── main.tsx                   # Application entry point
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Getting Started
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Installation
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+yarn install
 ```
-# piper-client
-# piper-client
-# piper-client
+
+### Development
+
+```bash
+yarn dev
+```
+
+The application will be available at `http://localhost:5173`
+
+### Build
+
+```bash
+yarn build
+```
+
+### Preview Production Build
+
+```bash
+yarn preview
+```
+
+## Authentication
+
+The application uses localStorage for authentication persistence. Users can:
+- Register with name, email, and password
+- Login with email and password
+- Stay logged in across browser sessions
+- Logout from any protected page
+
+## Submission Storage
+
+Print job submissions are stored in localStorage and persist across sessions. Each submission includes:
+- File information (name, size)
+- Order details (artwork, dimensions, quantity, location, description)
+- Submission timestamp
+- Status (pending, completed, failed)
+
+## API Configuration
+
+The application can be configured to use either a production server or localhost.
+
+### Production (Default)
+- **Base URL**: `https://piper-server-prototype-ts.onrender.com/api/clients`
+- **File Upload**: `https://piper-server-prototype-ts.onrender.com/api/print/submit`
+
+### Localhost
+To switch to localhost, edit `src/services/api.ts`:
+```typescript
+const USE_LOCALHOST = true; // Change from false to true
+```
+
+### Environment Variable (Optional)
+You can also use environment variables:
+1. Create a `.env` file in the root directory
+2. Add: `VITE_API_BASE_URL=https://piper-server-prototype-ts.onrender.com/api/clients`
+
+The environment variable takes precedence over the `USE_LOCALHOST` flag.
+
+### API Endpoints
+- **Authentication**: `/api/clients/register`, `/api/clients/login`, `/api/clients/profile`
+- **File Upload**: `/api/print/submit`
+- **Method**: POST (for file uploads)
+- **Format**: FormData with file and order details
+
+Make sure your backend API is running and accessible at the configured endpoint.
+
+## Features in Detail
+
+### File Upload
+- Drag and drop support
+- Click to browse files
+- File type validation
+- File size display
+- Remove file option
+
+### Form Validation
+- Required field validation
+- Real-time validation feedback
+- Disabled submit button until form is valid
+
+### History Filters
+- Filter by all statuses
+- Filter by pending jobs
+- Filter by completed jobs
+- Filter by failed jobs
+
+## License
+
+MIT
