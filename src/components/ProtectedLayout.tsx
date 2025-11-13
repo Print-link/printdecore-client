@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { LogOut, Home, History } from 'lucide-react';
+import { LogOut, Home, History, Menu, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 export const ProtectedLayout = () => {
@@ -8,9 +8,14 @@ export const ProtectedLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState(location.pathname === '/history' ? 'history' : 'home');
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
     setActiveTab(location.pathname === '/history' ? 'history' : 'home');
+    // Close drawer on mobile when route changes
+    if (window.innerWidth < 768) {
+      setDrawerOpen(false);
+    }
   }, [location.pathname]);
 
   const handleLogout = () => {
@@ -21,68 +26,142 @@ export const ProtectedLayout = () => {
   const handleTabChange = (tab: 'home' | 'history') => {
     setActiveTab(tab);
     navigate(tab === 'home' ? '/' : '/history');
+    // Close drawer on mobile when navigation item is clicked
+    if (window.innerWidth < 768) {
+      setDrawerOpen(false);
+    }
+  };
+
+  const toggleDrawer = () => {
+    setDrawerOpen(!drawerOpen);
   };
 
   return (
-    <div className="min-h-screen from-blue-50 to-indigo-100">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
-          <div className="flex items-center justify-between h-14 sm:h-16">
-            <div className="flex items-center">
-              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-indigo-600">Piper Prints</h1>
-            </div>
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <span className="hidden sm:inline text-xs sm:text-sm text-gray-700">
-                Welcome, <span className="font-semibold">{user?.fullName}</span>
-              </span>
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* Side Drawer - Always visible on desktop, toggleable on mobile */}
+      <div
+        className={`fixed md:static top-0 left-0 h-screen w-72 bg-white border-r border-gray-200 z-50 transform transition-transform duration-300 ease-in-out flex-shrink-0 ${
+          drawerOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+        }`}
+      >
+        <div className="flex flex-col h-full">
+          {/* Drawer Header */}
+          <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200 bg-gradient-to-r from-indigo-600 to-indigo-700">
+            <h2 className="text-xl font-bold text-white">Piper Prints</h2>
+            <button
+              onClick={toggleDrawer}
+              className="md:hidden p-1.5 text-white hover:bg-white/20 rounded-lg transition-colors"
+              aria-label="Close menu"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Drawer Navigation */}
+          <nav className="flex-1 px-4 py-6 overflow-y-auto">
+            <div className="space-y-1">
               <button
-                onClick={handleLogout}
-                className="flex items-center px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors touch-manipulation"
-                aria-label="Logout"
+                onClick={() => handleTabChange('home')}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-base transition-all touch-manipulation ${
+                  activeTab === 'home'
+                    ? 'bg-indigo-50 text-indigo-700 shadow-sm border border-indigo-100'
+                    : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                }`}
               >
-                <LogOut className="w-4 h-4 sm:mr-2" />
-                <span className="hidden sm:inline">Logout</span>
+                <Home className={`w-5 h-5 ${activeTab === 'home' ? 'text-indigo-600' : 'text-gray-500'}`} />
+                <span>Home</span>
+              </button>
+              <button
+                onClick={() => handleTabChange('history')}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-base transition-all touch-manipulation ${
+                  activeTab === 'history'
+                    ? 'bg-indigo-50 text-indigo-700 shadow-sm border border-indigo-100'
+                    : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                }`}
+              >
+                <History className={`w-5 h-5 ${activeTab === 'history' ? 'text-indigo-600' : 'text-gray-500'}`} />
+                <span>History</span>
               </button>
             </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Tabs */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
-          <nav className="flex space-x-4 sm:space-x-8">
-            <button
-              onClick={() => handleTabChange('home')}
-              className={`flex items-center gap-2 py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm transition-colors touch-manipulation ${
-                activeTab === 'home'
-                  ? 'border-indigo-600 text-indigo-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              <Home className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
-              <span className="sm:inline">Home</span>
-            </button>
-            <button
-              onClick={() => handleTabChange('history')}
-              className={`flex items-center gap-2 py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm transition-colors touch-manipulation ${
-                activeTab === 'history'
-                  ? 'border-indigo-600 text-indigo-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              <History className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
-              <span className="sm:inline">History</span>
-            </button>
           </nav>
+
+          {/* Drawer Footer */}
+          <div className="p-4 border-t border-gray-200 bg-gray-50">
+            <div className="mb-4 px-3 py-3 bg-white rounded-lg border border-gray-200">
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Signed in as</p>
+              <p className="text-sm font-semibold text-gray-900 truncate">{user?.fullName}</p>
+              <p className="text-xs text-gray-500 truncate mt-0.5">{user?.email}</p>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border border-red-200 text-red-600 rounded-lg font-medium text-sm hover:bg-red-50 hover:border-red-300 transition-all touch-manipulation"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Logout</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
-        <Outlet />
-      </main>
+      {/* Mobile Drawer Overlay */}
+      {drawerOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          onClick={toggleDrawer}
+        />
+      )}
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Header */}
+        <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-30">
+          <div className="px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-16">
+              <div className="flex items-center gap-3">
+                {/* Menu Button - Only visible on mobile */}
+                <button
+                  onClick={toggleDrawer}
+                  className="md:hidden p-2 text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors touch-manipulation"
+                  aria-label="Toggle menu"
+                >
+                  {drawerOpen ? (
+                    <X className="w-6 h-6" />
+                  ) : (
+                    <Menu className="w-6 h-6" />
+                  )}
+                </button>
+                <h1 className="text-xl font-bold text-indigo-600 md:hidden">
+                  Piper Prints
+                </h1>
+                {/* Desktop Title */}
+                <h1 className="hidden md:block text-xl font-bold text-gray-900">
+                  {activeTab === 'home' ? 'Print Stations' : 'Print History'}
+                </h1>
+              </div>
+              <div className="flex items-center space-x-4">
+                <span className="hidden sm:inline text-sm text-gray-600">
+                  Welcome, <span className="font-semibold text-gray-900">{user?.fullName}</span>
+                </span>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors touch-manipulation"
+                  aria-label="Logout"
+                >
+                  <LogOut className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Logout</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Main Content */}
+        <main className="flex-1 overflow-y-auto bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+            <Outlet />
+          </div>
+        </main>
+      </div>
     </div>
   );
 };

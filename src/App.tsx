@@ -6,6 +6,7 @@ import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { Home } from './pages/Home';
 import { History } from './pages/History';
+import { PrintStationDetails } from './pages/PrintStationDetails';
 
 const AppRoutes = () => {
   const { user, isLoading } = useAuth();
@@ -32,6 +33,7 @@ const AppRoutes = () => {
       >
         <Route index element={<Home />} />
         <Route path="history" element={<History />} />
+        <Route path="print-station/:id" element={<PrintStationDetails />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

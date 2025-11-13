@@ -260,6 +260,32 @@ class ApiService {
 			throw error;
 		}
 	}
+
+	async getAllPrintStations() {
+		const response = await this.request<{
+			printStations: {
+				_id: string;
+				id?: string;
+				name: string;
+				email: string;
+				location?: {
+					latitude: number;
+					longitude: number;
+					address: string;
+				};
+				profile?: {
+					id: string;
+					email: string;
+					name: string;
+				};
+				createdAt?: string;
+				updatedAt?: string;
+			}[];
+		}>("/clients/get-print-stations", {
+			method: "GET",
+		});
+		return response;
+	}
 }
 
 export const apiService = new ApiService();
