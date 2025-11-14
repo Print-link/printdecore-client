@@ -51,7 +51,7 @@ export const Home = () => {
 
 	if (loading) {
 		return (
-			<div className="w-full max-w-6xl mx-auto bg-white rounded-2xl shadow-xl p-8">
+			<div className="w-full max-w-6xl mx-auto bg-white rounded-2xl p-8">
 				<div className="flex items-center justify-center py-12">
 					<Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
 				</div>
@@ -75,7 +75,7 @@ export const Home = () => {
 
 	return (
 		<div className="w-full max-w-6xl mx-auto">
-			<div className="text-center mb-6 sm:mb-8">
+			{/* <div className="text-center mb-6 sm:mb-8">
 				<div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-indigo-100 rounded-full mb-3 sm:mb-4">
 					<Printer className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-600" />
 				</div>
@@ -85,7 +85,7 @@ export const Home = () => {
 				<p className="text-sm sm:text-base text-gray-600">
 					Choose a print station to submit your print job
 				</p>
-			</div>
+			</div> */}
 
 			{printStations.length === 0 ? (
 				<div className="bg-white rounded-2xl shadow-xl p-8 text-center">
@@ -102,7 +102,7 @@ export const Home = () => {
 							onClick={() =>
 								handleStationClick(station._id || station.id || "")
 							}
-							className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all text-left group border-2 border-transparent hover:border-indigo-500 touch-manipulation"
+							className="bg-white rounded-xl p-6 hover:shadow-xl transition-all text-left group border border-gray-300 touch-manipulation"
 						>
 							<div className="flex items-start justify-between mb-4">
 								<div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center group-hover:bg-indigo-200 transition-colors">

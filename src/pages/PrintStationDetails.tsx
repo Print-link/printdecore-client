@@ -175,7 +175,8 @@ export const PrintStationDetails = () => {
 			orderDetails.width &&
 			orderDetails.height &&
 			orderDetails.quantity &&
-			orderDetails.location
+			orderDetails.location &&
+			orderDetails.description
 		);
 	};
 
@@ -195,6 +196,7 @@ export const PrintStationDetails = () => {
 			formData.append("artwork", orderDetails.artwork.trim());
 			formData.append("width", orderDetails.width.trim());
 			formData.append("height", orderDetails.height.trim());
+			formData.append("adminId", id);
 			formData.append(
 				"size",
 				`${orderDetails.width.trim()} x ${orderDetails.height.trim()}`
@@ -270,7 +272,7 @@ export const PrintStationDetails = () => {
 
 	if (loading) {
 		return (
-			<div className="w-full max-w-3xl mx-auto bg-white rounded-2xl shadow-xl p-8">
+			<div className="w-full max-w-3xl mx-auto bg-white rounded-2xl p-8">
 				<div className="flex items-center justify-center py-12">
 					<div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
 				</div>
@@ -302,7 +304,7 @@ export const PrintStationDetails = () => {
 	}
 
 	return (
-		<div className="w-full max-w-3xl mx-auto bg-white rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8">
+		<div className="w-full max-w-3xl mx-auto bg-white rounded-2xl border border-gray-300 p-4 sm:p-6 lg:p-8">
 			{/* Back Button */}
 			<button
 				onClick={() => navigate("/")}
