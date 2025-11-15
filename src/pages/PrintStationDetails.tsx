@@ -3,19 +3,20 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Upload, FileText, Printer, X, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
 import { apiService } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { toast } from "react-toastify";
 
 interface UploadStatus {
-  type: 'success' | 'error';
-  message: string;
+	type: "success" | "error";
+	message: string;
 }
 
 interface OrderDetails {
-  artwork: string;
-  width: string;
-  height: string;
-  quantity: string;
-  location: string;
-  description: string;
+	artwork: string;
+	width: string;
+	height: string;
+	quantity: string;
+	location: string;
+	description: string;
 }
 
 interface PrintStation {
@@ -175,8 +176,7 @@ export const PrintStationDetails = () => {
 			orderDetails.width &&
 			orderDetails.height &&
 			orderDetails.quantity &&
-			orderDetails.location &&
-			orderDetails.description
+			orderDetails.location
 		);
 	};
 
@@ -227,6 +227,7 @@ export const PrintStationDetails = () => {
 				`/print/submit/client/${user?._id}`
 			);
 
+			toast.success(data.message || "Print job sent to queue successfully!");
 			setUploadStatus({
 				type: "success",
 				message: data.message || "Print job sent to queue successfully!",
