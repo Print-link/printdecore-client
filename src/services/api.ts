@@ -85,43 +85,43 @@ class ApiService {
 	// }
 
 	// Unauthenticated request method for public endpoints (no token)
-	private async unauthenticatedRequest<T>(
-		endpoint: string,
-		options: RequestInit = {}
-	): Promise<ApiResponse<T>> {
-		const headers: Record<string, string> = {
-			"Content-Type": "application/json",
-			...((options.headers as Record<string, string>) || {}),
-		};
+	// private async unauthenticatedRequest<T>(
+	// 	endpoint: string,
+	// 	options: RequestInit = {}
+	// ): Promise<ApiResponse<T>> {
+	// 	const headers: Record<string, string> = {
+	// 		"Content-Type": "application/json",
+	// 		...((options.headers as Record<string, string>) || {}),
+	// 	};
 
-		const baseUrl = BASE_URL;
+	// 	const baseUrl = BASE_URL;
 
-		try {
-			const response = await fetch(`${baseUrl}${endpoint}`, {
-				...options,
-				headers,
-			});
+	// 	try {
+	// 		const response = await fetch(`${baseUrl}${endpoint}`, {
+	// 			...options,
+	// 			headers,
+	// 		});
 
-			const data: ApiResponse<T> = await response.json();
+	// 		const data: ApiResponse<T> = await response.json();
 
-			if (!response.ok) {
-				const error = new Error(
-					data.message || data.error || "Request failed"
-				) as ApiError;
-				error.status = response.status;
-				error.statusText = response.statusText;
-				throw error;
-			}
+	// 		if (!response.ok) {
+	// 			const error = new Error(
+	// 				data.message || data.error || "Request failed"
+	// 			) as ApiError;
+	// 			error.status = response.status;
+	// 			error.statusText = response.statusText;
+	// 			throw error;
+	// 		}
 
-			return data;
-		} catch (error: unknown) {
-			if (error && typeof error === "object" && "status" in error) {
-				throw error;
-			}
-			console.error("API Request Error:", error);
-			throw error;
-		}
-	}
+	// 		return data;
+	// 	} catch (error: unknown) {
+	// 		if (error && typeof error === "object" && "status" in error) {
+	// 			throw error;
+	// 		}
+	// 		console.error("API Request Error:", error);
+	// 		throw error;
+	// 	}
+	// }
 
 	// Authentication methods
 	async register(
