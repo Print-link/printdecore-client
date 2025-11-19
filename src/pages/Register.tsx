@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { UserPlus, Mail, Lock, User, Phone, AlertCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { UserPlus, Mail, Lock, User, Phone, AlertCircle, CheckCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from "react-toastify";
 
@@ -12,8 +12,22 @@ export const Register = () => {
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [error, setError] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
+	const [isVerified, setIsVerified] = useState(false);
 	const { register } = useAuth();
 	const navigate = useNavigate();
+	const location = useLocation();
+
+	useEffect(() => {
+		// Check if user came from OTP verification
+		const state = location.state;
+		if (state?.email && state?.verified) {
+			setEmail(state.email);
+			setIsVerified(true);
+		} else {
+			// If not verified, redirect to send OTP page
+			navigate('/send-otp', { replace: true });
+		}
+	}, [location.state, navigate]);
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -52,16 +66,22 @@ export const Register = () => {
 	};
 
 	return (
-		<div className="min-h-screen from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+		<div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
 			<div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
 				<div className="text-center mb-8">
-					<div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-100 rounded-full mb-4">
-						<UserPlus className="w-8 h-8 text-indigo-600" />
+					<div className="inline-flex items-center justify-center w-16 h-16 bg-slate-100 rounded-full mb-4">
+						<UserPlus className="w-8 h-8 text-slate-700" />
 					</div>
 					<h1 className="text-3xl font-bold text-gray-900 mb-2">
 						Create Account
 					</h1>
-					<p className="text-gray-600">Sign up to get started</p>
+					<p className="text-gray-600">Complete your registration</p>
+					{isVerified && (
+						<div className="mt-3 inline-flex items-center px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium">
+							<CheckCircle className="w-4 h-4 mr-1.5" />
+							Email verified
+						</div>
+					)}
 				</div>
 
 				{error && (
@@ -83,7 +103,7 @@ export const Register = () => {
 								value={fullName}
 								onChange={(e) => setFullName(e.target.value)}
 								placeholder="Enter your full name"
-								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
 								required
 							/>
 						</div>
@@ -100,10 +120,16 @@ export const Register = () => {
 								value={email}
 								onChange={(e) => setEmail(e.target.value)}
 								placeholder="Enter your email"
-								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent bg-gray-50"
 								required
+								disabled
+								readOnly
 							/>
+							{isVerified && (
+								<CheckCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-600" />
+							)}
 						</div>
+						<p className="mt-1 text-xs text-gray-500">Email verified and locked</p>
 					</div>
 
 					<div>
@@ -117,7 +143,7 @@ export const Register = () => {
 								value={phoneNumber}
 								onChange={(e) => setPhoneNumber(e.target.value)}
 								placeholder="Enter your phone number"
-								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
 								required
 								maxLength={15}
 							/>
@@ -135,7 +161,7 @@ export const Register = () => {
 								value={password}
 								onChange={(e) => setPassword(e.target.value)}
 								placeholder="Create a password"
-								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
 								required
 								minLength={6}
 							/>
@@ -153,7 +179,7 @@ export const Register = () => {
 								value={confirmPassword}
 								onChange={(e) => setConfirmPassword(e.target.value)}
 								placeholder="Confirm your password"
-								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
 								required
 								minLength={6}
 							/>
@@ -166,7 +192,7 @@ export const Register = () => {
 						className={`w-full py-3 rounded-xl font-semibold text-white transition-all ${
 							isLoading
 								? "bg-gray-400 cursor-not-allowed"
-								: "bg-indigo-600 hover:bg-indigo-700 hover:shadow-lg"
+								: "bg-slate-700 hover:bg-slate-800 hover:shadow-lg"
 						}`}
 					>
 						{isLoading ? (
@@ -185,7 +211,7 @@ export const Register = () => {
 						Already have an account?{" "}
 						<Link
 							to="/login"
-							className="text-indigo-600 font-semibold hover:text-indigo-700"
+							className="text-slate-700 font-semibold hover:text-slate-800"
 						>
 							Sign in
 						</Link>

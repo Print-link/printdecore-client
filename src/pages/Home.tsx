@@ -53,7 +53,7 @@ export const Home = () => {
 		return (
 			<div className="w-full max-w-6xl mx-auto bg-white rounded-2xl p-8">
 				<div className="flex items-center justify-center py-12">
-					<Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
+					<Loader2 className="w-8 h-8 text-slate-700 animate-spin" />
 				</div>
 			</div>
 		);
@@ -76,8 +76,8 @@ export const Home = () => {
 	return (
 		<div className="w-full max-w-6xl mx-auto">
 			{/* <div className="text-center mb-6 sm:mb-8">
-				<div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-indigo-100 rounded-full mb-3 sm:mb-4">
-					<Printer className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-600" />
+				<div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-slate-100 rounded-full mb-3 sm:mb-4">
+					<Printer className="w-6 h-6 sm:w-8 sm:h-8 text-slate-700" />
 				</div>
 				<h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
 					Select a Print Station
@@ -105,11 +105,11 @@ export const Home = () => {
 							className="bg-white rounded-xl p-6 hover:shadow-xl transition-all text-left group border border-gray-300 touch-manipulation"
 						>
 							<div className="flex items-start justify-between mb-4">
-								<div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center group-hover:bg-indigo-200 transition-colors">
-									<Printer className="w-6 h-6 text-indigo-600" />
+								<div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center group-hover:bg-slate-200 transition-colors">
+									<Printer className="w-6 h-6 text-slate-700" />
 								</div>
 							</div>
-							<h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors">
+							<h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-slate-700 transition-colors">
 								{station.name}
 							</h3>
 							<div className="space-y-2">
@@ -129,7 +129,7 @@ export const Home = () => {
 								)}
 							</div>
 							<div className="mt-4 pt-4 border-t border-gray-200">
-								<span className="text-sm font-medium text-indigo-600 group-hover:text-indigo-700">
+								<span className="text-sm font-medium text-slate-700 group-hover:text-slate-800">
 									Submit Print Job →
 								</span>
 							</div>

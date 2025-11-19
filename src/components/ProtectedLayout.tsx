@@ -46,8 +46,8 @@ export const ProtectedLayout = () => {
       >
         <div className="flex flex-col h-full">
           {/* Drawer Header */}
-          <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200 bg-gradient-to-r from-indigo-600 to-indigo-700">
-            <h2 className="text-xl font-bold text-white">Piper Prints</h2>
+          <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200 bg-gradient-to-r from-slate-700 to-slate-800">
+            <h2 className="text-xl font-bold text-white">Print Station</h2>
             <button
               onClick={toggleDrawer}
               className="md:hidden p-1.5 text-white hover:bg-white/20 rounded-lg transition-colors"
@@ -64,22 +64,22 @@ export const ProtectedLayout = () => {
                 onClick={() => handleTabChange('home')}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-base transition-all touch-manipulation ${
                   activeTab === 'home'
-                    ? 'bg-indigo-50 text-indigo-700 shadow-sm border border-indigo-100'
+                    ? 'bg-slate-50 text-slate-700 shadow-sm border border-slate-100'
                     : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
                 }`}
               >
-                <Home className={`w-5 h-5 ${activeTab === 'home' ? 'text-indigo-600' : 'text-gray-500'}`} />
+                <Home className={`w-5 h-5 ${activeTab === 'home' ? 'text-slate-700' : 'text-gray-500'}`} />
                 <span>Home</span>
               </button>
               <button
                 onClick={() => handleTabChange('history')}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-base transition-all touch-manipulation ${
                   activeTab === 'history'
-                    ? 'bg-indigo-50 text-indigo-700 shadow-sm border border-indigo-100'
+                    ? 'bg-slate-50 text-slate-700 shadow-sm border border-slate-100'
                     : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
                 }`}
               >
-                <History className={`w-5 h-5 ${activeTab === 'history' ? 'text-indigo-600' : 'text-gray-500'}`} />
+                <History className={`w-5 h-5 ${activeTab === 'history' ? 'text-slate-700' : 'text-gray-500'}`} />
                 <span>History</span>
               </button>
             </div>
@@ -121,7 +121,7 @@ export const ProtectedLayout = () => {
                 {/* Menu Button - Only visible on mobile */}
                 <button
                   onClick={toggleDrawer}
-                  className="md:hidden p-2 text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors touch-manipulation"
+                  className="md:hidden p-2 text-gray-700 hover:text-slate-700 hover:bg-slate-50 rounded-lg transition-colors touch-manipulation"
                   aria-label="Toggle menu"
                 >
                   {drawerOpen ? (
@@ -130,8 +130,8 @@ export const ProtectedLayout = () => {
                     <Menu className="w-6 h-6" />
                   )}
                 </button>
-                <h1 className="text-xl font-bold text-indigo-600 md:hidden">
-                  Piper Prints
+                <h1 className="text-xl font-bold text-slate-700 md:hidden">
+                  Print Station
                 </h1>
                 {/* Desktop Title */}
                 <h1 className="hidden md:block text-xl font-bold text-gray-900">
@@ -144,7 +144,7 @@ export const ProtectedLayout = () => {
                 </span>
                 <button
                   onClick={handleLogout}
-                  className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors touch-manipulation"
+                  className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-slate-700 hover:bg-slate-50 rounded-lg transition-colors touch-manipulation"
                   aria-label="Logout"
                 >
                   <LogOut className="w-4 h-4 sm:mr-2" />

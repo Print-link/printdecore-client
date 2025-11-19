@@ -44,7 +44,7 @@ export const Login = () => {
 	};
 
 	return (
-		<div className="min-h-screen from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+		<div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
 			<div className="w-full max-w-md bg-white rounded-2xl p-8">
 				<div className="text-center mb-8">
 					<h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -72,7 +72,7 @@ export const Login = () => {
 								value={email}
 								onChange={(e) => setEmail(e.target.value)}
 								placeholder="Enter your email"
-								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
 								required
 							/>
 						</div>
@@ -89,7 +89,7 @@ export const Login = () => {
 								value={password}
 								onChange={(e) => setPassword(e.target.value)}
 								placeholder="Enter your password"
-								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
 								required
 							/>
 						</div>
@@ -101,7 +101,7 @@ export const Login = () => {
 						className={`w-full py-3 rounded-xl font-semibold text-white transition-all ${
 							isLoading
 								? "bg-gray-400 cursor-not-allowed"
-								: "bg-indigo-600 hover:bg-indigo-700 hover:shadow-lg"
+								: "bg-slate-700 hover:bg-slate-800 hover:shadow-lg"
 						}`}
 					>
 						{isLoading ? (
@@ -119,8 +119,8 @@ export const Login = () => {
 					<p className="text-sm text-gray-600">
 						Don't have an account?{" "}
 						<Link
-							to="/register"
-							className="text-indigo-600 font-semibold hover:text-indigo-700"
+							to="/send-otp"
+							className="text-slate-700 font-semibold hover:text-slate-800"
 						>
 							Sign up
 						</Link>

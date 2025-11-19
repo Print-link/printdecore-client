@@ -207,7 +207,7 @@ export const History = () => {
 							onClick={() => setFilter("all")}
 							className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors touch-manipulation ${
 								filter === "all"
-									? "bg-indigo-600 text-white"
+									? "bg-slate-700 text-white"
 									: "bg-gray-100 text-gray-700 hover:bg-gray-200"
 							}`}
 						>
@@ -217,7 +217,7 @@ export const History = () => {
 							onClick={() => setFilter("pending")}
 							className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors touch-manipulation ${
 								filter === "pending"
-									? "bg-indigo-600 text-white"
+									? "bg-slate-700 text-white"
 									: "bg-gray-100 text-gray-700 hover:bg-gray-200"
 							}`}
 						>
@@ -227,7 +227,7 @@ export const History = () => {
 							onClick={() => setFilter("completed")}
 							className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors touch-manipulation ${
 								filter === "completed"
-									? "bg-indigo-600 text-white"
+									? "bg-slate-700 text-white"
 									: "bg-gray-100 text-gray-700 hover:bg-gray-200"
 							}`}
 						>
@@ -237,7 +237,7 @@ export const History = () => {
 							onClick={() => setFilter("failed")}
 							className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors touch-manipulation ${
 								filter === "failed"
-									? "bg-indigo-600 text-white"
+									? "bg-slate-700 text-white"
 									: "bg-gray-100 text-gray-700 hover:bg-gray-200"
 							}`}
 						>
@@ -258,7 +258,7 @@ export const History = () => {
 
 				{isLoading ? (
 					<div className="text-center py-8 sm:py-12">
-						<div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-3 sm:mb-4"></div>
+						<div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-slate-700 border-t-transparent rounded-full animate-spin mx-auto mb-3 sm:mb-4"></div>
 						<p className="text-gray-500 text-base sm:text-lg font-medium">
 							Loading submissions...
 						</p>
@@ -284,8 +284,8 @@ export const History = () => {
 							>
 								<div className="flex items-start justify-between mb-3 sm:mb-4 gap-2">
 									<div className="flex items-start space-x-2 sm:space-x-4 flex-1 min-w-0">
-										<div className="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-100 rounded-lg flex items-center justify-center shrink-0">
-											<FileText className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600" />
+										<div className="w-10 h-10 sm:w-12 sm:h-12 bg-slate-100 rounded-lg flex items-center justify-center shrink-0">
+											<FileText className="w-5 h-5 sm:w-6 sm:h-6 text-slate-700" />
 										</div>
 										<div className="flex-1 min-w-0">
 											<div className="flex flex-col sm:flex-row sm:items-center sm:space-x-3 mb-1 sm:mb-2 gap-1 sm:gap-0">

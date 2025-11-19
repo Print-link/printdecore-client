@@ -4,6 +4,8 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { ProtectedLayout } from './components/ProtectedLayout';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
+import { SendOTP } from './pages/SendOTP';
+import { VerifyOTP } from './pages/VerifyOTP';
 import { Home } from './pages/Home';
 import { History } from './pages/History';
 import { PrintStationDetails } from './pages/PrintStationDetails';
@@ -14,7 +16,7 @@ const AppRoutes = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-slate-700 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -22,6 +24,8 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/login" element={user ? <Navigate to="/" replace /> : <Login />} />
+      <Route path="/send-otp" element={user ? <Navigate to="/" replace /> : <SendOTP />} />
+      <Route path="/verify-otp" element={user ? <Navigate to="/" replace /> : <VerifyOTP />} />
       <Route path="/register" element={user ? <Navigate to="/" replace /> : <Register />} />
       <Route
         path="/"

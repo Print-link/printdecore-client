@@ -1,45 +1,6 @@
-// API Configuration
-// Priority: 1. VITE_API_BASE_URL env variable, 2. NODE_ENV production detection, 3. Development (localhost)
-// const PRODUCTION_BASE_URL =
-// 	"https://piper-server-prototype-ts.onrender.com/api";
-// const LOCALHOST_BASE_URL = "http://localhost:3000/api";
-
-// Check if we're in production mode
-// const isProduction = (): boolean => {
-// 	if (import.meta.env.VITE_NODE_ENV) {
-// 		return import.meta.env.VITE_NODE_ENV === "production";
-// 	}
-// 	return import.meta.env.MODE === "production";
-// };
-
-// Get base URL for API requests
-// const getBaseUrl = (): string => {
-// 	if (import.meta.env.VITE_API_BASE_URL) {
-// 		return import.meta.env.VITE_API_BASE_URL;
-// 	}
-// 	return isProduction() ? PRODUCTION_BASE_URL : LOCALHOST_BASE_URL;
-// };
-
-// Get API base URL (same as base URL, kept for backward compatibility)
-// const getApiBase = (): string => {
-// 	return getBaseUrl();
-// };
+import axios from "axios";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-// Log API configuration in development mode
-// if (import.meta.env.DEV) {
-// 	console.log("🌐 API Configuration:", {
-// 		baseUrl: BASE_URL,
-// 		apiBase: getApiBase(),
-// 		nodeEnv: import.meta.env.VITE_NODE_ENV || import.meta.env.MODE,
-// 		source: import.meta.env.VITE_API_BASE_URL
-// 			? "environment variable"
-// 			: isProduction()
-// 			? "production (NODE_ENV)"
-// 			: "localhost (development)",
-// 	});
-// }
 
 export interface ApiResponse<T> {
 	success: boolean;
@@ -114,6 +75,54 @@ class ApiService {
 		}
 	}
 
+	// Get base URL without /clients for OTP endpoints
+	// private getOtpBaseUrl(): string {
+	// 	if (!BASE_URL) {
+	// 		return "http://localhost:3000/api";
+	// 	}
+	// 	// Remove /clients from the end of BASE_URL if it exists
+	// 	return BASE_URL.replace(/\/clients$/, "");
+	// }
+
+	// Unauthenticated request method for public endpoints (no token)
+	private async unauthenticatedRequest<T>(
+		endpoint: string,
+		options: RequestInit = {}
+	): Promise<ApiResponse<T>> {
+		const headers: Record<string, string> = {
+			"Content-Type": "application/json",
+			...((options.headers as Record<string, string>) || {}),
+		};
+
+		const baseUrl = BASE_URL;
+
+		try {
+			const response = await fetch(`${baseUrl}${endpoint}`, {
+				...options,
+				headers,
+			});
+
+			const data: ApiResponse<T> = await response.json();
+
+			if (!response.ok) {
+				const error = new Error(
+					data.message || data.error || "Request failed"
+				) as ApiError;
+				error.status = response.status;
+				error.statusText = response.statusText;
+				throw error;
+			}
+
+			return data;
+		} catch (error: unknown) {
+			if (error && typeof error === "object" && "status" in error) {
+				throw error;
+			}
+			console.error("API Request Error:", error);
+			throw error;
+		}
+	}
+
 	// Authentication methods
 	async register(
 		fullName: string,
@@ -160,6 +169,18 @@ class ApiService {
 		return response;
 	}
 
+	async sendOtp(email: string) {
+		// OTP endpoints don't require authentication and are at /api/otp/* not /api/clients/otp/*
+		
+		const response = await axios.post(`${BASE_URL}/otp/send-otp`, { email });
+		return response.data;
+	}
+
+	async verifyOtp(email: string, otp: string) {
+		// OTP endpoints don't require authentication and are at /api/otp/* not /api/clients/otp/*
+		const response = await axios.post(`${BASE_URL}/otp/verify-otp`, { email, otp });
+		return response.data;
+	}
 	async getProfile() {
 		const response = await this.request<{
 			client: {

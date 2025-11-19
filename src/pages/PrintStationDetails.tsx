@@ -275,7 +275,7 @@ export const PrintStationDetails = () => {
 		return (
 			<div className="w-full max-w-3xl mx-auto bg-white rounded-2xl p-8">
 				<div className="flex items-center justify-center py-12">
-					<div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+					<div className="w-8 h-8 border-4 border-slate-700 border-t-transparent rounded-full animate-spin"></div>
 				</div>
 			</div>
 		);
@@ -294,7 +294,7 @@ export const PrintStationDetails = () => {
 					</p>
 					<button
 						onClick={() => navigate("/")}
-						className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+						className="inline-flex items-center px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-800 transition-colors"
 					>
 						<ArrowLeft className="w-4 h-4 mr-2" />
 						Back to Home
@@ -309,14 +309,14 @@ export const PrintStationDetails = () => {
 			{/* Back Button */}
 			<button
 				onClick={() => navigate("/")}
-				className="mb-4 sm:mb-6 flex items-center text-sm text-gray-600 hover:text-indigo-600 transition-colors"
+				className="mb-4 sm:mb-6 flex items-center text-sm text-gray-600 hover:text-slate-700 transition-colors"
 			>
 				<ArrowLeft className="w-4 h-4 mr-2" />
 				Back to Print Stations
 			</button>
 
 			{/* Print Station Info */}
-			<div className="mb-6 sm:mb-8 p-4 bg-indigo-50 rounded-xl border border-indigo-100">
+			<div className="mb-6 sm:mb-8 p-4 bg-slate-50 rounded-xl border border-slate-100">
 				<h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
 					{printStation.name}
 				</h2>
@@ -332,8 +332,8 @@ export const PrintStationDetails = () => {
 			</div>
 
 			<div className="text-center mb-6 sm:mb-8">
-				<div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-indigo-100 rounded-full mb-3 sm:mb-4">
-					<Printer className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-600" />
+				<div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-slate-100 rounded-full mb-3 sm:mb-4">
+					<Printer className="w-6 h-6 sm:w-8 sm:h-8 text-slate-700" />
 				</div>
 				<h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
 					Print Job Order Form
@@ -352,7 +352,7 @@ export const PrintStationDetails = () => {
 					<div
 						className={`relative border-2 border-dashed rounded-xl p-4 sm:p-6 transition-all ${
 							dragActive
-								? "border-indigo-500 bg-indigo-50"
+								? "border-slate-500 bg-slate-50"
 								: "border-gray-300 bg-gray-50"
 						}`}
 						onDragEnter={handleDrag}
@@ -367,7 +367,7 @@ export const PrintStationDetails = () => {
 									Drag and drop your file here
 								</p>
 								<p className="text-xs text-gray-500 mb-2 sm:mb-3">or</p>
-								<label className="inline-flex items-center px-4 py-2.5 sm:py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold cursor-pointer hover:bg-indigo-700 transition-colors touch-manipulation">
+								<label className="inline-flex items-center px-4 py-2.5 sm:py-2 bg-slate-700 text-white rounded-lg text-sm font-semibold cursor-pointer hover:bg-slate-800 transition-colors touch-manipulation">
 									<Upload className="w-4 h-4 mr-2" />
 									Browse Files
 									<input
@@ -426,7 +426,7 @@ export const PrintStationDetails = () => {
 								value={orderDetails.artwork}
 								onChange={handleInputChange}
 								placeholder="e.g., Shell power to grow"
-								className="w-full px-3 py-2.5 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+								className="w-full px-3 py-2.5 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
 								required
 							/>
 						</div>
@@ -442,7 +442,7 @@ export const PrintStationDetails = () => {
 									value={orderDetails.width}
 									onChange={handleInputChange}
 									placeholder="e.g., 9x6m"
-									className="w-full px-3 py-2.5 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+									className="w-full px-3 py-2.5 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
 									required
 								/>
 							</div>
@@ -456,7 +456,7 @@ export const PrintStationDetails = () => {
 									value={orderDetails.height}
 									onChange={handleInputChange}
 									placeholder="e.g., 6m"
-									className="w-full px-3 py-2.5 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+									className="w-full px-3 py-2.5 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
 									required
 								/>
 							</div>
@@ -472,7 +472,7 @@ export const PrintStationDetails = () => {
 								value={orderDetails.quantity}
 								onChange={handleInputChange}
 								min="1"
-								className="w-full px-3 py-2.5 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+								className="w-full px-3 py-2.5 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
 								required
 							/>
 						</div>
@@ -487,7 +487,7 @@ export const PrintStationDetails = () => {
 								value={orderDetails.location}
 								onChange={handleInputChange}
 								placeholder="e.g., T-Havannah 1, Accra Marriott"
-								className="w-full px-3 py-2.5 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+								className="w-full px-3 py-2.5 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
 								required
 							/>
 						</div>
@@ -502,7 +502,7 @@ export const PrintStationDetails = () => {
 								onChange={handleInputChange}
 								placeholder="Add any additional notes or specifications..."
 								rows={3}
-								className="w-full px-3 py-2.5 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+								className="w-full px-3 py-2.5 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent resize-none"
 							/>
 						</div>
 					</div>
@@ -536,7 +536,7 @@ export const PrintStationDetails = () => {
 				className={`w-full mt-4 sm:mt-6 py-3.5 sm:py-4 rounded-xl font-semibold text-white transition-all flex items-center justify-center text-sm sm:text-base touch-manipulation ${
 					uploading || !isFormValid()
 						? "bg-gray-400 cursor-not-allowed"
-						: "bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800"
+						: "bg-slate-700 hover:bg-slate-800 active:bg-slate-900"
 				}`}
 			>
 				{uploading ? (
