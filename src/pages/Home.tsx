@@ -9,6 +9,7 @@ import {
 	Search,
 	X,
 	Navigation,
+	ExternalLink,
 } from "lucide-react";
 import { apiService } from "../services/api";
 
@@ -168,6 +169,28 @@ export const Home = () => {
 		navigate(`/print-station/${stationId}`);
 	};
 
+	const handleGetDirections = (e: React.MouseEvent, station: PrintStation) => {
+		e.stopPropagation(); // Prevent card click
+
+		if (!station.location?.latitude || !station.location?.longitude) {
+			alert("Location information not available for this station");
+			return;
+		}
+
+		const destination = `${station.location.latitude},${station.location.longitude}`;
+
+		// If user location is available, use it as origin
+		if (userLocation) {
+			const origin = `${userLocation.latitude},${userLocation.longitude}`;
+			const url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}`;
+			window.open(url, "_blank");
+		} else {
+			// If no user location, Google Maps will prompt for current location
+			const url = `https://www.google.com/maps/dir/?api=1&destination=${destination}`;
+			window.open(url, "_blank");
+		}
+	};
+
 	// Filter print stations based on search query
 	const filteredStations = useMemo(() => {
 		if (!searchQuery.trim()) {
@@ -300,49 +323,69 @@ export const Home = () => {
 			) : (
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
 					{filteredStations.map((station) => (
-						<button
+						<div
 							key={station._id || station.id}
-							onClick={() =>
-								handleStationClick(station._id || station.id || "")
-							}
-							className="bg-white rounded-xl p-6 hover:shadow-xl transition-all text-left group border border-gray-300 touch-manipulation"
+							className="bg-white rounded-xl p-6 hover:shadow-xl transition-all border border-gray-300 group"
 						>
-							<div className="flex items-start justify-between mb-4">
-								<div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center group-hover:bg-slate-200 transition-colors">
-									<Printer className="w-6 h-6 text-slate-700" />
+							<button
+								onClick={() =>
+									handleStationClick(station._id || station.id || "")
+								}
+								className="w-full text-left touch-manipulation"
+							>
+								<div className="flex items-start justify-between mb-4">
+									<div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center group-hover:bg-slate-200 transition-colors">
+										<Printer className="w-6 h-6 text-slate-700" />
+									</div>
 								</div>
-							</div>
-							<h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-slate-700 transition-colors">
-								{station.name}
-							</h3>
-							<div className="space-y-2">
-								{station.email && (
-									<div className="flex items-center text-sm text-gray-600">
-										<Mail className="w-4 h-4 mr-2 text-gray-400" />
-										<span className="truncate">{station.email}</span>
-									</div>
-								)}
-								{station.location?.address && (
-									<div className="flex items-start text-sm text-gray-600">
-										<MapPin className="w-4 h-4 mr-2 text-gray-400 mt-0.5 shrink-0" />
-										<span className="line-clamp-2">
-											{station.location.address}
-										</span>
-									</div>
-								)}
-								{station.distance !== undefined && (
-									<div className="flex items-center text-sm font-medium text-indigo-600">
-										<Navigation className="w-4 h-4 mr-2" />
-										<span>{station.distance} km away</span>
-									</div>
-								)}
-							</div>
-							<div className="mt-4 pt-4 border-t border-gray-200">
-								<span className="text-sm font-medium text-slate-700 group-hover:text-slate-800">
+								<h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-slate-700 transition-colors">
+									{station.name}
+								</h3>
+								<div className="space-y-2">
+									{station.email && (
+										<div className="flex items-center text-sm text-gray-600">
+											<Mail className="w-4 h-4 mr-2 text-gray-400" />
+											<span className="truncate">{station.email}</span>
+										</div>
+									)}
+									{station.location?.address && (
+										<div className="flex items-start text-sm text-gray-600">
+											<MapPin className="w-4 h-4 mr-2 text-gray-400 mt-0.5 shrink-0" />
+											<span className="line-clamp-2">
+												{station.location.address}
+											</span>
+										</div>
+									)}
+									{station.distance !== undefined && (
+										<div className="flex items-center text-sm font-medium text-indigo-600">
+											<Navigation className="w-4 h-4 mr-2" />
+											<span>{station.distance} km away</span>
+										</div>
+									)}
+								</div>
+							</button>
+							<div className="mt-4 pt-4 border-t border-gray-200 flex items-center justify-between gap-2">
+								<button
+									onClick={() =>
+										handleStationClick(station._id || station.id || "")
+									}
+									className="flex-1 text-sm font-medium text-slate-700 hover:text-slate-800 transition-colors touch-manipulation"
+								>
 									Submit Print Job →
-								</span>
+								</button>
+								{station.location?.latitude && station.location?.longitude && (
+									<button
+										onClick={(e) => handleGetDirections(e, station)}
+										className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition-colors touch-manipulation"
+										title="Get directions on Google Maps"
+									>
+										<MapPin className="w-4 h-4" />
+										<span className="hidden sm:inline">Directions</span>
+										<ExternalLink className="w-3 h-3" />
+									</button>
+								)}
 							</div>
-						</button>
+						</div>
 					))}
 				</div>
 			)}
