@@ -171,14 +171,17 @@ class ApiService {
 
 	async sendOtp(email: string) {
 		// OTP endpoints don't require authentication and are at /api/otp/* not /api/clients/otp/*
-		
+
 		const response = await axios.post(`${BASE_URL}/otp/send-otp`, { email });
 		return response.data;
 	}
 
 	async verifyOtp(email: string, otp: string) {
 		// OTP endpoints don't require authentication and are at /api/otp/* not /api/clients/otp/*
-		const response = await axios.post(`${BASE_URL}/otp/verify-otp`, { email, otp });
+		const response = await axios.post(`${BASE_URL}/otp/verify-otp`, {
+			email,
+			otp,
+		});
 		return response.data;
 	}
 	async getProfile() {
@@ -282,7 +285,23 @@ class ApiService {
 		}
 	}
 
-	async getAllPrintStations() {
+	async getAllPrintStations(
+		latitude?: number,
+		longitude?: number,
+		maxDistance?: number
+	) {
+		let endpoint = "/clients/get-print-stations";
+		const params = new URLSearchParams();
+
+		if (latitude !== undefined && longitude !== undefined) {
+			params.append("latitude", latitude.toString());
+			params.append("longitude", longitude.toString());
+			if (maxDistance !== undefined) {
+				params.append("maxDistance", maxDistance.toString());
+			}
+			endpoint += `?${params.toString()}`;
+		}
+
 		const response = await this.request<{
 			printStations: {
 				_id: string;
@@ -294,6 +313,7 @@ class ApiService {
 					longitude: number;
 					address: string;
 				};
+				distance?: number;
 				profile?: {
 					id: string;
 					email: string;
@@ -302,7 +322,11 @@ class ApiService {
 				createdAt?: string;
 				updatedAt?: string;
 			}[];
-		}>("/clients/get-print-stations", {
+			userLocation?: {
+				latitude: number;
+				longitude: number;
+			};
+		}>(endpoint, {
 			method: "GET",
 		});
 		return response;
