@@ -242,20 +242,16 @@ export const Home = () => {
 			{/* Location Status */}
 			{locationError && (
 				<div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-					<div className="flex items-start justify-between">
-						<div className="flex-1">
-							<p className="text-sm text-yellow-800 mb-2">{locationError}</p>
-							{locationPermission === "denied" && (
-								<button
-									onClick={requestLocation}
-									className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-yellow-800 bg-yellow-100 hover:bg-yellow-200 rounded-md transition-colors"
-								>
-									<Navigation className="w-4 h-4 mr-2" />
-									Enable Location
-								</button>
-							)}
-						</div>
-					</div>
+					<p className="text-sm text-yellow-800 mb-3">{locationError}</p>
+					{locationPermission === "denied" && (
+						<button
+							onClick={requestLocation}
+							className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium text-yellow-900 bg-yellow-200 hover:bg-yellow-300 rounded-lg transition-colors touch-manipulation shadow-sm"
+						>
+							<Navigation className="w-4 h-4 mr-2" />
+							Enable Location
+						</button>
+					)}
 				</div>
 			)}
 			{locationPermission === "prompt" && !userLocation && !locationError && (
@@ -357,33 +353,48 @@ export const Home = () => {
 										</div>
 									)}
 									{station.distance !== undefined && (
-										<div className="flex items-center text-sm font-medium text-indigo-600">
+										<div
+											className={`flex items-center text-sm font-medium ${
+												station.distance > 50
+													? "text-red-600"
+													: station.distance > 25
+													? "text-orange-600"
+													: "text-indigo-600"
+											}`}
+										>
 											<Navigation className="w-4 h-4 mr-2" />
-											<span>{station.distance} km away</span>
+											<span>
+												{station.distance > 50
+													? "Too far away"
+													: `${station.distance} km away`}
+											</span>
 										</div>
 									)}
 								</div>
 							</button>
-							<div className="mt-4 pt-4 border-t border-gray-200 flex items-center justify-between gap-2">
-								<button
-									onClick={() =>
-										handleStationClick(station._id || station.id || "")
-									}
-									className="flex-1 text-sm font-medium text-slate-700 hover:text-slate-800 transition-colors touch-manipulation"
-								>
-									Submit Print Job →
-								</button>
-								{station.location?.latitude && station.location?.longitude && (
+							<div className="mt-4 pt-4 border-t border-gray-200">
+								<div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
 									<button
-										onClick={(e) => handleGetDirections(e, station)}
-										className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition-colors touch-manipulation"
-										title="Get directions on Google Maps"
+										onClick={() =>
+											handleStationClick(station._id || station.id || "")
+										}
+										className="flex-1 text-sm font-medium text-slate-700 hover:text-slate-800 transition-colors touch-manipulation py-2 text-center"
 									>
-										<MapPin className="w-4 h-4" />
-										<span className="hidden sm:inline">Directions</span>
-										<ExternalLink className="w-3 h-3" />
+										Submit Print Job →
 									</button>
-								)}
+									{station.location?.latitude &&
+										station.location?.longitude && (
+											<button
+												onClick={(e) => handleGetDirections(e, station)}
+												className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-4 py-2 text-sm font-medium text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition-colors touch-manipulation border border-indigo-200 sm:border-0"
+												title="Get directions on Google Maps"
+											>
+												<MapPin className="w-4 h-4" />
+												<span>Directions</span>
+												<ExternalLink className="w-3 h-3" />
+											</button>
+										)}
+								</div>
 							</div>
 						</div>
 					))}
