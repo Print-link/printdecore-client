@@ -77,12 +77,12 @@ export const PrintStationCard = ({
 					{/* Action Buttons */}
 					<div className="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-gray-200">
 						<div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3">
-							<button
+							{/* <button
 								onClick={() => onStationClick(stationId)}
 								className="w-full md:flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs md:text-sm rounded-lg transition-all touch-manipulation py-2.5 text-center shadow-sm hover:shadow-md"
 							>
 								Submit Print Job →
-							</button>
+							</button> */}
 							{station.location?.latitude && station.location?.longitude && (
 								<button
 									onClick={(e) => onGetDirections(e, station)}

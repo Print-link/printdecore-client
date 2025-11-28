@@ -9,6 +9,7 @@ import { VerifyOTP } from './pages/VerifyOTP';
 import { Home } from './pages/Home';
 import { History } from './pages/History';
 import { PrintStationDetails } from './pages/PrintStationDetails';
+import { Categories } from './pages/Categories';
 
 const AppRoutes = () => {
   const { user, isLoading } = useAuth();
@@ -37,6 +38,7 @@ const AppRoutes = () => {
       >
         <Route index element={<Home />} />
         <Route path="history" element={<History />} />
+        <Route path="categories/:id" element={<Categories />} />
         <Route path="print-station/:id" element={<PrintStationDetails />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

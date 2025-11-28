@@ -1,9 +1,19 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Upload, FileText, Printer, X, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
-import { apiService } from '../services/api';
-import { useAuth } from '../contexts/AuthContext';
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import {
+	Upload,
+	FileText,
+	Printer,
+	X,
+	CheckCircle,
+	AlertCircle,
+	ArrowLeft,
+} from "lucide-react";
+import { apiService } from "../services/api";
+import { useAuth } from "../contexts/AuthContext";
 import { toast } from "react-toastify";
+import { bussinessCategoryService } from "../services/bussinessCategoryService";
+import type { Category } from "../types/category";
 
 interface UploadStatus {
 	type: "success" | "error";
@@ -33,12 +43,16 @@ interface PrintStation {
 
 export const PrintStationDetails = () => {
 	const { id } = useParams<{ id: string }>();
+	const [searchParams] = useSearchParams();
 	const navigate = useNavigate();
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 	const [uploading, setUploading] = useState<boolean>(false);
 	const [uploadStatus, setUploadStatus] = useState<UploadStatus | null>(null);
 	const [dragActive, setDragActive] = useState<boolean>(false);
 	const [printStation, setPrintStation] = useState<PrintStation | null>(null);
+	const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+		null
+	);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [orderDetails, setOrderDetails] = useState<OrderDetails>({
 		artwork: "",
@@ -80,10 +94,29 @@ export const PrintStationDetails = () => {
 			}
 		};
 
+		const fetchSelectedCategory = async (categoryId: string) => {
+			try {
+				const response = await bussinessCategoryService.getCategoryById(
+					categoryId
+				);
+				if (response.success && response.data) {
+					setSelectedCategory(response.data);
+				}
+			} catch (error) {
+				console.error("Error fetching category:", error);
+			}
+		};
+
 		if (id) {
 			fetchPrintStation();
+
+			// Fetch selected category if provided in query params
+			const categoryId = searchParams.get("category");
+			if (categoryId) {
+				fetchSelectedCategory(categoryId);
+			}
 		}
-	}, [id]);
+	}, [id, searchParams]);
 
 	const handleDrag = (e: React.DragEvent<HTMLDivElement>): void => {
 		e.preventDefault();
@@ -220,6 +253,14 @@ export const PrintStationDetails = () => {
 				formData.append("printStationId", id);
 			}
 
+			// Append category ID if selected
+			if (selectedCategory) {
+				formData.append(
+					"categoryId",
+					selectedCategory._id || selectedCategory.id
+				);
+			}
+
 			// Make the actual API call using authenticated service
 			// Use the user ID for the client endpoint
 			const data = await apiService.uploadFile(
@@ -265,6 +306,8 @@ export const PrintStationDetails = () => {
 		setUploadStatus(null);
 	};
 
+	console.log("printStation", printStation);
+
 	const formatFileSize = (bytes: number) => {
 		if (bytes < 1024) return bytes + " B";
 		if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
@@ -283,7 +326,7 @@ export const PrintStationDetails = () => {
 
 	if (!printStation) {
 		return (
-			<div className="w-full max-w-3xl mx-auto bg-white rounded-2xl shadow-xl p-8">
+			<div className="w-full max-w-3xl bg-white p-8">
 				<div className="text-center py-12">
 					<AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
 					<h2 className="text-xl font-semibold text-gray-900 mb-2">
@@ -305,7 +348,7 @@ export const PrintStationDetails = () => {
 	}
 
 	return (
-		<div className="w-full max-w-3xl mx-auto bg-white rounded-2xl border border-gray-300 p-4 sm:p-6 lg:p-8">
+		<div className="w-full max-w-3xl bg-white p-4 lg:p-8">
 			{/* Back Button */}
 			<button
 				onClick={() => navigate("/")}
@@ -323,6 +366,16 @@ export const PrintStationDetails = () => {
 				<p className="text-sm text-gray-600 mb-1">
 					<span className="font-medium">Email:</span> {printStation.email}
 				</p>
+				{selectedCategory && (
+					<div className="mt-3 p-3 bg-indigo-50 rounded-lg border border-indigo-200">
+						<p className="text-sm font-medium text-indigo-900 mb-1">
+							Selected Category: {selectedCategory.name}
+						</p>
+						<p className="text-xs text-indigo-700">
+							Price: GHS{selectedCategory.unitPrice.toFixed(2)} per unit
+						</p>
+					</div>
+				)}
 				{printStation.location?.address && (
 					<p className="text-sm text-gray-600">
 						<span className="font-medium">Location:</span>{" "}

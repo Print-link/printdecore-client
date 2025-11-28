@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios';
 import type { ApiError } from "./api";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+export const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export interface OrderResponse {
 	success: boolean;

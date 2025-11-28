@@ -29,7 +29,7 @@ export const Home = () => {
 	);
 
 	const handleStationClick = (stationId: string) => {
-		navigate(`/print-station/${stationId}`);
+		navigate(`/categories/${stationId}`);
 	};
 
 	const handleGetDirections = (e: React.MouseEvent, station: PrintStation) => {
