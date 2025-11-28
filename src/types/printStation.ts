@@ -3,15 +3,22 @@ export interface PrintStation {
 	id?: string;
 	name: string;
 	email: string;
-	businessName: string;
-	businessPhone: string;
-	businessCoverImage: string;
+	businessName?: string;
+	businessPhone?: string;
+	businessCoverImage?: string;
 	location?: {
 		latitude: number;
 		longitude: number;
 		address: string;
 	};
 	distance?: number;
+	profile?: {
+		id: string;
+		email: string;
+		name: string;
+	};
+	createdAt?: string;
+	updatedAt?: string;
 }
 
 export interface UserLocation {
