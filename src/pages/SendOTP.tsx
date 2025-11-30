@@ -26,10 +26,15 @@ export const SendOTP = () => {
 				// Navigate to verify OTP page with email
 				navigate('/verify-otp', { state: { email: email.trim() } });
 			} else {
-				setError(response.message || 'Failed to send OTP. Please try again.');
+				setError(
+					response.data?.message || "Failed to send OTP. Please try again."
+				);
 			}
-		} catch (err: any) {
-			setError(err.message || 'An error occurred. Please try again.');
+		} catch (err: unknown) {
+			const errorMessage =
+				(err as { response?: { data?: { message?: string } } })?.response?.data
+					?.message || 'An error occurred. Please try again.';
+			setError(errorMessage);
 		} finally {
 			setIsLoading(false);
 		}

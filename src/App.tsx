@@ -10,6 +10,7 @@ import { Home } from './pages/Home';
 import { History } from './pages/History';
 import { PrintStationDetails } from './pages/PrintStationDetails';
 import { Categories } from './pages/Categories';
+import { OrderDetails } from './pages/OrderDetails';
 
 const AppRoutes = () => {
   const { user, isLoading } = useAuth();
@@ -38,6 +39,7 @@ const AppRoutes = () => {
       >
         <Route index element={<Home />} />
         <Route path="history" element={<History />} />
+        <Route path="order/:id" element={<OrderDetails />} />
         <Route path="categories/:id" element={<Categories />} />
         <Route path="print-station/:id" element={<PrintStationDetails />} />
       </Route>

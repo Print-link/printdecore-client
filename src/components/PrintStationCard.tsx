@@ -23,13 +23,13 @@ export const PrintStationCard = ({
 				<div className="shrink-0 md:w-full">
 					{station.businessCoverImage ? (
 						<img
-							className="w-24 h-24 md:w-full md:h-48 object-cover"
+							className="w-32 h-32 sm:w-36 sm:h-36 md:w-full md:h-48 object-cover"
 							src={station.businessCoverImage}
 							alt={station.businessName || station.name}
 						/>
 					) : (
-						<div className="w-24 h-24 md:w-full md:h-48 bg-slate-100 flex items-center justify-center group-hover:bg-slate-200 transition-colors">
-							<Printer className="w-8 h-8 md:w-12 md:h-12 text-slate-700" />
+						<div className="w-32 h-32 sm:w-36 sm:h-36 md:w-full md:h-48 bg-slate-100 flex items-center justify-center group-hover:bg-slate-200 transition-colors">
+							<Printer className="w-10 h-10 sm:w-12 sm:h-12 md:w-12 md:h-12 text-slate-700" />
 						</div>
 					)}
 				</div>

@@ -1,19 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
-import {
-	Upload,
-	FileText,
-	Printer,
-	X,
-	CheckCircle,
-	AlertCircle,
-	ArrowLeft,
-} from "lucide-react";
-import { apiService } from "../services/api";
+import { Printer, CheckCircle, AlertCircle, ArrowLeft } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { toast } from "react-toastify";
 import { bussinessCategoryService } from "../services/bussinessCategoryService";
+import { apiService } from "../services/api";
 import type { Category } from "../types/category";
+import {
+	submitResultsChecker,
+	submitFormatPrintJob,
+	submitRegularPrintJob,
+} from "../services/printJobApi";
+import { ResultsCheckerForm } from "../components/forms/ResultsCheckerForm";
+import { FormatPrintForm } from "../components/forms/FormatPrintForm";
+import { RegularPrintForm } from "../components/forms/RegularPrintForm";
+import { countPdfPages, calculateRegularFormatPrice } from "../utils/pdfUtils";
 
 interface UploadStatus {
 	type: "success" | "error";
@@ -27,6 +28,12 @@ interface OrderDetails {
 	quantity: string;
 	location: string;
 	description: string;
+}
+
+interface ResultsCheckerForm {
+	indexNumber: string;
+	yearOfCompletion: string;
+	dateOfBirth?: string; // Only for novdec_result
 }
 
 interface PrintStation {
@@ -62,8 +69,29 @@ export const PrintStationDetails = () => {
 		location: "",
 		description: "",
 	});
+	const [resultsCheckerForm, setResultsCheckerForm] =
+		useState<ResultsCheckerForm>({
+			indexNumber: "",
+			yearOfCompletion: "",
+			dateOfBirth: "",
+		});
+	const [numberOfCopies, setNumberOfCopies] = useState<string>("1");
+	const [pdfPageCount, setPdfPageCount] = useState<number | undefined>(undefined);
 
 	const { user } = useAuth();
+
+	// Determine category type
+	const categoryType = selectedCategory?.categoryType;
+	const isResultsChecker =
+		categoryType === "wassce_result" ||
+		categoryType === "bece_result" ||
+		categoryType === "novdec_result";
+	const isNovDecResult = categoryType === "novdec_result";
+	const isBeceOrWassceResult =
+		categoryType === "bece_result" || categoryType === "wassce_result";
+	const isLargeFormat = categoryType === "large_format";
+	const isRegularFormat = categoryType === "regular_format";
+	const isFormatCategory = isLargeFormat || isRegularFormat;
 
 	useEffect(() => {
 		const fetchPrintStation = async () => {
@@ -71,7 +99,7 @@ export const PrintStationDetails = () => {
 				const response = await apiService.getAllPrintStations();
 				if (response.success && response.data?.printStations) {
 					const station = response.data.printStations.find(
-						(station) => station._id === id || station.id === id
+						(station: PrintStation) => station._id === id || station.id === id
 					);
 					if (station) {
 						setPrintStation(station);
@@ -118,6 +146,80 @@ export const PrintStationDetails = () => {
 		}
 	}, [id, searchParams]);
 
+	// Clear file-related errors when switching to results checker forms (which don't require files)
+	useEffect(() => {
+		if (isResultsChecker && uploadStatus?.type === "error") {
+			// Clear any file-related error messages for results checker forms
+			const fileRelatedMessages = [
+				"no file",
+				"file uploaded",
+				"please upload",
+				"upload a file",
+			];
+			const message = uploadStatus.message.toLowerCase();
+			const isFileRelatedError = fileRelatedMessages.some((msg) =>
+				message.includes(msg)
+			);
+			if (isFileRelatedError) {
+				setUploadStatus(null);
+			}
+		}
+	}, [isResultsChecker, uploadStatus]);
+
+	// Count PDF pages when file is selected for regular_format
+	useEffect(() => {
+		const countPages = async () => {
+			if (
+				selectedFile &&
+				isRegularFormat &&
+				(selectedFile.type === "application/pdf" || selectedFile.name.toLowerCase().endsWith(".pdf"))
+			) {
+				try {
+					const pages = await countPdfPages(selectedFile);
+					setPdfPageCount(pages);
+					setUploadStatus(null); // Clear any previous errors
+				} catch (error) {
+					console.error("Error counting PDF pages:", error);
+					setPdfPageCount(undefined);
+					setUploadStatus({
+						type: "error",
+						message: "Failed to read PDF file. Please ensure it's a valid PDF and try again.",
+					});
+				}
+			} else {
+				setPdfPageCount(undefined);
+			}
+		};
+
+		countPages();
+	}, [selectedFile, isRegularFormat]);
+
+	// Calculate total price for regular_format
+	const totalPrice = (() => {
+		if (
+			!isRegularFormat ||
+			!selectedCategory?.regularFormatProperties ||
+			!pdfPageCount ||
+			!numberOfCopies
+		) {
+			return undefined;
+		}
+
+		const copies = parseInt(numberOfCopies, 10);
+		if (isNaN(copies) || copies < 1) {
+			return undefined;
+		}
+
+		return calculateRegularFormatPrice(
+			pdfPageCount,
+			selectedCategory.regularFormatProperties,
+			selectedCategory.unitPrice,
+			copies
+		);
+	})();
+
+	console.log("selectedCategory ------ ", selectedCategory);
+
 	const handleDrag = (e: React.DragEvent<HTMLDivElement>): void => {
 		e.preventDefault();
 		e.stopPropagation();
@@ -134,102 +236,228 @@ export const PrintStationDetails = () => {
 		setDragActive(false);
 
 		if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-			const file = e.dataTransfer.files[0];
-			const allowedExtensions = [
-				".pdf",
-				".png",
-				".jpg",
-				".jpeg",
-				".doc",
-				".docx",
-				".xls",
-				".xlsx",
-				".ppt",
-				".pptx",
-			];
-			const fileName = file.name.toLowerCase();
-			const isAllowed = allowedExtensions.some((ext) => fileName.endsWith(ext));
-
-			if (isAllowed) {
-				setSelectedFile(file);
-				setUploadStatus(null);
-			} else {
-				setUploadStatus({
-					type: "error",
-					message: "Please upload a valid file (PDF, Image, or Document)",
-				});
-			}
+			validateAndSetFile(e.dataTransfer.files[0]);
 		}
 	};
 
-	const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>): void => {
-		if (e.target.files && e.target.files[0]) {
-			const file = e.target.files[0];
-			const allowedExtensions = [
-				".pdf",
-				".png",
-				".jpg",
-				".jpeg",
-				".doc",
-				".docx",
-				".xls",
-				".xlsx",
-				".ppt",
-				".pptx",
-			];
-			const fileName = file.name.toLowerCase();
-			const isAllowed = allowedExtensions.some((ext) => fileName.endsWith(ext));
+	// File validation helper
+	const validateAndSetFile = (file: File) => {
+		// For regular_format, only allow PDF files
+		const isRegularFormatCategory = selectedCategory?.categoryType === "regular_format";
+		
+		const allowedExtensions = isRegularFormatCategory
+			? [".pdf"]
+			: [
+					".pdf",
+					".png",
+					".jpg",
+					".jpeg",
+					".doc",
+					".docx",
+					".xls",
+					".xlsx",
+					".ppt",
+					".pptx",
+			  ];
+		
+		const fileName = file.name.toLowerCase();
+		const isAllowed = allowedExtensions.some((ext) => fileName.endsWith(ext));
 
-			if (isAllowed) {
-				setSelectedFile(file);
-				setUploadStatus(null);
-			} else {
-				setUploadStatus({
-					type: "error",
-					message: "Please upload a valid file (PDF, Image, or Document)",
-				});
-			}
+		if (isAllowed) {
+			setSelectedFile(file);
+			setUploadStatus(null);
+		} else {
+			const errorMessage = isRegularFormatCategory
+				? "Please upload a PDF file only"
+				: "Please upload a valid file (PDF, Image, or Document)";
+			setUploadStatus({
+				type: "error",
+				message: errorMessage,
+			});
 		}
-	};
-
-	const handleInputChange = (
-		e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-	) => {
-		const { name, value } = e.target;
-		setOrderDetails((prev) => ({
-			...prev,
-			[name]: value,
-		}));
 	};
 
 	const isFormValid = () => {
-		return (
-			selectedFile &&
-			orderDetails.artwork &&
-			orderDetails.width &&
-			orderDetails.height &&
-			orderDetails.quantity &&
-			orderDetails.location
-		);
+		// Category is required for all print jobs
+		if (!selectedCategory) {
+			return false;
+		}
+
+		if (isResultsChecker) {
+			// Validation for results checker forms
+			if (isNovDecResult) {
+				return (
+					resultsCheckerForm.indexNumber &&
+					resultsCheckerForm.yearOfCompletion &&
+					resultsCheckerForm.dateOfBirth
+				);
+			} else if (isBeceOrWassceResult) {
+				return (
+					resultsCheckerForm.indexNumber && resultsCheckerForm.yearOfCompletion
+				);
+			}
+			return false;
+		} else if (isFormatCategory) {
+			// Validation for format categories
+			if (isLargeFormat) {
+				return (
+					selectedFile &&
+					orderDetails.width &&
+					orderDetails.height &&
+					numberOfCopies
+				);
+			} else if (isRegularFormat) {
+				return selectedFile && numberOfCopies;
+			}
+			return false;
+		} else {
+			// Validation for regular print job form
+			return (
+				selectedFile &&
+				orderDetails.artwork &&
+				orderDetails.width &&
+				orderDetails.height &&
+				orderDetails.quantity &&
+				orderDetails.location
+			);
+		}
 	};
 
-	const handleUpload = async () => {
-		if (!selectedFile || !isFormValid() || !id) return;
+	// Handler for results checker form submission
+	const handleResultsCheckerSubmit = async (data: {
+		indexNumber: string;
+		yearOfCompletion: string;
+		dateOfBirth?: string;
+	}) => {
+		if (!selectedCategory || !id || !user?._id) return;
+
+		setUploading(true);
+		setUploadStatus(null);
+
+		try {
+			const response = await submitResultsChecker({
+				categoryId: selectedCategory._id || selectedCategory.id,
+				adminId: id,
+				indexNumber: data.indexNumber.trim(),
+				yearOfCompletion: data.yearOfCompletion.trim(),
+				dateOfBirth: data.dateOfBirth?.trim(),
+				categoryType: selectedCategory.categoryType || "",
+				clientId: user._id,
+			});
+
+			toast.success(response.message || "Request submitted successfully!");
+			setUploadStatus({
+				type: "success",
+				message: response.message || "Request submitted successfully!",
+			});
+
+			// Reset form after delay
+			setTimeout(() => {
+				setResultsCheckerForm({
+					indexNumber: "",
+					yearOfCompletion: "",
+					dateOfBirth: "",
+				});
+				setUploadStatus(null);
+			}, 3000);
+		} catch (error: unknown) {
+			console.error("Submission Error:", error);
+			const errorMessage =
+				error instanceof Error
+					? error.message
+					: "Failed to submit request. Please try again.";
+			setUploadStatus({ type: "error", message: errorMessage });
+		} finally {
+			setUploading(false);
+		}
+	};
+
+	// Handler for format category submission
+	const handleFormatSubmit = async () => {
+		if (
+			!isFormValid() ||
+			!id ||
+			!user?._id ||
+			!selectedFile ||
+			!selectedCategory
+		)
+			return;
 
 		setUploading(true);
 		setUploadStatus(null);
 
 		try {
 			const formData = new FormData();
-
-			// Append file with the correct field name expected by multer
 			formData.append("pdfFile", selectedFile);
+			formData.append(
+				"categoryId",
+				selectedCategory._id || selectedCategory.id
+			);
+			formData.append("adminId", id);
+			formData.append("categoryType", selectedCategory.categoryType || "");
+			formData.append("quantity", numberOfCopies);
 
-			// Append all required job order fields
+			if (isLargeFormat) {
+				formData.append("width", orderDetails.width.trim());
+				formData.append("height", orderDetails.height.trim());
+				formData.append(
+					"size",
+					`${orderDetails.width.trim()} x ${orderDetails.height.trim()}`
+				);
+			}
+
+			const response = await submitFormatPrintJob(formData, user._id);
+
+			toast.success(response.message || "Print order submitted successfully!");
+			setUploadStatus({
+				type: "success",
+				message: response.message || "Print order submitted successfully!",
+			});
+
+			// Reset after delay
+			setTimeout(() => {
+				setSelectedFile(null);
+				setOrderDetails((prev) => ({ ...prev, width: "", height: "" }));
+				setNumberOfCopies("1");
+				setUploadStatus(null);
+			}, 3000);
+		} catch (error: unknown) {
+			console.error("Upload Error:", error);
+			const errorMessage =
+				error instanceof Error
+					? error.message
+					: "Failed to submit print order. Please try again.";
+			setUploadStatus({ type: "error", message: errorMessage });
+		} finally {
+			setUploading(false);
+		}
+	};
+
+	// Handler for regular print job submission
+	const handleRegularPrintSubmit = async () => {
+		if (
+			!isFormValid() ||
+			!id ||
+			!user?._id ||
+			!selectedFile ||
+			!selectedCategory
+		)
+			return;
+
+		setUploading(true);
+		setUploadStatus(null);
+
+		try {
+			const formData = new FormData();
+			formData.append("pdfFile", selectedFile);
+			formData.append(
+				"categoryId",
+				selectedCategory._id || selectedCategory.id
+			);
+			formData.append("adminId", id);
 			formData.append("artwork", orderDetails.artwork.trim());
 			formData.append("width", orderDetails.width.trim());
 			formData.append("height", orderDetails.height.trim());
-			formData.append("adminId", id);
 			formData.append(
 				"size",
 				`${orderDetails.width.trim()} x ${orderDetails.height.trim()}`
@@ -237,44 +465,26 @@ export const PrintStationDetails = () => {
 			formData.append("quantity", orderDetails.quantity);
 			formData.append("location", orderDetails.location.trim());
 
-			// Append optional description
 			if (orderDetails.description && orderDetails.description.trim()) {
 				formData.append("description", orderDetails.description.trim());
 			}
 
-			// Append other fields
 			formData.append("submittedBy", "frontend-user");
 			formData.append("copies", "1");
 			formData.append("color", "true");
 			formData.append("duplex", "false");
 
-			// Append print station ID
 			if (id) {
 				formData.append("printStationId", id);
 			}
 
-			// Append category ID if selected
-			if (selectedCategory) {
-				formData.append(
-					"categoryId",
-					selectedCategory._id || selectedCategory.id
-				);
-			}
+			const response = await submitRegularPrintJob(formData, user._id);
 
-			// Make the actual API call using authenticated service
-			// Use the user ID for the client endpoint
-			const data = await apiService.uploadFile(
-				formData,
-				`/print/submit/client/${user?._id}`
-			);
-
-			toast.success(data.message || "Print job sent to queue successfully!");
+			toast.success(response.message || "Print job submitted successfully!");
 			setUploadStatus({
 				type: "success",
-				message: data.message || "Print job sent to queue successfully!",
+				message: response.message || "Print job submitted successfully!",
 			});
-
-			console.log("✅ Server Response:", data);
 
 			// Reset after delay
 			setTimeout(() => {
@@ -294,16 +504,33 @@ export const PrintStationDetails = () => {
 			const errorMessage =
 				error instanceof Error
 					? error.message
-					: "Failed to send file to print queue. Please try again.";
+					: "Failed to submit print job. Please try again.";
 			setUploadStatus({ type: "error", message: errorMessage });
 		} finally {
 			setUploading(false);
 		}
 	};
 
+	// Unified handler that routes to the appropriate submission method
+	const handleUpload = async () => {
+		if (isResultsChecker) {
+			// Results checker uses its own handler
+			await handleResultsCheckerSubmit({
+				indexNumber: resultsCheckerForm.indexNumber,
+				yearOfCompletion: resultsCheckerForm.yearOfCompletion,
+				dateOfBirth: resultsCheckerForm.dateOfBirth,
+			});
+		} else if (isFormatCategory) {
+			await handleFormatSubmit();
+		} else {
+			await handleRegularPrintSubmit();
+		}
+	};
+
 	const removeFile = () => {
 		setSelectedFile(null);
 		setUploadStatus(null);
+		setPdfPageCount(undefined);
 	};
 
 	console.log("printStation", printStation);
@@ -389,178 +616,81 @@ export const PrintStationDetails = () => {
 					<Printer className="w-6 h-6 sm:w-8 sm:h-8 text-slate-700" />
 				</div>
 				<h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-					Print Job Order Form
+					{isResultsChecker
+						? "Results Checker Request"
+						: isFormatCategory
+						? "Format Print Order"
+						: "Print Job Order Form"}
 				</h1>
 				<p className="text-sm sm:text-base text-gray-600">
-					Upload your file and fill in the job details
+					{isResultsChecker
+						? "Fill in the required information to check your results"
+						: isFormatCategory
+						? "Upload your file and provide the required details"
+						: "Upload your file and fill in the job details"}
 				</p>
 			</div>
 
-			<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-				{/* Left Column - Upload Area */}
-				<div>
-					<h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
-						Upload File
-					</h3>
-					<div
-						className={`relative border-2 border-dashed rounded-xl p-4 sm:p-6 transition-all ${
-							dragActive
-								? "border-slate-500 bg-slate-50"
-								: "border-gray-300 bg-gray-50"
-						}`}
-						onDragEnter={handleDrag}
-						onDragLeave={handleDrag}
-						onDragOver={handleDrag}
-						onDrop={handleDrop}
-					>
-						{!selectedFile ? (
-							<div className="text-center">
-								<Upload className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400 mx-auto mb-2 sm:mb-3" />
-								<p className="text-xs sm:text-sm font-semibold text-gray-700 mb-2">
-									Drag and drop your file here
-								</p>
-								<p className="text-xs text-gray-500 mb-2 sm:mb-3">or</p>
-								<label className="inline-flex items-center px-4 py-2.5 sm:py-2 bg-slate-700 text-white rounded-lg text-sm font-semibold cursor-pointer hover:bg-slate-800 transition-colors touch-manipulation">
-									<Upload className="w-4 h-4 mr-2" />
-									Browse Files
-									<input
-										type="file"
-										accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
-										onChange={handleFileSelect}
-										className="hidden"
-									/>
-								</label>
-								<p className="text-xs text-gray-400 mt-2 sm:mt-3 px-2">
-									Supported formats: PDF, Images (PNG, JPG), Documents (DOC,
-									DOCX, XLS, XLSX, PPT, PPTX)
-								</p>
-							</div>
-						) : (
-							<div className="flex items-center justify-between bg-white rounded-lg p-2 sm:p-3 border border-gray-200">
-								<div className="flex items-center flex-1 min-w-0 pr-2">
-									<div className="w-8 h-8 sm:w-10 sm:h-10 bg-red-100 rounded-lg flex items-center justify-center mr-2 sm:mr-3 shrink-0">
-										<FileText className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
-									</div>
-									<div className="flex-1 min-w-0">
-										<p className="text-xs sm:text-sm font-semibold text-gray-900 truncate">
-											{selectedFile.name}
-										</p>
-										<p className="text-xs text-gray-500">
-											{formatFileSize(selectedFile.size)}
-										</p>
-									</div>
-								</div>
-								<button
-									onClick={removeFile}
-									className="ml-2 p-2 sm:p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors touch-manipulation shrink-0"
-									disabled={uploading}
-									aria-label="Remove file"
-								>
-									<X className="w-5 h-5 sm:w-4 sm:h-4" />
-								</button>
-							</div>
-						)}
-					</div>
-				</div>
-
-				{/* Right Column - Order Details Form */}
-				<div>
-					<h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
-						Job Order Details
-					</h3>
-					<div className="space-y-3 sm:space-y-4">
-						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-1.5">
-								Artwork (Company/Individual) *
-							</label>
-							<input
-								type="text"
-								name="artwork"
-								value={orderDetails.artwork}
-								onChange={handleInputChange}
-								placeholder="e.g., Shell power to grow"
-								className="w-full px-3 py-2.5 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
-								required
-							/>
-						</div>
-
-						<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-							<div>
-								<label className="block text-sm font-medium text-gray-700 mb-1.5">
-									Width *
-								</label>
-								<input
-									type="text"
-									name="width"
-									value={orderDetails.width}
-									onChange={handleInputChange}
-									placeholder="e.g., 9x6m"
-									className="w-full px-3 py-2.5 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
-									required
-								/>
-							</div>
-							<div>
-								<label className="block text-sm font-medium text-gray-700 mb-1.5">
-									Height *
-								</label>
-								<input
-									type="text"
-									name="height"
-									value={orderDetails.height}
-									onChange={handleInputChange}
-									placeholder="e.g., 6m"
-									className="w-full px-3 py-2.5 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
-									required
-								/>
-							</div>
-						</div>
-
-						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-1.5">
-								Quantity *
-							</label>
-							<input
-								type="number"
-								name="quantity"
-								value={orderDetails.quantity}
-								onChange={handleInputChange}
-								min="1"
-								className="w-full px-3 py-2.5 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
-								required
-							/>
-						</div>
-
-						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-1.5">
-								Location/Vendor *
-							</label>
-							<input
-								type="text"
-								name="location"
-								value={orderDetails.location}
-								onChange={handleInputChange}
-								placeholder="e.g., T-Havannah 1, Accra Marriott"
-								className="w-full px-3 py-2.5 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
-								required
-							/>
-						</div>
-
-						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-1.5">
-								Description (Optional)
-							</label>
-							<textarea
-								name="description"
-								value={orderDetails.description}
-								onChange={handleInputChange}
-								placeholder="Add any additional notes or specifications..."
-								rows={3}
-								className="w-full px-3 py-2.5 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent resize-none"
-							/>
-						</div>
-					</div>
-				</div>
-			</div>
+			{isResultsChecker && selectedCategory ? (
+				<ResultsCheckerForm
+					category={selectedCategory}
+					indexNumber={resultsCheckerForm.indexNumber}
+					yearOfCompletion={resultsCheckerForm.yearOfCompletion}
+					dateOfBirth={resultsCheckerForm.dateOfBirth || ""}
+					onIndexNumberChange={(value) =>
+						setResultsCheckerForm((prev) => ({ ...prev, indexNumber: value }))
+					}
+					onYearOfCompletionChange={(value) =>
+						setResultsCheckerForm((prev) => ({
+							...prev,
+							yearOfCompletion: value,
+						}))
+					}
+					onDateOfBirthChange={(value) =>
+						setResultsCheckerForm((prev) => ({ ...prev, dateOfBirth: value }))
+					}
+					loading={uploading}
+				/>
+			) : isFormatCategory && selectedCategory ? (
+				<FormatPrintForm
+					category={selectedCategory}
+					onFileSelect={validateAndSetFile}
+					onFileRemove={removeFile}
+					selectedFile={selectedFile}
+					onWidthChange={(value) =>
+						setOrderDetails((prev) => ({ ...prev, width: value }))
+					}
+					onHeightChange={(value) =>
+						setOrderDetails((prev) => ({ ...prev, height: value }))
+					}
+					onCopiesChange={setNumberOfCopies}
+					width={orderDetails.width}
+					height={orderDetails.height}
+					numberOfCopies={numberOfCopies}
+					dragActive={dragActive}
+					onDrag={handleDrag}
+					onDrop={handleDrop}
+					formatFileSize={formatFileSize}
+					loading={uploading}
+					pdfPageCount={pdfPageCount}
+					totalPrice={totalPrice}
+				/>
+			) : (
+				<RegularPrintForm
+					onFileSelect={validateAndSetFile}
+					onFileRemove={removeFile}
+					selectedFile={selectedFile}
+					onInputChange={(name, value) =>
+						setOrderDetails((prev) => ({ ...prev, [name]: value }))
+					}
+					orderDetails={orderDetails}
+					dragActive={dragActive}
+					onDrag={handleDrag}
+					onDrop={handleDrop}
+					formatFileSize={formatFileSize}
+					loading={uploading}
+				/>
+			)}
 
 			{/* Status Messages */}
 			{uploadStatus && (
@@ -589,18 +719,26 @@ export const PrintStationDetails = () => {
 				className={`w-full mt-4 sm:mt-6 py-3.5 sm:py-4 rounded-xl font-semibold text-white transition-all flex items-center justify-center text-sm sm:text-base touch-manipulation ${
 					uploading || !isFormValid()
 						? "bg-gray-400 cursor-not-allowed"
-						: "bg-slate-700 hover:bg-slate-800 active:bg-slate-900"
+						: "bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800"
 				}`}
 			>
 				{uploading ? (
 					<>
 						<div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2 sm:mr-3"></div>
-						Sending to Print Queue...
+						{isResultsChecker
+							? "Submitting Request..."
+							: isFormatCategory
+							? "Submitting Print Order..."
+							: "Sending to Print Queue..."}
 					</>
 				) : (
 					<>
 						<Printer className="w-5 h-5 mr-2 sm:mr-3" />
-						Send to Print Queue
+						{isResultsChecker
+							? "Check Results"
+							: isFormatCategory
+							? "Submit Print Order"
+							: "Send to Print Queue"}
 					</>
 				)}
 			</button>

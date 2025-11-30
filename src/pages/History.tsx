@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import { FileText, Calendar, Clock, Package, MapPin, Info, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { FileText, Calendar, Clock, Package, MapPin, Info, CheckCircle, XCircle, AlertCircle, Tag } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { getClientOrders } from '../services/orderApi';
+import type { Category } from '../types/category';
 
 interface OrderDetails {
   artwork: string;
@@ -21,6 +23,17 @@ interface Submission {
   };
   orderDetails: OrderDetails;
   status: 'pending' | 'completed' | 'failed';
+  category?: {
+    name: string;
+    unitPrice: number;
+  };
+}
+
+interface ExecutedBy {
+	_id?: string;
+	name?: string;
+	email?: string;
+	phone?: string;
 }
 
 interface Order {
@@ -45,10 +58,23 @@ interface Order {
 	location?: string;
 	description?: string;
 	status?: string;
+	categoryId?: Category | {
+		_id?: string;
+		name?: string;
+		unitPrice?: number;
+		categoryType?: string;
+	};
+	executedBy?: ExecutedBy | string;
+	executedByModel?: string;
+	indexNumber?: string;
+	yearOfCompletion?: string;
+	dateOfBirth?: string;
+	categoryType?: string;
 }
 
 export const History = () => {
 	const { user } = useAuth();
+	const navigate = useNavigate();
 	const [submissions, setSubmissions] = useState<Submission[]>([]);
 	const [filter, setFilter] = useState<
 		"all" | "pending" | "completed" | "failed"
@@ -73,6 +99,9 @@ export const History = () => {
 				const mappedSubmissions: Submission[] = response.data.orders.map(
 					(order: unknown) => {
 						const orderData = order as Order;
+						const category = orderData.categoryId;
+						const categoryObj = typeof category === 'object' && category !== null ? category : null;
+						
 						return {
 							id: orderData._id || orderData.id || Date.now().toString(),
 							timestamp:
@@ -84,7 +113,8 @@ export const History = () => {
 									orderData.pdfFile?.originalname ||
 									orderData.fileName ||
 									orderData.file?.name ||
-									"Unknown file",
+									orderData.originalName ||
+									"Results Checker",
 								size:
 									orderData.pdfFile?.size ||
 									orderData.fileSize ||
@@ -103,6 +133,10 @@ export const History = () => {
 								| "pending"
 								| "completed"
 								| "failed",
+							category: categoryObj ? {
+								name: categoryObj.name || 'Unknown Category',
+								unitPrice: categoryObj.unitPrice || 0,
+							} : undefined,
 						};
 					}
 				);
@@ -280,79 +314,27 @@ export const History = () => {
 						{filteredSubmissions.map((submission) => (
 							<div
 								key={submission.id}
-								className="border border-gray-200 rounded-xl p-4 sm:p-6 hover:shadow-md transition-shadow"
+								onClick={() => navigate(`/order/${submission.id}`)}
+								className="border border-gray-200 rounded-xl p-4 sm:p-6 hover:shadow-md transition-all cursor-pointer hover:border-indigo-300"
 							>
-								<div className="flex items-start justify-between mb-3 sm:mb-4 gap-2">
-									<div className="flex items-start space-x-2 sm:space-x-4 flex-1 min-w-0">
+								<div className="flex items-center justify-between gap-3">
+									<div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
 										<div className="w-10 h-10 sm:w-12 sm:h-12 bg-slate-100 rounded-lg flex items-center justify-center shrink-0">
 											<FileText className="w-5 h-5 sm:w-6 sm:h-6 text-slate-700" />
 										</div>
 										<div className="flex-1 min-w-0">
-											<div className="flex flex-col sm:flex-row sm:items-center sm:space-x-3 mb-1 sm:mb-2 gap-1 sm:gap-0">
-												<h3 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
-													{submission.orderDetails.artwork}
-												</h3>
-												{getStatusBadge(submission.status)}
+											<h3 className="text-base sm:text-lg font-semibold text-gray-900 truncate mb-1">
+												{submission.category?.name || submission.orderDetails.artwork || "Print Order"}
+											</h3>
+											<div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500">
+												<Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
+												<span>{formatDate(submission.timestamp)}</span>
 											</div>
-											<p className="text-xs sm:text-sm text-gray-600 truncate">
-												{submission.file.name} •{" "}
-												{formatFileSize(submission.file.size)}
-											</p>
 										</div>
 									</div>
-									<div className="flex items-center space-x-2 text-gray-500 text-sm shrink-0">
+									<div className="flex items-center gap-2 shrink-0">
+										{getStatusBadge(submission.status)}
 										{getStatusIcon(submission.status)}
-									</div>
-								</div>
-
-								<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-100">
-									<div className="flex items-start space-x-2">
-										<Package className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
-										<div className="min-w-0">
-											<p className="text-xs text-gray-500">Size</p>
-											<p className="text-xs sm:text-sm font-medium text-gray-900">
-												{submission.orderDetails.width} ×{" "}
-												{submission.orderDetails.height}
-											</p>
-										</div>
-									</div>
-									<div className="flex items-start space-x-2">
-										<Package className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
-										<div className="min-w-0">
-											<p className="text-xs text-gray-500">Quantity</p>
-											<p className="text-xs sm:text-sm font-medium text-gray-900">
-												{submission.orderDetails.quantity}
-											</p>
-										</div>
-									</div>
-									<div className="flex items-start space-x-2">
-										<MapPin className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
-										<div className="min-w-0 flex-1">
-											<p className="text-xs text-gray-500">Location</p>
-											<p className="text-xs sm:text-sm font-medium text-gray-900 truncate">
-												{submission.orderDetails.location}
-											</p>
-										</div>
-									</div>
-									{submission.orderDetails.description && (
-										<div className="flex items-start space-x-2 sm:col-span-2 lg:col-span-3">
-											<Info className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
-											<div className="min-w-0 flex-1">
-												<p className="text-xs text-gray-500">Description</p>
-												<p className="text-xs sm:text-sm text-gray-700 break-word">
-													{submission.orderDetails.description}
-												</p>
-											</div>
-										</div>
-									)}
-									<div className="flex items-start space-x-2 sm:col-span-2 lg:col-span-3">
-										<Calendar className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
-										<div>
-											<p className="text-xs text-gray-500">Submitted</p>
-											<p className="text-xs sm:text-sm text-gray-700">
-												{formatDate(submission.timestamp)}
-											</p>
-										</div>
 									</div>
 								</div>
 							</div>
