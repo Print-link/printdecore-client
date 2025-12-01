@@ -6,6 +6,7 @@ export interface PrintStation {
 	businessName?: string;
 	businessPhone?: string;
 	businessCoverImage?: string;
+	paystackSubaccountCode?: string;
 	location?: {
 		latitude: number;
 		longitude: number;

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Upload, FileText, X, Calculator } from "lucide-react";
 import type { Category } from "../../types/category";
 

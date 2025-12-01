@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { Printer, CheckCircle, AlertCircle, ArrowLeft } from "lucide-react";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import { toast } from "react-toastify";
 import { bussinessCategoryService } from "../services/bussinessCategoryService";
-import { apiService } from "../services/api";
 import type { Category } from "../types/category";
 import {
 	submitResultsChecker,
@@ -15,6 +14,8 @@ import { ResultsCheckerForm } from "../components/forms/ResultsCheckerForm";
 import { FormatPrintForm } from "../components/forms/FormatPrintForm";
 import { RegularPrintForm } from "../components/forms/RegularPrintForm";
 import { countPdfPages, calculateRegularFormatPrice } from "../utils/pdfUtils";
+import { getPrintStationById } from "../services/printStation.service";
+import { PaymentModal } from "../components/PaymentModal";
 
 interface UploadStatus {
 	type: "success" | "error";
@@ -41,6 +42,7 @@ interface PrintStation {
 	id?: string;
 	name: string;
 	email: string;
+	paystackSubaccountCode?: string;
 	location?: {
 		latitude: number;
 		longitude: number;
@@ -76,7 +78,14 @@ export const PrintStationDetails = () => {
 			dateOfBirth: "",
 		});
 	const [numberOfCopies, setNumberOfCopies] = useState<string>("1");
-	const [pdfPageCount, setPdfPageCount] = useState<number | undefined>(undefined);
+	const [pdfPageCount, setPdfPageCount] = useState<number | undefined>(
+		undefined
+	);
+	const [showPaymentModal, setShowPaymentModal] = useState(false);
+	const [pendingSubmission, setPendingSubmission] = useState<{
+		type: "results" | "format" | "regular";
+		data?: unknown;
+	} | null>(null);
 
 	const { user } = useAuth();
 
@@ -96,19 +105,9 @@ export const PrintStationDetails = () => {
 	useEffect(() => {
 		const fetchPrintStation = async () => {
 			try {
-				const response = await apiService.getAllPrintStations();
-				if (response.success && response.data?.printStations) {
-					const station = response.data.printStations.find(
-						(station: PrintStation) => station._id === id || station.id === id
-					);
-					if (station) {
-						setPrintStation(station);
-					} else {
-						setUploadStatus({
-							type: "error",
-							message: "Print station not found",
-						});
-					}
+				const response = await getPrintStationById(id || "");
+				if (response.data) {
+					setPrintStation(response.data?.printStation as PrintStation);
 				}
 			} catch (error: unknown) {
 				console.error("Error fetching print station:", error);
@@ -172,7 +171,8 @@ export const PrintStationDetails = () => {
 			if (
 				selectedFile &&
 				isRegularFormat &&
-				(selectedFile.type === "application/pdf" || selectedFile.name.toLowerCase().endsWith(".pdf"))
+				(selectedFile.type === "application/pdf" ||
+					selectedFile.name.toLowerCase().endsWith(".pdf"))
 			) {
 				try {
 					const pages = await countPdfPages(selectedFile);
@@ -183,7 +183,8 @@ export const PrintStationDetails = () => {
 					setPdfPageCount(undefined);
 					setUploadStatus({
 						type: "error",
-						message: "Failed to read PDF file. Please ensure it's a valid PDF and try again.",
+						message:
+							"Failed to read PDF file. Please ensure it's a valid PDF and try again.",
 					});
 				}
 			} else {
@@ -194,29 +195,50 @@ export const PrintStationDetails = () => {
 		countPages();
 	}, [selectedFile, isRegularFormat]);
 
-	// Calculate total price for regular_format
-	const totalPrice = (() => {
-		if (
-			!isRegularFormat ||
-			!selectedCategory?.regularFormatProperties ||
-			!pdfPageCount ||
-			!numberOfCopies
-		) {
-			return undefined;
+	const calculateTotalPrice = (): number | undefined => {
+		if (!selectedCategory) return undefined;
+
+		if (isResultsChecker) {
+			return selectedCategory.unitPrice;
 		}
 
-		const copies = parseInt(numberOfCopies, 10);
-		if (isNaN(copies) || copies < 1) {
-			return undefined;
+		// Large format - unitPrice * number of copies
+		if (isLargeFormat) {
+			const copies = parseInt(numberOfCopies, 10);
+			if (isNaN(copies) || copies < 1) return undefined;
+			return selectedCategory.unitPrice * copies;
 		}
 
-		return calculateRegularFormatPrice(
-			pdfPageCount,
-			selectedCategory.regularFormatProperties,
-			selectedCategory.unitPrice,
-			copies
-		);
-	})();
+		// Regular format - calculated based on pages and format properties
+		if (isRegularFormat) {
+			if (
+				!selectedCategory.regularFormatProperties ||
+				!pdfPageCount ||
+				!numberOfCopies
+			) {
+				return undefined;
+			}
+
+			const copies = parseInt(numberOfCopies, 10);
+			if (isNaN(copies) || copies < 1) {
+				return undefined;
+			}
+
+			return calculateRegularFormatPrice(
+				pdfPageCount,
+				selectedCategory.regularFormatProperties,
+				selectedCategory.unitPrice,
+				copies
+			);
+		}
+
+		// Regular print job - unitPrice * quantity
+		const quantity = parseInt(orderDetails.quantity, 10);
+		if (isNaN(quantity) || quantity < 1) return undefined;
+		return selectedCategory.unitPrice * quantity;
+	};
+
+	const totalPrice = calculateTotalPrice();
 
 	console.log("selectedCategory ------ ", selectedCategory);
 
@@ -243,8 +265,9 @@ export const PrintStationDetails = () => {
 	// File validation helper
 	const validateAndSetFile = (file: File) => {
 		// For regular_format, only allow PDF files
-		const isRegularFormatCategory = selectedCategory?.categoryType === "regular_format";
-		
+		const isRegularFormatCategory =
+			selectedCategory?.categoryType === "regular_format";
+
 		const allowedExtensions = isRegularFormatCategory
 			? [".pdf"]
 			: [
@@ -259,7 +282,7 @@ export const PrintStationDetails = () => {
 					".ppt",
 					".pptx",
 			  ];
-		
+
 		const fileName = file.name.toLowerCase();
 		const isAllowed = allowedExtensions.some((ext) => fileName.endsWith(ext));
 
@@ -323,53 +346,119 @@ export const PrintStationDetails = () => {
 		}
 	};
 
-	// Handler for results checker form submission
-	const handleResultsCheckerSubmit = async (data: {
-		indexNumber: string;
-		yearOfCompletion: string;
-		dateOfBirth?: string;
-	}) => {
-		if (!selectedCategory || !id || !user?._id) return;
+	// Handler for payment success - proceed with submission
+	const handlePaymentSuccess = async (reference: string) => {
+		if (!pendingSubmission || !selectedCategory || !id || !user?._id) {
+			return;
+		}
 
 		setUploading(true);
 		setUploadStatus(null);
 
 		try {
-			const response = await submitResultsChecker({
-				categoryId: selectedCategory._id || selectedCategory.id,
-				adminId: id,
-				indexNumber: data.indexNumber.trim(),
-				yearOfCompletion: data.yearOfCompletion.trim(),
-				dateOfBirth: data.dateOfBirth?.trim(),
-				categoryType: selectedCategory.categoryType || "",
-				clientId: user._id,
-			});
+			let response;
 
-			toast.success(response.message || "Request submitted successfully!");
+			if (pendingSubmission.type === "results") {
+				const data = pendingSubmission.data as {
+					indexNumber: string;
+					yearOfCompletion: string;
+					dateOfBirth?: string;
+				};
+				response = await submitResultsChecker({
+					categoryId: selectedCategory._id || selectedCategory.id,
+					adminId: id,
+					indexNumber: data.indexNumber.trim(),
+					yearOfCompletion: data.yearOfCompletion.trim(),
+					dateOfBirth: data.dateOfBirth?.trim(),
+					categoryType: selectedCategory.categoryType || "",
+					clientId: user._id,
+				});
+			} else if (pendingSubmission.type === "format") {
+				const formData = pendingSubmission.data as FormData;
+				formData.append("paymentReference", reference);
+				response = await submitFormatPrintJob(formData, user._id);
+			} else if (pendingSubmission.type === "regular") {
+				const formData = pendingSubmission.data as FormData;
+				formData.append("paymentReference", reference);
+				response = await submitRegularPrintJob(formData, user._id);
+			} else {
+				throw new Error("Invalid submission type");
+			}
+
+			toast.success(response.message || "Order submitted successfully!");
 			setUploadStatus({
 				type: "success",
-				message: response.message || "Request submitted successfully!",
+				message: response.message || "Order submitted successfully!",
 			});
 
 			// Reset form after delay
 			setTimeout(() => {
+				setSelectedFile(null);
 				setResultsCheckerForm({
 					indexNumber: "",
 					yearOfCompletion: "",
 					dateOfBirth: "",
 				});
+				setOrderDetails({
+					artwork: "",
+					width: "",
+					height: "",
+					quantity: "1",
+					location: "",
+					description: "",
+				});
+				setNumberOfCopies("1");
+				setPdfPageCount(undefined);
 				setUploadStatus(null);
+				setPendingSubmission(null);
 			}, 3000);
 		} catch (error: unknown) {
 			console.error("Submission Error:", error);
 			const errorMessage =
 				error instanceof Error
 					? error.message
-					: "Failed to submit request. Please try again.";
+					: "Failed to submit order. Please try again.";
 			setUploadStatus({ type: "error", message: errorMessage });
+			toast.error(errorMessage);
 		} finally {
 			setUploading(false);
 		}
+	};
+
+	// Handler for payment error
+	const handlePaymentError = (error: string) => {
+		setUploadStatus({ type: "error", message: error });
+		toast.error(error);
+		setPendingSubmission(null);
+	};
+
+	// Handler for results checker form submission
+	const handleResultsCheckerSubmit = async (data: {
+		indexNumber: string;
+		yearOfCompletion: string;
+		dateOfBirth?: string;
+	}) => {
+		if (!selectedCategory || !id || !user?._id || !printStation) return;
+
+		// Check if payment is required
+		if (!printStation.paystackSubaccountCode) {
+			toast.error(
+				"Payment information is not available for this print station"
+			);
+			return;
+		}
+
+		if (totalPrice === undefined) {
+			toast.error("Unable to calculate price. Please try again.");
+			return;
+		}
+
+		// Store submission data and show payment modal
+		setPendingSubmission({
+			type: "results",
+			data,
+		});
+		setShowPaymentModal(true);
 	};
 
 	// Handler for format category submission
@@ -379,58 +468,47 @@ export const PrintStationDetails = () => {
 			!id ||
 			!user?._id ||
 			!selectedFile ||
-			!selectedCategory
+			!selectedCategory ||
+			!printStation
 		)
 			return;
 
-		setUploading(true);
-		setUploadStatus(null);
-
-		try {
-			const formData = new FormData();
-			formData.append("pdfFile", selectedFile);
-			formData.append(
-				"categoryId",
-				selectedCategory._id || selectedCategory.id
+		// Check if payment is required
+		if (!printStation.paystackSubaccountCode) {
+			toast.error(
+				"Payment information is not available for this print station"
 			);
-			formData.append("adminId", id);
-			formData.append("categoryType", selectedCategory.categoryType || "");
-			formData.append("quantity", numberOfCopies);
-
-			if (isLargeFormat) {
-				formData.append("width", orderDetails.width.trim());
-				formData.append("height", orderDetails.height.trim());
-				formData.append(
-					"size",
-					`${orderDetails.width.trim()} x ${orderDetails.height.trim()}`
-				);
-			}
-
-			const response = await submitFormatPrintJob(formData, user._id);
-
-			toast.success(response.message || "Print order submitted successfully!");
-			setUploadStatus({
-				type: "success",
-				message: response.message || "Print order submitted successfully!",
-			});
-
-			// Reset after delay
-			setTimeout(() => {
-				setSelectedFile(null);
-				setOrderDetails((prev) => ({ ...prev, width: "", height: "" }));
-				setNumberOfCopies("1");
-				setUploadStatus(null);
-			}, 3000);
-		} catch (error: unknown) {
-			console.error("Upload Error:", error);
-			const errorMessage =
-				error instanceof Error
-					? error.message
-					: "Failed to submit print order. Please try again.";
-			setUploadStatus({ type: "error", message: errorMessage });
-		} finally {
-			setUploading(false);
+			return;
 		}
+
+		if (totalPrice === undefined) {
+			toast.error("Unable to calculate price. Please try again.");
+			return;
+		}
+
+		// Prepare form data
+		const formData = new FormData();
+		formData.append("pdfFile", selectedFile);
+		formData.append("categoryId", selectedCategory._id || selectedCategory.id);
+		formData.append("adminId", id);
+		formData.append("categoryType", selectedCategory.categoryType || "");
+		formData.append("quantity", numberOfCopies);
+
+		if (isLargeFormat) {
+			formData.append("width", orderDetails.width.trim());
+			formData.append("height", orderDetails.height.trim());
+			formData.append(
+				"size",
+				`${orderDetails.width.trim()} x ${orderDetails.height.trim()}`
+			);
+		}
+
+		// Store submission data and show payment modal
+		setPendingSubmission({
+			type: "format",
+			data: formData,
+		});
+		setShowPaymentModal(true);
 	};
 
 	// Handler for regular print job submission
@@ -440,75 +518,58 @@ export const PrintStationDetails = () => {
 			!id ||
 			!user?._id ||
 			!selectedFile ||
-			!selectedCategory
+			!selectedCategory ||
+			!printStation
 		)
 			return;
 
-		setUploading(true);
-		setUploadStatus(null);
-
-		try {
-			const formData = new FormData();
-			formData.append("pdfFile", selectedFile);
-			formData.append(
-				"categoryId",
-				selectedCategory._id || selectedCategory.id
+		// Check if payment is required
+		if (!printStation.paystackSubaccountCode) {
+			toast.error(
+				"Payment information is not available for this print station"
 			);
-			formData.append("adminId", id);
-			formData.append("artwork", orderDetails.artwork.trim());
-			formData.append("width", orderDetails.width.trim());
-			formData.append("height", orderDetails.height.trim());
-			formData.append(
-				"size",
-				`${orderDetails.width.trim()} x ${orderDetails.height.trim()}`
-			);
-			formData.append("quantity", orderDetails.quantity);
-			formData.append("location", orderDetails.location.trim());
-
-			if (orderDetails.description && orderDetails.description.trim()) {
-				formData.append("description", orderDetails.description.trim());
-			}
-
-			formData.append("submittedBy", "frontend-user");
-			formData.append("copies", "1");
-			formData.append("color", "true");
-			formData.append("duplex", "false");
-
-			if (id) {
-				formData.append("printStationId", id);
-			}
-
-			const response = await submitRegularPrintJob(formData, user._id);
-
-			toast.success(response.message || "Print job submitted successfully!");
-			setUploadStatus({
-				type: "success",
-				message: response.message || "Print job submitted successfully!",
-			});
-
-			// Reset after delay
-			setTimeout(() => {
-				setSelectedFile(null);
-				setOrderDetails({
-					artwork: "",
-					width: "",
-					height: "",
-					quantity: "1",
-					location: "",
-					description: "",
-				});
-				setUploadStatus(null);
-			}, 3000);
-		} catch (error: unknown) {
-			console.error("Upload Error:", error);
-			const errorMessage =
-				error instanceof Error
-					? error.message
-					: "Failed to submit print job. Please try again.";
-			setUploadStatus({ type: "error", message: errorMessage });
-		} finally {
-			setUploading(false);
+			return;
 		}
+
+		if (totalPrice === undefined) {
+			toast.error("Unable to calculate price. Please try again.");
+			return;
+		}
+
+		// Prepare form data
+		const formData = new FormData();
+		formData.append("pdfFile", selectedFile);
+		formData.append("categoryId", selectedCategory._id || selectedCategory.id);
+		formData.append("adminId", id);
+		formData.append("artwork", orderDetails.artwork.trim());
+		formData.append("width", orderDetails.width.trim());
+		formData.append("height", orderDetails.height.trim());
+		formData.append(
+			"size",
+			`${orderDetails.width.trim()} x ${orderDetails.height.trim()}`
+		);
+		formData.append("quantity", orderDetails.quantity);
+		formData.append("location", orderDetails.location.trim());
+
+		if (orderDetails.description && orderDetails.description.trim()) {
+			formData.append("description", orderDetails.description.trim());
+		}
+
+		formData.append("submittedBy", "frontend-user");
+		formData.append("copies", "1");
+		formData.append("color", "true");
+		formData.append("duplex", "false");
+
+		if (id) {
+			formData.append("printStationId", id);
+		}
+
+		// Store submission data and show payment modal
+		setPendingSubmission({
+			type: "regular",
+			data: formData,
+		});
+		setShowPaymentModal(true);
 	};
 
 	// Unified handler that routes to the appropriate submission method
@@ -742,6 +803,26 @@ export const PrintStationDetails = () => {
 					</>
 				)}
 			</button>
+
+			{/* Payment Modal */}
+			{showPaymentModal &&
+				printStation &&
+				printStation.paystackSubaccountCode &&
+				totalPrice !== undefined &&
+				user && (
+					<PaymentModal
+						isOpen={showPaymentModal}
+						onClose={() => {
+							setShowPaymentModal(false);
+							setPendingSubmission(null);
+						}}
+						amount={totalPrice}
+						email={user.email}
+						subaccount={printStation.paystackSubaccountCode}
+						onPaymentSuccess={handlePaymentSuccess}
+						onPaymentError={handlePaymentError}
+					/>
+				)}
 		</div>
 	);
 };

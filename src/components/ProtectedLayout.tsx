@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { LogOut, Home, History, Menu, X } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 export const ProtectedLayout = () => {
   const { user, logout } = useAuth();

@@ -6,8 +6,6 @@ import {
 	Tag,
 	Calendar,
 	Clock,
-	Package,
-	MapPin,
 	Info,
 	User,
 	Mail,
@@ -20,7 +18,7 @@ import {
 } from "lucide-react";
 import { getClientOrderById } from "../services/orderApi";
 import { createSupportTicket } from "../services/supportApi";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import { toast } from "react-toastify";
 import { ReportIssueModal } from "../components/ReportIssueModal";
 import type { Category, CategoryType } from "../types/category";

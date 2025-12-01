@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FileText, Calendar, Clock, Package, MapPin, Info, CheckCircle, XCircle, AlertCircle, Tag } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { FileText, Calendar, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
 import { getClientOrders } from '../services/orderApi';
 import type { Category } from '../types/category';
 
@@ -113,7 +113,6 @@ export const History = () => {
 									orderData.pdfFile?.originalname ||
 									orderData.fileName ||
 									orderData.file?.name ||
-									orderData.originalName ||
 									"Results Checker",
 								size:
 									orderData.pdfFile?.size ||
@@ -173,12 +172,6 @@ export const History = () => {
 			setIsLoading(false);
 		}
 	}, [user?._id, loadSubmissions]);
-
-	const formatFileSize = (bytes: number) => {
-		if (bytes < 1024) return bytes + " B";
-		if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
-		return (bytes / (1024 * 1024)).toFixed(1) + " MB";
-	};
 
 	const formatDate = (timestamp: string) => {
 		const date = new Date(timestamp);
