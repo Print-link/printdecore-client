@@ -860,7 +860,7 @@ export const PrintStationDetails = () => {
 						}}
 						amount={totalPrice}
 						email={user.email}
-						subaccount={printStation.paystackSubaccountCode}
+						subaccount={printStation?.paystackSubaccountCode as string}
 						onPaymentSuccess={handlePaymentSuccess}
 						onPaymentError={handlePaymentError}
 					/>

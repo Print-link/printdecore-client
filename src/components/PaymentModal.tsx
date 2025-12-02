@@ -83,6 +83,8 @@ export const PaymentModal = ({
 
 				const transactionStatus = response.data?.status;
 
+				console.log("transactionStatus ----", transactionStatus);
+
 				if (transactionStatus === "success") {
 					// Payment successful
 					verificationInProgressRef.current = false;
@@ -190,11 +192,13 @@ export const PaymentModal = ({
 					subaccounts: [
 						{
 							subaccount: subaccount,
-							share: 100,
+							share: 93,
 						},
 					],
 				};
 				const splitResponse = await createSplit(splitData);
+
+				console.log("splitResponse ----", splitResponse);
 				if (splitResponse.status && splitResponse.data?.split_code) {
 					splitCode = splitResponse.data.split_code;
 				}
