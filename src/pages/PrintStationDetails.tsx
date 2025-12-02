@@ -1,7 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
-import { Printer, CheckCircle, AlertCircle, ArrowLeft } from "lucide-react";
+import {
+	Printer,
+	CheckCircle,
+	AlertCircle,
+	ArrowLeft,
+	MapPin,
+	ExternalLink,
+} from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
+import { useGeolocation } from "../hooks/useGeolocation";
+import { getDirectionsUrl } from "../utils/stationUtils";
 import { toast } from "react-toastify";
 import { bussinessCategoryService } from "../services/bussinessCategoryService";
 import type { Category } from "../types/category";
@@ -88,6 +97,7 @@ export const PrintStationDetails = () => {
 	} | null>(null);
 
 	const { user } = useAuth();
+	const { userLocation } = useGeolocation();
 
 	// Determine category type
 	const categoryType = selectedCategory?.categoryType;
@@ -171,6 +181,7 @@ export const PrintStationDetails = () => {
 			if (
 				selectedFile &&
 				isRegularFormat &&
+				selectedCategory &&
 				(selectedFile.type === "application/pdf" ||
 					selectedFile.name.toLowerCase().endsWith(".pdf"))
 			) {
@@ -188,12 +199,15 @@ export const PrintStationDetails = () => {
 					});
 				}
 			} else {
-				setPdfPageCount(undefined);
+				// Reset page count if conditions aren't met
+				if (!selectedFile || !isRegularFormat) {
+					setPdfPageCount(undefined);
+				}
 			}
 		};
 
 		countPages();
-	}, [selectedFile, isRegularFormat]);
+	}, [selectedFile, isRegularFormat, selectedCategory]);
 
 	const calculateTotalPrice = (): number | undefined => {
 		if (!selectedCategory) return undefined;
@@ -602,6 +616,18 @@ export const PrintStationDetails = () => {
 		return (bytes / (1024 * 1024)).toFixed(1) + " MB";
 	};
 
+	const handleGetDirections = () => {
+		if (!printStation) return;
+
+		const url = getDirectionsUrl(printStation, userLocation);
+		if (!url) {
+			alert("Location information not available for this print station");
+			return;
+		}
+
+		window.open(url, "_blank");
+	};
+
 	if (loading) {
 		return (
 			<div className="w-full max-w-3xl mx-auto bg-white rounded-2xl p-8">
@@ -648,12 +674,28 @@ export const PrintStationDetails = () => {
 
 			{/* Print Station Info */}
 			<div className="mb-6 sm:mb-8 p-4 bg-slate-50 rounded-xl border border-slate-100">
-				<h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-					{printStation.name}
-				</h2>
-				<p className="text-sm text-gray-600 mb-1">
-					<span className="font-medium">Email:</span> {printStation.email}
-				</p>
+				<div className="flex items-start justify-between mb-2">
+					<div className="flex-1">
+						<h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+							{printStation.name}
+						</h2>
+						<p className="text-sm text-gray-600 mb-1">
+							<span className="font-medium">Email:</span> {printStation.email}
+						</p>
+					</div>
+					{printStation.location?.latitude &&
+						printStation.location?.longitude && (
+							<button
+								onClick={handleGetDirections}
+								className="ml-4 flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors border border-gray-300 whitespace-nowrap"
+								title="Get directions on Google Maps"
+							>
+								<MapPin className="w-4 h-4" />
+								<span className="sm:inline">Directions</span>
+								<ExternalLink className="w-3 h-3" />
+							</button>
+						)}
+				</div>
 				{selectedCategory && (
 					<div className="mt-3 p-3 bg-indigo-50 rounded-lg border border-indigo-200">
 						<p className="text-sm font-medium text-indigo-900 mb-1">

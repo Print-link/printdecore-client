@@ -15,13 +15,19 @@ import {
 	AlertCircle,
 	Printer,
 	MessageSquare,
+	MapPin,
+	ExternalLink,
+	Truck,
 } from "lucide-react";
 import { getClientOrderById } from "../services/orderApi";
 import { createSupportTicket } from "../services/supportApi";
 import { useAuth } from "../hooks/useAuth";
+import { useGeolocation } from "../hooks/useGeolocation";
+import { getDirectionsUrl } from "../utils/stationUtils";
 import { toast } from "react-toastify";
 import { ReportIssueModal } from "../components/ReportIssueModal";
 import type { Category, CategoryType } from "../types/category";
+import type { PrintStation } from "../types/printStation";
 
 interface ExecutedBy {
 	_id?: string;
@@ -46,13 +52,26 @@ interface Order {
 	location?: string;
 	description?: string;
 	clientId?: string | { _id?: string };
-	adminId?: string | { _id?: string };
-	categoryId?: Category | {
-		_id?: string;
-		name?: string;
-		unitPrice?: number;
-		categoryType?: CategoryType;
-	};
+	adminId?:
+		| string
+		| {
+				_id?: string;
+				name?: string;
+				email?: string;
+				location?: {
+					latitude?: number;
+					longitude?: number;
+					address?: string;
+				};
+		  };
+	categoryId?:
+		| Category
+		| {
+				_id?: string;
+				name?: string;
+				unitPrice?: number;
+				categoryType?: CategoryType;
+		  };
 	executedBy?: ExecutedBy | string;
 	executedByModel?: string;
 	indexNumber?: string;
@@ -66,6 +85,7 @@ export const OrderDetails = () => {
 	const { id } = useParams<{ id: string }>();
 	const navigate = useNavigate();
 	const { user } = useAuth();
+	const { userLocation } = useGeolocation();
 	const [order, setOrder] = useState<Order | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
@@ -142,7 +162,8 @@ export const OrderDetails = () => {
 					statusStyles.pending
 				}`}
 			>
-				{statusIcon[orderStatus as keyof typeof statusIcon] || statusIcon.pending}
+				{statusIcon[orderStatus as keyof typeof statusIcon] ||
+					statusIcon.pending}
 				{orderStatus.charAt(0).toUpperCase() + orderStatus.slice(1)}
 			</span>
 		);
@@ -210,8 +231,47 @@ export const OrderDetails = () => {
 
 	// Extract IDs for support ticket
 	const jobId = order._id || order.id || "";
-	const clientId = user?._id || (typeof order.clientId === "object" ? order.clientId._id : order.clientId) || "";
-	const adminId = typeof order.adminId === "object" ? order.adminId._id : order.adminId || "";
+	const clientId =
+		user?._id ||
+		(typeof order.clientId === "object"
+			? order.clientId._id
+			: order.clientId) ||
+		"";
+	const adminId =
+		typeof order.adminId === "object" ? order.adminId._id : order.adminId || "";
+
+	const admin =
+		typeof order.adminId === "object" && order.adminId !== null
+			? order.adminId
+			: null;
+	const hasLocation = admin?.location?.latitude && admin?.location?.longitude;
+
+	const handleGetDirections = () => {
+		if (!admin || !admin.location?.latitude || !admin.location?.longitude) {
+			alert("Location information not available for this print station");
+			return;
+		}
+
+		// Create a print station object for the getDirectionsUrl utility
+		const printStation: PrintStation = {
+			_id: admin._id || "",
+			name: admin.name || "",
+			email: admin.email || "",
+			location: {
+				latitude: admin.location.latitude,
+				longitude: admin.location.longitude,
+				address: admin.location.address || "",
+			},
+		};
+
+		const url = getDirectionsUrl(printStation, userLocation);
+		if (!url) {
+			alert("Location information not available for this print station");
+			return;
+		}
+
+		window.open(url, "_blank");
+	};
 
 	const handleReportIssue = async (message: string) => {
 		if (!jobId || !clientId || !adminId) {
@@ -261,13 +321,26 @@ export const OrderDetails = () => {
 						</h1>
 						{getStatusBadge(order.status)}
 					</div>
-					<button
-						onClick={() => setIsReportModalOpen(true)}
-						className="inline-flex items-center gap-2 px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
-					>
-						<MessageSquare className="w-4 h-4" />
-						Report Issue
-					</button>
+					<div className="flex flex-col sm:flex-row gap-2">
+						{hasLocation && (
+							<button
+								onClick={handleGetDirections}
+								className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium"
+							>
+								<MapPin className="w-4 h-4" />
+								<span className="hidden sm:inline">Get Directions</span>
+								<span className="sm:hidden">Directions</span>
+								<ExternalLink className="w-3 h-3" />
+							</button>
+						)}
+						<button
+							onClick={() => setIsReportModalOpen(true)}
+							className="inline-flex items-center gap-2 px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+						>
+							<MessageSquare className="w-4 h-4" />
+							Report Issue
+						</button>
+					</div>
 				</div>
 
 				{/* Category Info */}
@@ -279,8 +352,37 @@ export const OrderDetails = () => {
 						</h2>
 					</div>
 					<p className="text-sm sm:text-base text-indigo-700">
-						Unit Price: <span className="font-semibold">GHS {categoryPrice.toFixed(2)}</span>
+						Unit Price:{" "}
+						<span className="font-semibold">
+							GHS {categoryPrice.toFixed(2)}
+						</span>
 					</p>
+				</div>
+
+				{/* Delivery Notice */}
+				<div className="bg-amber-50 rounded-xl p-4 sm:p-6 border border-amber-200 mt-4">
+					<div className="flex items-start gap-3">
+						<div className="flex-shrink-0 mt-0.5">
+							<Truck className="w-5 h-5 text-amber-600" />
+						</div>
+						<div className="flex-1">
+							<h3 className="text-sm sm:text-base font-semibold text-amber-900 mb-1">
+								Delivery Information
+							</h3>
+							<p className="text-xs sm:text-sm text-amber-800">
+								Delivery service is currently not available. Please visit the
+								print station location to collect your order.
+								{hasLocation && (
+									<>
+										{" "}
+										Use the{" "}
+										<span className="font-medium">"Get Directions"</span> button
+										above to find the location.
+									</>
+								)}
+							</p>
+						</div>
+					</div>
 				</div>
 			</div>
 
@@ -305,7 +407,9 @@ export const OrderDetails = () => {
 								)}
 								{order.yearOfCompletion && (
 									<div>
-										<p className="text-xs text-gray-500 mb-1">Year of Completion</p>
+										<p className="text-xs text-gray-500 mb-1">
+											Year of Completion
+										</p>
 										<p className="text-sm sm:text-base font-medium text-gray-900">
 											{order.yearOfCompletion}
 										</p>
@@ -350,75 +454,76 @@ export const OrderDetails = () => {
 					)}
 
 					{/* Print Job Details */}
-					{!isResultsChecker && (order.artwork || order.width || order.height) && (
-						<div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
-							<h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
-								Print Job Details
-							</h3>
-							<div className="space-y-3">
-								{order.artwork && (
-									<div>
-										<p className="text-xs text-gray-500 mb-1">Artwork</p>
-										<p className="text-sm sm:text-base font-medium text-gray-900">
-											{order.artwork}
-										</p>
-									</div>
-								)}
-								{(order.width || order.height) && (
-									<div className="grid grid-cols-2 gap-3">
-										{order.width && (
-											<div>
-												<p className="text-xs text-gray-500 mb-1">Width</p>
-												<p className="text-sm sm:text-base font-medium text-gray-900">
-													{order.width}
-												</p>
-											</div>
-										)}
-										{order.height && (
-											<div>
-												<p className="text-xs text-gray-500 mb-1">Height</p>
-												<p className="text-sm sm:text-base font-medium text-gray-900">
-													{order.height}
-												</p>
-											</div>
-										)}
-									</div>
-								)}
-								{order.size && (
-									<div>
-										<p className="text-xs text-gray-500 mb-1">Size</p>
-										<p className="text-sm sm:text-base font-medium text-gray-900">
-											{order.size}
-										</p>
-									</div>
-								)}
-								{order.quantity && (
-									<div>
-										<p className="text-xs text-gray-500 mb-1">Quantity</p>
-										<p className="text-sm sm:text-base font-medium text-gray-900">
-											{order.quantity}
-										</p>
-									</div>
-								)}
-								{order.location && (
-									<div>
-										<p className="text-xs text-gray-500 mb-1">Location</p>
-										<p className="text-sm sm:text-base font-medium text-gray-900">
-											{order.location}
-										</p>
-									</div>
-								)}
-								{order.description && (
-									<div>
-										<p className="text-xs text-gray-500 mb-1">Description</p>
-										<p className="text-sm sm:text-base text-gray-700 break-word">
-											{order.description}
-										</p>
-									</div>
-								)}
+					{!isResultsChecker &&
+						(order.artwork || order.width || order.height) && (
+							<div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
+								<h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
+									Print Job Details
+								</h3>
+								<div className="space-y-3">
+									{order.artwork && (
+										<div>
+											<p className="text-xs text-gray-500 mb-1">Artwork</p>
+											<p className="text-sm sm:text-base font-medium text-gray-900">
+												{order.artwork}
+											</p>
+										</div>
+									)}
+									{(order.width || order.height) && (
+										<div className="grid grid-cols-2 gap-3">
+											{order.width && (
+												<div>
+													<p className="text-xs text-gray-500 mb-1">Width</p>
+													<p className="text-sm sm:text-base font-medium text-gray-900">
+														{order.width}
+													</p>
+												</div>
+											)}
+											{order.height && (
+												<div>
+													<p className="text-xs text-gray-500 mb-1">Height</p>
+													<p className="text-sm sm:text-base font-medium text-gray-900">
+														{order.height}
+													</p>
+												</div>
+											)}
+										</div>
+									)}
+									{order.size && (
+										<div>
+											<p className="text-xs text-gray-500 mb-1">Size</p>
+											<p className="text-sm sm:text-base font-medium text-gray-900">
+												{order.size}
+											</p>
+										</div>
+									)}
+									{order.quantity && (
+										<div>
+											<p className="text-xs text-gray-500 mb-1">Quantity</p>
+											<p className="text-sm sm:text-base font-medium text-gray-900">
+												{order.quantity}
+											</p>
+										</div>
+									)}
+									{order.location && (
+										<div>
+											<p className="text-xs text-gray-500 mb-1">Location</p>
+											<p className="text-sm sm:text-base font-medium text-gray-900">
+												{order.location}
+											</p>
+										</div>
+									)}
+									{order.description && (
+										<div>
+											<p className="text-xs text-gray-500 mb-1">Description</p>
+											<p className="text-sm sm:text-base text-gray-700 break-word">
+												{order.description}
+											</p>
+										</div>
+									)}
+								</div>
 							</div>
-						</div>
-					)}
+						)}
 				</div>
 
 				{/* Right Column - Metadata & Executed By */}
@@ -500,7 +605,9 @@ export const OrderDetails = () => {
 								<div className="flex items-start gap-2">
 									<User className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
 									<div>
-										<p className="text-xs text-gray-500 mb-1">Executed By Model</p>
+										<p className="text-xs text-gray-500 mb-1">
+											Executed By Model
+										</p>
 										<p className="text-sm sm:text-base font-medium text-gray-900">
 											{order.executedByModel}
 										</p>

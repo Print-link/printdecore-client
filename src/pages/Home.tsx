@@ -1,9 +1,8 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import type { PrintStation } from "../types/printStation";
 import { useGeolocation } from "../hooks/useGeolocation";
 import { usePrintStations } from "../hooks/usePrintStations";
-import { filterStations, getDirectionsUrl } from "../utils/stationUtils";
+import { filterStations } from "../utils/stationUtils";
 import { LocationStatus } from "../components/LocationStatus";
 import { SearchBar } from "../components/SearchBar";
 import { PrintStationGrid } from "../components/PrintStationGrid";
@@ -32,17 +31,6 @@ export const Home = () => {
 		navigate(`/categories/${stationId}`);
 	};
 
-	const handleGetDirections = (e: React.MouseEvent, station: PrintStation) => {
-		e.stopPropagation(); // Prevent card click
-
-		const url = getDirectionsUrl(station, userLocation);
-		if (!url) {
-			alert("Location information not available for this station");
-			return;
-		}
-
-		window.open(url, "_blank");
-	};
 
 	const clearSearch = () => {
 		setSearchQuery("");
@@ -79,7 +67,6 @@ export const Home = () => {
 				<PrintStationGrid
 					stations={filteredStations}
 					onStationClick={handleStationClick}
-					onGetDirections={handleGetDirections}
 				/>
 			)}
 		</div>
