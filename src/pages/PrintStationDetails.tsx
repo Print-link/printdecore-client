@@ -20,6 +20,7 @@ import { RegularPrintForm } from "../components/forms/RegularPrintForm";
 import { PaymentModal } from "../components/PaymentModal";
 import { PrintStationHeader } from "../components/PrintStationHeader";
 import { StatusMessage } from "../components/StatusMessage";
+import type { PrintStation } from "../types/printStation";
 
 interface UploadStatus {
 	type: "success" | "error";
@@ -39,19 +40,6 @@ interface ResultsCheckerFormData {
 	indexNumber: string;
 	yearOfCompletion: string;
 	dateOfBirth?: string;
-}
-
-interface PrintStation {
-	_id: string;
-	id?: string;
-	name: string;
-	email: string;
-	paystackSubaccountCode?: string;
-	location?: {
-		latitude: number;
-		longitude: number;
-		address: string;
-	};
 }
 
 export const PrintStationDetails = () => {

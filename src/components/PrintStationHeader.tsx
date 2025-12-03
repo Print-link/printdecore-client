@@ -1,16 +1,6 @@
 import { MapPin, ExternalLink } from "lucide-react";
 import type { Category } from "../types/category";
-
-interface PrintStation {
-	_id: string;
-	name: string;
-	email: string;
-	location?: {
-		latitude: number;
-		longitude: number;
-		address: string;
-	};
-}
+import type { PrintStation } from "../types/printStation";
 
 interface PrintStationHeaderProps {
 	printStation: PrintStation;
