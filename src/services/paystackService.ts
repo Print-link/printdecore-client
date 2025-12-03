@@ -13,6 +13,8 @@ export interface CreateSplitData {
 		subaccount: string; // paystackSubaccountCode
 		share: number; // Percentage (0-100) or flat amount
 	}>;
+	bearer_type?: "account" | "subaccount"; // Who bears transaction charges
+	bearer_subaccount?: string; // Subaccount code if bearer_type is "subaccount"
 }
 
 export interface CreateSplitResponse {

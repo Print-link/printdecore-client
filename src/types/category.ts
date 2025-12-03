@@ -29,3 +29,34 @@ export interface CategoriesResponse {
 	data: Category[];
 	count: number;
 }
+
+export interface AdminInfo {
+	_id: string;
+	name: string;
+	email: string;
+	location?: {
+		latitude: number;
+		longitude: number;
+		address?: string;
+	};
+	businessName?: string | null;
+	businessPhone?: string | null;
+	websiteUrl?: string | null;
+	businessCoverImage?: string | null;
+}
+
+export interface SearchCategory extends Omit<Category, "adminId"> {
+	admin: AdminInfo;
+	distance?: number;
+}
+
+export interface SearchCategoriesResponse {
+	success: boolean;
+	message: string;
+	data: SearchCategory[];
+	count: number;
+	userLocation?: {
+		latitude: number;
+		longitude: number;
+	};
+}

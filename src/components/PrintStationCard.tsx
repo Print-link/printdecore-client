@@ -1,17 +1,15 @@
-import { Printer, MapPin, Mail, Navigation, ExternalLink } from "lucide-react";
+import { Printer, MapPin, Mail, Navigation } from "lucide-react";
 import type { PrintStation } from "../types/printStation";
 import { getDistanceColor, formatDistance } from "../utils/stationUtils";
 
 interface PrintStationCardProps {
 	station: PrintStation;
 	onStationClick: (stationId: string) => void;
-	onGetDirections: (e: React.MouseEvent, station: PrintStation) => void;
 }
 
 export const PrintStationCard = ({
 	station,
 	onStationClick,
-	onGetDirections,
 }: PrintStationCardProps) => {
 	const stationId = station._id || station.id || "";
 
@@ -73,29 +71,6 @@ export const PrintStationCard = ({
 							)}
 						</div>
 					</button>
-
-					{/* Action Buttons */}
-					<div className="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-gray-200">
-						<div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3">
-							{/* <button
-								onClick={() => onStationClick(stationId)}
-								className="w-full md:flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs md:text-sm rounded-lg transition-all touch-manipulation py-2.5 text-center shadow-sm hover:shadow-md"
-							>
-								Submit Print Job →
-							</button> */}
-							{station.location?.latitude && station.location?.longitude && (
-								<button
-									onClick={(e) => onGetDirections(e, station)}
-									className="w-full md:w-auto flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs md:text-sm font-medium text-gray-600 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors touch-manipulation border border-gray-200 whitespace-nowrap"
-									title="Get directions on Google Maps"
-								>
-									<MapPin className="w-3 h-3 md:w-4 md:h-4" />
-									<span>Directions</span>
-									<ExternalLink className="w-2.5 h-2.5 md:w-3 md:h-3" />
-								</button>
-							)}
-						</div>
-					</div>
 				</div>
 			</div>
 		</div>

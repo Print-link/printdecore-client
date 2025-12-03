@@ -1,17 +1,27 @@
 import { useEffect, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { LogOut, Home, History, Menu, X } from 'lucide-react';
+import { LogOut, Home, History, Menu, X, Search } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 export const ProtectedLayout = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [activeTab, setActiveTab] = useState(location.pathname === '/history' ? 'history' : 'home');
+  const [activeTab, setActiveTab] = useState(() => {
+    if (location.pathname === '/history') return 'history';
+    if (location.pathname === '/search') return 'search';
+    return 'home';
+  });
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
-    setActiveTab(location.pathname === '/history' ? 'history' : 'home');
+    if (location.pathname === '/history') {
+      setActiveTab('history');
+    } else if (location.pathname === '/search') {
+      setActiveTab('search');
+    } else {
+      setActiveTab('home');
+    }
     // Close drawer on mobile when route changes
     if (window.innerWidth < 768) {
       setDrawerOpen(false);
@@ -23,9 +33,15 @@ export const ProtectedLayout = () => {
     navigate('/login');
   };
 
-  const handleTabChange = (tab: 'home' | 'history') => {
+  const handleTabChange = (tab: 'home' | 'history' | 'search') => {
     setActiveTab(tab);
-    navigate(tab === 'home' ? '/' : '/history');
+    if (tab === 'home') {
+      navigate('/');
+    } else if (tab === 'history') {
+      navigate('/history');
+    } else {
+      navigate('/search');
+    }
     // Close drawer on mobile when navigation item is clicked
     if (window.innerWidth < 768) {
       setDrawerOpen(false);
@@ -72,6 +88,17 @@ export const ProtectedLayout = () => {
                 <span>Home</span>
               </button>
               <button
+                onClick={() => handleTabChange('search')}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-base transition-all touch-manipulation ${
+                  activeTab === 'search'
+                    ? 'bg-slate-50 text-slate-700 shadow-sm border border-slate-100'
+                    : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                }`}
+              >
+                <Search className={`w-5 h-5 ${activeTab === 'search' ? 'text-slate-700' : 'text-gray-500'}`} />
+                <span>Search</span>
+              </button>
+              <button
                 onClick={() => handleTabChange('history')}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-base transition-all touch-manipulation ${
                   activeTab === 'history'
@@ -80,7 +107,7 @@ export const ProtectedLayout = () => {
                 }`}
               >
                 <History className={`w-5 h-5 ${activeTab === 'history' ? 'text-slate-700' : 'text-gray-500'}`} />
-                <span>History</span>
+                <span>Print History</span>
               </button>
             </div>
           </nav>
@@ -135,10 +162,23 @@ export const ProtectedLayout = () => {
                 </h1>
                 {/* Desktop Title */}
                 <h1 className="hidden md:block text-xl font-bold text-gray-900">
-                  {activeTab === 'home' ? 'Print Stations' : 'Print History'}
+                  {activeTab === 'home' ? 'Print Stations' : activeTab === 'search' ? 'Search' : 'Print History'}
                 </h1>
               </div>
               <div className="flex items-center space-x-4">
+                {/* Search Icon - Only visible on mobile */}
+                <button
+                  onClick={() => {
+                    navigate('/search');
+                    if (window.innerWidth < 768) {
+                      setDrawerOpen(false);
+                    }
+                  }}
+                  className="md:hidden p-2 text-gray-700 hover:text-slate-700 hover:bg-slate-50 rounded-lg transition-colors touch-manipulation"
+                  aria-label="Search"
+                >
+                  <Search className="w-6 h-6" />
+                </button>
                 <span className="hidden sm:inline text-sm text-gray-600">
                   Welcome, <span className="font-semibold text-gray-900">{user?.fullName}</span>
                 </span>
