@@ -30,6 +30,8 @@ export interface CategoriesResponse {
 	count: number;
 }
 
+import type { WorkingHour } from "../utils/workingHours";
+
 export interface AdminInfo {
 	_id: string;
 	name: string;
@@ -43,6 +45,7 @@ export interface AdminInfo {
 	businessPhone?: string | null;
 	websiteUrl?: string | null;
 	businessCoverImage?: string | null;
+	workingHours?: WorkingHour[];
 }
 
 export interface SearchCategory extends Omit<Category, "adminId"> {

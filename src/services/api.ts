@@ -308,11 +308,20 @@ class ApiService {
 				id?: string;
 				name: string;
 				email: string;
+				businessName?: string;
+				businessPhone?: string;
+				businessCoverImage?: string;
 				location?: {
 					latitude: number;
 					longitude: number;
 					address: string;
 				};
+				workingHours?: Array<{
+					day: string;
+					isOpen: boolean;
+					openTime?: string;
+					closeTime?: string;
+				}>;
 				distance?: number;
 				profile?: {
 					id: string;

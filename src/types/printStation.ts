@@ -1,3 +1,5 @@
+import type { WorkingHour } from "../utils/workingHours";
+
 export interface PrintStation {
 	_id: string;
 	id?: string;
@@ -12,6 +14,8 @@ export interface PrintStation {
 		longitude: number;
 		address: string;
 	};
+	workingHours?: WorkingHour[];
+	isOpen?: boolean | null; // Backend-calculated open status (true = open, false = closed, null = unknown)
 	distance?: number;
 	profile?: {
 		id: string;

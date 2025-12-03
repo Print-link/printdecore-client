@@ -10,13 +10,12 @@ export const filterStations = (
 
 	const query = searchQuery.toLowerCase().trim();
 	return stations.filter((station) => {
-		const nameMatch = station.name.toLowerCase().includes(query);
-		const emailMatch = station.email.toLowerCase().includes(query);
-		const locationMatch = station.location?.address
+		const businessNameMatch = station.businessName
 			?.toLowerCase()
 			.includes(query);
+		const nameMatch = station.name.toLowerCase().includes(query);
 
-		return nameMatch || emailMatch || locationMatch;
+		return businessNameMatch || nameMatch;
 	});
 };
 
