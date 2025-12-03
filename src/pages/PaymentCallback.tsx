@@ -1,13 +1,11 @@
 import { useEffect, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { Loader2, CheckCircle, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
 import { verifyPayment } from "../services/paystackService";
-import { useAuth } from "../hooks/useAuth";
 
 export const PaymentCallback = () => {
 	const [searchParams] = useSearchParams();
 	const navigate = useNavigate();
-	const { user } = useAuth();
 	const reference = searchParams.get("reference");
 	const trxref = searchParams.get("trxref"); // Paystack sometimes uses trxref
 	const hasProcessedRef = useRef(false); // Prevent multiple processing
@@ -122,9 +120,7 @@ export const PaymentCallback = () => {
 						<h3 className="text-lg font-semibold text-gray-900 mb-2">
 							No Payment Reference
 						</h3>
-						<p className="text-sm text-gray-600">
-							Redirecting you back...
-						</p>
+						<p className="text-sm text-gray-600">Redirecting you back...</p>
 					</>
 				)}
 			</div>
