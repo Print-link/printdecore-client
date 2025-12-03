@@ -46,6 +46,7 @@ export interface AdminInfo {
 	websiteUrl?: string | null;
 	businessCoverImage?: string | null;
 	workingHours?: WorkingHour[];
+	isOpen?: boolean | null;
 }
 
 export interface SearchCategory extends Omit<Category, "adminId"> {

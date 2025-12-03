@@ -15,7 +15,10 @@ export const CategoryCard = ({
 }: CategoryCardProps) => {
 	const categoryId = category._id || category.id || "";
 	const adminId = category.admin._id;
-	const openStatus = isStationOpen(category.admin.workingHours);
+	const openStatus =
+		category.admin.isOpen !== undefined
+			? category.admin.isOpen
+			: isStationOpen(category.admin.workingHours);
 	const isOpen = openStatus === true;
 	const isClickable = openStatus === true;
 
@@ -57,6 +60,7 @@ export const CategoryCard = ({
 					<div className="absolute top-2 right-2 z-20">
 						<StationStatusBadge
 							workingHours={category.admin.workingHours}
+							isOpen={category.admin.isOpen}
 							compact={true}
 						/>
 					</div>
@@ -113,6 +117,7 @@ export const CategoryCard = ({
 							<div className="pt-1 md:pt-2">
 								<StationStatusBadge
 									workingHours={category.admin.workingHours}
+									isOpen={category.admin.isOpen}
 									compact={false}
 								/>
 							</div>
