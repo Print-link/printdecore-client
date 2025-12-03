@@ -107,7 +107,7 @@ export const ProtectedLayout = () => {
                 }`}
               >
                 <History className={`w-5 h-5 ${activeTab === 'history' ? 'text-slate-700' : 'text-gray-500'}`} />
-                <span>History</span>
+                <span>Print History</span>
               </button>
             </div>
           </nav>

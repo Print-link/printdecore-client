@@ -13,6 +13,7 @@ import { Search } from './pages/Search';
 import { PrintStationDetails } from './pages/PrintStationDetails';
 import { Categories } from './pages/Categories';
 import { OrderDetails } from './pages/OrderDetails';
+import { PaymentCallback } from './pages/PaymentCallback';
 
 const AppRoutes = () => {
   const { user, isLoading } = useAuth();
@@ -31,6 +32,7 @@ const AppRoutes = () => {
       <Route path="/send-otp" element={user ? <Navigate to="/" replace /> : <SendOTP />} />
       <Route path="/verify-otp" element={user ? <Navigate to="/" replace /> : <VerifyOTP />} />
       <Route path="/register" element={user ? <Navigate to="/" replace /> : <Register />} />
+      <Route path="/payment/callback" element={<PaymentCallback />} />
       <Route
         path="/"
         element={

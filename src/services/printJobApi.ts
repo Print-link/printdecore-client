@@ -17,6 +17,7 @@ export const submitResultsChecker = async (
 		dateOfBirth?: string;
 		categoryType: string;
 		clientId: string;
+		paymentReference?: string;
 	}
 ) => {
 	const token = getToken();
@@ -35,6 +36,7 @@ export const submitResultsChecker = async (
 		dateOfBirth?: string;
 		categoryType: string;
 		quantity: string;
+		paymentReference?: string;
 	} = {
 		categoryId: data.categoryId,
 		adminId: data.adminId,
@@ -44,9 +46,12 @@ export const submitResultsChecker = async (
 		quantity: "1",
 	};
 
-	// Only include dateOfBirth if provided
 	if (data.dateOfBirth && data.dateOfBirth.trim()) {
 		payload.dateOfBirth = data.dateOfBirth.trim();
+	}
+
+	if (data.paymentReference) {
+		payload.paymentReference = data.paymentReference;
 	}
 
 	const response = await axios.post(
