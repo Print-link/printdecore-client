@@ -79,7 +79,7 @@ export const StationStatusBadge = ({
 			</div>
 			<div className="flex items-center gap-1 text-xs text-gray-600">
 				<Clock className="w-3 h-3" />
-				<span>
+				<span className={isClosedStatus && nextOpenTime ? "font-bold" : ""}>
 					{isOpenStatus
 						? hoursText
 						: isClosedStatus

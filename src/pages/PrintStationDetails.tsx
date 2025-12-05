@@ -224,8 +224,8 @@ export const PrintStationDetails = () => {
 	}, [selectedFile, isRegularFormat, selectedCategory]);
 
 	const handlePaymentSuccess = useCallback(
-		async (reference: string) => {
-			const result = await handleSubmissionSuccess(reference);
+		async (paymentData: { reference: string; amount: number }) => {
+			const result = await handleSubmissionSuccess(paymentData);
 			if (result?.success) {
 				setUploadStatus({
 					type: "success",
@@ -278,7 +278,14 @@ export const PrintStationDetails = () => {
 			});
 			setShowPaymentModal(true);
 		},
-		[selectedCategory, id, user?._id, printStation, totalPrice, setPendingSubmission]
+		[
+			selectedCategory,
+			id,
+			user?._id,
+			printStation,
+			totalPrice,
+			setPendingSubmission,
+		]
 	);
 
 	const handleFormatSubmit = useCallback(async () => {
@@ -542,7 +549,7 @@ export const PrintStationDetails = () => {
 				/>
 			) : isFormatCategory && selectedCategory ? (
 				<FormatPrintForm
-					category={selectedCategory}
+					category={selectedCategory as Category}
 					onFileSelect={validateAndSetFile}
 					onFileRemove={removeFile}
 					selectedFile={selectedFile}
@@ -582,7 +589,10 @@ export const PrintStationDetails = () => {
 			)}
 
 			{uploadStatus && (
-				<StatusMessage type={uploadStatus.type} message={uploadStatus.message} />
+				<StatusMessage
+					type={uploadStatus.type}
+					message={uploadStatus.message}
+				/>
 			)}
 
 			<button

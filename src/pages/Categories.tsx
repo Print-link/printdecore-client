@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Loader2, AlertCircle, ArrowLeft, Tag } from "lucide-react";
 import { bussinessCategoryService } from "../services/bussinessCategoryService";
+import { Reviews } from "../components/Reviews";
 import type { Category } from "../types/category";
 
 export const Categories = () => {
@@ -82,7 +83,7 @@ export const Categories = () => {
 	}
 
 	return (
-		<div className="w-full max-w-6xl mx-auto">
+		<div className="w-full max-w-7xl mx-auto">
 			{/* Back Button */}
 			<button
 				onClick={handleBack}
@@ -102,43 +103,51 @@ export const Categories = () => {
 				</p>
 			</div>
 
-			{/* Categories List */}
-			{categories.length === 0 ? (
-				<div className="bg-white rounded-2xl p-8 text-center">
-					<Tag className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-					<p className="text-gray-600">No categories available for this print station.</p>
+			{/* Main Content: Categories on left, Reviews on right (desktop) */}
+			<div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+				{/* Categories Section */}
+				<div className="flex-1">
+					{categories.length === 0 ? (
+						<div className="bg-white rounded-2xl p-8 text-center">
+							<Tag className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+							<p className="text-gray-600">No categories available for this print station.</p>
+						</div>
+					) : (
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+							{categories.map((category) => (
+								<button
+									key={category._id || category.id}
+									onClick={() => handleCategoryClick(category._id || category.id)}
+									className="bg-white rounded-xl p-3 border border-gray-300 text-left group"
+								>
+									<div className="flex gap-3 items-center mb-4">
+										<div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center group-hover:bg-indigo-200 transition-colors">
+											<Tag className="w-6 h-6 text-indigo-700" />
+										</div>
+										<h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-indigo-700 transition-colors">
+											{category.name}
+										</h3>
+									</div>
+									{category.description && (
+										<p className="text-sm text-gray-600 mb-3 line-clamp-2">
+											{category.description}
+										</p>
+									)}
+									<div className="flex items-center justify-between pt-3 border-t border-gray-200">
+										<span className="text-sm font-medium text-gray-600">Price:</span>
+										<span className="text-xl font-bold text-indigo-600">
+											GHS{category.unitPrice.toFixed(2)}
+										</span>
+									</div>
+								</button>
+							))}
+						</div>
+					)}
 				</div>
-			) : (
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-					{categories.map((category) => (
-						<button
-							key={category._id || category.id}
-							onClick={() => handleCategoryClick(category._id || category.id)}
-							className="bg-white rounded-xl p-3 border border-gray-300 text-left group"
-						>
-							<div className="flex gap-3 items-center mb-4">
-							<div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center group-hover:bg-indigo-200 transition-colors">
-									<Tag className="w-6 h-6 text-indigo-700" />
-								</div>
-							<h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-indigo-700 transition-colors">
-								{category.name}
-							</h3>
-							</div>
-							{category.description && (
-								<p className="text-sm text-gray-600 mb-3 line-clamp-2">
-									{category.description}
-								</p>
-							)}
-							<div className="flex items-center justify-between pt-3 border-t border-gray-200">
-								<span className="text-sm font-medium text-gray-600">Price:</span>
-								<span className="text-xl font-bold text-indigo-600">
-									GHS{category.unitPrice.toFixed(2)}
-								</span>
-							</div>
-						</button>
-					))}
-				</div>
-			)}
+
+				{/* Reviews Section - Desktop sidebar, Mobile bottom sheet */}
+				{id && <Reviews adminId={id} />}
+			</div>
 		</div>
 	);
 };

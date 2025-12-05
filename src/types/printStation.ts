@@ -22,6 +22,7 @@ export interface PrintStation {
 		email: string;
 		name: string;
 	};
+	averageRating?: number;
 	createdAt?: string;
 	updatedAt?: string;
 }

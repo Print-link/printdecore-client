@@ -47,6 +47,7 @@ export interface AdminInfo {
 	businessCoverImage?: string | null;
 	workingHours?: WorkingHour[];
 	isOpen?: boolean | null;
+	averageRating?: number;
 }
 
 export interface SearchCategory extends Omit<Category, "adminId"> {
