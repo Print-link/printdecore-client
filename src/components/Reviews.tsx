@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Star, MessageSquare, X, ChevronUp } from "lucide-react";
+import { Star, MessageSquare, X } from "lucide-react";
 import { getRatingByAdmin, type Review } from "../services/ratingApi";
 
 interface ReviewsProps {
