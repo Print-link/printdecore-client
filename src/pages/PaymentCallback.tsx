@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useMemo } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Loader2, AlertCircle } from "lucide-react";
 import { verifyPayment } from "../services/paystackService";
@@ -6,55 +6,55 @@ import { verifyPayment } from "../services/paystackService";
 export const PaymentCallback = () => {
 	const [searchParams] = useSearchParams();
 	const navigate = useNavigate();
-	const reference = searchParams.get("reference");
-	const trxref = searchParams.get("trxref"); // Paystack sometimes uses trxref
 	const hasProcessedRef = useRef(false); // Prevent multiple processing
+	const processingRef = useRef(false); // Prevent concurrent processing
+
+	// Extract reference once and memoize to prevent unnecessary rerenders
+	const paymentReference = useMemo(() => {
+		return searchParams.get("reference") || searchParams.get("trxref");
+	}, [searchParams]);
 
 	useEffect(() => {
+		// Prevent multiple executions - check both refs
+		if (hasProcessedRef.current || processingRef.current || !paymentReference) {
+			return;
+		}
+
+		processingRef.current = true;
+		hasProcessedRef.current = true;
+
 		const handlePaymentCallback = async () => {
-			// Prevent multiple executions
-			if (hasProcessedRef.current) {
-				return;
-			}
-			hasProcessedRef.current = true;
-			// Use reference or trxref (Paystack uses both)
-			const paymentReference = reference || trxref;
-
-			if (!paymentReference) {
-				// No reference, redirect to home
-				setTimeout(() => {
-					navigate("/");
-				}, 2000);
-				return;
-			}
-
-			// Verify payment
 			try {
+				// Verify payment
 				const response = await verifyPayment(paymentReference);
 
 				if (response.status && response.data?.status === "success") {
 					// Payment successful - send message to parent window if opened from modal
-					if (window.opener) {
+					// Include amount to avoid re-verification
+					if (window.opener && !window.opener.closed) {
 						window.opener.postMessage(
 							{
 								type: "PAYSTACK_SUCCESS",
 								reference: paymentReference,
+								amount: response.data.amount || 0, // Include amount from verification
 							},
 							window.location.origin
 						);
 						// Close this window
 						setTimeout(() => {
-							window.close();
+							if (!window.closed) {
+								window.close();
+							}
 						}, 1500);
 					} else {
 						// Opened in same window, redirect to home
 						setTimeout(() => {
-							navigate("/");
+							navigate("/", { replace: true });
 						}, 2000);
 					}
 				} else {
 					// Payment failed or pending
-					if (window.opener) {
+					if (window.opener && !window.opener.closed) {
 						window.opener.postMessage(
 							{
 								type: "PAYSTACK_FAILED",
@@ -64,17 +64,19 @@ export const PaymentCallback = () => {
 							window.location.origin
 						);
 						setTimeout(() => {
-							window.close();
+							if (!window.closed) {
+								window.close();
+							}
 						}, 2000);
 					} else {
 						setTimeout(() => {
-							navigate("/");
+							navigate("/", { replace: true });
 						}, 2000);
 					}
 				}
 			} catch (error) {
 				console.error("Payment verification error:", error);
-				if (window.opener) {
+				if (window.opener && !window.opener.closed) {
 					window.opener.postMessage(
 						{
 							type: "PAYSTACK_ERROR",
@@ -83,23 +85,27 @@ export const PaymentCallback = () => {
 						window.location.origin
 					);
 					setTimeout(() => {
-						window.close();
+						if (!window.closed) {
+							window.close();
+						}
 					}, 2000);
 				} else {
 					setTimeout(() => {
-						navigate("/");
+						navigate("/", { replace: true });
 					}, 2000);
 				}
+			} finally {
+				processingRef.current = false;
 			}
 		};
 
 		handlePaymentCallback();
-	}, [reference, trxref, navigate]);
+	}, [paymentReference, navigate]); // Only depend on memoized reference and stable navigate
 
 	return (
 		<div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
 			<div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 text-center">
-				{reference || trxref ? (
+				{paymentReference ? (
 					<>
 						<Loader2 className="w-12 h-12 text-indigo-600 animate-spin mx-auto mb-4" />
 						<h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -108,9 +114,9 @@ export const PaymentCallback = () => {
 						<p className="text-sm text-gray-600">
 							Please wait while we verify your payment...
 						</p>
-						{reference && (
+						{paymentReference && (
 							<p className="text-xs text-gray-500 mt-2">
-								Reference: {reference}
+								Reference: {paymentReference}
 							</p>
 						)}
 					</>

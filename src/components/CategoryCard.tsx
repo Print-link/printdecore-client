@@ -1,4 +1,4 @@
-import { Tag, MapPin, Navigation } from "lucide-react";
+import { Tag, MapPin, Navigation, Star } from "lucide-react";
 import type { SearchCategory } from "../types/category";
 import { getDistanceColor, formatDistance } from "../utils/stationUtils";
 import { isStationOpen } from "../utils/workingHours";
@@ -74,15 +74,25 @@ export const CategoryCard = ({
 							!isClickable ? "cursor-not-allowed" : ""
 						}`}
 					>
-						<h3
-							className={`text-base md:text-lg font-bold mb-1.5 md:mb-2 line-clamp-1 transition-colors ${
-								isClickable
-									? "text-gray-900 group-hover:text-indigo-700"
-									: "text-gray-500"
-							}`}
-						>
-							{category.name}
-						</h3>
+						<div className="flex items-center justify-between mb-1.5 md:mb-2">
+							<h3
+								className={`text-base md:text-lg font-bold line-clamp-1 transition-colors flex-1 ${
+									isClickable
+										? "text-gray-900 group-hover:text-indigo-700"
+										: "text-gray-500"
+								}`}
+							>
+								{category.name}
+							</h3>
+							{category.admin.averageRating !== undefined && category.admin.averageRating > 0 && (
+								<div className="flex items-center gap-1 shrink-0 ml-2">
+									<Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+									<span className="text-sm font-semibold text-gray-700">
+										{category.admin.averageRating.toFixed(1)}
+									</span>
+								</div>
+							)}
+						</div>
 
 						{category.admin.businessName && (
 							<p className="text-xs md:text-sm text-gray-600 mb-1.5 md:mb-2 line-clamp-1">

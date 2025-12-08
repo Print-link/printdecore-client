@@ -1,4 +1,4 @@
-import { Printer, MapPin, Mail, Navigation } from "lucide-react";
+import { Printer, MapPin, Mail, Navigation, Star } from "lucide-react";
 import type { PrintStation } from "../types/printStation";
 import { getDistanceColor, formatDistance } from "../utils/stationUtils";
 import { isStationOpen } from "../utils/workingHours";
@@ -73,15 +73,25 @@ export const PrintStationCard = ({
 							!isClickable ? "cursor-not-allowed" : ""
 						}`}
 					>
-						<h3
-							className={`text-base md:text-lg font-bold mb-1.5 md:mb-2 line-clamp-1 transition-colors ${
-								isClickable
-									? "text-gray-900 group-hover:text-slate-700"
-									: "text-gray-500"
-							}`}
-						>
-							{station?.businessName || station.name}
-						</h3>
+						<div className="flex items-center justify-between mb-1.5 md:mb-2">
+							<h3
+								className={`text-base md:text-lg font-bold line-clamp-1 transition-colors flex-1 ${
+									isClickable
+										? "text-gray-900 group-hover:text-slate-700"
+										: "text-gray-500"
+								}`}
+							>
+								{station?.businessName || station.name}
+							</h3>
+							{station.averageRating !== undefined && station.averageRating > 0 && (
+								<div className="flex items-center gap-1 shrink-0 ml-2">
+									<Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+									<span className="text-sm font-semibold text-gray-700">
+										{station.averageRating.toFixed(1)}
+									</span>
+								</div>
+							)}
+						</div>
 
 						<div className="space-y-1 md:space-y-2">
 							{station.location?.address && (

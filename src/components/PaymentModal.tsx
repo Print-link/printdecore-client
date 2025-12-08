@@ -1,7 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import { usePayment } from "../hooks/usePayment";
 import { PaymentModalContent } from "./PaymentModalContent";
+
+interface PaymentData {
+	reference: string;
+	amount: number;
+}
 
 interface PaymentModalProps {
 	isOpen: boolean;
@@ -9,7 +14,7 @@ interface PaymentModalProps {
 	amount: number;
 	email: string;
 	subaccount: string;
-	onPaymentSuccess: (reference: string) => void;
+	onPaymentSuccess: (paymentData: PaymentData) => void;
 	onPaymentError: (error: string) => void;
 }
 
@@ -22,13 +27,14 @@ export const PaymentModal = ({
 	onPaymentSuccess,
 	onPaymentError,
 }: PaymentModalProps) => {
+	const hasInitializedRef = useRef(false);
 	const { loading, verifying, error, initialize, reset, setError } = usePayment(
 		{
 			amount,
 			email,
 			subaccount,
-			onPaymentSuccess: (reference) => {
-				onPaymentSuccess(reference);
+			onPaymentSuccess: (paymentData) => {
+				onPaymentSuccess(paymentData);
 				setTimeout(() => {
 					onClose();
 				}, 2000);
@@ -39,12 +45,19 @@ export const PaymentModal = ({
 
 	useEffect(() => {
 		if (isOpen) {
-			setError(null);
-			initialize();
+			// Reset initialization flag when modal opens to allow fresh initialization
+			if (!hasInitializedRef.current) {
+				hasInitializedRef.current = true;
+				setError(null);
+				initialize();
+			}
 		} else {
+			// Reset when modal closes to allow re-initialization next time
+			hasInitializedRef.current = false;
 			reset();
 		}
-	}, [isOpen, initialize, reset, setError]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [isOpen]); // Only depend on isOpen to prevent multiple initializations
 
 	if (!isOpen) return null;
 

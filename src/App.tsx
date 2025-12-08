@@ -14,43 +14,64 @@ import { PrintStationDetails } from './pages/PrintStationDetails';
 import { Categories } from './pages/Categories';
 import { OrderDetails } from './pages/OrderDetails';
 import { PaymentCallback } from './pages/PaymentCallback';
+import { QuoteConfirmation } from "./pages/QuoteConfirmation";
 
 const AppRoutes = () => {
-  const { user, isLoading } = useAuth();
+	const { user, isLoading } = useAuth();
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-slate-700 border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
+	if (isLoading) {
+		return (
+			<div className="min-h-screen flex items-center justify-center">
+				<div className="w-8 h-8 border-4 border-slate-700 border-t-transparent rounded-full animate-spin"></div>
+			</div>
+		);
+	}
 
-  return (
-    <Routes>
-      <Route path="/login" element={user ? <Navigate to="/" replace /> : <Login />} />
-      <Route path="/send-otp" element={user ? <Navigate to="/" replace /> : <SendOTP />} />
-      <Route path="/verify-otp" element={user ? <Navigate to="/" replace /> : <VerifyOTP />} />
-      <Route path="/register" element={user ? <Navigate to="/" replace /> : <Register />} />
-      <Route path="/payment/callback" element={<PaymentCallback />} />
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <ProtectedLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route index element={<Home />} />
-        <Route path="history" element={<History />} />
-        <Route path="search" element={<Search />} />
-        <Route path="order/:id" element={<OrderDetails />} />
-        <Route path="categories/:id" element={<Categories />} />
-        <Route path="print-station/:id" element={<PrintStationDetails />} />
-      </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
-  );
+	return (
+		<Routes>
+			<Route
+				path="/login"
+				element={user ? <Navigate to="/" replace /> : <Login />}
+			/>
+			<Route
+				path="/send-otp"
+				element={user ? <Navigate to="/" replace /> : <SendOTP />}
+			/>
+			<Route
+				path="/verify-otp"
+				element={user ? <Navigate to="/" replace /> : <VerifyOTP />}
+			/>
+			<Route
+				path="/register"
+				element={user ? <Navigate to="/" replace /> : <Register />}
+			/>
+			<Route path="/payment/callback" element={<PaymentCallback />} />
+			<Route
+				path="/quote/confirm"
+				element={
+					<ProtectedRoute>
+						<QuoteConfirmation />
+					</ProtectedRoute>
+				}
+			/>
+			<Route
+				path="/"
+				element={
+					<ProtectedRoute>
+						<ProtectedLayout />
+					</ProtectedRoute>
+				}
+			>
+				<Route index element={<Home />} />
+				<Route path="history" element={<History />} />
+				<Route path="search" element={<Search />} />
+				<Route path="order/:id" element={<OrderDetails />} />
+				<Route path="categories/:id" element={<Categories />} />
+				<Route path="print-station/:id" element={<PrintStationDetails />} />
+			</Route>
+			<Route path="*" element={<Navigate to="/" replace />} />
+		</Routes>
+	);
 };
 
 function App() {

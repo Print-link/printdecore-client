@@ -8,18 +8,19 @@ const getToken = (): string | null => {
 /**
  * Submit results checker form (no file upload, JSON payload)
  */
-export const submitResultsChecker = async (
-	data: {
-		categoryId: string;
-		adminId: string;
-		indexNumber: string;
-		yearOfCompletion: string;
-		dateOfBirth?: string;
-		categoryType: string;
-		clientId: string;
-		paymentReference?: string;
-	}
-) => {
+export const submitResultsChecker = async (data: {
+	categoryId: string;
+	adminId: string;
+	indexNumber: string;
+	yearOfCompletion: string;
+	dateOfBirth?: string;
+	categoryType: string;
+	clientId: string;
+	paymentReference?: string;
+	paymentStatus?: string;
+	totalPrice?: number;
+	paidAt?: string;
+}) => {
 	const token = getToken();
 	const headers: Record<string, string> = {
 		"Content-Type": "application/json",
@@ -37,6 +38,9 @@ export const submitResultsChecker = async (
 		categoryType: string;
 		quantity: string;
 		paymentReference?: string;
+		paymentStatus?: string;
+		totalPrice?: number;
+		paidAt?: string;
 	} = {
 		categoryId: data.categoryId,
 		adminId: data.adminId,
@@ -52,6 +56,15 @@ export const submitResultsChecker = async (
 
 	if (data.paymentReference) {
 		payload.paymentReference = data.paymentReference;
+	}
+	if (data.paymentStatus) {
+		payload.paymentStatus = data.paymentStatus;
+	}
+	if (data.totalPrice !== undefined) {
+		payload.totalPrice = data.totalPrice;
+	}
+	if (data.paidAt) {
+		payload.paidAt = data.paidAt;
 	}
 
 	const response = await axios.post(
