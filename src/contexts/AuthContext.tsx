@@ -31,10 +31,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 							const response = await apiService.getProfile();
 							if (response.success && response.data) {
 								const userData = response.data.client;
+								// Split fullName into firstName and lastName
+								const nameParts = userData.fullName.trim().split(/\s+/);
+								const firstName = nameParts[0] || "";
+								const lastName = nameParts.slice(1).join(" ") || "";
+
 								const updatedUser: User = {
 									_id: userData._id,
 									email: userData.email,
-									fullName: userData.fullName,
+									firstName: firstName,
+									lastName: lastName,
 									phoneNumber: userData.phoneNumber,
 									isActive: userData.isActive,
 									lastLogin: userData.lastLogin,
@@ -109,10 +115,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 			const response = await apiService.getProfile();
 			if (response.success && response.data) {
 				const userData = response.data.client;
+				// Split fullName into firstName and lastName
+				const nameParts = userData.fullName.trim().split(/\s+/);
+				const firstName = nameParts[0] || "";
+				const lastName = nameParts.slice(1).join(" ") || "";
+
 				const updatedUser: User = {
 					_id: userData._id,
 					email: userData.email,
-					fullName: userData.fullName,
+					firstName: firstName,
+					lastName: lastName,
 					phoneNumber: userData.phoneNumber,
 					isActive: userData.isActive,
 					lastLogin: userData.lastLogin,
@@ -175,30 +187,60 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 			const response = await apiService.login(email, password);
 
 			if (response.success && response.data) {
-				const { client, token } = response.data;
+				const { customer, token } = response.data;
 
 				// Store token securely
 				localStorage.setItem("token", token);
 
-				// Prepare user data
-				const userData: User = {
-					_id: client._id,
-					email: client.email,
-					fullName: client.fullName,
-					phoneNumber: client.phoneNumber,
-					isActive: client.isActive,
-					...(client.lastLogin && { lastLogin: client.lastLogin }),
-				};
-
-				// Update state and persist to localStorage
-				setUser(userData);
+				// Fetch full user profile after login to get all user details
 				try {
-					localStorage.setItem("user", JSON.stringify(userData));
-					// Store last login email for convenience (optional)
+					const profileResponse = await apiService.getProfile();
+					if (profileResponse.success && profileResponse.data) {
+						const userData = profileResponse.data.client;
+						// Split fullName into firstName and lastName
+						const nameParts = userData.fullName.trim().split(/\s+/);
+						const firstName = nameParts[0] || "";
+						const lastName = nameParts.slice(1).join(" ") || "";
+
+						const user: User = {
+							_id: userData._id,
+							email: userData.email,
+							firstName: firstName,
+							lastName: lastName,
+							phoneNumber: userData.phoneNumber,
+							isActive: userData.isActive,
+							...(userData.lastLogin && { lastLogin: userData.lastLogin }),
+						};
+
+						// Update state and persist to localStorage
+						setUser(user);
+						try {
+							localStorage.setItem("user", JSON.stringify(user));
+							localStorage.setItem("lastLoginEmail", email);
+						} catch (storageError) {
+							console.error("Error saving user to localStorage:", storageError);
+						}
+
+						return { success: true };
+					}
+				} catch (profileError) {
+					console.error(
+						"Error fetching user profile after login:",
+						profileError
+					);
+					// If profile fetch fails, create minimal user from login response
+					const minimalUser: User = {
+						_id: customer.id,
+						email: customer.email,
+						firstName: "", // Will be fetched later
+						lastName: "", // Will be fetched later
+						phoneNumber: "", // Will be fetched later
+						isActive: true, // Assume active if login succeeded
+					};
+					setUser(minimalUser);
+					localStorage.setItem("user", JSON.stringify(minimalUser));
 					localStorage.setItem("lastLoginEmail", email);
-				} catch (storageError) {
-					console.error("Error saving user to localStorage:", storageError);
-					// Don't fail login if localStorage write fails, but log it
+					return { success: true };
 				}
 
 				return { success: true };
@@ -212,32 +254,35 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 	};
 
 	const register = async (
-		fullName: string,
+		firstName: string,
+		lastName: string,
 		email: string,
 		password: string,
 		phoneNumber: string
 	): Promise<{ success: boolean; message?: string }> => {
 		try {
 			const response = await apiService.register(
-				fullName,
+				firstName,
+				lastName,
 				email,
 				password,
 				phoneNumber
 			);
 
 			if (response.success && response.data) {
-				const { client, token } = response.data;
+				const { customer, token } = response.data;
 
 				// Store token securely
 				localStorage.setItem("token", token);
 
 				// Prepare user data
 				const userData: User = {
-					_id: client._id,
-					email: client.email,
-					fullName: client.fullName,
-					phoneNumber: client.phoneNumber,
-					isActive: client.isActive,
+					_id: customer.id,
+					email: customer.email,
+					firstName: customer.firstName,
+					lastName: customer.lastName,
+					phoneNumber: customer.phoneNumber,
+					isActive: true, // Assume active if registration succeeded
 					// lastLogin is not returned on registration
 				};
 

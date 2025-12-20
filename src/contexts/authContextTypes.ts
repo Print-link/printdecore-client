@@ -3,7 +3,8 @@ import { createContext } from "react";
 export interface User {
 	_id: string;
 	email: string;
-	fullName: string;
+	firstName: string;
+	lastName: string;
 	phoneNumber: string;
 	isActive: boolean;
 	lastLogin?: string;
@@ -16,7 +17,8 @@ export interface AuthContextType {
 		password: string
 	) => Promise<{ success: boolean; message?: string }>;
 	register: (
-		fullName: string,
+		firstName: string,
+		lastName: string,
 		email: string,
 		password: string,
 		phoneNumber: string

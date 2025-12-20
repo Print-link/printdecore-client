@@ -178,7 +178,7 @@ export const QuoteConfirmation = () => {
 	if (fetching) {
 		return (
 			<div className="min-h-screen flex items-center justify-center bg-gray-50">
-				<div className="w-8 h-8 border-4 border-slate-700 border-t-transparent rounded-full animate-spin"></div>
+				<div className="w-8 h-8 border-4 border-[#63A361] border-t-transparent rounded-full animate-spin"></div>
 			</div>
 		);
 	}
@@ -194,7 +194,7 @@ export const QuoteConfirmation = () => {
 					<p className="text-gray-700 mb-6">{error}</p>
 					<button
 						onClick={() => navigate("/")}
-						className="w-full py-3 px-4 bg-slate-700 text-white rounded-lg hover:bg-slate-800 transition-colors font-medium"
+						className="w-full py-3 px-4 bg-[#63A361] text-white rounded-lg hover:bg-[#63A361] transition-colors font-medium"
 					>
 						Go to Home
 					</button>
@@ -219,7 +219,9 @@ export const QuoteConfirmation = () => {
 									<div className="shrink-0">
 										<img
 											src={quoteData.adminId.businessLogo}
-											alt={quoteData.adminId.businessName || quoteData.adminId.name}
+											alt={
+												quoteData.adminId.businessName || quoteData.adminId.name
+											}
 											className="w-20 h-20 object-contain rounded-lg border border-gray-200"
 											onError={() => setLogoError(true)}
 										/>
@@ -257,13 +259,16 @@ export const QuoteConfirmation = () => {
 				{/* Header Section */}
 				<div className="mb-8">
 					<div className="flex items-center gap-3 mb-3">
-						<div className="w-10 h-10 bg-slate-700 rounded-lg flex items-center justify-center">
+						<div className="w-10 h-10 bg-[#63A361] rounded-lg flex items-center justify-center">
 							<FileText className="w-6 h-6 text-white" />
 						</div>
-						<h1 className="text-3xl font-bold text-gray-900">Quote Confirmation</h1>
+						<h1 className="text-3xl font-bold text-gray-900">
+							Quote Confirmation
+						</h1>
 					</div>
 					<p className="text-gray-600 text-lg">
-						Review your quote details and proceed with payment to confirm your order.
+						Review your quote details and proceed with payment to confirm your
+						order.
 					</p>
 				</div>
 
@@ -271,7 +276,9 @@ export const QuoteConfirmation = () => {
 				<div className="bg-white border border-gray-200 rounded-lg mb-6">
 					{/* Card Header */}
 					<div className="border-b border-gray-200 px-8 py-6">
-						<h2 className="text-xl font-semibold text-gray-900">Order Information</h2>
+						<h2 className="text-xl font-semibold text-gray-900">
+							Order Information
+						</h2>
 					</div>
 
 					{/* Card Body */}
@@ -329,7 +336,7 @@ export const QuoteConfirmation = () => {
 							<span className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
 								Total Amount
 							</span>
-							<span className="text-3xl font-bold text-slate-700">
+							<span className="text-3xl font-bold text-[#63A361]">
 								₵{quoteData.totalPrice.toFixed(2)}
 							</span>
 						</div>
@@ -348,8 +355,12 @@ export const QuoteConfirmation = () => {
 						</button>
 						<button
 							onClick={handleConfirmPayment}
-							disabled={loading || !quoteData.adminId?.businessPaystackSubaccountCode || !user}
-							className="flex-1 py-3.5 px-6 bg-slate-700 text-white rounded-lg font-semibold hover:bg-slate-800 active:bg-slate-900 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+							disabled={
+								loading ||
+								!quoteData.adminId?.businessPaystackSubaccountCode ||
+								!user
+							}
+							className="flex-1 py-3.5 px-6 bg-[#63A361] text-white rounded-lg font-semibold hover:bg-[#63A361] active:bg-[#63A361] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
 						>
 							{loading ? (
 								<>

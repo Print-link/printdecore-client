@@ -9,7 +9,7 @@ interface EmptyStateProps {
 export const EmptyState = ({ type, onClearSearch, message }: EmptyStateProps) => {
 	if (type === "no-stations") {
 		return (
-			<div className="bg-white rounded-2xl shadow-xl p-8 text-center">
+			<div className="bg-white p-8 text-center">
 				<Printer className="w-12 h-12 text-gray-400 mx-auto mb-4" />
 				<p className="text-gray-600">
 					No print stations available at the moment.
@@ -20,7 +20,7 @@ export const EmptyState = ({ type, onClearSearch, message }: EmptyStateProps) =>
 
 	if (type === "no-categories") {
 		return (
-			<div className="bg-white rounded-2xl shadow-xl p-8 text-center">
+			<div className="bg-white rounded-2xl p-8 text-center">
 				<Tag className="w-12 h-12 text-gray-400 mx-auto mb-4" />
 				<p className="text-gray-600 mb-2">
 					{message || "No categories found matching your search."}
@@ -28,7 +28,7 @@ export const EmptyState = ({ type, onClearSearch, message }: EmptyStateProps) =>
 				{onClearSearch && (
 					<button
 						onClick={onClearSearch}
-						className="text-indigo-600 hover:text-indigo-700 font-medium text-sm"
+						className="text-[#63A361] hover:text-[#63A361] font-medium text-sm"
 					>
 						Clear search
 					</button>
@@ -38,7 +38,7 @@ export const EmptyState = ({ type, onClearSearch, message }: EmptyStateProps) =>
 	}
 
 	return (
-		<div className="bg-white rounded-2xl shadow-xl p-8 text-center">
+		<div className="bg-white rounded-2xl p-8 text-center">
 			<Search className="w-12 h-12 text-gray-400 mx-auto mb-4" />
 			<p className="text-gray-600 mb-2">
 				{message || "No print stations found matching your search."}
@@ -46,7 +46,7 @@ export const EmptyState = ({ type, onClearSearch, message }: EmptyStateProps) =>
 			{onClearSearch && (
 				<button
 					onClick={onClearSearch}
-					className="text-indigo-600 hover:text-indigo-700 font-medium text-sm"
+					className="text-[#63A361] hover:text-[#63A361] font-medium text-sm"
 				>
 					Clear search
 				</button>

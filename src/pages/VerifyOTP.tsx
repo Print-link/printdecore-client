@@ -125,10 +125,10 @@ export const VerifyOTP = () => {
 
 	return (
 		<div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-			<div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
+			<div className="w-full max-w-md bg-white rounded-2xl p-8">
 				<div className="text-center mb-8">
 					<div className="inline-flex items-center justify-center w-16 h-16 bg-slate-100 rounded-full mb-4">
-						<Shield className="w-8 h-8 text-slate-700" />
+						<Shield className="w-8 h-8 text-[#63A361]" />
 					</div>
 					<h1 className="text-3xl font-bold text-gray-900 mb-2">
 						Enter Verification Code
@@ -136,7 +136,7 @@ export const VerifyOTP = () => {
 					<p className="text-gray-600 mb-1">
 						We've sent a 6-digit code to
 					</p>
-					<p className="text-sm font-semibold text-slate-700">{email}</p>
+					<p className="text-sm font-semibold text-gray-900">{email}</p>
 				</div>
 
 				{error && (
@@ -177,7 +177,7 @@ export const VerifyOTP = () => {
 						className={`w-full py-3 rounded-xl font-semibold text-white transition-all flex items-center justify-center ${
 							isLoading || otp.join('').length !== 6
 								? 'bg-gray-400 cursor-not-allowed'
-								: 'bg-slate-700 hover:bg-slate-800 hover:shadow-lg'
+								: 'bg-[#63A361] hover:bg-[#63A361] '
 						}`}
 					>
 						{isLoading ? (
@@ -199,7 +199,7 @@ export const VerifyOTP = () => {
 						type="button"
 						onClick={handleResend}
 						disabled={isLoading}
-						className="w-full text-sm text-slate-700 hover:text-slate-800 font-medium disabled:text-gray-400"
+						className="w-full text-sm text-[#63A361] hover:text-[#63A361] font-medium disabled:text-gray-400"
 					>
 						Didn't receive the code? Resend
 					</button>
@@ -221,7 +221,7 @@ export const VerifyOTP = () => {
 							Already have an account?{' '}
 							<Link
 								to="/login"
-								className="text-slate-700 font-semibold hover:text-slate-800"
+								className="text-[#63A361] font-semibold hover:text-[#63A361]"
 							>
 								Sign in
 							</Link>

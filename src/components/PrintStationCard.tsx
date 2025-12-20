@@ -29,9 +29,9 @@ export const PrintStationCard = ({
 
 	return (
 		<div
-			className={`relative bg-white rounded-xl border transition-all overflow-hidden ${
+			className={`relative bg-white rounded-lg border-2 transition-all overflow-hidden ${
 				isClickable
-					? "border-gray-300 group hover:shadow-lg cursor-pointer"
+					? "border-gray-200 group cursor-pointer hover:border-[#63A361]"
 					: "border-gray-200 opacity-75 cursor-not-allowed"
 			}`}
 		>
@@ -53,7 +53,7 @@ export const PrintStationCard = ({
 								isOpen ? "group-hover:bg-slate-200" : ""
 							}`}
 						>
-							<Printer className="w-10 h-10 sm:w-12 sm:h-12 md:w-12 md:h-12 text-slate-700" />
+							<Printer className="w-10 h-10 sm:w-12 sm:h-12 md:w-12 md:h-12 text-[#63A361]" />
 						</div>
 					)}
 					<div className="absolute top-2 right-2 z-20">
@@ -77,20 +77,21 @@ export const PrintStationCard = ({
 							<h3
 								className={`text-base md:text-lg font-bold line-clamp-1 transition-colors flex-1 ${
 									isClickable
-										? "text-gray-900 group-hover:text-slate-700"
+										? "text-gray-900 group-hover:text-[#63A361]"
 										: "text-gray-500"
 								}`}
 							>
 								{station?.businessName || station.name}
 							</h3>
-							{station.averageRating !== undefined && station.averageRating > 0 && (
-								<div className="flex items-center gap-1 shrink-0 ml-2">
-									<Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-									<span className="text-sm font-semibold text-gray-700">
-										{station.averageRating.toFixed(1)}
-									</span>
-								</div>
-							)}
+							{station.averageRating !== undefined &&
+								station.averageRating > 0 && (
+									<div className="flex items-center gap-1 shrink-0 ml-2">
+										<Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+										<span className="text-sm font-semibold text-gray-700">
+											{station.averageRating?.toFixed(1)}
+										</span>
+									</div>
+								)}
 						</div>
 
 						<div className="space-y-1 md:space-y-2">
@@ -118,13 +119,6 @@ export const PrintStationCard = ({
 									<span className="truncate">{station.email}</span>
 								</div>
 							)}
-							<div className="pt-1 md:pt-2">
-								<StationStatusBadge
-									workingHours={station.workingHours}
-									isOpen={station.isOpen}
-									compact={false}
-								/>
-							</div>
 						</div>
 					</button>
 				</div>

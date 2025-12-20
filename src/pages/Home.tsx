@@ -4,7 +4,7 @@ import { useGeolocation } from "../hooks/useGeolocation";
 import { usePrintStations } from "../hooks/usePrintStations";
 import { filterStations } from "../utils/stationUtils";
 import { LocationStatus } from "../components/LocationStatus";
-import { SearchBar } from "../components/SearchBar";
+import { SearchAutocomplete } from "../components/SearchAutocomplete";
 import { PrintStationGrid } from "../components/PrintStationGrid";
 import { EmptyState } from "../components/EmptyState";
 import { LoadingState } from "../components/LoadingState";
@@ -31,7 +31,6 @@ export const Home = () => {
 		navigate(`/categories/${stationId}`);
 	};
 
-
 	const clearSearch = () => {
 		setSearchQuery("");
 	};
@@ -53,11 +52,20 @@ export const Home = () => {
 				onRequestLocation={requestLocation}
 			/>
 
-			<SearchBar
-				searchQuery={searchQuery}
-				onSearchChange={setSearchQuery}
-				resultCount={filteredStations.length}
-			/>
+			<div className="mb-6">
+				<SearchAutocomplete
+					placeholder="Search services, categories, or branches..."
+					className="mb-4"
+				/>
+				{/* Legacy search for branches */}
+				<input
+					type="text"
+					value={searchQuery}
+					onChange={(e) => setSearchQuery(e.target.value)}
+					placeholder="Search branches by name..."
+					className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#63A361] focus:border-transparent"
+				/>
+			</div>
 
 			{printStations.length === 0 ? (
 				<EmptyState type="no-stations" />

@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Loader2, AlertCircle, ArrowLeft, Tag } from "lucide-react";
-import { bussinessCategoryService } from "../services/bussinessCategoryService";
+import { getCategories, type Category } from "../services/orderApi";
 import { Reviews } from "../components/Reviews";
-import type { Category } from "../types/category";
 
 export const Categories = () => {
 	const { id } = useParams<{ id: string }>();
@@ -23,8 +22,8 @@ export const Categories = () => {
 			try {
 				setLoading(true);
 				setError(null);
-				const response = await bussinessCategoryService.getAllBussinessCategories(id);
-				
+				const response = await getCategories();
+
 				if (response.success && response.data) {
 					setCategories(response.data);
 				} else {
@@ -44,7 +43,7 @@ export const Categories = () => {
 	}, [id]);
 
 	const handleCategoryClick = (categoryId: string) => {
-		navigate(`/print-station/${id}?category=${categoryId}`);
+		navigate(`/order/sub-categories/${id}?categoryId=${categoryId}`);
 	};
 
 	const handleBack = () => {
@@ -55,7 +54,7 @@ export const Categories = () => {
 		return (
 			<div className="w-full max-w-6xl mx-auto bg-white rounded-2xl p-8">
 				<div className="flex items-center justify-center py-12">
-					<Loader2 className="w-8 h-8 text-slate-700 animate-spin" />
+					<Loader2 className="w-8 h-8 text-[#63A361] animate-spin" />
 				</div>
 			</div>
 		);
@@ -63,7 +62,7 @@ export const Categories = () => {
 
 	if (error) {
 		return (
-			<div className="w-full max-w-6xl mx-auto bg-white rounded-2xl shadow-xl p-8">
+			<div className="w-full max-w-6xl mx-auto bg-white rounded-2xl p-8">
 				<div className="text-center py-12">
 					<AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
 					<h2 className="text-xl font-semibold text-gray-900 mb-2">
@@ -72,7 +71,7 @@ export const Categories = () => {
 					<p className="text-gray-600 mb-4">{error}</p>
 					<button
 						onClick={handleBack}
-						className="inline-flex items-center px-4 py-2 text-sm font-medium text-indigo-600 hover:text-indigo-700"
+						className="inline-flex items-center px-4 py-2 text-sm font-medium text-[#63A361] hover:text-[#63A361]"
 					>
 						<ArrowLeft className="w-4 h-4 mr-2" />
 						Go Back
@@ -94,50 +93,58 @@ export const Categories = () => {
 			</button>
 
 			{/* Header */}
-			<div className="mb-6">
-				<h1 className="text-xl md:text-xl font-bold text-gray-900 mb-2">
+			<div className="mb-4">
+				<h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-1">
 					Select a Category
 				</h1>
-				<p className="text-sm md:text-base text-gray-600">
+				<p className="text-sm text-gray-600">
 					Choose a print category to continue with your order
 				</p>
 			</div>
 
 			{/* Main Content: Categories on left, Reviews on right (desktop) */}
-			<div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+			<div className="flex flex-col lg:flex-row gap-4">
 				{/* Categories Section */}
 				<div className="flex-1">
 					{categories.length === 0 ? (
 						<div className="bg-white rounded-2xl p-8 text-center">
 							<Tag className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-							<p className="text-gray-600">No categories available for this print station.</p>
+							<p className="text-gray-600">
+								No categories available for this print station.
+							</p>
 						</div>
 					) : (
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+						<div className="space-y-3 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
 							{categories.map((category) => (
 								<button
-									key={category._id || category.id}
-									onClick={() => handleCategoryClick(category._id || category.id)}
-									className="bg-white rounded-xl p-3 border border-gray-300 text-left group"
+									key={category.id}
+									onClick={() => handleCategoryClick(category.id)}
+									className="w-full bg-white rounded-lg p-4 border-2 border-gray-200 text-left group hover:border-[#63A361] transition-all flex items-center gap-3 md:flex-col md:items-start"
 								>
-									<div className="flex gap-3 items-center mb-4">
-										<div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center group-hover:bg-indigo-200 transition-colors">
-											<Tag className="w-6 h-6 text-indigo-700" />
+									{category.imageUrl ? (
+										<img
+											src={category.imageUrl}
+											alt={category.name}
+											className="w-16 h-16 md:w-20 md:h-20 object-cover rounded-lg shrink-0"
+										/>
+									) : (
+										<div className="w-16 h-16 md:w-20 md:h-20 bg-gray-50 rounded-lg flex items-center justify-center shrink-0 border-2 border-gray-200 group-hover:border-[#63A361] transition-colors">
+											<Tag className="w-8 h-8 md:w-10 md:h-10 text-[#63A361]" />
 										</div>
-										<h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-indigo-700 transition-colors">
+									)}
+									<div className="flex-1 min-w-0">
+										<h3 className="text-base md:text-lg font-bold text-gray-900 mb-1 group-hover:text-[#63A361] transition-colors">
 											{category.name}
 										</h3>
-									</div>
-									{category.description && (
-										<p className="text-sm text-gray-600 mb-3 line-clamp-2">
-											{category.description}
-										</p>
-									)}
-									<div className="flex items-center justify-between pt-3 border-t border-gray-200">
-										<span className="text-sm font-medium text-gray-600">Price:</span>
-										<span className="text-xl font-bold text-indigo-600">
-											GHS{category.unitPrice.toFixed(2)}
-										</span>
+										{category.description && (
+											<p className="text-sm text-gray-600 line-clamp-2 md:line-clamp-3 mb-2">
+												{category.description}
+											</p>
+										)}
+										<div className="flex items-center text-sm font-semibold text-[#63A361]">
+											<span>View SubCategories</span>
+											<span className="ml-2 hidden md:inline">→</span>
+										</div>
 									</div>
 								</button>
 							))}

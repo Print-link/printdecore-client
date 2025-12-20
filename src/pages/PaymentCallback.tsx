@@ -104,10 +104,10 @@ export const PaymentCallback = () => {
 
 	return (
 		<div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-			<div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 text-center">
+			<div className="bg-white rounded-lg max-w-md w-full p-6 text-center">
 				{paymentReference ? (
 					<>
-						<Loader2 className="w-12 h-12 text-indigo-600 animate-spin mx-auto mb-4" />
+						<Loader2 className="w-12 h-12 text-[#63A361] animate-spin mx-auto mb-4" />
 						<h3 className="text-lg font-semibold text-gray-900 mb-2">
 							Verifying Payment
 						</h3>

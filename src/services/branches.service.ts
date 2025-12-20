@@ -1,12 +1,12 @@
 import axios from "axios";
 import { BASE_URL } from "./orderApi";
 
-export const getPrintStationById = async (id: string) => {
+export const getBranchById = async (id: string) => {
     const token = localStorage.getItem("token");
     
     try {
         const response = await axios.get(
-            `${BASE_URL}/clients/get-print-station-by-id/${id}`,
+            `${BASE_URL}/branches/${id}`,
             {
                 headers: {
                     "Content-Type": "application/json",
@@ -20,3 +20,4 @@ export const getPrintStationById = async (id: string) => {
         throw error;
     }
 };
+

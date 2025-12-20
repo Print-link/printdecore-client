@@ -198,10 +198,10 @@ export const usePayment = ({
 				subaccounts: [
 					{
 						subaccount: subaccount,
-						share: 93,
+						share: 98.5,
 					},
 				],
-				bearer_type: "account",
+				bearer_type: "subaccount",
 			};
 
 			let splitCode: string | undefined;
