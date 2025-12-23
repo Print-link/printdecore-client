@@ -39,10 +39,10 @@ export const PrintStationHeader = ({
 			</div>
 			{selectedCategory && (
 				<div className="mt-3 p-3 bg-white rounded-lg border border-[white]">
-					<p className="text-sm font-medium text-[#63A361] mb-1">
+					<p className="text-sm font-medium text-[#fbbf24] mb-1">
 						Selected Category: {selectedCategory.name}
 					</p>
-					<p className="text-xs text-[#63A361]">
+					<p className="text-xs text-[#fbbf24]">
 						Price: GHS{selectedCategory.unitPrice.toFixed(2)} per unit
 					</p>
 				</div>

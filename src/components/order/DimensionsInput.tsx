@@ -34,7 +34,7 @@ export const DimensionsInput = ({
 						onWidthChange(parseFloat(e.target.value) || undefined)
 					}
 					required={required}
-					className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#63A361] focus:border-transparent"
+					className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
 				/>
 			</div>
 			<div>
@@ -50,7 +50,7 @@ export const DimensionsInput = ({
 						onHeightChange(parseFloat(e.target.value) || undefined)
 					}
 					required={required}
-					className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#63A361] focus:border-transparent"
+					className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
 				/>
 			</div>
 			<div>
@@ -62,7 +62,7 @@ export const DimensionsInput = ({
 					onChange={(e) =>
 						onMeasurementUnitChange(e.target.value as MeasurementUnit)
 					}
-					className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#63A361] focus:border-transparent"
+					className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
 				>
 					<option value="FEET">Feet</option>
 					<option value="INCH">Inches</option>

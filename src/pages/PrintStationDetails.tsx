@@ -445,7 +445,7 @@ export const PrintStationDetails = () => {
 		return (
 			<div className="w-full max-w-3xl mx-auto bg-white rounded-2xl p-8">
 				<div className="flex items-center justify-center py-12">
-					<div className="w-8 h-8 border-4 border-[#63A361] border-t-transparent rounded-full animate-spin"></div>
+					<div className="w-8 h-8 border-4 border-[#fbbf24] border-t-transparent rounded-full animate-spin"></div>
 				</div>
 			</div>
 		);
@@ -464,7 +464,7 @@ export const PrintStationDetails = () => {
 					</p>
 					<button
 						onClick={() => navigate("/")}
-						className="inline-flex items-center px-4 py-2 bg-[#63A361] text-white rounded-lg hover:bg-[#63A361] transition-colors"
+						className="inline-flex items-center px-4 py-2 bg-[#fbbf24] text-white rounded-lg hover:bg-[#fbbf24] transition-colors"
 					>
 						<ArrowLeft className="w-4 h-4 mr-2" />
 						Back to Home
@@ -478,7 +478,7 @@ export const PrintStationDetails = () => {
 		<div className="w-full max-w-3xl bg-white p-4 lg:p-8">
 			<button
 				onClick={() => navigate("/")}
-				className="mb-4 sm:mb-6 flex items-center text-sm text-gray-600 hover:text-[#63A361] transition-colors"
+				className="mb-4 sm:mb-6 flex items-center text-sm text-gray-600 hover:text-[#fbbf24] transition-colors"
 			>
 				<ArrowLeft className="w-4 h-4 mr-2" />
 				Back to Print Stations
@@ -492,7 +492,7 @@ export const PrintStationDetails = () => {
 
 			<div className="text-center mb-6 sm:mb-8">
 				<div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-slate-100 rounded-full mb-3 sm:mb-4">
-					<Printer className="w-6 h-6 sm:w-8 sm:h-8 text-[#63A361]" />
+					<Printer className="w-6 h-6 sm:w-8 sm:h-8 text-[#fbbf24]" />
 				</div>
 				<h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
 					{isResultsChecker
@@ -584,7 +584,7 @@ export const PrintStationDetails = () => {
 				className={`w-full mt-4 sm:mt-6 py-3.5 sm:py-4 rounded-xl font-semibold text-white transition-all flex items-center justify-center text-sm sm:text-base touch-manipulation ${
 					uploading || !isFormValid
 						? "bg-gray-400 cursor-not-allowed"
-						: "bg-[#63A361] hover:bg-[#63A361] active:bg-[#63A361]"
+						: "bg-[#fbbf24] hover:bg-[#fbbf24] active:bg-[#fbbf24]"
 				}`}
 			>
 				{uploading ? (

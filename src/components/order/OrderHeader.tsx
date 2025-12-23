@@ -36,7 +36,7 @@ export const OrderHeader = ({
 						{totalPrice !== undefined && (
 							<div>
 								<p className="text-xs text-gray-500 mb-1">Total Amount</p>
-								<p className="text-xl lg:text-2xl font-bold text-[#63A361]">
+								<p className="text-xl lg:text-2xl font-bold text-[#fbbf24]">
 									GHS {totalPrice.toFixed(2)}
 								</p>
 							</div>
@@ -55,7 +55,7 @@ export const OrderHeader = ({
 					{hasLocation && (
 						<button
 							onClick={onGetDirections}
-							className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#63A361] text-white rounded-lg hover:bg-[#5a9458] transition-colors text-sm font-semibold border-2 border-[#63A361]"
+							className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#fbbf24] text-white rounded-lg hover:bg-[#d97706] transition-colors text-sm font-semibold border-2 border-[#fbbf24]"
 						>
 							<MapPin className="w-4 h-4" />
 							Get Directions

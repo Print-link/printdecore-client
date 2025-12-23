@@ -39,7 +39,7 @@ export const ServiceCard = ({ result }: ServiceCardProps) => {
 	return (
 		<button
 			onClick={handleClick}
-			className="w-full bg-white rounded-xl p-6 border border-gray-300 text-left hover:border-[#63A361]  transition-all group"
+			className="w-full bg-white rounded-xl p-6 border border-gray-300 text-left hover:border-[#fbbf24]  transition-all group"
 		>
 			{/* Header */}
 			<div className="flex items-start justify-between mb-4">
@@ -53,7 +53,7 @@ export const ServiceCard = ({ result }: ServiceCardProps) => {
 							/>
 						) : (
 							<div className="w-8 h-8 bg-[#FFF9E6] rounded flex items-center justify-center">
-								<Package className="w-4 h-4 text-[#63A361]" />
+								<Package className="w-4 h-4 text-[#fbbf24]" />
 							</div>
 						)}
 						<div>
@@ -63,7 +63,7 @@ export const ServiceCard = ({ result }: ServiceCardProps) => {
 							</div>
 						</div>
 					</div>
-					<h3 className="text-lg font-bold text-gray-900 group-hover:text-[#63A361] transition-colors">
+					<h3 className="text-lg font-bold text-gray-900 group-hover:text-[#fbbf24] transition-colors">
 						{result.service.name}
 					</h3>
 				</div>
@@ -80,25 +80,25 @@ export const ServiceCard = ({ result }: ServiceCardProps) => {
 			<div className="flex flex-wrap gap-2 mb-4">
 				{result.service.allowsCustomSize && (
 					<div className="flex items-center gap-1 text-xs text-gray-600">
-						<Check className="w-3 h-3 text-[#63A361]" />
+						<Check className="w-3 h-3 text-[#fbbf24]" />
 						Custom Size
 					</div>
 				)}
 				{result.service.supportsFrontBack && (
 					<div className="flex items-center gap-1 text-xs text-gray-600">
-						<Check className="w-3 h-3 text-[#63A361]" />
+						<Check className="w-3 h-3 text-[#fbbf24]" />
 						Front & Back
 					</div>
 				)}
 				{result.service.supportsColor && (
 					<div className="flex items-center gap-1 text-xs text-gray-600">
-						<Check className="w-3 h-3 text-[#63A361]" />
+						<Check className="w-3 h-3 text-[#fbbf24]" />
 						Color
 					</div>
 				)}
 				{result.service.supportsPrintCut && (
 					<div className="flex items-center gap-1 text-xs text-gray-600">
-						<Check className="w-3 h-3 text-[#63A361]" />
+						<Check className="w-3 h-3 text-[#fbbf24]" />
 						Print & Cut
 					</div>
 				)}
@@ -111,7 +111,7 @@ export const ServiceCard = ({ result }: ServiceCardProps) => {
 						<DollarSign className="w-4 h-4" />
 						<span>Price Range:</span>
 					</div>
-					<div className="text-lg font-bold text-[#63A361]">
+					<div className="text-lg font-bold text-[#fbbf24]">
 						GHS {result.priceRange.min.toFixed(2)} - GHS{" "}
 						{result.priceRange.max.toFixed(2)}
 					</div>
@@ -148,7 +148,7 @@ export const ServiceCard = ({ result }: ServiceCardProps) => {
 							</div>
 						))}
 						{result.branches.length > 3 && (
-							<div className="text-xs text-[#63A361]">
+							<div className="text-xs text-[#fbbf24]">
 								+{result.branches.length - 3} more
 							</div>
 						)}
@@ -158,7 +158,7 @@ export const ServiceCard = ({ result }: ServiceCardProps) => {
 
 			{/* Action */}
 			<div className="mt-4 pt-4 border-t border-gray-200">
-				<span className="text-sm font-medium text-[#63A361] group-hover:text-[#E6B00D]">
+				<span className="text-sm font-medium text-[#fbbf24] group-hover:text-[#d97706]">
 					View Pricing & Order →
 				</span>
 			</div>

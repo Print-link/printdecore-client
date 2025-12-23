@@ -1,62 +1,24 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Package, Calendar, Clock, CheckCircle, XCircle, AlertCircle, ChevronRight } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
-import { getClientOrders, type Order, type OrderStatus } from '../services/orderApi';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+	Package,
+	Calendar,
+	Clock,
+	CheckCircle,
+	AlertCircle,
+	ChevronRight,
+} from "lucide-react";
+import { useAuth } from "../hooks/useAuth";
+import { useOrders } from "../hooks/useOrders";
+import type { Order, OrderStatus } from "../services/orderApi";
 
 export const History = () => {
 	const { user } = useAuth();
 	const navigate = useNavigate();
-	const [orders, setOrders] = useState<Order[]>([]);
 	const [filter, setFilter] = useState<OrderStatus | "all">("all");
-	const [isLoading, setIsLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
 
-	const loadOrders = useCallback(async () => {
-		if (!user?._id) {
-			setIsLoading(false);
-			return;
-		}
-
-		setIsLoading(true);
-		setError(null);
-
-		try {
-			const response = await getClientOrders(user._id);
-
-			if (response.success && response.data) {
-				// Handle both array and object with orders property
-				let ordersData: Order[] = [];
-				if (Array.isArray(response.data)) {
-					ordersData = response.data;
-				} else if ((response.data as any)?.orders && Array.isArray((response.data as any).orders)) {
-					ordersData = (response.data as any).orders;
-				} else if ((response.data as any)?.data && Array.isArray((response.data as any).data)) {
-					ordersData = (response.data as any).data;
-				}
-				setOrders(ordersData);
-			} else {
-				setOrders([]);
-			}
-		} catch (err: unknown) {
-			console.error("Error loading orders:", err);
-			const errorMessage =
-				err instanceof Error
-					? err.message
-					: "Failed to load orders";
-			setError(errorMessage);
-		} finally {
-			setIsLoading(false);
-		}
-	}, [user?._id]);
-
-	useEffect(() => {
-		if (user?._id) {
-			loadOrders();
-		} else {
-			setIsLoading(false);
-		}
-	}, [user?._id, loadOrders]);
+	// Use React Query hook for orders with automatic caching and refetching
+	const { data: orders = [], isLoading, error } = useOrders(user?._id);
 
 	const formatDate = (timestamp: string) => {
 		const date = new Date(timestamp);
@@ -72,7 +34,7 @@ export const History = () => {
 	const getStatusIcon = (status: OrderStatus) => {
 		switch (status) {
 			case "COMPLETED":
-				return <CheckCircle className="w-5 h-5 text-[#63A361]" />;
+				return <CheckCircle className="w-5 h-5 text-[#fbbf24]" />;
 			case "PAID":
 				return <CheckCircle className="w-5 h-5 text-blue-600" />;
 			case "IN_PROGRESS":
@@ -88,7 +50,7 @@ export const History = () => {
 			QUOTED: "bg-blue-50 text-blue-700 border border-blue-200",
 			PAID: "bg-green-50 text-green-700 border border-green-200",
 			IN_PROGRESS: "bg-orange-50 text-orange-700 border border-orange-200",
-			COMPLETED: "bg-[#63A361]/10 text-[#63A361] border border-[#63A361]",
+			COMPLETED: "bg-[#fbbf24]/10 text-[#fbbf24] border border-[#fbbf24]",
 		};
 
 		return (
@@ -103,7 +65,7 @@ export const History = () => {
 	};
 
 	const filteredOrders = orders.filter(
-		(order) => filter === "all" || order.status === filter
+		(order: Order) => filter === "all" || order.status === filter
 	);
 
 	return (
@@ -123,7 +85,7 @@ export const History = () => {
 					onClick={() => setFilter("all")}
 					className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all border-2 ${
 						filter === "all"
-							? "bg-[#63A361] text-white border-[#63A361]"
+							? "bg-[#fbbf24] text-white border-[#fbbf24]"
 							: "bg-white text-gray-700 border-gray-200 hover:border-gray-300"
 					}`}
 				>
@@ -133,7 +95,7 @@ export const History = () => {
 					onClick={() => setFilter("PENDING")}
 					className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all border-2 ${
 						filter === "PENDING"
-							? "bg-[#63A361] text-white border-[#63A361]"
+							? "bg-[#fbbf24] text-white border-[#fbbf24]"
 							: "bg-white text-gray-700 border-gray-200 hover:border-gray-300"
 					}`}
 				>
@@ -143,7 +105,7 @@ export const History = () => {
 					onClick={() => setFilter("QUOTED")}
 					className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all border-2 ${
 						filter === "QUOTED"
-							? "bg-[#63A361] text-white border-[#63A361]"
+							? "bg-[#fbbf24] text-white border-[#fbbf24]"
 							: "bg-white text-gray-700 border-gray-200 hover:border-gray-300"
 					}`}
 				>
@@ -153,7 +115,7 @@ export const History = () => {
 					onClick={() => setFilter("PAID")}
 					className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all border-2 ${
 						filter === "PAID"
-							? "bg-[#63A361] text-white border-[#63A361]"
+							? "bg-[#fbbf24] text-white border-[#fbbf24]"
 							: "bg-white text-gray-700 border-gray-200 hover:border-gray-300"
 					}`}
 				>
@@ -163,7 +125,7 @@ export const History = () => {
 					onClick={() => setFilter("IN_PROGRESS")}
 					className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all border-2 ${
 						filter === "IN_PROGRESS"
-							? "bg-[#63A361] text-white border-[#63A361]"
+							? "bg-[#fbbf24] text-white border-[#fbbf24]"
 							: "bg-white text-gray-700 border-gray-200 hover:border-gray-300"
 					}`}
 				>
@@ -173,7 +135,7 @@ export const History = () => {
 					onClick={() => setFilter("COMPLETED")}
 					className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all border-2 ${
 						filter === "COMPLETED"
-							? "bg-[#63A361] text-white border-[#63A361]"
+							? "bg-[#fbbf24] text-white border-[#fbbf24]"
 							: "bg-white text-gray-700 border-gray-200 hover:border-gray-300"
 					}`}
 				>
@@ -185,15 +147,19 @@ export const History = () => {
 				<div className="mb-4 p-4 bg-red-50 border-2 border-red-200 rounded-lg flex items-start">
 					<AlertCircle className="w-5 h-5 mr-3 shrink-0 mt-0.5 text-red-600" />
 					<div>
-						<p className="text-sm font-semibold text-red-900">Error loading orders</p>
-						<p className="text-xs mt-1 text-red-700">{error}</p>
+						<p className="text-sm font-semibold text-red-900">
+							Error loading orders
+						</p>
+						<p className="text-xs mt-1 text-red-700">
+							{error instanceof Error ? error.message : "Failed to load orders"}
+						</p>
 					</div>
 				</div>
 			)}
 
 			{isLoading ? (
 				<div className="text-center py-8">
-					<div className="w-12 h-12 border-4 border-[#63A361] border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+					<div className="w-12 h-12 border-4 border-[#fbbf24] border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
 					<p className="text-gray-500 text-base font-semibold">
 						Loading orders...
 					</p>
@@ -212,16 +178,16 @@ export const History = () => {
 				</div>
 			) : (
 				<div className="space-y-3">
-					{filteredOrders.map((order) => (
+					{filteredOrders.map((order: Order) => (
 						<button
 							key={order.id}
 							onClick={() => navigate(`/order/${order.id}`)}
-							className="w-full bg-white rounded-lg border-2 border-gray-200 p-4 text-left hover:border-[#63A361] transition-all"
+							className="w-full bg-white rounded-lg border-2 border-gray-200 p-4 text-left hover:border-[#fbbf24] transition-all"
 						>
 							<div className="flex items-start justify-between gap-4">
 								<div className="flex items-start gap-4 flex-1 min-w-0">
 									<div className="w-12 h-12 bg-gray-50 rounded-lg flex items-center justify-center shrink-0 border-2 border-gray-200">
-										<Package className="w-6 h-6 text-[#63A361]" />
+										<Package className="w-6 h-6 text-[#fbbf24]" />
 									</div>
 									<div className="flex-1 min-w-0">
 										<div className="flex items-center gap-2 mb-2">
@@ -237,14 +203,18 @@ export const History = () => {
 											</div>
 											{order.items && order.items.length > 0 && (
 												<div>
-													<span className="font-semibold">{order.items.length}</span>{" "}
+													<span className="font-semibold">
+														{order.items.length}
+													</span>{" "}
 													item{order.items.length !== 1 ? "s" : ""}
 												</div>
 											)}
 										</div>
 										<div className="flex items-center justify-between pt-3 border-t-2 border-gray-200">
-											<span className="text-sm font-semibold text-gray-700">Total</span>
-											<span className="text-xl font-bold text-[#63A361]">
+											<span className="text-sm font-semibold text-gray-700">
+												Total
+											</span>
+											<span className="text-xl font-bold text-[#fbbf24]">
 												GHS {order.totalPrice.toFixed(2)}
 											</span>
 										</div>
@@ -262,4 +232,3 @@ export const History = () => {
 		</div>
 	);
 };
-

@@ -26,11 +26,11 @@ export const getStatusBadge = (status?: string | OrderStatus): React.ReactElemen
 		QUOTED: "bg-blue-50 text-blue-700 border border-blue-200",
 		PAID: "bg-green-50 text-green-700 border border-green-200",
 		IN_PROGRESS: "bg-orange-50 text-orange-700 border border-orange-200",
-		COMPLETED: "bg-[#63A361]/10 text-[#63A361] border border-[#63A361]",
+		COMPLETED: "bg-[#fbbf24]/10 text-[#fbbf24] border border-[#fbbf24]",
 		// Legacy statuses for backward compatibility
 		pending: "bg-yellow-50 text-yellow-700 border border-yellow-200",
 		processing: "bg-blue-50 text-blue-700 border border-blue-200",
-		completed: "bg-[#63A361]/10 text-[#63A361] border border-[#63A361]",
+		completed: "bg-[#fbbf24]/10 text-[#fbbf24] border border-[#fbbf24]",
 		failed: "bg-red-50 text-red-700 border border-red-200",
 	};
 

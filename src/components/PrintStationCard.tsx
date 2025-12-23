@@ -31,7 +31,7 @@ export const PrintStationCard = ({
 		<div
 			className={`relative bg-white rounded-lg border-2 transition-all overflow-hidden ${
 				isClickable
-					? "border-gray-200 group cursor-pointer hover:border-[#63A361]"
+					? "border-gray-200 group cursor-pointer hover:border-[#fbbf24]"
 					: "border-gray-200 opacity-75 cursor-not-allowed"
 			}`}
 		>
@@ -53,7 +53,7 @@ export const PrintStationCard = ({
 								isOpen ? "group-hover:bg-slate-200" : ""
 							}`}
 						>
-							<Printer className="w-10 h-10 sm:w-12 sm:h-12 md:w-12 md:h-12 text-[#63A361]" />
+							<Printer className="w-10 h-10 sm:w-12 sm:h-12 md:w-12 md:h-12 text-[#fbbf24]" />
 						</div>
 					)}
 					<div className="absolute top-2 right-2 z-20">
@@ -77,7 +77,7 @@ export const PrintStationCard = ({
 							<h3
 								className={`text-base md:text-lg font-bold line-clamp-1 transition-colors flex-1 ${
 									isClickable
-										? "text-gray-900 group-hover:text-[#63A361]"
+										? "text-gray-900 group-hover:text-[#fbbf24]"
 										: "text-gray-500"
 								}`}
 							>

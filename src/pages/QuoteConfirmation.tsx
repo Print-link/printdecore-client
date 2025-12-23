@@ -178,7 +178,7 @@ export const QuoteConfirmation = () => {
 	if (fetching) {
 		return (
 			<div className="min-h-screen flex items-center justify-center bg-gray-50">
-				<div className="w-8 h-8 border-4 border-[#63A361] border-t-transparent rounded-full animate-spin"></div>
+				<div className="w-8 h-8 border-4 border-[#fbbf24] border-t-transparent rounded-full animate-spin"></div>
 			</div>
 		);
 	}
@@ -194,7 +194,7 @@ export const QuoteConfirmation = () => {
 					<p className="text-gray-700 mb-6">{error}</p>
 					<button
 						onClick={() => navigate("/")}
-						className="w-full py-3 px-4 bg-[#63A361] text-white rounded-lg hover:bg-[#63A361] transition-colors font-medium"
+						className="w-full py-3 px-4 bg-[#fbbf24] text-white rounded-lg hover:bg-[#fbbf24] transition-colors font-medium"
 					>
 						Go to Home
 					</button>
@@ -259,7 +259,7 @@ export const QuoteConfirmation = () => {
 				{/* Header Section */}
 				<div className="mb-8">
 					<div className="flex items-center gap-3 mb-3">
-						<div className="w-10 h-10 bg-[#63A361] rounded-lg flex items-center justify-center">
+						<div className="w-10 h-10 bg-[#fbbf24] rounded-lg flex items-center justify-center">
 							<FileText className="w-6 h-6 text-white" />
 						</div>
 						<h1 className="text-3xl font-bold text-gray-900">
@@ -336,7 +336,7 @@ export const QuoteConfirmation = () => {
 							<span className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
 								Total Amount
 							</span>
-							<span className="text-3xl font-bold text-[#63A361]">
+							<span className="text-3xl font-bold text-[#fbbf24]">
 								₵{quoteData.totalPrice.toFixed(2)}
 							</span>
 						</div>
@@ -360,7 +360,7 @@ export const QuoteConfirmation = () => {
 								!quoteData.adminId?.businessPaystackSubaccountCode ||
 								!user
 							}
-							className="flex-1 py-3.5 px-6 bg-[#63A361] text-white rounded-lg font-semibold hover:bg-[#63A361] active:bg-[#63A361] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+							className="flex-1 py-3.5 px-6 bg-[#fbbf24] text-white rounded-lg font-semibold hover:bg-[#fbbf24] active:bg-[#fbbf24] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
 						>
 							{loading ? (
 								<>

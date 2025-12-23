@@ -45,7 +45,7 @@ export const SendOTP = () => {
 			<div className="w-full max-w-md bg-white rounded-2xl p-8">
 				<div className="text-center mb-8">
 					<div className="inline-flex items-center justify-center w-16 h-16 bg-slate-100 rounded-full mb-4">
-						<Mail className="w-8 h-8 text-[#63A361]" />
+						<Mail className="w-8 h-8 text-[#fbbf24]" />
 					</div>
 					<h1 className="text-3xl font-bold text-gray-900 mb-2">
 						Verify Your Email
@@ -87,7 +87,7 @@ export const SendOTP = () => {
 						className={`w-full py-3 rounded-xl font-semibold text-white transition-all flex items-center justify-center ${
 							isLoading
 								? 'bg-gray-400 cursor-not-allowed'
-								: 'bg-[#63A361] hover:bg-[#63A361] '
+								: 'bg-[#fbbf24] hover:bg-[#fbbf24] '
 						}`}
 					>
 						{isLoading ? (
@@ -109,7 +109,7 @@ export const SendOTP = () => {
 						Already have an account?{' '}
 						<Link
 							to="/login"
-							className="text-[#63A361] font-semibold hover:text-[#63A361]"
+							className="text-[#fbbf24] font-semibold hover:text-[#fbbf24]"
 						>
 							Sign in
 						</Link>

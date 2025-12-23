@@ -127,7 +127,7 @@ export const AddToCartModal = ({
 					<div className="pt-2 border-t-2 border-gray-200">
 						<div className="flex items-center justify-between">
 							<span className="text-sm font-semibold text-gray-700">Total</span>
-							<span className="text-xl font-bold text-[#63A361]">
+							<span className="text-xl font-bold text-[#fbbf24]">
 								GHS {itemDetails.calculatedPrice.toFixed(2)}
 							</span>
 						</div>
@@ -144,13 +144,13 @@ export const AddToCartModal = ({
 					</button>
 					<button
 						onClick={onContinueShopping}
-						className="flex-1 px-4 py-2.5 border-2 border-[#63A361] text-[#63A361] rounded-lg font-semibold hover:bg-[#63A361]/5 transition-colors"
+						className="flex-1 px-4 py-2.5 border-2 border-[#fbbf24] text-[#fbbf24] rounded-lg font-semibold hover:bg-[#fbbf24]/5 transition-colors"
 					>
 						Continue
 					</button>
 					<button
 						onClick={onConfirm}
-						className="flex-1 px-4 py-2.5 bg-[#63A361] text-white rounded-lg font-semibold hover:bg-[#5a9458] transition-colors"
+						className="flex-1 px-4 py-2.5 bg-[#fbbf24] text-white rounded-lg font-semibold hover:bg-[#d97706] transition-colors"
 					>
 						View Cart
 					</button>

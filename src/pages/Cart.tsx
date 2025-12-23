@@ -95,13 +95,13 @@ export const Cart = () => {
 									)}
 									<div>Quantity: {item.quantity}</div>
 									{item.options.frontBack && (
-										<div className="text-[#63A361]">✓ Front & Back</div>
+										<div className="text-[#fbbf24]">✓ Front & Back</div>
 									)}
 									{item.options.color && (
-										<div className="text-[#63A361]">✓ Color Printing</div>
+										<div className="text-[#fbbf24]">✓ Color Printing</div>
 									)}
 									{item.options.printCut && (
-										<div className="text-[#63A361]">✓ Print & Cut</div>
+										<div className="text-[#fbbf24]">✓ Print & Cut</div>
 									)}
 									{item.options.filePages && (
 										<div>PDF Pages: {item.options.filePages}</div>
@@ -131,7 +131,7 @@ export const Cart = () => {
 							</div>
 
 							<div className="ml-6 flex flex-col items-end">
-								<div className="text-2xl font-bold text-[#63A361] mb-4">
+								<div className="text-2xl font-bold text-[#fbbf24] mb-4">
 									GHS {item.calculatedPrice.toFixed(2)}
 								</div>
 								<button
@@ -151,7 +151,7 @@ export const Cart = () => {
 			<div className="mt-6 bg-white rounded-lg border-2 border-gray-200 p-6">
 				<div className="flex justify-between items-center mb-4">
 					<span className="text-lg font-semibold text-gray-900">Total</span>
-					<span className="text-3xl font-bold text-[#63A361]">
+					<span className="text-3xl font-bold text-[#fbbf24]">
 						GHS {getCartTotal().toFixed(2)}
 					</span>
 				</div>
@@ -164,7 +164,7 @@ export const Cart = () => {
 					</button>
 					<button
 						onClick={handleCheckout}
-						className="flex-1 px-4 py-3 bg-[#63A361] text-white rounded-lg font-semibold hover:bg-[#5a9458] flex items-center justify-center gap-2 transition-all"
+						className="flex-1 px-4 py-3 bg-[#fbbf24] text-white rounded-lg font-semibold hover:bg-[#d97706] flex items-center justify-center gap-2 transition-all"
 					>
 						<CreditCard className="w-4 h-4" />
 						Proceed to Checkout

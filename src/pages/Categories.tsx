@@ -54,7 +54,7 @@ export const Categories = () => {
 		return (
 			<div className="w-full max-w-6xl mx-auto bg-white rounded-2xl p-8">
 				<div className="flex items-center justify-center py-12">
-					<Loader2 className="w-8 h-8 text-[#63A361] animate-spin" />
+					<Loader2 className="w-8 h-8 text-[#fbbf24] animate-spin" />
 				</div>
 			</div>
 		);
@@ -71,7 +71,7 @@ export const Categories = () => {
 					<p className="text-gray-600 mb-4">{error}</p>
 					<button
 						onClick={handleBack}
-						className="inline-flex items-center px-4 py-2 text-sm font-medium text-[#63A361] hover:text-[#63A361]"
+						className="inline-flex items-center px-4 py-2 text-sm font-medium text-[#fbbf24] hover:text-[#fbbf24]"
 					>
 						<ArrowLeft className="w-4 h-4 mr-2" />
 						Go Back
@@ -119,7 +119,7 @@ export const Categories = () => {
 								<button
 									key={category.id}
 									onClick={() => handleCategoryClick(category.id)}
-									className="w-full bg-white rounded-lg p-4 border-2 border-gray-200 text-left group hover:border-[#63A361] transition-all flex items-center gap-3 md:flex-col md:items-start"
+									className="w-full bg-white rounded-lg p-4 border-2 border-gray-200 text-left group hover:border-[#fbbf24] transition-all flex items-center gap-3 md:flex-col md:items-start"
 								>
 									{category.imageUrl ? (
 										<img
@@ -128,12 +128,12 @@ export const Categories = () => {
 											className="w-16 h-16 md:w-20 md:h-20 object-cover rounded-lg shrink-0"
 										/>
 									) : (
-										<div className="w-16 h-16 md:w-20 md:h-20 bg-gray-50 rounded-lg flex items-center justify-center shrink-0 border-2 border-gray-200 group-hover:border-[#63A361] transition-colors">
-											<Tag className="w-8 h-8 md:w-10 md:h-10 text-[#63A361]" />
+										<div className="w-16 h-16 md:w-20 md:h-20 bg-gray-50 rounded-lg flex items-center justify-center shrink-0 border-2 border-gray-200 group-hover:border-[#fbbf24] transition-colors">
+											<Tag className="w-8 h-8 md:w-10 md:h-10 text-[#fbbf24]" />
 										</div>
 									)}
 									<div className="flex-1 min-w-0">
-										<h3 className="text-base md:text-lg font-bold text-gray-900 mb-1 group-hover:text-[#63A361] transition-colors">
+										<h3 className="text-base md:text-lg font-bold text-gray-900 mb-1 group-hover:text-[#fbbf24] transition-colors">
 											{category.name}
 										</h3>
 										{category.description && (
@@ -141,7 +141,7 @@ export const Categories = () => {
 												{category.description}
 											</p>
 										)}
-										<div className="flex items-center text-sm font-semibold text-[#63A361]">
+										<div className="flex items-center text-sm font-semibold text-[#fbbf24]">
 											<span>View SubCategories</span>
 											<span className="ml-2 hidden md:inline">→</span>
 										</div>

@@ -59,7 +59,7 @@ export const ServiceTemplates = () => {
 		return (
 			<div className="w-full max-w-6xl mx-auto bg-white rounded-2xl p-8">
 				<div className="flex items-center justify-center py-12">
-					<Loader2 className="w-8 h-8 text-[#63A361] animate-spin" />
+					<Loader2 className="w-8 h-8 text-[#fbbf24] animate-spin" />
 				</div>
 			</div>
 		);
@@ -76,7 +76,7 @@ export const ServiceTemplates = () => {
 					<p className="text-gray-600 mb-4">{error}</p>
 					<button
 						onClick={handleBack}
-						className="inline-flex items-center px-4 py-2 text-sm font-medium text-[#63A361] hover:text-[#63A361]"
+						className="inline-flex items-center px-4 py-2 text-sm font-medium text-[#fbbf24] hover:text-[#fbbf24]"
 					>
 						<ArrowLeft className="w-4 h-4 mr-2" />
 						Go Back
@@ -116,16 +116,16 @@ export const ServiceTemplates = () => {
 						<button
 							key={template.id}
 							onClick={() => handleServiceTemplateClick(template.id)}
-							className="w-full bg-white rounded-lg p-4 border-2 border-gray-200 text-left group hover:border-[#63A361] transition-all"
+							className="w-full bg-white rounded-lg p-4 border-2 border-gray-200 text-left group hover:border-[#fbbf24] transition-all"
 						>
 							<div className="flex items-start gap-3 md:flex-col md:gap-4">
 								<div className="flex items-center gap-3 flex-1 min-w-0 md:flex-col md:items-start md:w-full">
-									<div className="w-12 h-12 bg-gray-50 rounded-lg flex items-center justify-center shrink-0 border-2 border-gray-200 group-hover:border-[#63A361] transition-colors">
-										<Package className="w-6 h-6 text-[#63A361]" />
+									<div className="w-12 h-12 bg-gray-50 rounded-lg flex items-center justify-center shrink-0 border-2 border-gray-200 group-hover:border-[#fbbf24] transition-colors">
+										<Package className="w-6 h-6 text-[#fbbf24]" />
 									</div>
 									<div className="flex-1 min-w-0 md:w-full">
 										<div className="flex items-start justify-between gap-2 mb-2">
-											<h3 className="text-base md:text-lg font-bold text-gray-900 group-hover:text-[#63A361] transition-colors">
+											<h3 className="text-base md:text-lg font-bold text-gray-900 group-hover:text-[#fbbf24] transition-colors">
 												{template.name}
 											</h3>
 											<span className="px-2 py-1 rounded text-xs font-semibold bg-gray-100 text-gray-700 border border-gray-200 shrink-0">
@@ -141,30 +141,30 @@ export const ServiceTemplates = () => {
 										<div className="space-y-1.5 mb-2">
 											{template.allowsCustomSize && (
 												<div className="flex items-center text-xs md:text-sm text-gray-700">
-													<Check className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#63A361] mr-2 shrink-0" />
+													<Check className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#fbbf24] mr-2 shrink-0" />
 													<span className="truncate">Custom size</span>
 												</div>
 											)}
 											{template.supportsFrontBack && (
 												<div className="flex items-center text-xs md:text-sm text-gray-700">
-													<Check className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#63A361] mr-2 shrink-0" />
+													<Check className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#fbbf24] mr-2 shrink-0" />
 													<span className="truncate">Front & Back</span>
 												</div>
 											)}
 											{template.supportsColor && (
 												<div className="flex items-center text-xs md:text-sm text-gray-700">
-													<Check className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#63A361] mr-2 shrink-0" />
+													<Check className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#fbbf24] mr-2 shrink-0" />
 													<span className="truncate">Color printing</span>
 												</div>
 											)}
 											{template.supportsPrintCut && (
 												<div className="flex items-center text-xs md:text-sm text-gray-700">
-													<Check className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#63A361] mr-2 shrink-0" />
+													<Check className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#fbbf24] mr-2 shrink-0" />
 													<span className="truncate">Print & Cut</span>
 												</div>
 											)}
 										</div>
-										<div className="flex items-center text-sm font-semibold text-[#63A361]">
+										<div className="flex items-center text-sm font-semibold text-[#fbbf24]">
 											<span>View Pricing</span>
 											<span className="ml-2 hidden md:inline">→</span>
 										</div>

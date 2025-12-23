@@ -63,7 +63,7 @@ export const Reviews = ({ adminId }: ReviewsProps) => {
 		<div className="hidden lg:block w-80 shrink-0">
 			<div className="sticky top-4 bg-white rounded-xl border border-gray-200 p-6">
 				<h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-					<MessageSquare className="w-5 h-5 text-[#63A361]" />
+					<MessageSquare className="w-5 h-5 text-[#fbbf24]" />
 					Reviews
 				</h3>
 
@@ -85,7 +85,7 @@ export const Reviews = ({ adminId }: ReviewsProps) => {
 
 				{loading ? (
 					<div className="flex items-center justify-center py-8">
-						<div className="w-6 h-6 border-2 border-[#63A361] border-t-transparent rounded-full animate-spin"></div>
+						<div className="w-6 h-6 border-2 border-[#fbbf24] border-t-transparent rounded-full animate-spin"></div>
 					</div>
 				) : error ? (
 					<div className="text-sm text-red-600 py-4">{error}</div>
@@ -130,7 +130,7 @@ export const Reviews = ({ adminId }: ReviewsProps) => {
 			{/* Button to open bottom sheet on mobile */}
 			<button
 				onClick={() => setShowBottomSheet(true)}
-				className="lg:hidden fixed bottom-6 right-6 z-40 bg-[#63A361] text-white px-6 py-3 rounded-full  hover:bg-[#63A361] transition-colors flex items-center gap-2"
+				className="lg:hidden fixed bottom-6 right-6 z-40 bg-[#fbbf24] text-white px-6 py-3 rounded-full  hover:bg-[#fbbf24] transition-colors flex items-center gap-2"
 			>
 				<MessageSquare className="w-5 h-5" />
 				<span className="font-semibold">
@@ -155,7 +155,7 @@ export const Reviews = ({ adminId }: ReviewsProps) => {
 			>
 				<div className="flex items-center justify-between p-4 border-b border-gray-200">
 					<h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-						<MessageSquare className="w-5 h-5 text-[#63A361]" />
+						<MessageSquare className="w-5 h-5 text-[#fbbf24]" />
 						Reviews
 					</h3>
 					<button
@@ -190,7 +190,7 @@ export const Reviews = ({ adminId }: ReviewsProps) => {
 
 						{loading ? (
 							<div className="flex items-center justify-center py-8">
-								<div className="w-6 h-6 border-2 border-[#63A361] border-t-transparent rounded-full animate-spin"></div>
+								<div className="w-6 h-6 border-2 border-[#fbbf24] border-t-transparent rounded-full animate-spin"></div>
 							</div>
 						) : error ? (
 							<div className="text-sm text-red-600 py-4">{error}</div>

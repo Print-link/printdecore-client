@@ -134,7 +134,7 @@ export const Search = () => {
 						handleFilterChange({ query: e.target.value, page: 1 })
 					}
 					placeholder="Or type to search..."
-					className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#63A361] focus:border-transparent"
+					className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
 				/>
 			</div>
 
@@ -193,7 +193,7 @@ export const Search = () => {
 												e.target.value as SearchFilters["sortBy"]
 											)
 										}
-										className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#63A361] focus:border-transparent"
+										className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
 									>
 										<option value="name">Name</option>
 										<option value="price">Price</option>
@@ -208,7 +208,7 @@ export const Search = () => {
 												page: 1,
 											})
 										}
-										className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#63A361] focus:border-transparent"
+										className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
 									>
 										<option value="asc">Asc</option>
 										<option value="desc">Desc</option>
@@ -219,7 +219,7 @@ export const Search = () => {
 							{/* Results Grid */}
 							{loading ? (
 								<div className="flex items-center justify-center py-12">
-									<Loader2 className="w-8 h-8 text-[#63A361] animate-spin" />
+									<Loader2 className="w-8 h-8 text-[#fbbf24] animate-spin" />
 								</div>
 							) : (
 								<div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6">

@@ -43,7 +43,7 @@ export const getDistanceColor = (distance?: number): string => {
 	if (distance === undefined) return "";
 	if (distance > 50) return "text-red-600";
 	if (distance > 25) return "text-orange-600";
-	return "text-[#63A361]";
+	return "text-[#fbbf24]";
 };
 
 export const formatDistance = (distance?: number): string => {

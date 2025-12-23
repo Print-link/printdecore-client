@@ -28,7 +28,7 @@ export const EmptyState = ({ type, onClearSearch, message }: EmptyStateProps) =>
 				{onClearSearch && (
 					<button
 						onClick={onClearSearch}
-						className="text-[#63A361] hover:text-[#63A361] font-medium text-sm"
+						className="text-[#fbbf24] hover:text-[#fbbf24] font-medium text-sm"
 					>
 						Clear search
 					</button>
@@ -46,7 +46,7 @@ export const EmptyState = ({ type, onClearSearch, message }: EmptyStateProps) =>
 			{onClearSearch && (
 				<button
 					onClick={onClearSearch}
-					className="text-[#63A361] hover:text-[#63A361] font-medium text-sm"
+					className="text-[#fbbf24] hover:text-[#fbbf24] font-medium text-sm"
 				>
 					Clear search
 				</button>

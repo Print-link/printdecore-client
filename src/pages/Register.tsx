@@ -81,7 +81,7 @@ export const Register = () => {
 			<div className="w-full max-w-md bg-white rounded-2xl p-8">
 				<div className="text-center mb-8">
 					<div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-full mb-4">
-						<UserPlus className="w-8 h-8 text-[#63A361]" />
+						<UserPlus className="w-8 h-8 text-[#fbbf24]" />
 					</div>
 					<h1 className="text-3xl font-bold text-gray-900 mb-2">
 						Create Account
@@ -114,7 +114,7 @@ export const Register = () => {
 								value={firstName}
 								onChange={(e) => setFirstName(e.target.value)}
 								placeholder="Enter your first name"
-								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#63A361] focus:border-transparent"
+								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
 								required
 							/>
 						</div>
@@ -130,7 +130,7 @@ export const Register = () => {
 								value={lastName}
 								onChange={(e) => setLastName(e.target.value)}
 								placeholder="Enter your last name"
-								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#63A361] focus:border-transparent"
+								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
 								required
 							/>
 						</div>
@@ -172,7 +172,7 @@ export const Register = () => {
 								value={phoneNumber}
 								onChange={(e) => setPhoneNumber(e.target.value)}
 								placeholder="Enter your phone number"
-								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#63A361] focus:border-transparent"
+								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
 								required
 								maxLength={15}
 							/>
@@ -190,7 +190,7 @@ export const Register = () => {
 								value={password}
 								onChange={(e) => setPassword(e.target.value)}
 								placeholder="Create a password"
-								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#63A361] focus:border-transparent"
+								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
 								required
 								minLength={6}
 							/>
@@ -208,7 +208,7 @@ export const Register = () => {
 								value={confirmPassword}
 								onChange={(e) => setConfirmPassword(e.target.value)}
 								placeholder="Confirm your password"
-								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#63A361] focus:border-transparent"
+								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
 								required
 								minLength={6}
 							/>
@@ -221,7 +221,7 @@ export const Register = () => {
 						className={`w-full py-3 rounded-xl font-semibold text-white transition-all ${
 							isLoading
 								? "bg-gray-400 cursor-not-allowed"
-								: "bg-[#63A361] hover:bg-[#63A361] "
+								: "bg-[#fbbf24] hover:bg-[#fbbf24] "
 						}`}
 					>
 						{isLoading ? (
@@ -240,7 +240,7 @@ export const Register = () => {
 						Already have an account?{" "}
 						<Link
 							to="/login"
-							className="text-[#63A361] font-semibold hover:text-[#63A361]"
+							className="text-[#fbbf24] font-semibold hover:text-[#fbbf24]"
 						>
 							Sign in
 						</Link>

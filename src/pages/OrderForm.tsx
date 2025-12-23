@@ -47,25 +47,26 @@ export const OrderForm = () => {
 		serviceTemplateId
 	);
 
-		const [formData, setFormData] = useState<OrderFormData>({
-			measurementUnit: "FEET",
-			quantity: 1,
-			options: {
-				frontBack: false,
-				color: false,
-				printCut: false,
-				frontOnly: false,
-			},
-		});
+	const [formData, setFormData] = useState<OrderFormData>({
+		measurementUnit: "FEET",
+		quantity: 1,
+		options: {
+			frontBack: false,
+			color: false,
+			printCut: false,
+			frontOnly: false,
+		},
+	});
 
 	const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 	const [showAddToCartModal, setShowAddToCartModal] = useState(false);
 
 	// Cart context
-	const { addToCart, branchId: cartBranchId } = useCart();
+	const { addToCart, branchId: cartBranchId, clearCart, cart } = useCart();
 
 	// PDF page counting
-	const { pdfPageCount, countingPages, setPdfPageCount } = usePdfPageCount(selectedFiles);
+	const { pdfPageCount, countingPages, setPdfPageCount } =
+		usePdfPageCount(selectedFiles);
 
 	// Update form data with page count when it changes
 	useEffect(() => {
@@ -80,27 +81,30 @@ export const OrderForm = () => {
 	}, [pdfPageCount]);
 
 	// Price calculation
-	const { priceInfo, calculatingPrice, formulaType } = useOrderPriceCalculation({
-		agentServiceId,
-		formData: {
-			...formData,
-			options: {
-				...formData.options,
-				filePages: pdfPageCount,
-				numberOfPages: pdfPageCount,
+	const { priceInfo, calculatingPrice, formulaType } = useOrderPriceCalculation(
+		{
+			agentServiceId,
+			formData: {
+				...formData,
+				options: {
+					...formData.options,
+					filePages: pdfPageCount,
+					numberOfPages: pdfPageCount,
+				},
 			},
-		},
-		agentService,
-		pdfPageCount,
-		selectedFilesLength: selectedFiles.length,
-	});
+			agentService,
+			pdfPageCount,
+			selectedFilesLength: selectedFiles.length,
+		}
+	);
 
-	// Check if this is a PAGE_BASED service (Bond Paper) - use formulaType from hook
-	const isPageBased = formulaType === "PAGE_BASED";
+	// Check if this is a PAGE_BASED service (Bond Paper) - use formulaType from hook or priceInfo
+	const isPageBased =
+		formulaType === "PAGE_BASED" || priceInfo?.formulaType === "PAGE_BASED";
 
 	const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const files = Array.from(e.target.files || []);
-		
+
 		// For PAGE_BASED (Bond Paper), only allow PDF files
 		if (isPageBased) {
 			const nonPdfFiles = files.filter(
@@ -113,15 +117,18 @@ export const OrderForm = () => {
 				return;
 			}
 		}
-		
+
 		setSelectedFiles((prev) => [...prev, ...files]);
 	};
 
 	const handleFileRemove = (index: number) => {
 		setSelectedFiles((prev) => {
 			const newFiles = prev.filter((_, i) => i !== index);
-			// If removing the PDF file, clear page count
-			if (prev[index] && (prev[index].type === "application/pdf" || prev[index].name?.toLowerCase().endsWith(".pdf"))) {
+			if (
+				prev[index] &&
+				(prev[index].type === "application/pdf" ||
+					prev[index].name?.toLowerCase().endsWith(".pdf"))
+			) {
 				setPdfPageCount(undefined);
 			}
 			return newFiles;
@@ -132,7 +139,15 @@ export const OrderForm = () => {
 		e.preventDefault();
 
 		// Validate form
-		if (!validateOrderForm({ priceInfo, selectedFiles, pdfPageCount, width: formData.width, height: formData.height })) {
+		if (
+			!validateOrderForm({
+				priceInfo,
+				selectedFiles,
+				pdfPageCount,
+				width: formData.width,
+				height: formData.height,
+			})
+		) {
 			return;
 		}
 
@@ -141,9 +156,10 @@ export const OrderForm = () => {
 			return;
 		}
 
-		// Check if branch matches cart
-		if (cartBranchId && cartBranchId !== branchId) {
-			toast.error("Cannot add items from different branches. Please clear your cart first.");
+		if (cart.length > 0 && cartBranchId && cartBranchId !== branchId) {
+			toast.error(
+				"Cannot add items from different branches. Please clear your cart first."
+			);
 			return;
 		}
 
@@ -181,8 +197,64 @@ export const OrderForm = () => {
 			toast.success("Item added to cart!");
 			navigate(`/order/cart/${branchId}`); // Go to cart
 		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : "Failed to add item to cart";
-			toast.error(errorMessage);
+			const errorMessage =
+				error instanceof Error ? error.message : "Failed to add item to cart";
+
+			// If it's a branch conflict error, offer to clear cart
+			if (errorMessage.includes("different branches")) {
+				toast.error(
+					<div>
+						<p className="mb-2">{errorMessage}</p>
+						<button
+							onClick={() => {
+								clearCart();
+								toast.success(
+									"Cart cleared. You can now add items from this branch."
+								);
+								// Retry adding to cart after clearing
+								setTimeout(() => {
+									try {
+										if (!priceInfo || !agentService) return;
+										const retryCartItem = {
+											id: `cart-${Date.now()}-${Math.random()
+												.toString(36)
+												.substr(2, 9)}`,
+											agentServiceId: agentServiceId!,
+											serviceTemplateId: serviceTemplateId!,
+											branchId: branchId!,
+											width: formData.width,
+											height: formData.height,
+											measurementUnit: formData.measurementUnit,
+											quantity: formData.quantity,
+											options: {
+												...formData.options,
+												filePages: pdfPageCount,
+												numberOfPages: pdfPageCount,
+											},
+											files: selectedFiles,
+											calculatedPrice: priceInfo.calculatedPrice,
+											priceInfo,
+											agentService,
+										};
+										addToCart(retryCartItem);
+										setShowAddToCartModal(true);
+									} catch {
+										toast.error("Failed to add item. Please try again.");
+									}
+								}, 100);
+							}}
+							className="text-sm font-semibold text-white bg-[#fbbf24] px-3 py-1 rounded hover:bg-[#d97706] transition-colors"
+						>
+							Clear Cart & Add Item
+						</button>
+					</div>,
+					{
+						autoClose: 10000,
+					}
+				);
+			} else {
+				toast.error(errorMessage);
+			}
 		}
 	};
 
@@ -216,8 +288,64 @@ export const OrderForm = () => {
 			toast.success("Item added to cart!");
 			navigate(-1); // Go back to agent services
 		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : "Failed to add item to cart";
-			toast.error(errorMessage);
+			const errorMessage =
+				error instanceof Error ? error.message : "Failed to add item to cart";
+
+			// If it's a branch conflict error, offer to clear cart
+			if (errorMessage.includes("different branches")) {
+				toast.error(
+					<div>
+						<p className="mb-2">{errorMessage}</p>
+						<button
+							onClick={() => {
+								clearCart();
+								toast.success(
+									"Cart cleared. You can now add items from this branch."
+								);
+								// Retry adding to cart after clearing
+								setTimeout(() => {
+									try {
+										if (!priceInfo || !agentService) return;
+										const retryCartItem = {
+											id: `cart-${Date.now()}-${Math.random()
+												.toString(36)
+												.substr(2, 9)}`,
+											agentServiceId: agentServiceId!,
+											serviceTemplateId: serviceTemplateId!,
+											branchId: branchId!,
+											width: formData.width,
+											height: formData.height,
+											measurementUnit: formData.measurementUnit,
+											quantity: formData.quantity,
+											options: {
+												...formData.options,
+												filePages: pdfPageCount,
+												numberOfPages: pdfPageCount,
+											},
+											files: selectedFiles,
+											calculatedPrice: priceInfo.calculatedPrice,
+											priceInfo,
+											agentService,
+										};
+										addToCart(retryCartItem);
+										setShowAddToCartModal(true);
+									} catch {
+										toast.error("Failed to add item. Please try again.");
+									}
+								}, 100);
+							}}
+							className="text-sm font-semibold text-white bg-[#fbbf24] px-3 py-1 rounded hover:bg-[#d97706] transition-colors"
+						>
+							Clear Cart & Add Item
+						</button>
+					</div>,
+					{
+						autoClose: 10000,
+					}
+				);
+			} else {
+				toast.error(errorMessage);
+			}
 		}
 	};
 
@@ -229,7 +357,7 @@ export const OrderForm = () => {
 		return (
 			<div className="w-full max-w-6xl mx-auto bg-white rounded-2xl p-8">
 				<div className="flex items-center justify-center py-12">
-					<Loader2 className="w-8 h-8 text-[#63A361] animate-spin" />
+					<Loader2 className="w-8 h-8 text-[#fbbf24] animate-spin" />
 				</div>
 			</div>
 		);
@@ -241,10 +369,12 @@ export const OrderForm = () => {
 				<div className="text-center py-12">
 					<AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
 					<h2 className="text-xl font-semibold text-gray-900 mb-2">Error</h2>
-					<p className="text-gray-600 mb-4">{error || "Agent service not found"}</p>
+					<p className="text-gray-600 mb-4">
+						{error || "Agent service not found"}
+					</p>
 					<button
 						onClick={handleBack}
-						className="inline-flex items-center px-4 py-2 text-sm font-medium text-[#63A361] hover:text-[#63A361]"
+						className="inline-flex items-center px-4 py-2 text-sm font-medium text-[#fbbf24] hover:text-[#fbbf24]"
 					>
 						<ArrowLeft className="w-4 h-4 mr-2" />
 						Go Back
@@ -271,15 +401,18 @@ export const OrderForm = () => {
 					Configure Your Order
 				</h1>
 				<p className="text-sm text-gray-600">
-					{isPageBased 
+					{isPageBased
 						? "Upload your PDF file and configure your order"
 						: "Fill in the details and upload your files"}
 				</p>
 			</div>
 
-			<form onSubmit={handleAddToCart} className="bg-white rounded-lg p-5 border-2 border-gray-200 space-y-4">
+			<form
+				onSubmit={handleAddToCart}
+				className="bg-white rounded-lg p-5 border-2 border-gray-200 space-y-4"
+			>
 				{/* Dimensions - Hide for PAGE_BASED or while determining formula type */}
-				{!isPageBased && agentService && formulaType !== null && (
+				{!isPageBased && agentService && (
 					<DimensionsInput
 						width={formData.width}
 						height={formData.height}
@@ -313,7 +446,7 @@ export const OrderForm = () => {
 							}))
 						}
 						required
-						className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#63A361] focus:border-transparent"
+						className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
 					/>
 				</div>
 
@@ -370,7 +503,7 @@ export const OrderForm = () => {
 					<button
 						type="submit"
 						disabled={calculatingPrice || !priceInfo}
-						className="flex-1 px-4 py-3 bg-[#63A361] text-white rounded-lg font-semibold hover:bg-[#5a9458] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-all"
+						className="flex-1 px-4 py-3 bg-[#fbbf24] text-white rounded-lg font-semibold hover:bg-[#d97706] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-all"
 					>
 						{calculatingPrice ? (
 							<>

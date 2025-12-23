@@ -9,7 +9,7 @@ export const CategoryInfo = ({ name, unitPrice }: CategoryInfoProps) => {
 	return (
 		<div className="bg-white rounded-lg border-2 border-gray-200 p-4">
 			<div className="flex items-center gap-3 mb-3">
-				<Tag className="w-6 h-6 text-[#63A361]" />
+				<Tag className="w-6 h-6 text-[#fbbf24]" />
 				<h2 className="text-xl font-bold text-gray-900">
 					{name}
 				</h2>

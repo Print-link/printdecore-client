@@ -69,13 +69,13 @@ export const ProtectedLayout = () => {
 		<div className="min-h-screen bg-gray-50 flex">
 			{/* Side Drawer - Always visible on desktop, toggleable on mobile */}
 			<div
-				className={`fixed md:static top-0 left-0 h-screen w-72 bg-white border-r border-gray-200 z-50 transform transition-transform duration-300 ease-in-out flex-shrink-0 ${
+				className={`fixed md:sticky top-0 left-0 h-screen w-72 bg-white border-r border-gray-200 z-50 transform transition-transform duration-300 ease-in-out shrink-0 ${
 					drawerOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
 				}`}
 			>
 				<div className="flex flex-col h-full">
 					{/* Drawer Header */}
-					<div className="flex items-center justify-between px-6 py-5 border-b-2 border-[#63A361] bg-[#63A361]">
+					<div className="flex items-center justify-between px-6 py-5 border-b-2 border-[#fbbf24] bg-[#fbbf24]">
 						<h2 className="text-xl font-bold text-white">Print Station</h2>
 						<button
 							onClick={toggleDrawer}
@@ -93,13 +93,13 @@ export const ProtectedLayout = () => {
 								onClick={() => handleTabChange("home")}
 								className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-base transition-all touch-manipulation ${
 									activeTab === "home"
-										? "bg-[#63A361] text-white border-2 border-[#63A361]"
+										? "bg-[#fbbf24] text-white border-2 border-[#fbbf24]"
 										: "text-gray-700 hover:bg-gray-50 hover:text-gray-900 border-2 border-transparent"
 								}`}
 							>
 								<Home
 									className={`w-5 h-5 ${
-										activeTab === "home" ? "text-[#63A361]" : "text-gray-500"
+										activeTab === "home" ? "text-white" : "text-gray-500"
 									}`}
 								/>
 								<span>Home</span>
@@ -108,13 +108,13 @@ export const ProtectedLayout = () => {
 								onClick={() => handleTabChange("search")}
 								className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-base transition-all touch-manipulation ${
 									activeTab === "search"
-										? "bg-[#63A361] text-white border-2 border-[#63A361]"
+										? "bg-[#fbbf24] text-white border-2 border-[#fbbf24]"
 										: "text-gray-700 hover:bg-gray-50 hover:text-gray-900 border-2 border-transparent"
 								}`}
 							>
 								<Search
 									className={`w-5 h-5 ${
-										activeTab === "search" ? "text-[#63A361]" : "text-gray-500"
+										activeTab === "search" ? "text-white" : "text-gray-500"
 									}`}
 								/>
 								<span>Search</span>
@@ -123,13 +123,13 @@ export const ProtectedLayout = () => {
 								onClick={() => handleTabChange("history")}
 								className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-base transition-all touch-manipulation ${
 									activeTab === "history"
-										? "bg-[#63A361] text-white border-2 border-[#63A361]"
+										? "bg-[#fbbf24] text-white border-2 border-[#fbbf24]"
 										: "text-gray-700 hover:bg-gray-50 hover:text-gray-900 border-2 border-transparent"
 								}`}
 							>
 								<History
 									className={`w-5 h-5 ${
-										activeTab === "history" ? "text-[#63A361]" : "text-gray-500"
+										activeTab === "history" ? "text-white" : "text-gray-500"
 									}`}
 								/>
 								<span>Print History</span>
@@ -146,18 +146,22 @@ export const ProtectedLayout = () => {
 								disabled={!branchId || cart.length === 0}
 								className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-base transition-all touch-manipulation relative ${
 									activeTab === "cart"
-										? "bg-[#63A361] text-white border-2 border-[#63A361]"
+										? "bg-[#fbbf24] text-white border-2 border-[#fbbf24]"
 										: "text-gray-700 hover:bg-gray-50 hover:text-gray-900 border-2 border-transparent"
-								} ${(!branchId || cart.length === 0) ? "opacity-50 cursor-not-allowed" : ""}`}
+								} ${
+									!branchId || cart.length === 0
+										? "opacity-50 cursor-not-allowed"
+										: ""
+								}`}
 							>
 								<ShoppingCart
 									className={`w-5 h-5 ${
-										activeTab === "cart" ? "text-[#63A361]" : "text-gray-500"
+										activeTab === "cart" ? "text-white" : "text-gray-500"
 									}`}
 								/>
 								<span>Cart</span>
 								{cart.length > 0 && (
-									<span className="ml-auto bg-[#63A361] text-white text-xs font-bold px-2 py-0.5 rounded-full">
+									<span className="ml-auto bg-[#fbbf24] text-white text-xs font-bold px-2 py-0.5 rounded-full">
 										{cart.length}
 									</span>
 								)}
@@ -181,7 +185,7 @@ export const ProtectedLayout = () => {
 										{cart.map((item) => (
 											<div
 												key={item.id}
-												className="bg-gray-50 rounded-lg p-3 border border-gray-200 hover:border-[#63A361] transition-colors"
+												className="bg-gray-50 rounded-lg p-3 border border-gray-200 hover:border-[#fbbf24] transition-colors"
 											>
 												<div className="flex items-start justify-between gap-2">
 													<div className="flex-1 min-w-0">
@@ -193,13 +197,13 @@ export const ProtectedLayout = () => {
 														<p className="text-xs text-gray-600 mt-0.5">
 															Qty: {item.quantity}
 														</p>
-														<p className="text-xs font-semibold text-[#63A361] mt-1">
+														<p className="text-xs font-semibold text-[#fbbf24] mt-1">
 															GHS {item.calculatedPrice.toFixed(2)}
 														</p>
 													</div>
 													<button
 														onClick={(e) => handleRemoveFromCart(item.id, e)}
-														className="p-1 text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-colors flex-shrink-0"
+														className="p-1 text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-colors shrink-0"
 														aria-label="Remove item"
 													>
 														<Trash2 className="w-3.5 h-3.5" />
@@ -212,8 +216,10 @@ export const ProtectedLayout = () => {
 								{cartExpanded && (
 									<div className="mt-3 pt-3 border-t border-gray-200">
 										<div className="flex items-center justify-between px-2 mb-2">
-											<span className="text-sm font-semibold text-gray-900">Total:</span>
-											<span className="text-sm font-bold text-[#63A361]">
+											<span className="text-sm font-semibold text-gray-900">
+												Total:
+											</span>
+											<span className="text-sm font-bold text-[#fbbf24]">
 												GHS {getCartTotal().toFixed(2)}
 											</span>
 										</div>
@@ -225,7 +231,7 @@ export const ProtectedLayout = () => {
 														setDrawerOpen(false);
 													}
 												}}
-												className="w-full px-3 py-2 bg-[#63A361] text-white text-sm font-medium rounded-lg hover:bg-[#63A361] transition-colors"
+												className="w-full px-3 py-2 bg-[#fbbf24] text-white text-sm font-medium rounded-lg hover:bg-[#fbbf24] transition-colors"
 											>
 												View Cart
 											</button>
@@ -278,7 +284,7 @@ export const ProtectedLayout = () => {
 								{/* Menu Button - Only visible on mobile */}
 								<button
 									onClick={toggleDrawer}
-									className="md:hidden p-2 text-gray-700 hover:text-[#63A361] hover:bg-white rounded-lg transition-colors touch-manipulation"
+									className="md:hidden p-2 text-gray-700 hover:text-[#fbbf24] hover:bg-white rounded-lg transition-colors touch-manipulation"
 									aria-label="Toggle menu"
 								>
 									{drawerOpen ? (
@@ -310,7 +316,7 @@ export const ProtectedLayout = () => {
 											setDrawerOpen(false);
 										}
 									}}
-									className="md:hidden p-2 text-gray-700 hover:text-[#63A361] hover:bg-white rounded-lg transition-colors touch-manipulation"
+									className="md:hidden p-2 text-gray-700 hover:text-[#fbbf24] hover:bg-white rounded-lg transition-colors touch-manipulation"
 									aria-label="Search"
 								>
 									<Search className="w-6 h-6" />
@@ -323,7 +329,7 @@ export const ProtectedLayout = () => {
 								</span>
 								<button
 									onClick={handleLogout}
-									className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-[#63A361] hover:bg-white rounded-lg transition-colors touch-manipulation"
+									className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-[#fbbf24] hover:bg-white rounded-lg transition-colors touch-manipulation"
 									aria-label="Logout"
 								>
 									<LogOut className="w-4 h-4 sm:mr-2" />

@@ -88,7 +88,7 @@ export const SubCategories = () => {
 		return (
 			<div className="w-full max-w-6xl mx-auto bg-white rounded-2xl p-8">
 				<div className="flex items-center justify-center py-12">
-					<Loader2 className="w-8 h-8 text-[#63A361] animate-spin" />
+					<Loader2 className="w-8 h-8 text-[#fbbf24] animate-spin" />
 				</div>
 			</div>
 		);
@@ -105,7 +105,7 @@ export const SubCategories = () => {
 					<p className="text-gray-600 mb-4">{error}</p>
 					<button
 						onClick={handleBack}
-						className="inline-flex items-center px-4 py-2 text-sm font-medium text-[#63A361] hover:text-[#63A361]"
+						className="inline-flex items-center px-4 py-2 text-sm font-medium text-[#fbbf24] hover:text-[#fbbf24]"
 					>
 						<ArrowLeft className="w-4 h-4 mr-2" />
 						Go Back
@@ -146,7 +146,7 @@ export const SubCategories = () => {
 						placeholder="Search subcategories..."
 						value={searchQuery}
 						onChange={(e) => setSearchQuery(e.target.value)}
-						className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#63A361] focus:outline-none transition-colors"
+						className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#fbbf24] focus:outline-none transition-colors"
 					/>
 				</div>
 
@@ -156,7 +156,7 @@ export const SubCategories = () => {
 						onClick={() => setSelectedPricingType("ALL")}
 						className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all border-2 ${
 							selectedPricingType === "ALL"
-								? "bg-[#63A361] text-white border-[#63A361]"
+								? "bg-[#fbbf24] text-white border-[#fbbf24]"
 								: "bg-white text-gray-700 border-gray-200 hover:border-gray-300"
 						}`}
 					>
@@ -169,7 +169,7 @@ export const SubCategories = () => {
 								onClick={() => setSelectedPricingType(type)}
 								className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all border-2 ${
 									selectedPricingType === type
-										? "bg-[#63A361] text-white border-[#63A361]"
+										? "bg-[#fbbf24] text-white border-[#fbbf24]"
 										: "bg-white text-gray-700 border-gray-200 hover:border-gray-300"
 								}`}
 							>
@@ -191,16 +191,16 @@ export const SubCategories = () => {
 						<button
 							key={subCategory.id}
 							onClick={() => handleSubCategoryClick(subCategory.id)}
-							className="w-full bg-white rounded-lg p-4 border-2 border-gray-200 text-left group hover:border-[#63A361] transition-all"
+							className="w-full bg-white rounded-lg p-4 border-2 border-gray-200 text-left group hover:border-[#fbbf24] transition-all"
 						>
 							<div className="flex items-start gap-3 md:flex-col md:gap-4">
 								<div className="flex items-center gap-3 flex-1 min-w-0 md:flex-col md:items-start md:w-full">
-									<div className="w-12 h-12 bg-gray-50 rounded-lg flex items-center justify-center shrink-0 border-2 border-gray-200 group-hover:border-[#63A361] transition-colors">
-										<Tag className="w-6 h-6 text-[#63A361]" />
+									<div className="w-12 h-12 bg-gray-50 rounded-lg flex items-center justify-center shrink-0 border-2 border-gray-200 group-hover:border-[#fbbf24] transition-colors">
+										<Tag className="w-6 h-6 text-[#fbbf24]" />
 									</div>
 									<div className="flex-1 min-w-0 md:w-full">
 										<div className="flex items-start justify-between gap-2 mb-2">
-											<h3 className="text-base md:text-lg font-bold text-gray-900 group-hover:text-[#63A361] transition-colors">
+											<h3 className="text-base md:text-lg font-bold text-gray-900 group-hover:text-[#fbbf24] transition-colors">
 												{subCategory.name}
 											</h3>
 											<span
@@ -216,7 +216,7 @@ export const SubCategories = () => {
 												{subCategory.description}
 											</p>
 										)}
-										<div className="flex items-center text-sm font-semibold text-[#63A361]">
+										<div className="flex items-center text-sm font-semibold text-[#fbbf24]">
 											<span>View Services</span>
 											<span className="ml-2 hidden md:inline">→</span>
 										</div>

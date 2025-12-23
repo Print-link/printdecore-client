@@ -19,7 +19,7 @@ export const PaymentModalContent = ({
 		<div className="text-center">
 			{loading && (
 				<>
-					<Loader2 className="w-12 h-12 text-[#63A361] animate-spin mx-auto mb-4" />
+					<Loader2 className="w-12 h-12 text-[#fbbf24] animate-spin mx-auto mb-4" />
 					<h3 className="text-lg font-semibold text-gray-900 mb-2">
 						Initializing Payment
 					</h3>
@@ -29,7 +29,7 @@ export const PaymentModalContent = ({
 
 			{verifying && (
 				<>
-					<Loader2 className="w-12 h-12 text-[#63A361] animate-spin mx-auto mb-4" />
+					<Loader2 className="w-12 h-12 text-[#fbbf24] animate-spin mx-auto mb-4" />
 					<h3 className="text-lg font-semibold text-gray-900 mb-2">
 						Verifying Payment
 					</h3>
@@ -48,7 +48,7 @@ export const PaymentModalContent = ({
 					<p className="text-sm text-red-600 mb-4">{error}</p>
 					<button
 						onClick={onRetry}
-						className="px-4 py-2 bg-[#63A361] text-white rounded-lg hover:bg-[#63A361] transition-colors"
+						className="px-4 py-2 bg-[#fbbf24] text-white rounded-lg hover:bg-[#fbbf24] transition-colors"
 					>
 						Try Again
 					</button>

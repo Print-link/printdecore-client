@@ -63,7 +63,7 @@ export const RegularPrintForm = ({
 								Drag and drop your file here
 							</p>
 							<p className="text-xs text-gray-500 mb-2 sm:mb-3">or</p>
-							<label className="inline-flex items-center px-4 py-2.5 sm:py-2 bg-[#63A361] text-white rounded-lg text-sm font-semibold cursor-pointer hover:bg-[#63A361] transition-colors touch-manipulation">
+							<label className="inline-flex items-center px-4 py-2.5 sm:py-2 bg-[#fbbf24] text-white rounded-lg text-sm font-semibold cursor-pointer hover:bg-[#fbbf24] transition-colors touch-manipulation">
 								<Upload className="w-4 h-4 mr-2" />
 								Browse Files
 								<input

@@ -11,7 +11,7 @@ export const OrderItemsList = ({ items, loading }: OrderItemsListProps) => {
 	if (loading) {
 		return (
 			<div className="bg-white rounded-lg border-2 border-gray-200 p-4 text-center">
-				<Loader2 className="w-5 h-5 text-[#63A361] animate-spin mx-auto" />
+				<Loader2 className="w-5 h-5 text-[#fbbf24] animate-spin mx-auto" />
 				<p className="text-sm text-gray-600 mt-2">Loading order items...</p>
 			</div>
 		);

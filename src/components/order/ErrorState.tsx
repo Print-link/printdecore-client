@@ -12,7 +12,7 @@ export const ErrorState = ({ error }: ErrorStateProps) => {
 		<div className="w-full max-w-4xl mx-auto bg-white p-4 lg:p-8">
 			<button
 				onClick={() => navigate("/history")}
-				className="mb-4 flex items-center text-sm text-gray-600 hover:text-[#63A361] transition-colors"
+				className="mb-4 flex items-center text-sm text-gray-600 hover:text-[#fbbf24] transition-colors"
 			>
 				<ArrowLeft className="w-4 h-4 mr-2" />
 				Back to History
@@ -27,7 +27,7 @@ export const ErrorState = ({ error }: ErrorStateProps) => {
 				</p>
 				<button
 					onClick={() => navigate("/history")}
-					className="inline-flex items-center px-4 py-2 bg-[#63A361] text-white rounded-lg hover:bg-[#E6B00D] transition-colors"
+					className="inline-flex items-center px-4 py-2 bg-[#fbbf24] text-white rounded-lg hover:bg-[#d97706] transition-colors"
 				>
 					<ArrowLeft className="w-4 h-4 mr-2" />
 					Back to History

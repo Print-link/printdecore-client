@@ -58,7 +58,7 @@ export const FilterSidebar = ({
 			{hasActiveFilters && (
 				<button
 					onClick={clearFilters}
-					className="w-full mb-4 px-4 py-2 text-sm font-medium text-[#63A361] hover:text-[#63A361] border border-white rounded-lg hover:bg-white"
+					className="w-full mb-4 px-4 py-2 text-sm font-medium text-[#fbbf24] hover:text-[#fbbf24] border border-white rounded-lg hover:bg-white"
 				>
 					Clear All Filters
 				</button>
@@ -84,7 +84,7 @@ export const FilterSidebar = ({
 										onChange={() =>
 											onFilterChange({ categoryId: cat.id, page: 1 })
 										}
-										className="w-4 h-4 text-[#63A361]"
+										className="w-4 h-4 text-[#fbbf24]"
 									/>
 									<span className="text-sm text-gray-700">
 										{cat.name} ({cat.count})
@@ -118,7 +118,7 @@ export const FilterSidebar = ({
 										})
 									}
 									placeholder={aggregations.priceRange.min.toString()}
-									className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#63A361] focus:border-transparent"
+									className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
 								/>
 							</div>
 							<div>
@@ -137,7 +137,7 @@ export const FilterSidebar = ({
 										})
 									}
 									placeholder={aggregations.priceRange.max.toString()}
-									className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#63A361] focus:border-transparent"
+									className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
 								/>
 							</div>
 						</div>
@@ -166,7 +166,7 @@ export const FilterSidebar = ({
 												page: 1,
 											})
 										}
-										className="w-4 h-4 text-[#63A361]"
+										className="w-4 h-4 text-[#fbbf24]"
 									/>
 									<span className="text-sm text-gray-700">
 										{pt.type.replace("_", " ")} ({pt.count})
@@ -190,7 +190,7 @@ export const FilterSidebar = ({
 								onChange={(e) =>
 									onFilterChange({ supportsColor: e.target.checked, page: 1 })
 								}
-								className="w-4 h-4 text-[#63A361] rounded"
+								className="w-4 h-4 text-[#fbbf24] rounded"
 							/>
 							<span className="text-sm text-gray-700">Color Printing</span>
 						</label>
@@ -204,7 +204,7 @@ export const FilterSidebar = ({
 										page: 1,
 									})
 								}
-								className="w-4 h-4 text-[#63A361] rounded"
+								className="w-4 h-4 text-[#fbbf24] rounded"
 							/>
 							<span className="text-sm text-gray-700">Front & Back</span>
 						</label>
@@ -218,7 +218,7 @@ export const FilterSidebar = ({
 										page: 1,
 									})
 								}
-								className="w-4 h-4 text-[#63A361] rounded"
+								className="w-4 h-4 text-[#fbbf24] rounded"
 							/>
 							<span className="text-sm text-gray-700">Print & Cut</span>
 						</label>
@@ -232,7 +232,7 @@ export const FilterSidebar = ({
 										page: 1,
 									})
 								}
-								className="w-4 h-4 text-[#63A361] rounded"
+								className="w-4 h-4 text-[#fbbf24] rounded"
 							/>
 							<span className="text-sm text-gray-700">Custom Size</span>
 						</label>

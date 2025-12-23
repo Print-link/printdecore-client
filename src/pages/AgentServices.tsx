@@ -58,7 +58,7 @@ export const AgentServices = () => {
 		return (
 			<div className="w-full max-w-6xl mx-auto bg-white rounded-2xl p-8">
 				<div className="flex items-center justify-center py-12">
-					<Loader2 className="w-8 h-8 text-[#63A361] animate-spin" />
+					<Loader2 className="w-8 h-8 text-[#fbbf24] animate-spin" />
 				</div>
 			</div>
 		);
@@ -75,7 +75,7 @@ export const AgentServices = () => {
 					<p className="text-gray-600 mb-4">{error}</p>
 					<button
 						onClick={handleBack}
-						className="inline-flex items-center px-4 py-2 text-sm font-medium text-[#63A361] hover:text-[#63A361]"
+						className="inline-flex items-center px-4 py-2 text-sm font-medium text-[#fbbf24] hover:text-[#fbbf24]"
 					>
 						<ArrowLeft className="w-4 h-4 mr-2" />
 						Go Back
@@ -119,7 +119,7 @@ export const AgentServices = () => {
 					</p>
 					<button
 						onClick={handleBack}
-						className="inline-flex items-center px-4 py-2 text-sm font-medium text-[#63A361] hover:text-[#63A361]"
+						className="inline-flex items-center px-4 py-2 text-sm font-medium text-[#fbbf24] hover:text-[#fbbf24]"
 					>
 						<ArrowLeft className="w-4 h-4 mr-2" />
 						Go Back
@@ -134,14 +134,14 @@ export const AgentServices = () => {
 							disabled={!service.isActive}
 							className={`w-full bg-white rounded-lg p-4 border-2 text-left group transition-all ${
 								service.isActive
-									? "border-gray-200 hover:border-[#63A361] cursor-pointer"
+									? "border-gray-200 hover:border-[#fbbf24] cursor-pointer"
 									: "border-gray-200 opacity-60 cursor-not-allowed"
 							}`}
 						>
 							<div className="flex items-start gap-3 md:flex-col md:gap-4">
 								<div className="flex items-center gap-3 flex-1 min-w-0 md:flex-col md:items-start md:w-full">
-									<div className="w-12 h-12 bg-gray-50 rounded-lg flex items-center justify-center shrink-0 border-2 border-gray-200 group-hover:border-[#63A361] transition-colors">
-										<DollarSign className="w-6 h-6 text-[#63A361]" />
+									<div className="w-12 h-12 bg-gray-50 rounded-lg flex items-center justify-center shrink-0 border-2 border-gray-200 group-hover:border-[#fbbf24] transition-colors">
+										<DollarSign className="w-6 h-6 text-[#fbbf24]" />
 									</div>
 									<div className="flex-1 min-w-0 md:w-full">
 										<div className="flex items-start justify-between gap-2 mb-2">
@@ -156,7 +156,7 @@ export const AgentServices = () => {
 												)}
 											</div>
 											{service.isActive ? (
-												<CheckCircle className="w-5 h-5 text-[#63A361] shrink-0" />
+												<CheckCircle className="w-5 h-5 text-[#fbbf24] shrink-0" />
 											) : (
 												<XCircle className="w-5 h-5 text-gray-400 shrink-0" />
 											)}
@@ -166,30 +166,30 @@ export const AgentServices = () => {
 										<div className="space-y-1.5 mb-3 mt-3">
 											{service.supportsFrontBack && (
 												<div className="flex items-center text-xs md:text-sm text-gray-700">
-													<CheckCircle className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#63A361] mr-2 shrink-0" />
+													<CheckCircle className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#fbbf24] mr-2 shrink-0" />
 													<span className="truncate">Front & Back</span>
 												</div>
 											)}
 											{service.supportsColor && (
 												<div className="flex items-center text-xs md:text-sm text-gray-700">
-													<CheckCircle className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#63A361] mr-2 shrink-0" />
+													<CheckCircle className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#fbbf24] mr-2 shrink-0" />
 													<span className="truncate">Color Printing</span>
 												</div>
 											)}
 											{service.supportsPrintCut && (
 												<div className="flex items-center text-xs md:text-sm text-gray-700">
-													<CheckCircle className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#63A361] mr-2 shrink-0" />
+													<CheckCircle className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#fbbf24] mr-2 shrink-0" />
 													<span className="truncate">Print & Cut</span>
 												</div>
 											)}
 											{service.supportsFrontOnly && (
 												<div className="flex items-center text-xs md:text-sm text-gray-700">
-													<CheckCircle className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#63A361] mr-2 shrink-0" />
+													<CheckCircle className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#fbbf24] mr-2 shrink-0" />
 													<span className="truncate">Front Only</span>
 												</div>
 											)}
 										</div>
-										<div className="flex items-center text-sm font-semibold text-[#63A361]">
+										<div className="flex items-center text-sm font-semibold text-[#fbbf24]">
 											<span>{service.isActive ? "Select & Configure" : "Not Available"}</span>
 											{service.isActive && <span className="ml-2 hidden md:inline">→</span>}
 										</div>

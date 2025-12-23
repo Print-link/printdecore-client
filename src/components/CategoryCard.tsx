@@ -54,7 +54,7 @@ export const CategoryCard = ({
 								isOpen ? "group-hover:bg-white" : ""
 							}`}
 						>
-							<Tag className="w-10 h-10 sm:w-12 sm:h-12 md:w-12 md:h-12 text-[#63A361]" />
+							<Tag className="w-10 h-10 sm:w-12 sm:h-12 md:w-12 md:h-12 text-[#fbbf24]" />
 						</div>
 					)}
 					<div className="absolute top-2 right-2 z-20">
@@ -78,7 +78,7 @@ export const CategoryCard = ({
 							<h3
 								className={`text-base md:text-lg font-bold line-clamp-1 transition-colors flex-1 ${
 									isClickable
-										? "text-gray-900 group-hover:text-[#63A361]"
+										? "text-gray-900 group-hover:text-[#fbbf24]"
 										: "text-gray-500"
 								}`}
 							>
@@ -139,7 +139,7 @@ export const CategoryCard = ({
 								<span className="text-xs md:text-sm font-medium text-gray-600">
 									Price:
 								</span>
-								<span className="text-base md:text-lg font-bold text-[#63A361]">
+								<span className="text-base md:text-lg font-bold text-[#fbbf24]">
 									GHS {category?.unitPrice?.toFixed(2)}
 								</span>
 							</div>

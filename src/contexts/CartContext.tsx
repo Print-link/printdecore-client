@@ -90,7 +90,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 		}
 	}, [branchId]);
 
-	const addToCart = (item: CartItem) => {
+	const addToCart = (item: CartItem, options?: { autoClear?: boolean }) => {
 		// Set branchId if not set
 		if (!branchId && item.branchId) {
 			setBranchId(item.branchId);
@@ -98,7 +98,17 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 		
 		// Check if branch matches
 		if (branchId && item.branchId !== branchId) {
-			throw new Error("Cannot add items from different branches. Please clear your cart first.");
+			const errorMessage = "Cannot add items from different branches. Please clear your cart first.";
+			
+			// If autoClear is enabled, automatically clear and add the new item
+			if (options?.autoClear) {
+				clearCart();
+				setBranchId(item.branchId);
+				setCart([item]);
+				return; // Successfully added after clearing
+			}
+			
+			throw new Error(errorMessage);
 		}
 
 		setCart((prev) => [...prev, item]);

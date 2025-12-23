@@ -2,8 +2,8 @@ import { useState, useCallback, useRef } from "react";
 import {
 	initializePayment,
 	verifyPayment,
-	createSplit,
-	type CreateSplitData,
+	// createSplit, // Uncomment if you need split payments
+	// type CreateSplitData, // Uncomment if you need split payments
 } from "../services/paystackService";
 
 interface PaymentData {
@@ -74,7 +74,7 @@ export const usePayment = ({
 					// Pass payment data including amount
 					const paymentData: PaymentData = {
 						reference,
-						amount: response.data.amount || 0, // Amount is already in GHS from backend
+						amount: response.data.amount || 0, // Amount is already converted from pesewas/kobo to main currency unit
 					};
 					onPaymentSuccess(paymentData);
 				} else {
@@ -191,39 +191,42 @@ export const usePayment = ({
 		cleanupListeners();
 
 		try {
-			const splitData: CreateSplitData = {
-				name: `Print Job Payment - ${new Date().toISOString()}`,
-				type: "percentage",
-				currency: "GHS",
-				subaccounts: [
-					{
-						subaccount: subaccount,
-						share: 98.5,
-					},
-				],
-				bearer_type: "subaccount",
-			};
+			// Remove split creation - it's not being used and may cause issues
+			// If you need split payments, uncomment and use the split_code
+			// const splitData: CreateSplitData = {
+			// 	name: `Print Job Payment - ${new Date().toISOString()}`,
+			// 	type: "percentage",
+			// 	currency: "GHS", // Match the currency your subaccount is configured for
+			// 	subaccounts: [
+			// 		{
+			// 			subaccount: subaccount,
+			// 			share: 98.5,
+			// 		},
+			// 	],
+			// 	bearer_type: "subaccount",
+			// };
 
-			let splitCode: string | undefined;
-			try {
-				const splitResponse = await createSplit(splitData);
-				if (splitResponse.status && splitResponse.data?.split_code) {
-					splitCode = splitResponse.data.split_code;
-				}
-			} catch (splitError) {
-				console.warn(
-					"Failed to create split, using direct subaccount:",
-					splitError
-				);
-			}
+			// let splitCode: string | undefined;
+			// try {
+			// 	const splitResponse = await createSplit(splitData);
+			// 	if (splitResponse.status && splitResponse.data?.split_code) {
+			// 		splitCode = splitResponse.data.split_code;
+			// 	}
+			// } catch (splitError) {
+			// 	console.warn(
+			// 		"Failed to create split, using direct subaccount:",
+			// 		splitError
+			// 	);
+			// }
 
 			const callbackUrl = `${window.location.origin}/payment/callback`;
 
 			const response = await initializePayment({
 				amount,
 				email,
-				currency: "GHS",
-				...(splitCode ? { split_code: splitCode } : { subaccount }),
+				currency: "GHS", // Ghanaian Cedis
+				subaccount: subaccount,
+				// split_code: splitCode, // Use split_code if you want split payments
 				callback_url: callbackUrl,
 				metadata: {
 					custom_fields: [

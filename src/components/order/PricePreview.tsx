@@ -24,9 +24,9 @@ export const PricePreview = ({
 	calculatingPrice,
 }: PricePreviewProps) => {
 	return (
-		<div className="bg-[#63A361]/5 border-2 border-[#63A361] rounded-lg p-4">
+		<div className="bg-[#fbbf24]/5 border-2 border-[#fbbf24] rounded-lg p-4">
 			<div className="flex items-center gap-2 mb-3">
-				<Calculator className="w-5 h-5 text-[#63A361]" />
+				<Calculator className="w-5 h-5 text-[#fbbf24]" />
 				<h4 className="text-sm font-bold text-gray-900 uppercase tracking-wide">
 					Price Calculation
 				</h4>
@@ -88,13 +88,13 @@ export const PricePreview = ({
 					</div>
 				</div>
 			)}
-			<div className="pt-3 mt-3 border-t-2 border-[#63A361]/20 flex justify-between items-center">
+			<div className="pt-3 mt-3 border-t-2 border-[#fbbf24]/20 flex justify-between items-center">
 				<span className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Estimated Price</span>
 				<div className="flex items-center gap-2">
 					{calculatingPrice && (
-						<Loader2 className="w-4 h-4 text-[#63A361] animate-spin" />
+						<Loader2 className="w-4 h-4 text-[#fbbf24] animate-spin" />
 					)}
-					<div className="text-2xl font-bold text-[#63A361]">
+					<div className="text-2xl font-bold text-[#fbbf24]">
 						GHS {priceInfo.calculatedPrice.toFixed(2)}
 					</div>
 				</div>

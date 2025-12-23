@@ -41,7 +41,7 @@ const AppRoutes = () => {
 	if (isLoading) {
 		return (
 			<div className="min-h-screen flex items-center justify-center">
-				<div className="w-8 h-8 border-4 border-[#63A361] border-t-transparent rounded-full animate-spin"></div>
+				<div className="w-8 h-8 border-4 border-[#fbbf24] border-t-transparent rounded-full animate-spin"></div>
 			</div>
 		);
 	}

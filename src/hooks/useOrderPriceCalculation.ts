@@ -1,5 +1,10 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { calculatePrice, type PriceCalculationResponse } from "../services/orderApi";
+import {
+	calculatePrice,
+	type PriceCalculationResponse,
+	type AgentService,
+	type PriceCalculationRequest,
+} from "../services/orderApi";
 import type { MeasurementUnit } from "../services/orderApi";
 
 interface OrderFormData {
@@ -20,7 +25,7 @@ interface OrderFormData {
 interface UseOrderPriceCalculationProps {
 	agentServiceId: string | null;
 	formData: OrderFormData;
-	agentService: any;
+	agentService: AgentService | null;
 	pdfPageCount?: number;
 	selectedFilesLength: number;
 }
@@ -33,37 +38,53 @@ export const useOrderPriceCalculation = ({
 	selectedFilesLength,
 }: UseOrderPriceCalculationProps) => {
 	const [calculatingPrice, setCalculatingPrice] = useState<boolean>(false);
-	const [priceInfo, setPriceInfo] = useState<PriceCalculationResponse | null>(null);
+	const [priceInfo, setPriceInfo] = useState<PriceCalculationResponse | null>(
+		null
+	);
 	const [formulaType, setFormulaType] = useState<string | null>(null);
-	const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
-	const isInitialCallRef = useRef<boolean>(true);
+	const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	// Memoize form data to prevent unnecessary recalculations
-	const memoizedFormData = useMemo(() => formData, [
-		formData.width,
-		formData.height,
-		formData.measurementUnit,
-		formData.quantity,
-		formData.options.frontBack,
-		formData.options.color,
-		formData.options.printCut,
-		formData.options.frontOnly,
-		formData.options.filePages,
-		formData.options.numberOfPages,
-	]);
+	const memoizedFormData = useMemo(
+		() => formData,
+		[
+			formData.width,
+			formData.height,
+			formData.measurementUnit,
+			formData.quantity,
+			formData.options.frontBack,
+			formData.options.color,
+			formData.options.printCut,
+			formData.options.frontOnly,
+			formData.options.filePages,
+			formData.options.numberOfPages,
+		]
+	);
 
 	const calculatePriceAsync = useCallback(async () => {
 		if (!agentServiceId || !memoizedFormData.quantity) return;
 
 		setCalculatingPrice(true);
 		try {
-			const response = await calculatePrice(agentServiceId, {
+			// Build request payload - the API function will clean undefined values
+			const options = { ...memoizedFormData.options };
+
+			// If we have pdfPageCount, always include it in options (backend will use it if needed)
+			// This ensures PAGE_BASED calculations work even if formulaType isn't set yet
+			if (pdfPageCount && pdfPageCount > 0) {
+				options.filePages = pdfPageCount;
+				options.numberOfPages = pdfPageCount;
+			}
+
+			const requestPayload: PriceCalculationRequest = {
 				width: memoizedFormData.width,
 				height: memoizedFormData.height,
 				measurementUnit: memoizedFormData.measurementUnit,
 				quantity: memoizedFormData.quantity,
-				options: memoizedFormData.options,
-			});
+				options: Object.keys(options).length > 0 ? options : undefined,
+			};
+
+			const response = await calculatePrice(agentServiceId, requestPayload);
 
 			if (response.success && response.data) {
 				setPriceInfo(response.data);
@@ -77,43 +98,41 @@ export const useOrderPriceCalculation = ({
 		} finally {
 			setCalculatingPrice(false);
 		}
-	}, [agentServiceId, memoizedFormData]);
+	}, [
+		agentServiceId,
+		memoizedFormData,
+		formulaType,
+		pdfPageCount,
+		priceInfo?.formulaType,
+		agentService?.formulaType,
+	]);
 
-	// Initial call to get formula type (only once when agentService is loaded)
+	// Get formula type directly from agentService if available
 	useEffect(() => {
-		if (agentService && agentServiceId && !formulaType && isInitialCallRef.current) {
-			isInitialCallRef.current = false;
-			// Make initial call with minimal data just to get formulaType
-			// For PAGE_BASED, we'll pass filePages: 1 to avoid validation errors
-			calculatePrice(agentServiceId, {
-				width: 1,
-				height: 1,
-				measurementUnit: "FEET",
-				quantity: 1,
-				options: {
-					filePages: 1,
-					numberOfPages: 1,
-				},
-			})
-				.then((response) => {
-					if (response.success && response.data?.formulaType) {
-						setFormulaType(response.data.formulaType);
-					}
-				})
-				.catch((err) => {
-					console.error("Error getting formula type:", err);
-					// If it fails, we'll get it from the first successful price calculation
-				});
+		if (agentService?.formulaType && !formulaType) {
+			setFormulaType(agentService.formulaType);
 		}
-	}, [agentService, agentServiceId, formulaType]);
+	}, [agentService, formulaType]);
 
 	// Calculate price when form data changes (debounced)
 	useEffect(() => {
 		if (agentService && memoizedFormData.quantity > 0) {
 			// For PAGE_BASED, wait for PDF pages to be counted
-			const currentIsPageBased = formulaType === "PAGE_BASED" || priceInfo?.formulaType === "PAGE_BASED";
+			const currentIsPageBased =
+				formulaType === "PAGE_BASED" || priceInfo?.formulaType === "PAGE_BASED";
 			if (currentIsPageBased && !pdfPageCount && selectedFilesLength > 0) {
 				return; // Wait for page count
+			}
+
+			// For PAGE_BASED, ensure filePages is in options before making the call
+			if (
+				currentIsPageBased &&
+				!memoizedFormData.options?.filePages &&
+				!memoizedFormData.options?.numberOfPages
+			) {
+				if (!pdfPageCount) {
+					return; // Wait for page count
+				}
 			}
 
 			// Clear existing timer
@@ -142,6 +161,10 @@ export const useOrderPriceCalculation = ({
 		priceInfo?.formulaType,
 	]);
 
-	return { priceInfo, calculatingPrice, formulaType: formulaType || priceInfo?.formulaType };
+	return {
+		priceInfo,
+		calculatingPrice,
+		formulaType: formulaType || priceInfo?.formulaType,
+	};
 };
 

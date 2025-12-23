@@ -83,6 +83,7 @@ export interface Branch {
 	coverImage?: string;
 	phoneNumber?: string;
 	email?: string;
+	payStackSubAccountId?: string; // Paystack subaccount code for payment splitting
 	location?: {
 		id: string;
 		address: string;
@@ -138,6 +139,7 @@ export interface AgentService {
 	supportsColor: boolean;
 	supportsFrontBack: boolean;
 	supportsFrontOnly: boolean;
+	formulaType?: string; // Pricing formula type from service template (e.g., "PAGE_BASED", "AREA_FEET")
 	createdAt: string;
 	updatedAt: string;
 }
@@ -204,12 +206,14 @@ const handleApiError = (error: unknown, defaultMessage: string): never => {
 
 export const createOrder = async (
 	clientId: string,
-	branchId: string
+	branchId: string,
+	paymentReference: string,
+	totalPrice: number
 ): Promise<ApiResponse<Order>> => {
 	try {
 		const response = await axios.post<ApiResponse<Order>>(
 			`${BASE_URL}/orders`,
-			{ clientId, branchId },
+			{ clientId, branchId, paymentReference, totalPrice },
 			{ headers: getAuthHeaders() }
 		);
 		return response.data;
@@ -229,11 +233,18 @@ export const getClientOrders = async (
 		if (branchId) params.append("branchId", branchId);
 		if (status) params.append("status", status);
 
-		const response = await axios.get<ApiResponse<Order[]>>(
+		const response = await axios.get<any>(
 			`${BASE_URL}/orders?${params.toString()}`,
 			{ headers: getAuthHeaders() }
 		);
-		return response.data;
+		
+		// Normalize backend response: convert "status" to "success"
+		const backendResponse = response.data;
+		return {
+			success: backendResponse.status === true,
+			message: backendResponse.message,
+			data: backendResponse.data || [],
+		};
 	} catch (error) {
 		return handleApiError(error, "Failed to fetch orders");
 	}
@@ -243,11 +254,18 @@ export const getOrderById = async (
 	orderId: string
 ): Promise<ApiResponse<Order>> => {
 	try {
-		const response = await axios.get<ApiResponse<Order>>(
+		const response = await axios.get<any>(
 			`${BASE_URL}/orders/${orderId}`,
 			{ headers: getAuthHeaders() }
 		);
-		return response.data;
+		
+		// Normalize backend response: convert "status" to "success"
+		const backendResponse = response.data;
+		return {
+			success: backendResponse.status === true,
+			message: backendResponse.message,
+			data: backendResponse.data,
+		};
 	} catch (error) {
 		return handleApiError(error, "Failed to fetch order");
 	}
@@ -310,9 +328,39 @@ export const calculatePrice = async (
 	calculationData: PriceCalculationRequest
 ): Promise<ApiResponse<PriceCalculationResponse>> => {
 	try {
+		// Clean up the request payload - remove undefined values
+		const cleanPayload: PriceCalculationRequest = {
+			measurementUnit: calculationData.measurementUnit,
+			quantity: calculationData.quantity,
+		};
+
+		// Only include width/height if they are defined and valid
+		if (
+			calculationData.width !== undefined &&
+			calculationData.width !== null &&
+			calculationData.width > 0
+		) {
+			cleanPayload.width = calculationData.width;
+		}
+		if (
+			calculationData.height !== undefined &&
+			calculationData.height !== null &&
+			calculationData.height > 0
+		) {
+			cleanPayload.height = calculationData.height;
+		}
+
+		// Include options if they exist and have content
+		if (
+			calculationData.options &&
+			Object.keys(calculationData.options).length > 0
+		) {
+			cleanPayload.options = calculationData.options;
+		}
+
 		const response = await axios.post<ApiResponse<PriceCalculationResponse>>(
 			`${BASE_URL}/orders/calculate-price?agentServiceId=${agentServiceId}`,
-			calculationData,
+			cleanPayload,
 			{ headers: getAuthHeaders() }
 		);
 		return response.data;

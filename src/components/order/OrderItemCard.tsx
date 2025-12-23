@@ -31,7 +31,7 @@ export const OrderItemCard = ({ item, index }: OrderItemCardProps) => {
 					</div>
 				</div>
 				<div className="text-right">
-					<p className="text-sm font-bold text-[#63A361]">
+					<p className="text-sm font-bold text-[#fbbf24]">
 						GHS {item.calculatedPrice.toFixed(2)}
 					</p>
 				</div>
@@ -72,7 +72,7 @@ export const OrderItemCard = ({ item, index }: OrderItemCardProps) => {
 										href={fileInfo.url}
 										target="_blank"
 										rel="noopener noreferrer"
-										className="text-[#63A361] hover:underline truncate"
+										className="text-[#fbbf24] hover:underline truncate"
 									>
 										{fileInfo.name || `File ${fileIndex + 1}`}
 									</a>

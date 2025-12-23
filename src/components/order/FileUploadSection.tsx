@@ -38,7 +38,7 @@ export const FileUploadSection = ({
 				/>
 				<label
 					htmlFor="file-upload"
-					className="cursor-pointer text-sm text-[#63A361] hover:text-[#63A361]"
+					className="cursor-pointer text-sm text-[#fbbf24] hover:text-[#fbbf24]"
 				>
 					Click to upload or drag and drop
 				</label>
@@ -70,7 +70,7 @@ export const FileUploadSection = ({
 										</span>
 									)}
 									{isPdf && pdfPageCount !== undefined && index === 0 && (
-										<span className="text-xs text-[#63A361] font-medium">
+										<span className="text-xs text-[#fbbf24] font-medium">
 											({pdfPageCount} {pdfPageCount === 1 ? "page" : "pages"})
 										</span>
 									)}

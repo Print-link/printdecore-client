@@ -81,7 +81,7 @@ export const FormatPrintForm = ({
 								Drag and drop your file here
 							</p>
 							<p className="text-xs text-gray-500 mb-2 sm:mb-3">or</p>
-							<label className="inline-flex items-center px-4 py-2.5 sm:py-2 bg-[#63A361] text-white rounded-lg text-sm font-semibold cursor-pointer hover:bg-[#E6B00D] transition-colors touch-manipulation">
+							<label className="inline-flex items-center px-4 py-2.5 sm:py-2 bg-[#fbbf24] text-white rounded-lg text-sm font-semibold cursor-pointer hover:bg-[#d97706] transition-colors touch-manipulation">
 								<Upload className="w-4 h-4 mr-2" />
 								Browse Files
 								<input
@@ -142,7 +142,7 @@ export const FormatPrintForm = ({
 									value={width}
 									onChange={(e) => onWidthChange(e.target.value)}
 									placeholder="e.g., 9x6m"
-									className="w-full px-3 py-2.5 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#63A361] focus:border-transparent"
+									className="w-full px-3 py-2.5 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
 									required
 									disabled={loading}
 								/>
@@ -156,7 +156,7 @@ export const FormatPrintForm = ({
 									value={height}
 									onChange={(e) => onHeightChange(e.target.value)}
 									placeholder="e.g., 6m"
-									className="w-full px-3 py-2.5 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#63A361] focus:border-transparent"
+									className="w-full px-3 py-2.5 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
 									required
 									disabled={loading}
 								/>
@@ -173,7 +173,7 @@ export const FormatPrintForm = ({
 							onChange={(e) => onCopiesChange(e.target.value)}
 							min="1"
 							placeholder="Enter number of copies"
-							className="w-full px-3 py-2.5 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#63A361] focus:border-transparent"
+							className="w-full px-3 py-2.5 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
 							required
 							disabled={loading}
 						/>
