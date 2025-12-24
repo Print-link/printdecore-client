@@ -61,7 +61,7 @@ export const Register = () => {
 			);
 			if (result.success) {
 				toast.success("Account created successfully");
-				navigate("/");
+				navigate("/home");
 			} else {
 				setError(result.message || "Email already registered");
 			}

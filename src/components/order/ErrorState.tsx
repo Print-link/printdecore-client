@@ -11,7 +11,7 @@ export const ErrorState = ({ error }: ErrorStateProps) => {
 	return (
 		<div className="w-full max-w-4xl mx-auto bg-white p-4 lg:p-8">
 			<button
-				onClick={() => navigate("/history")}
+				onClick={() => navigate("/home/history")}
 				className="mb-4 flex items-center text-sm text-gray-600 hover:text-[#fbbf24] transition-colors"
 			>
 				<ArrowLeft className="w-4 h-4 mr-2" />
@@ -26,7 +26,7 @@ export const ErrorState = ({ error }: ErrorStateProps) => {
 					{error || "The order you're looking for doesn't exist."}
 				</p>
 				<button
-					onClick={() => navigate("/history")}
+					onClick={() => navigate("/home/history")}
 					className="inline-flex items-center px-4 py-2 bg-[#fbbf24] text-white rounded-lg hover:bg-[#d97706] transition-colors"
 				>
 					<ArrowLeft className="w-4 h-4 mr-2" />

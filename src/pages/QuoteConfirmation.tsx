@@ -136,7 +136,7 @@ export const QuoteConfirmation = () => {
 				if (response.data.success) {
 					toast.success("Payment confirmed! Your order is being processed.");
 					setTimeout(() => {
-						navigate("/history");
+						navigate("/home/history");
 					}, 2000);
 				} else {
 					throw new Error(response.data.message || "Failed to confirm payment");
@@ -193,7 +193,7 @@ export const QuoteConfirmation = () => {
 					</div>
 					<p className="text-gray-700 mb-6">{error}</p>
 					<button
-						onClick={() => navigate("/")}
+						onClick={() => navigate("/home")}
 						className="w-full py-3 px-4 bg-[#fbbf24] text-white rounded-lg hover:bg-[#fbbf24] transition-colors font-medium"
 					>
 						Go to Home
@@ -347,7 +347,7 @@ export const QuoteConfirmation = () => {
 				<div className="bg-white border border-gray-200 rounded-lg p-6">
 					<div className="flex flex-col sm:flex-row gap-4">
 						<button
-							onClick={() => navigate("/")}
+							onClick={() => navigate("/home")}
 							disabled={loading}
 							className="flex-1 py-3.5 px-6 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:border-gray-400 hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
 						>

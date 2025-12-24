@@ -29,7 +29,7 @@ export const Cart = () => {
 			toast.error("Cart is empty");
 			return;
 		}
-		navigate(`/order/checkout/${branchId}`);
+		navigate(`/home/order/checkout/${branchId}`);
 	};
 
 	const handleContinueShopping = () => {

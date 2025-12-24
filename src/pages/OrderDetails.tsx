@@ -205,7 +205,7 @@ export const OrderDetails = () => {
 		<div className="w-full max-w-7xl mx-auto">
 			{/* Back Button */}
 			<button
-				onClick={() => navigate("/history")}
+				onClick={() => navigate("/home/history")}
 				className="mb-4 flex items-center text-sm text-gray-600 hover:text-gray-900 transition-colors"
 			>
 				<ArrowLeft className="w-4 h-4 mr-2" />

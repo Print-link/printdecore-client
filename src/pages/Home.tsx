@@ -28,7 +28,7 @@ export const Home = () => {
 	);
 
 	const handleStationClick = (stationId: string) => {
-		navigate(`/categories/${stationId}`);
+		navigate(`/home/categories/${stationId}`);
 	};
 
 	const clearSearch = () => {
