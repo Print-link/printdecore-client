@@ -174,7 +174,7 @@ export const Checkout = () => {
 			toast.success("Order placed successfully!");
 
 			setTimeout(() => {
-				navigate(`/order/${order.id}`);
+				navigate(`/home/order/${order.id}`);
 			}, 1500);
 		} catch (error) {
 			console.error("Error placing order:", error);

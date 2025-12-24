@@ -46,7 +46,7 @@ export const AgentServices = () => {
 
 	const handleAgentServiceClick = (agentServiceId: string) => {
 		navigate(
-			`/order/configure/${branchId}?agentServiceId=${agentServiceId}&serviceTemplateId=${serviceTemplateId}`
+			`/home/order/configure/${branchId}?agentServiceId=${agentServiceId}&serviceTemplateId=${serviceTemplateId}`
 		);
 	};
 

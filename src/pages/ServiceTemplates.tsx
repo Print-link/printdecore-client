@@ -47,7 +47,7 @@ export const ServiceTemplates = () => {
 
 	const handleServiceTemplateClick = (serviceTemplateId: string) => {
 		navigate(
-			`/order/agent-services/${branchId}?serviceTemplateId=${serviceTemplateId}`
+			`/home/order/agent-services/${branchId}?serviceTemplateId=${serviceTemplateId}`
 		);
 	};
 

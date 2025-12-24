@@ -50,7 +50,7 @@ export const SubCategories = () => {
 	}, [categoryId]);
 
 	const handleSubCategoryClick = (subCategoryId: string) => {
-		navigate(`/order/service-templates/${branchId}?subCategoryId=${subCategoryId}`);
+		navigate(`/home/order/service-templates/${branchId}?subCategoryId=${subCategoryId}`);
 	};
 
 	const handleBack = () => {

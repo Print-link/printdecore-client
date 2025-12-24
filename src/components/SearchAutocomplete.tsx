@@ -85,11 +85,11 @@ export const SearchAutocomplete = ({
 
 		// Default navigation behavior
 		if (type === "category") {
-			navigate(`/categories/${branchId || ""}?categoryId=${id}`);
+			navigate(`/home/categories/${branchId || ""}?categoryId=${id}`);
 		} else if (type === "subCategory") {
-			navigate(`/order/sub-categories/${branchId || ""}?categoryId=${id}&subCategoryId=${subCategoryId}`);
+			navigate(`/home/order/sub-categories/${branchId || ""}?categoryId=${id}&subCategoryId=${subCategoryId}`);
 		} else if (type === "service") {
-			navigate(`/order/service-templates/${branchId || ""}?serviceTemplateId=${id}`);
+			navigate(`/home/order/service-templates/${branchId || ""}?serviceTemplateId=${id}`);
 		}
 	};
 

@@ -88,7 +88,7 @@ export const usePrintJobSubmission = ({
 
 				toast.success(/*response.message || */ "Order submitted successfully!");
 				setTimeout(() => {
-					navigate("/history");
+					navigate("/home/history");
 				}, 1000);
 
 				return { success: true, message: response.message };

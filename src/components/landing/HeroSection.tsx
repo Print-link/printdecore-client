@@ -1,4 +1,5 @@
 import { Check, Star, MapPin } from "lucide-react";
+import heroImage from "../../assets/images/HeroImage.jpg";
 
 interface HeroSectionProps {
 	onGetStarted: () => void;
@@ -6,7 +7,20 @@ interface HeroSectionProps {
 
 export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
 	return (
-		<section className="relative bg-gradient-to-br from-[#fbbf24] via-[#fcd34d] to-[#fef3c7] dark:from-[#d97706] dark:via-[#f59e0b] dark:to-[#fbbf24] py-20 md:py-32 overflow-hidden">
+		<section className="relative py-20 md:py-32 overflow-hidden">
+			{/* Background Image */}
+			<div className="absolute inset-0">
+				<img
+					src={heroImage}
+					alt="Print services background"
+					className="w-full h-full object-cover"
+					loading="eager"
+				/>
+				{/* Overlay for better text readability */}
+				<div className="absolute inset-0 bg-gradient-to-br from-[#fbbf24]/90 via-[#fcd34d]/85 to-[#fef3c7]/90 dark:from-black/70 dark:via-black/60 dark:to-black/70"></div>
+			</div>
+			
+			{/* Decorative elements */}
 			<div className="absolute inset-0 opacity-10 dark:opacity-20">
 				<div className="absolute top-20 left-20 w-72 h-72 bg-black rounded-full blur-3xl"></div>
 				<div className="absolute bottom-20 right-20 w-96 h-96 bg-black rounded-full blur-3xl"></div>

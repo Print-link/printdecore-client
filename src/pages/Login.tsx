@@ -31,7 +31,7 @@ export const Login = () => {
 				toast.success("Login successful");
 				// Redirect to returnUrl if provided, otherwise go to home
 				const returnUrl = searchParams.get('returnUrl');
-				navigate(returnUrl || "/", { replace: true });
+				navigate(returnUrl || "/home", { replace: true });
 			} else {
 				setError(result.message || "Invalid email or password");
 			}

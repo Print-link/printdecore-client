@@ -15,7 +15,7 @@ export const Landing = () => {
 	const navigate = useNavigate();
 
 	const handleGetStarted = () => {
-		navigate("/search");
+		navigate("/home/search");
 	};
 
 	const handleJoinClick = () => {

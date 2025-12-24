@@ -195,7 +195,7 @@ export const OrderForm = () => {
 			addToCart(cartItem);
 			setShowAddToCartModal(false);
 			toast.success("Item added to cart!");
-			navigate(`/order/cart/${branchId}`); // Go to cart
+			navigate(`/home/order/cart/${branchId}`); // Go to cart
 		} catch (error) {
 			const errorMessage =
 				error instanceof Error ? error.message : "Failed to add item to cart";

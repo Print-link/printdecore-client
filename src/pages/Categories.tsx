@@ -43,7 +43,7 @@ export const Categories = () => {
 	}, [id]);
 
 	const handleCategoryClick = (categoryId: string) => {
-		navigate(`/order/sub-categories/${id}?categoryId=${categoryId}`);
+		navigate(`/home/order/sub-categories/${id}?categoryId=${categoryId}`);
 	};
 
 	const handleBack = () => {

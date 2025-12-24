@@ -181,7 +181,7 @@ export const History = () => {
 					{filteredOrders.map((order: Order) => (
 						<button
 							key={order.id}
-							onClick={() => navigate(`/order/${order.id}`)}
+							onClick={() => navigate(`/home/order/${order.id}`)}
 							className="w-full bg-white rounded-lg border-2 border-gray-200 p-4 text-left hover:border-[#fbbf24] transition-all"
 						>
 							<div className="flex items-start justify-between gap-4">

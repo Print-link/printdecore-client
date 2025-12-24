@@ -44,13 +44,13 @@ export const ProtectedLayout = () => {
   const handleTabChange = (tab: 'home' | 'history' | 'search' | 'cart') => {
     setActiveTab(tab);
     if (tab === 'home') {
-      navigate('/');
+      navigate('/home');
     } else if (tab === 'history') {
-      navigate('/history');
+      navigate('/home/history');
     } else if (tab === 'search') {
-      navigate('/search');
+      navigate('/home/search');
     } else if (tab === 'cart' && branchId) {
-      navigate(`/order/cart/${branchId}`);
+      navigate(`/home/order/cart/${branchId}`);
     }
     // Close drawer on mobile when navigation item is clicked
     if (window.innerWidth < 768) {
@@ -228,7 +228,7 @@ export const ProtectedLayout = () => {
 										{branchId && (
 											<button
 												onClick={() => {
-													navigate(`/order/cart/${branchId}`);
+													navigate(`/home/order/cart/${branchId}`);
 													if (window.innerWidth < 768) {
 														setDrawerOpen(false);
 													}
@@ -328,7 +328,7 @@ export const ProtectedLayout = () => {
 								{/* Search Icon - Only visible on mobile */}
 								<button
 									onClick={() => {
-										navigate("/search");
+										navigate("/home/search");
 										if (window.innerWidth < 768) {
 											setDrawerOpen(false);
 										}

@@ -50,25 +50,36 @@ const AppRoutes = () => {
 
 	return (
 		<Routes>
+			{/* Public Landing Page - Redirect authenticated users to home */}
+			<Route 
+				path="/" 
+				element={user ? <Navigate to="/home" replace /> : <Landing />} 
+			/>
+			
+			{/* Auth Routes */}
 			<Route
 				path="/login"
-				element={user ? <Navigate to="/" replace /> : <Login />}
+				element={user ? <Navigate to="/home" replace /> : <Login />}
 			/>
 			<Route
 				path="/send-otp"
-				element={user ? <Navigate to="/" replace /> : <SendOTP />}
+				element={user ? <Navigate to="/home" replace /> : <SendOTP />}
 			/>
 			<Route
 				path="/verify-otp"
-				element={user ? <Navigate to="/" replace /> : <VerifyOTP />}
+				element={user ? <Navigate to="/home" replace /> : <VerifyOTP />}
 			/>
 			<Route
 				path="/register"
-				element={user ? <Navigate to="/" replace /> : <Register />}
+				element={user ? <Navigate to="/home" replace /> : <Register />}
 			/>
+			
+			{/* Public Routes - Landing page accessible even when authenticated */}
 			<Route path="/payment/callback" element={<PaymentCallback />} />
 			<Route path="/landing" element={<Landing />} />
 			<Route path="/welcome" element={<Landing />} />
+			
+			{/* Protected Routes */}
 			<Route
 				path="/quote/confirm"
 				element={
@@ -78,7 +89,7 @@ const AppRoutes = () => {
 				}
 			/>
 			<Route
-				path="/"
+				path="/home"
 				element={
 					<ProtectedRoute>
 						<ProtectedLayout />
