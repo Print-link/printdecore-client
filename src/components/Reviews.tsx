@@ -63,7 +63,7 @@ export const Reviews = ({ adminId }: ReviewsProps) => {
 		<div className="hidden lg:block w-80 shrink-0">
 			<div className="sticky top-4 bg-white rounded-xl border border-gray-200 p-6">
 				<h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-					<MessageSquare className="w-5 h-5 text-indigo-600" />
+					<MessageSquare className="w-5 h-5 text-[#fbbf24]" />
 					Reviews
 				</h3>
 
@@ -73,7 +73,7 @@ export const Reviews = ({ adminId }: ReviewsProps) => {
 							<div className="flex items-center gap-1">
 								<Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
 								<span className="text-2xl font-bold text-gray-900">
-									{averageRating.toFixed(1)}
+									{averageRating?.toFixed(1)}
 								</span>
 							</div>
 							<span className="text-sm text-gray-600">
@@ -85,7 +85,7 @@ export const Reviews = ({ adminId }: ReviewsProps) => {
 
 				{loading ? (
 					<div className="flex items-center justify-center py-8">
-						<div className="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+						<div className="w-6 h-6 border-2 border-[#fbbf24] border-t-transparent rounded-full animate-spin"></div>
 					</div>
 				) : error ? (
 					<div className="text-sm text-red-600 py-4">{error}</div>
@@ -114,9 +114,7 @@ export const Reviews = ({ adminId }: ReviewsProps) => {
 									</div>
 								</div>
 								{review.comment && (
-									<p className="text-sm text-gray-700 mt-2">
-										{review.comment}
-									</p>
+									<p className="text-sm text-gray-700 mt-2">{review.comment}</p>
 								)}
 							</div>
 						))}
@@ -132,7 +130,7 @@ export const Reviews = ({ adminId }: ReviewsProps) => {
 			{/* Button to open bottom sheet on mobile */}
 			<button
 				onClick={() => setShowBottomSheet(true)}
-				className="lg:hidden fixed bottom-6 right-6 z-40 bg-indigo-600 text-white px-6 py-3 rounded-full shadow-lg hover:bg-indigo-700 transition-colors flex items-center gap-2"
+				className="lg:hidden fixed bottom-6 right-6 z-40 bg-[#fbbf24] text-white px-6 py-3 rounded-full  hover:bg-[#fbbf24] transition-colors flex items-center gap-2"
 			>
 				<MessageSquare className="w-5 h-5" />
 				<span className="font-semibold">
@@ -157,7 +155,7 @@ export const Reviews = ({ adminId }: ReviewsProps) => {
 			>
 				<div className="flex items-center justify-between p-4 border-b border-gray-200">
 					<h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-						<MessageSquare className="w-5 h-5 text-indigo-600" />
+						<MessageSquare className="w-5 h-5 text-[#fbbf24]" />
 						Reviews
 					</h3>
 					<button
@@ -168,7 +166,10 @@ export const Reviews = ({ adminId }: ReviewsProps) => {
 					</button>
 				</div>
 
-				<div className="overflow-y-auto" style={{ maxHeight: "calc(85vh - 60px)" }}>
+				<div
+					className="overflow-y-auto"
+					style={{ maxHeight: "calc(85vh - 60px)" }}
+				>
 					<div className="p-4">
 						{averageRating > 0 && (
 							<div className="mb-6 pb-6 border-b border-gray-200">
@@ -180,7 +181,8 @@ export const Reviews = ({ adminId }: ReviewsProps) => {
 										</span>
 									</div>
 									<span className="text-sm text-gray-600">
-										({reviews.length} {reviews.length === 1 ? "review" : "reviews"})
+										({reviews.length}{" "}
+										{reviews.length === 1 ? "review" : "reviews"})
 									</span>
 								</div>
 							</div>
@@ -188,7 +190,7 @@ export const Reviews = ({ adminId }: ReviewsProps) => {
 
 						{loading ? (
 							<div className="flex items-center justify-center py-8">
-								<div className="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+								<div className="w-6 h-6 border-2 border-[#fbbf24] border-t-transparent rounded-full animate-spin"></div>
 							</div>
 						) : error ? (
 							<div className="text-sm text-red-600 py-4">{error}</div>

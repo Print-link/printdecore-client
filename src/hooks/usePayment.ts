@@ -1,14 +1,9 @@
 import { useState, useCallback, useRef } from "react";
-import {
-	initializePayment,
-	verifyPayment,
-	createSplit,
-	type CreateSplitData,
-} from "../services/paystackService";
+import { initializePayment, verifyPayment } from "../services/paystackService";
 
 interface PaymentData {
 	reference: string;
-	amount: number; // Amount in GHS (already converted from pesewas)
+	amount: number;
 }
 
 interface UsePaymentProps {
@@ -44,12 +39,10 @@ export const usePayment = ({
 			window.removeEventListener("message", messageHandlerRef.current);
 			messageHandlerRef.current = null;
 		}
-		// Clear window check interval
 		if (windowCheckIntervalRef.current) {
 			clearInterval(windowCheckIntervalRef.current);
 			windowCheckIntervalRef.current = null;
 		}
-		// Clear cleanup timeout
 		if (cleanupTimeoutRef.current) {
 			clearTimeout(cleanupTimeoutRef.current);
 			cleanupTimeoutRef.current = null;
@@ -71,10 +64,9 @@ export const usePayment = ({
 				const response = await verifyPayment(reference);
 
 				if (response.status && response.data?.status === "success") {
-					// Pass payment data including amount
 					const paymentData: PaymentData = {
 						reference,
-						amount: response.data.amount || 0, // Amount is already in GHS from backend
+						amount: response.data.amount || 0,
 					};
 					onPaymentSuccess(paymentData);
 				} else {
@@ -97,15 +89,13 @@ export const usePayment = ({
 
 	const createMessageHandler = useCallback(
 		(verifyFn: (reference: string) => Promise<void>) => {
-			const processedReferences = new Set<string>(); // Track processed references
+			const processedReferences = new Set<string>();
 
 			const handleMessage = (event: MessageEvent) => {
-				// Security check: verify origin
 				if (event.origin !== window.location.origin) {
 					return;
 				}
 
-				// Prevent duplicate processing
 				if (hasVerifiedRef.current) {
 					return;
 				}
@@ -115,7 +105,6 @@ export const usePayment = ({
 					return;
 				}
 
-				// Prevent processing the same reference multiple times
 				if (processedReferences.has(reference)) {
 					return;
 				}
@@ -125,7 +114,6 @@ export const usePayment = ({
 					hasVerifiedRef.current = true;
 					cleanupListeners();
 
-					// If amount is provided in the message, use it directly to avoid re-verification
 					if (
 						event.data?.amount !== undefined &&
 						typeof event.data.amount === "number"
@@ -138,7 +126,6 @@ export const usePayment = ({
 						setLoading(false);
 						onPaymentSuccess(paymentData);
 					} else {
-						// Fallback to verification if amount not provided
 						verifyFn(reference);
 					}
 				} else if (event.data?.type === "PAYSTACK_FAILED" && reference) {
@@ -172,15 +159,11 @@ export const usePayment = ({
 			return;
 		}
 
-		// Prevent multiple initializations - if window is already open, don't open another
-		// But only if the window is actually still open (not closed)
 		if (paymentWindowRef.current) {
 			if (!paymentWindowRef.current.closed) {
-				// Window is already open, just focus it
 				paymentWindowRef.current.focus();
 				return;
 			} else {
-				// Window was closed, clear the ref so we can open a new one
 				paymentWindowRef.current = null;
 			}
 		}
@@ -191,40 +174,16 @@ export const usePayment = ({
 		cleanupListeners();
 
 		try {
-			const splitData: CreateSplitData = {
-				name: `Print Job Payment - ${new Date().toISOString()}`,
-				type: "percentage",
-				currency: "GHS",
-				subaccounts: [
-					{
-						subaccount: subaccount,
-						share: 93,
-					},
-				],
-				bearer_type: "account",
-			};
-
-			let splitCode: string | undefined;
-			try {
-				const splitResponse = await createSplit(splitData);
-				if (splitResponse.status && splitResponse.data?.split_code) {
-					splitCode = splitResponse.data.split_code;
-				}
-			} catch (splitError) {
-				console.warn(
-					"Failed to create split, using direct subaccount:",
-					splitError
-				);
-			}
-
 			const callbackUrl = `${window.location.origin}/payment/callback`;
 
 			const response = await initializePayment({
 				amount,
 				email,
 				currency: "GHS",
-				...(splitCode ? { split_code: splitCode } : { subaccount }),
+				subaccount: subaccount,
 				callback_url: callbackUrl,
+				bearer: "subaccount",
+				bearer_subaccount: subaccount,
 				metadata: {
 					custom_fields: [
 						{
@@ -237,7 +196,6 @@ export const usePayment = ({
 			});
 
 			if (response.status && response.data?.authorization_url) {
-				// Use a unique window name to prevent browser from reusing closed windows
 				const windowName = `PaystackPayment_${Date.now()}`;
 				paymentWindowRef.current = window.open(
 					response.data.authorization_url,
@@ -245,28 +203,24 @@ export const usePayment = ({
 					"width=600,height=700,scrollbars=yes"
 				);
 
-				// Check if popup was blocked
 				if (!paymentWindowRef.current || paymentWindowRef.current.closed) {
 					throw new Error(
 						"Payment window was blocked. Please allow popups for this site and try again."
 					);
 				}
 
-				// Only add listener if window was opened successfully
 				const handleMessage = createMessageHandler(verifyPaymentStatus);
 				messageHandlerRef.current = handleMessage;
 				window.addEventListener("message", handleMessage, false);
 
-				// Cleanup after 30 minutes
 				cleanupTimeoutRef.current = setTimeout(() => {
 					cleanupListeners();
 				}, 30 * 60 * 1000);
 
-				// Check if window is closed periodically and cleanup
 				windowCheckIntervalRef.current = setInterval(() => {
 					if (paymentWindowRef.current?.closed) {
 						cleanupListeners();
-						paymentWindowRef.current = null; // Clear the ref when window closes
+						paymentWindowRef.current = null;
 					}
 				}, 1000);
 			} else {
@@ -294,7 +248,6 @@ export const usePayment = ({
 		cleanupListeners();
 		hasVerifiedRef.current = false;
 		setError(null);
-		// Close payment window if still open
 		if (paymentWindowRef.current && !paymentWindowRef.current.closed) {
 			paymentWindowRef.current.close();
 		}

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Printer, AlertCircle, ArrowLeft } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { useGeolocation } from "../hooks/useGeolocation";
@@ -12,7 +12,7 @@ import { formatFileSize } from "../utils/fileUtils";
 import { toast } from "react-toastify";
 import { bussinessCategoryService } from "../services/bussinessCategoryService";
 import { countPdfPages } from "../utils/pdfUtils";
-import { getPrintStationById } from "../services/printStation.service";
+import { getBranchById } from "../services/branches.service";
 import type { Category } from "../types/category";
 import { ResultsCheckerForm } from "../components/forms/ResultsCheckerForm";
 import { FormatPrintForm } from "../components/forms/FormatPrintForm";
@@ -21,6 +21,7 @@ import { PaymentModal } from "../components/PaymentModal";
 import { PrintStationHeader } from "../components/PrintStationHeader";
 import { StatusMessage } from "../components/StatusMessage";
 import type { PrintStation } from "../types/printStation";
+import { useQuery } from "@tanstack/react-query";
 
 interface UploadStatus {
 	type: "success" | "error";
@@ -44,14 +45,15 @@ interface ResultsCheckerFormData {
 
 export const PrintStationDetails = () => {
 	const { id } = useParams<{ id: string }>();
-	const [searchParams] = useSearchParams();
 	const navigate = useNavigate();
 	const { user } = useAuth();
 	const { userLocation } = useGeolocation();
 
 	const [uploadStatus, setUploadStatus] = useState<UploadStatus | null>(null);
 	const [printStation, setPrintStation] = useState<PrintStation | null>(null);
-	const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+	const [selectedCategory] = useState<Category | null>(
+		null
+	);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [orderDetails, setOrderDetails] = useState<OrderDetails>({
 		artwork: "",
@@ -68,7 +70,9 @@ export const PrintStationDetails = () => {
 			dateOfBirth: "",
 		});
 	const [numberOfCopies, setNumberOfCopies] = useState<string>("1");
-	const [pdfPageCount, setPdfPageCount] = useState<number | undefined>(undefined);
+	const [pdfPageCount, setPdfPageCount] = useState<number | undefined>(
+		undefined
+	);
 	const [showPaymentModal, setShowPaymentModal] = useState(false);
 
 	const categoryType = selectedCategory?.categoryType;
@@ -132,46 +136,51 @@ export const PrintStationDetails = () => {
 		userId: user?._id || "",
 	});
 
+	const {
+		data: branchResponse,
+		isLoading: isBranchLoading,
+	} = useQuery({
+		queryKey: ["branch", id],
+		queryFn: () => getBranchById(id || ""),
+		enabled: !!id,
+	});
+
+	const {
+		isLoading: isCategoriesLoading,
+	} = useQuery({
+		queryKey: ["categories"],
+		queryFn: () => bussinessCategoryService.getAllBussinessCategories(),
+	});
+
+	// Convert branch data to printStation format
 	useEffect(() => {
-		const fetchPrintStation = async () => {
-			try {
-				const response = await getPrintStationById(id || "");
-				if (response.data) {
-					setPrintStation(response.data?.printStation as PrintStation);
-				}
-			} catch (error: unknown) {
-				console.error("Error fetching print station:", error);
-				const errorMessage =
-					error instanceof Error
-						? error.message
-						: "Failed to load print station details";
-				setUploadStatus({ type: "error", message: errorMessage });
-			} finally {
-				setLoading(false);
-			}
-		};
-
-		const fetchSelectedCategory = async (categoryId: string) => {
-			try {
-				const response = await bussinessCategoryService.getCategoryById(
-					categoryId
-				);
-				if (response.success && response.data) {
-					setSelectedCategory(response.data);
-				}
-			} catch (error) {
-				console.error("Error fetching category:", error);
-			}
-		};
-
-		if (id) {
-			fetchPrintStation();
-			const categoryId = searchParams.get("category");
-			if (categoryId) {
-				fetchSelectedCategory(categoryId);
-			}
+		if (branchResponse?.success && branchResponse.data) {
+			const branchData = branchResponse.data;
+			setPrintStation({
+				_id: branchData.id,
+				id: branchData.id,
+				name: branchData.name || "",
+				email: branchData.email || "",
+				address: branchData.address || "",
+				phoneNumber: branchData.phoneNumber,
+				coverImage: branchData.coverImage,
+				paystackSubaccountCode: branchData.payStackSubAccountId,
+				location: branchData.location ? {
+					latitude: branchData.location.latitude,
+					longitude: branchData.location.longitude,
+					address: branchData.location.address,
+				} : undefined,
+			} as PrintStation);
+			setLoading(false);
+		} else if (branchResponse && !branchResponse.success) {
+			setLoading(false);
 		}
-	}, [id, searchParams]);
+	}, [branchResponse]);
+
+	// Set loading state
+	useEffect(() => {
+		setLoading(isBranchLoading || isCategoriesLoading);
+	}, [isBranchLoading, isCategoriesLoading]);
 
 	useEffect(() => {
 		if (isResultsChecker && uploadStatus?.type === "error") {
@@ -198,7 +207,7 @@ export const PrintStationDetails = () => {
 				isRegularFormat &&
 				selectedCategory &&
 				(selectedFile.type === "application/pdf" ||
-					selectedFile.name.toLowerCase().endsWith(".pdf"))
+					selectedFile.name?.toLowerCase().endsWith(".pdf"))
 			) {
 				try {
 					const pages = await countPdfPages(selectedFile);
@@ -462,7 +471,7 @@ export const PrintStationDetails = () => {
 		return (
 			<div className="w-full max-w-3xl mx-auto bg-white rounded-2xl p-8">
 				<div className="flex items-center justify-center py-12">
-					<div className="w-8 h-8 border-4 border-slate-700 border-t-transparent rounded-full animate-spin"></div>
+					<div className="w-8 h-8 border-4 border-[#fbbf24] border-t-transparent rounded-full animate-spin"></div>
 				</div>
 			</div>
 		);
@@ -481,7 +490,7 @@ export const PrintStationDetails = () => {
 					</p>
 					<button
 						onClick={() => navigate("/")}
-						className="inline-flex items-center px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-800 transition-colors"
+						className="inline-flex items-center px-4 py-2 bg-[#fbbf24] text-white rounded-lg hover:bg-[#fbbf24] transition-colors"
 					>
 						<ArrowLeft className="w-4 h-4 mr-2" />
 						Back to Home
@@ -495,7 +504,7 @@ export const PrintStationDetails = () => {
 		<div className="w-full max-w-3xl bg-white p-4 lg:p-8">
 			<button
 				onClick={() => navigate("/")}
-				className="mb-4 sm:mb-6 flex items-center text-sm text-gray-600 hover:text-slate-700 transition-colors"
+				className="mb-4 sm:mb-6 flex items-center text-sm text-gray-600 hover:text-[#fbbf24] transition-colors"
 			>
 				<ArrowLeft className="w-4 h-4 mr-2" />
 				Back to Print Stations
@@ -509,7 +518,7 @@ export const PrintStationDetails = () => {
 
 			<div className="text-center mb-6 sm:mb-8">
 				<div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-slate-100 rounded-full mb-3 sm:mb-4">
-					<Printer className="w-6 h-6 sm:w-8 sm:h-8 text-slate-700" />
+					<Printer className="w-6 h-6 sm:w-8 sm:h-8 text-[#fbbf24]" />
 				</div>
 				<h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
 					{isResultsChecker
@@ -601,7 +610,7 @@ export const PrintStationDetails = () => {
 				className={`w-full mt-4 sm:mt-6 py-3.5 sm:py-4 rounded-xl font-semibold text-white transition-all flex items-center justify-center text-sm sm:text-base touch-manipulation ${
 					uploading || !isFormValid
 						? "bg-gray-400 cursor-not-allowed"
-						: "bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800"
+						: "bg-[#fbbf24] hover:bg-[#fbbf24] active:bg-[#fbbf24]"
 				}`}
 			>
 				{uploading ? (

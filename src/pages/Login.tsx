@@ -75,7 +75,7 @@ export const Login = () => {
 								value={email}
 								onChange={(e) => setEmail(e.target.value)}
 								placeholder="Enter your email"
-								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
 								required
 							/>
 						</div>
@@ -92,7 +92,7 @@ export const Login = () => {
 								value={password}
 								onChange={(e) => setPassword(e.target.value)}
 								placeholder="Enter your password"
-								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
 								required
 							/>
 						</div>
@@ -104,7 +104,7 @@ export const Login = () => {
 						className={`w-full py-3 rounded-xl font-semibold text-white transition-all ${
 							isLoading
 								? "bg-gray-400 cursor-not-allowed"
-								: "bg-slate-700 hover:bg-slate-800 hover:shadow-lg"
+								: "bg-[#fbbf24] hover:bg-[#fbbf24] "
 						}`}
 					>
 						{isLoading ? (
@@ -123,7 +123,7 @@ export const Login = () => {
 						Don't have an account?{" "}
 						<Link
 							to="/send-otp"
-							className="text-slate-700 font-semibold hover:text-slate-800"
+							className="text-[#fbbf24] font-semibold hover:text-[#fbbf24]"
 						>
 							Sign up
 						</Link>

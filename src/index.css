@@ -1,2 +1,335 @@
 @import "tailwindcss";
 
+/* CSS Custom Properties - Yellow & Black Professional Theme */
+:root {
+	/* Light mode - Yellow & Black Professional Theme */
+	--bg-primary: #ffffff;
+	--bg-secondary: #f8f9fa;
+	--bg-tertiary: #f1f3f5;
+	--text-primary: #000000;
+	--text-secondary: #4a4a4a;
+	--border-color: #e1e1e1;
+	--accent-primary: #fbbf24;
+	--accent-secondary: #fcd34d;
+	--accent-hover: #d97706;
+	--accent-light: #fef3c7;
+	--accent-dark: #d97706;
+	--success: #22c55e;
+	--error: #ef4444;
+	--warning: #f59e0b;
+	--yellow-gold: #fbbf24;
+	--yellow-bright: #ffd700;
+	--black-primary: #000000;
+	--black-secondary: #1a1a1a;
+	--black-tertiary: #262626;
+}
+
+[data-theme='dark'] {
+	/* Dark mode - Yellow & Black Professional Theme */
+	--bg-primary: #1a1a1a;
+	--bg-secondary: #262626;
+	--bg-tertiary: #333333;
+	--text-primary: #f5f5f5;
+	--text-secondary: #d4d4d4;
+	--border-color: #404040;
+	--accent-primary: #fbbf24;
+	--accent-secondary: #fcd34d;
+	--accent-hover: #fbbf24;
+	--accent-light: #fef3c7;
+	--accent-dark: #d97706;
+	--success: #22c55e;
+	--error: #ef4444;
+	--warning: #f59e0b;
+	--yellow-gold: #fbbf24;
+	--yellow-bright: #ffd700;
+	--black-primary: #000000;
+	--black-secondary: #1a1a1a;
+	--black-tertiary: #262626;
+}
+
+/* Tailwind Theme Configuration - Yellow & Black Professional Theme */
+@theme {
+	/* Primary colors (Yellow/Gold) */
+	--color-primary: #fbbf24;
+	--color-primary-dark: #d97706;
+	--color-primary-light: #fcd34d;
+	--color-primary-50: #fef9e7;
+	--color-primary-100: #fef3c7;
+	--color-primary-200: #fde68a;
+	--color-primary-300: #fcd34d;
+	--color-primary-400: #fbbf24;
+	--color-primary-500: #f59e0b;
+	--color-primary-600: #d97706;
+	--color-primary-700: #b45309;
+	--color-primary-800: #92400e;
+	--color-primary-900: #78350f;
+
+	/* Accent colors */
+	--color-accent: #fbbf24;
+	--color-accent-secondary: #fcd34d;
+	--color-accent-hover: #d97706;
+	--color-accent-light: #fef3c7;
+	--color-accent-dark: #d97706;
+
+	/* Yellow variants */
+	--color-yellow-gold: #fbbf24;
+	--color-yellow-bright: #ffd700;
+
+	/* Black variants */
+	--color-black-primary: #000000;
+	--color-black-secondary: #1a1a1a;
+	--color-black-tertiary: #262626;
+
+	/* Semantic colors */
+	--color-success: #22c55e;
+	--color-error: #ef4444;
+	--color-warning: #f59e0b;
+
+	/* Background colors (light mode) */
+	--color-bg-primary: #ffffff;
+	--color-bg-secondary: #f8f9fa;
+	--color-bg-tertiary: #f1f3f5;
+
+	/* Text colors (light mode) */
+	--color-text-primary: #000000;
+	--color-text-secondary: #4a4a4a;
+
+	/* Border colors */
+	--color-border: #e1e1e1;
+}
+
+/* Base styles */
+body {
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+		'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+		sans-serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	background: var(--bg-primary);
+	color: var(--text-primary);
+	margin: 0;
+	padding: 0;
+}
+
+/* Custom Scrollbar Styles - Subtle and Less Visible */
+/* Webkit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+	width: 6px;
+	height: 6px;
+}
+
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+	background: rgba(0, 0, 0, 0.12);
+	border-radius: 3px;
+	transition: background 0.2s ease;
+}
+
+*:hover::-webkit-scrollbar-thumb {
+	background: rgba(0, 0, 0, 0.2);
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: rgba(0, 0, 0, 0.3);
+}
+
+/* Dark theme scrollbar */
+[data-theme='dark'] ::-webkit-scrollbar-thumb,
+.dark ::-webkit-scrollbar-thumb {
+	background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='dark'] *:hover::-webkit-scrollbar-thumb,
+.dark *:hover::-webkit-scrollbar-thumb {
+	background: rgba(255, 255, 255, 0.15);
+}
+
+[data-theme='dark'] ::-webkit-scrollbar-thumb:hover,
+.dark ::-webkit-scrollbar-thumb:hover {
+	background: rgba(255, 255, 255, 0.22);
+}
+
+/* Firefox - thin scrollbar */
+* {
+	scrollbar-width: thin;
+	scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+}
+
+[data-theme='dark'] *,
+.dark * {
+	scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+/* Hide scrollbar but keep functionality */
+.hide-scrollbar {
+	-ms-overflow-style: none; /* IE and Edge */
+	scrollbar-width: none; /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+	display: none; /* Chrome, Safari, Opera */
+}
+
+/* Hide scrollbar for carousels */
+.overflow-x-auto::-webkit-scrollbar {
+	display: none;
+}
+
+.overflow-x-auto {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+
+/* Button styles */
+button:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+button {
+	transition: all 0.2s ease;
+}
+
+button:not(:disabled):hover {
+	opacity: 0.85;
+	transform: translateY(-1px);
+}
+
+button:not(:disabled):active {
+	transform: translateY(0);
+}
+
+/* Input and select styling */
+input[type="number"],
+input[type="text"],
+input[type="email"],
+input[type="password"],
+select,
+textarea {
+	transition: all 0.2s ease;
+}
+
+input[type="number"]:focus,
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+select:focus,
+textarea:focus {
+	outline: 2px solid var(--accent-primary);
+	outline-offset: 2px;
+}
+
+/* Selection styles */
+::selection {
+	background: var(--accent-primary);
+	color: var(--black-primary);
+}
+
+::-moz-selection {
+	background: var(--accent-primary);
+	color: var(--black-primary);
+}
+
+/* Dark mode overrides for Tailwind classes */
+[data-theme='dark'] {
+	/* Background colors */
+	--tw-bg-opacity: 1;
+}
+
+/* Background colors - Higher specificity */
+html[data-theme='dark'] .bg-white,
+[data-theme='dark'] .bg-white {
+	background-color: var(--bg-primary) !important;
+}
+
+html[data-theme='dark'] .bg-gray-50,
+[data-theme='dark'] .bg-gray-50 {
+	background-color: var(--bg-secondary) !important;
+}
+
+html[data-theme='dark'] .bg-gray-100,
+[data-theme='dark'] .bg-gray-100 {
+	background-color: var(--bg-tertiary) !important;
+}
+
+html[data-theme='dark'] .bg-gray-200,
+[data-theme='dark'] .bg-gray-200 {
+	background-color: var(--border-color) !important;
+}
+
+/* Text colors */
+html[data-theme='dark'] .text-gray-900,
+[data-theme='dark'] .text-gray-900 {
+	color: var(--text-primary) !important;
+}
+
+html[data-theme='dark'] .text-gray-800,
+[data-theme='dark'] .text-gray-800 {
+	color: var(--text-primary) !important;
+}
+
+html[data-theme='dark'] .text-gray-700,
+[data-theme='dark'] .text-gray-700 {
+	color: var(--text-secondary) !important;
+}
+
+html[data-theme='dark'] .text-gray-600,
+[data-theme='dark'] .text-gray-600 {
+	color: var(--text-secondary) !important;
+}
+
+html[data-theme='dark'] .text-gray-500,
+[data-theme='dark'] .text-gray-500 {
+	color: var(--text-secondary) !important;
+}
+
+html[data-theme='dark'] .text-gray-400,
+[data-theme='dark'] .text-gray-400 {
+	color: var(--text-secondary) !important;
+	opacity: 0.7;
+}
+
+html[data-theme='dark'] .text-black,
+[data-theme='dark'] .text-black {
+	color: var(--text-primary) !important;
+}
+
+/* Border colors */
+html[data-theme='dark'] .border-gray-200,
+[data-theme='dark'] .border-gray-200 {
+	border-color: var(--border-color) !important;
+}
+
+html[data-theme='dark'] .border-gray-300,
+[data-theme='dark'] .border-gray-300 {
+	border-color: var(--border-color) !important;
+}
+
+html[data-theme='dark'] .border-gray-400,
+[data-theme='dark'] .border-gray-400 {
+	border-color: var(--border-color) !important;
+}
+
+/* Input and form elements */
+html[data-theme='dark'] input,
+html[data-theme='dark'] textarea,
+html[data-theme='dark'] select,
+[data-theme='dark'] input,
+[data-theme='dark'] textarea,
+[data-theme='dark'] select {
+	background-color: var(--bg-secondary) !important;
+	color: var(--text-primary) !important;
+	border-color: var(--border-color) !important;
+}
+
+html[data-theme='dark'] input::placeholder,
+html[data-theme='dark'] textarea::placeholder,
+[data-theme='dark'] input::placeholder,
+[data-theme='dark'] textarea::placeholder {
+	color: var(--text-secondary) !important;
+	opacity: 0.6;
+}
+

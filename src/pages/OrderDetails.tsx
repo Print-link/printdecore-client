@@ -1,31 +1,25 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import {
-	ArrowLeft,
-	FileText,
-	Tag,
-	Calendar,
-	Clock,
-	Info,
-	User,
-	Mail,
-	Phone,
-	CheckCircle,
-	XCircle,
-	AlertCircle,
-	Printer,
-	MessageSquare,
-	MapPin,
-	ExternalLink,
-	Truck,
-} from "lucide-react";
-import { getClientOrderById } from "../services/orderApi";
-import { createSupportTicket } from "../services/supportApi";
+import { ArrowLeft } from "lucide-react";
+import { toast } from "react-toastify";
+import { useOrder, useOrderItems } from "../hooks/useOrders";
 import { useAuth } from "../hooks/useAuth";
 import { useGeolocation } from "../hooks/useGeolocation";
 import { getDirectionsUrl } from "../utils/stationUtils";
-import { toast } from "react-toastify";
+import { createSupportTicket } from "../services/supportApi";
 import { ReportIssueModal } from "../components/ReportIssueModal";
+import { OrderHeader } from "../components/order/OrderHeader";
+import { OrderItemsList } from "../components/order/OrderItemsList";
+import { OrderSummary } from "../components/order/OrderSummary";
+import { BranchInfo } from "../components/order/BranchInfo";
+import { ExecutedByInfo } from "../components/order/ExecutedByInfo";
+import { CategoryInfo } from "../components/order/CategoryInfo";
+import { ResultsCheckerInfo } from "../components/order/ResultsCheckerInfo";
+import { FileInfoSection } from "../components/order/FileInfoSection";
+import { PrintJobDetails } from "../components/order/PrintJobDetails";
+import { DeliveryNotice } from "../components/order/DeliveryNotice";
+import { LoadingState } from "../components/order/LoadingState";
+import { ErrorState } from "../components/order/ErrorState";
 import type { Category, CategoryType } from "../types/category";
 import type { PrintStation } from "../types/printStation";
 
@@ -36,7 +30,7 @@ interface ExecutedBy {
 	phone?: string;
 }
 
-interface Order {
+interface OrderDetailsData {
 	_id?: string;
 	id?: string;
 	createdAt?: string;
@@ -79,6 +73,19 @@ interface Order {
 	dateOfBirth?: string;
 	categoryType?: CategoryType;
 	submittedBy?: string;
+	branch?: {
+		id: string;
+		name: string;
+		phoneNumber?: string;
+		branchEmailAddress?: string;
+		location?: {
+			id: string;
+			address: string;
+			latitude: number;
+			longitude: number;
+		};
+	};
+	totalPrice?: number;
 }
 
 export const OrderDetails = () => {
@@ -86,165 +93,51 @@ export const OrderDetails = () => {
 	const navigate = useNavigate();
 	const { user } = useAuth();
 	const { userLocation } = useGeolocation();
-	const [order, setOrder] = useState<Order | null>(null);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
+	
 	const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 	const [submittingReport, setSubmittingReport] = useState(false);
 
-	useEffect(() => {
-		const fetchOrder = async () => {
-			if (!id) {
-				setError("Order ID is required");
-				setLoading(false);
-				return;
-			}
+	// TanStack Query hooks
+	const { data: orderData, isLoading, error } = useOrder(id);
+	const order = orderData as OrderDetailsData | null;
+	const { data: orderItems = [], isLoading: loadingItems } = useOrderItems(order?.id || id);
 
-			try {
-				const response = await getClientOrderById(id);
-				if (response.success && response.data?.order) {
-					setOrder(response.data.order as Order);
-				} else {
-					setError(response.message || "Order not found");
-				}
-			} catch (err) {
-				console.error("Error fetching order:", err);
-				setError(
-					err instanceof Error ? err.message : "Failed to load order details"
-				);
-			} finally {
-				setLoading(false);
-			}
-		};
-
-		fetchOrder();
-	}, [id]);
-
-	const formatFileSize = (bytes: number) => {
-		if (!bytes || bytes === 0) return "N/A";
-		if (bytes < 1024) return bytes + " B";
-		if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
-		return (bytes / (1024 * 1024)).toFixed(1) + " MB";
-	};
-
-	const formatDate = (timestamp: string) => {
-		const date = new Date(timestamp);
-		return date.toLocaleDateString("en-US", {
-			year: "numeric",
-			month: "long",
-			day: "numeric",
-			hour: "2-digit",
-			minute: "2-digit",
-		});
-	};
-
-	const getStatusBadge = (status?: string) => {
-		const statusStyles = {
-			pending: "bg-yellow-100 text-yellow-800",
-			processing: "bg-blue-100 text-blue-800",
-			completed: "bg-green-100 text-green-800",
-			failed: "bg-red-100 text-red-800",
-		};
-
-		const statusIcon = {
-			pending: <Clock className="w-4 h-4" />,
-			processing: <Printer className="w-4 h-4" />,
-			completed: <CheckCircle className="w-4 h-4" />,
-			failed: <XCircle className="w-4 h-4" />,
-		};
-
-		const orderStatus = (status || "pending").toLowerCase();
-
-		return (
-			<span
-				className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${
-					statusStyles[orderStatus as keyof typeof statusStyles] ||
-					statusStyles.pending
-				}`}
-			>
-				{statusIcon[orderStatus as keyof typeof statusIcon] ||
-					statusIcon.pending}
-				{orderStatus.charAt(0).toUpperCase() + orderStatus.slice(1)}
-			</span>
-		);
-	};
-
-	if (loading) {
-		return (
-			<div className="w-full max-w-4xl mx-auto bg-white p-4 lg:p-8">
-				<div className="text-center py-12">
-					<div className="w-12 h-12 border-4 border-slate-700 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-					<p className="text-gray-500">Loading order details...</p>
-				</div>
-			</div>
-		);
-	}
-
-	if (error || !order) {
-		return (
-			<div className="w-full max-w-4xl mx-auto bg-white p-4 lg:p-8">
-				<button
-					onClick={() => navigate("/history")}
-					className="mb-4 flex items-center text-sm text-gray-600 hover:text-slate-700 transition-colors"
-				>
-					<ArrowLeft className="w-4 h-4 mr-2" />
-					Back to History
-				</button>
-				<div className="text-center py-12">
-					<AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-					<h2 className="text-xl font-semibold text-gray-900 mb-2">
-						{error || "Order Not Found"}
-					</h2>
-					<p className="text-gray-600 mb-4">
-						{error || "The order you're looking for doesn't exist."}
-					</p>
-					<button
-						onClick={() => navigate("/history")}
-						className="inline-flex items-center px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-800 transition-colors"
-					>
-						<ArrowLeft className="w-4 h-4 mr-2" />
-						Back to History
-					</button>
-				</div>
-			</div>
-		);
-	}
-
+	// Derived data
 	const category =
-		typeof order.categoryId === "object" && order.categoryId !== null
+		typeof order?.categoryId === "object" && order.categoryId !== null
 			? order.categoryId
 			: null;
 	const categoryName = category?.name || "Unknown Category";
 	const categoryPrice = category?.unitPrice || 0;
-	const categoryType = category?.categoryType || order.categoryType;
+	const categoryType = category?.categoryType || order?.categoryType;
 
 	const isResultsChecker =
 		categoryType === "wassce_result" ||
 		categoryType === "bece_result" ||
 		categoryType === "novdec_result";
-	const hasFile = !!(order.fileName || order.originalName || order.fileSize);
+	const hasFile = !!(order?.fileName || order?.originalName || order?.fileSize);
 
 	const executedBy =
-		typeof order.executedBy === "object" && order.executedBy !== null
+		typeof order?.executedBy === "object" && order.executedBy !== null
 			? order.executedBy
 			: null;
 
 	// Extract IDs for support ticket
-	const jobId = order._id || order.id || "";
+	const jobId = order?._id || order?.id || "";
 	const clientId =
 		user?._id ||
-		(typeof order.clientId === "object"
+		(typeof order?.clientId === "object"
 			? order.clientId._id
-			: order.clientId) ||
+			: order?.clientId) ||
 		"";
 	const adminId =
-		typeof order.adminId === "object" ? order.adminId._id : order.adminId || "";
+		typeof order?.adminId === "object" ? order.adminId._id : order?.adminId || "";
 
 	const admin =
-		typeof order.adminId === "object" && order.adminId !== null
+		typeof order?.adminId === "object" && order.adminId !== null
 			? order.adminId
 			: null;
-	const hasLocation = admin?.location?.latitude && admin?.location?.longitude;
+	const hasLocation = !!(admin?.location?.latitude && admin?.location?.longitude);
 
 	const handleGetDirections = () => {
 		if (!admin || !admin.location?.latitude || !admin.location?.longitude) {
@@ -252,7 +145,6 @@ export const OrderDetails = () => {
 			return;
 		}
 
-		// Create a print station object for the getDirectionsUrl utility
 		const printStation: PrintStation = {
 			_id: admin._id || "",
 			name: admin.name || "",
@@ -301,323 +193,89 @@ export const OrderDetails = () => {
 		}
 	};
 
+	if (isLoading) {
+		return <LoadingState />;
+	}
+
+	if (error || !order) {
+		return <ErrorState error={error?.message || "Order not found"} />;
+	}
+
 	return (
-		<div className="w-full max-w-4xl mx-auto bg-white p-4 lg:p-8">
+		<div className="w-full max-w-7xl mx-auto">
 			{/* Back Button */}
 			<button
 				onClick={() => navigate("/history")}
-				className="mb-4 sm:mb-6 flex items-center text-sm text-gray-600 hover:text-slate-700 transition-colors"
+				className="mb-4 flex items-center text-sm text-gray-600 hover:text-gray-900 transition-colors"
 			>
 				<ArrowLeft className="w-4 h-4 mr-2" />
 				Back to History
 			</button>
 
-			{/* Header */}
-			<div className="mb-6 sm:mb-8">
-				<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-					<div>
-						<h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-							Order Details
-						</h1>
-						{getStatusBadge(order.status)}
-					</div>
-					<div className="flex flex-col sm:flex-row gap-2">
-						{hasLocation && (
-							<button
-								onClick={handleGetDirections}
-								className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium"
-							>
-								<MapPin className="w-4 h-4" />
-								<span className="hidden sm:inline">Get Directions</span>
-								<span className="sm:hidden">Directions</span>
-								<ExternalLink className="w-3 h-3" />
-							</button>
-						)}
-						<button
-							onClick={() => setIsReportModalOpen(true)}
-							className="inline-flex items-center gap-2 px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
-						>
-							<MessageSquare className="w-4 h-4" />
-							Report Issue
-						</button>
-					</div>
-				</div>
+			{/* Header Section */}
+			<OrderHeader
+				status={order.status}
+				totalPrice={order.totalPrice}
+				createdAt={order.createdAt}
+				hasLocation={hasLocation}
+				onGetDirections={handleGetDirections}
+				onReportIssue={() => setIsReportModalOpen(true)}
+			/>
 
-				{/* Category Info */}
-				<div className="bg-indigo-50 rounded-xl p-4 sm:p-6 border border-indigo-200">
-					<div className="flex items-center gap-2 mb-2">
-						<Tag className="w-5 h-5 text-indigo-600" />
-						<h2 className="text-lg sm:text-xl font-semibold text-indigo-900">
-							{categoryName}
-						</h2>
-					</div>
-					<p className="text-sm sm:text-base text-indigo-700">
-						Unit Price:{" "}
-						<span className="font-semibold">
-							GHS {categoryPrice.toFixed(2)}
-						</span>
-					</p>
-				</div>
+			{/* Main Content Grid */}
+			<div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-5">
+				{/* Left Column - Order Items & Details (2 columns on desktop) */}
+				<div className="lg:col-span-2 space-y-4">
+					<OrderItemsList items={orderItems} loading={loadingItems} />
 
-				{/* Delivery Notice */}
-				<div className="bg-amber-50 rounded-xl p-4 sm:p-6 border border-amber-200 mt-4">
-					<div className="flex items-start gap-3">
-						<div className="flex-shrink-0 mt-0.5">
-							<Truck className="w-5 h-5 text-amber-600" />
-						</div>
-						<div className="flex-1">
-							<h3 className="text-sm sm:text-base font-semibold text-amber-900 mb-1">
-								Delivery Information
-							</h3>
-							<p className="text-xs sm:text-sm text-amber-800">
-								Delivery service is currently not available. Please visit the
-								print station location to collect your order.
-								{hasLocation && (
-									<>
-										{" "}
-										Use the{" "}
-										<span className="font-medium">"Get Directions"</span> button
-										above to find the location.
-									</>
-								)}
-							</p>
-						</div>
-					</div>
-				</div>
-			</div>
+					<CategoryInfo name={categoryName} unitPrice={categoryPrice} />
 
-			{/* Order Information */}
-			<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
-				{/* Left Column - Main Details */}
-				<div className="space-y-4 sm:space-y-6">
-					{/* Results Checker Information */}
 					{isResultsChecker && (
-						<div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
-							<h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
-								Results Checker Information
-							</h3>
-							<div className="space-y-3">
-								{order.indexNumber && (
-									<div>
-										<p className="text-xs text-gray-500 mb-1">Index Number</p>
-										<p className="text-sm sm:text-base font-medium text-gray-900">
-											{order.indexNumber}
-										</p>
-									</div>
-								)}
-								{order.yearOfCompletion && (
-									<div>
-										<p className="text-xs text-gray-500 mb-1">
-											Year of Completion
-										</p>
-										<p className="text-sm sm:text-base font-medium text-gray-900">
-											{order.yearOfCompletion}
-										</p>
-									</div>
-								)}
-								{order.dateOfBirth && (
-									<div>
-										<p className="text-xs text-gray-500 mb-1">Date of Birth</p>
-										<p className="text-sm sm:text-base font-medium text-gray-900">
-											{order.dateOfBirth}
-										</p>
-									</div>
-								)}
-							</div>
-						</div>
+						<ResultsCheckerInfo
+							indexNumber={order.indexNumber}
+							yearOfCompletion={order.yearOfCompletion}
+							dateOfBirth={order.dateOfBirth}
+						/>
 					)}
 
-					{/* File Information */}
 					{hasFile && !isResultsChecker && (
-						<div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
-							<h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-								<FileText className="w-5 h-5" />
-								File Information
-							</h3>
-							<div className="space-y-3">
-								<div>
-									<p className="text-xs text-gray-500 mb-1">File Name</p>
-									<p className="text-sm sm:text-base font-medium text-gray-900 break-word">
-										{order.fileName || order.originalName || "N/A"}
-									</p>
-								</div>
-								{order.fileSize && (
-									<div>
-										<p className="text-xs text-gray-500 mb-1">File Size</p>
-										<p className="text-sm sm:text-base font-medium text-gray-900">
-											{formatFileSize(order.fileSize)}
-										</p>
-									</div>
-								)}
-							</div>
-						</div>
+						<FileInfoSection
+							fileName={order.fileName}
+							originalName={order.originalName}
+							fileSize={order.fileSize}
+						/>
 					)}
 
-					{/* Print Job Details */}
-					{!isResultsChecker &&
-						(order.artwork || order.width || order.height) && (
-							<div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
-								<h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
-									Print Job Details
-								</h3>
-								<div className="space-y-3">
-									{order.artwork && (
-										<div>
-											<p className="text-xs text-gray-500 mb-1">Artwork</p>
-											<p className="text-sm sm:text-base font-medium text-gray-900">
-												{order.artwork}
-											</p>
-										</div>
-									)}
-									{(order.width || order.height) && (
-										<div className="grid grid-cols-2 gap-3">
-											{order.width && (
-												<div>
-													<p className="text-xs text-gray-500 mb-1">Width</p>
-													<p className="text-sm sm:text-base font-medium text-gray-900">
-														{order.width}
-													</p>
-												</div>
-											)}
-											{order.height && (
-												<div>
-													<p className="text-xs text-gray-500 mb-1">Height</p>
-													<p className="text-sm sm:text-base font-medium text-gray-900">
-														{order.height}
-													</p>
-												</div>
-											)}
-										</div>
-									)}
-									{order.size && (
-										<div>
-											<p className="text-xs text-gray-500 mb-1">Size</p>
-											<p className="text-sm sm:text-base font-medium text-gray-900">
-												{order.size}
-											</p>
-										</div>
-									)}
-									{order.quantity && (
-										<div>
-											<p className="text-xs text-gray-500 mb-1">Quantity</p>
-											<p className="text-sm sm:text-base font-medium text-gray-900">
-												{order.quantity}
-											</p>
-										</div>
-									)}
-									{order.location && (
-										<div>
-											<p className="text-xs text-gray-500 mb-1">Location</p>
-											<p className="text-sm sm:text-base font-medium text-gray-900">
-												{order.location}
-											</p>
-										</div>
-									)}
-									{order.description && (
-										<div>
-											<p className="text-xs text-gray-500 mb-1">Description</p>
-											<p className="text-sm sm:text-base text-gray-700 break-word">
-												{order.description}
-											</p>
-										</div>
-									)}
-								</div>
-							</div>
-						)}
+					{!isResultsChecker && (order.artwork || order.width || order.height) && (
+						<PrintJobDetails
+							artwork={order.artwork}
+							width={order.width}
+							height={order.height}
+							size={order.size}
+							quantity={order.quantity}
+							location={order.location}
+							description={order.description}
+						/>
+					)}
 				</div>
 
-				{/* Right Column - Metadata & Executed By */}
-				<div className="space-y-4 sm:space-y-6">
-					{/* Executed By Information */}
-					{executedBy && (
-						<div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
-							<h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-								<User className="w-5 h-5" />
-								Executed By
-							</h3>
-							<div className="space-y-3">
-								{executedBy.name && (
-									<div className="flex items-start gap-2">
-										<User className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
-										<div>
-											<p className="text-xs text-gray-500 mb-1">Full Name</p>
-											<p className="text-sm sm:text-base font-medium text-gray-900">
-												{executedBy.name}
-											</p>
-										</div>
-									</div>
-								)}
-								{executedBy.email && (
-									<div className="flex items-start gap-2">
-										<Mail className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
-										<div>
-											<p className="text-xs text-gray-500 mb-1">Email</p>
-											<p className="text-sm sm:text-base font-medium text-gray-900 break-all">
-												{executedBy.email}
-											</p>
-										</div>
-									</div>
-								)}
-								{executedBy.phone && (
-									<div className="flex items-start gap-2">
-										<Phone className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
-										<div>
-											<p className="text-xs text-gray-500 mb-1">Phone Number</p>
-											<p className="text-sm sm:text-base font-medium text-gray-900">
-												{executedBy.phone}
-											</p>
-										</div>
-									</div>
-								)}
-							</div>
-						</div>
-					)}
+				{/* Right Column - Order Info, Branch & Executed By (1 column on desktop) */}
+				<div className="space-y-4">
+					<OrderSummary
+						status={order.status}
+						createdAt={order.createdAt}
+						submittedBy={order.submittedBy}
+						executedByModel={order.executedByModel}
+					/>
 
-					{/* Order Metadata */}
-					<div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
-						<h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
-							Order Information
-						</h3>
-						<div className="space-y-3">
-							{order.createdAt && (
-								<div className="flex items-start gap-2">
-									<Calendar className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
-									<div>
-										<p className="text-xs text-gray-500 mb-1">Created At</p>
-										<p className="text-sm sm:text-base font-medium text-gray-900">
-											{formatDate(order.createdAt)}
-										</p>
-									</div>
-								</div>
-							)}
-							{order.submittedBy && (
-								<div className="flex items-start gap-2">
-									<Info className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
-									<div>
-										<p className="text-xs text-gray-500 mb-1">Submitted By</p>
-										<p className="text-sm sm:text-base font-medium text-gray-900">
-											{order.submittedBy}
-										</p>
-									</div>
-								</div>
-							)}
-							{order.executedByModel && (
-								<div className="flex items-start gap-2">
-									<User className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
-									<div>
-										<p className="text-xs text-gray-500 mb-1">
-											Executed By Model
-										</p>
-										<p className="text-sm sm:text-base font-medium text-gray-900">
-											{order.executedByModel}
-										</p>
-									</div>
-								</div>
-							)}
-						</div>
-					</div>
+					{order.branch && <BranchInfo branch={order.branch} />}
+
+					{executedBy && <ExecutedByInfo executedBy={executedBy} />}
 				</div>
 			</div>
+
+			{/* Delivery Notice */}
+			<DeliveryNotice hasLocation={hasLocation} />
 
 			{/* Report Issue Modal */}
 			<ReportIssueModal
@@ -629,4 +287,3 @@ export const OrderDetails = () => {
 		</div>
 	);
 };
-

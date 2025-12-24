@@ -30,7 +30,7 @@ export const SearchBar = ({
 					placeholder={placeholder}
 					value={searchQuery}
 					onChange={(e) => onSearchChange(e.target.value)}
-					className="w-full pl-11 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm sm:text-base bg-white"
+					className="w-full pl-11 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent text-sm sm:text-base bg-white"
 				/>
 				{searchQuery && (
 					<button

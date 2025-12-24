@@ -5,7 +5,8 @@ import { useAuth } from '../hooks/useAuth';
 import { toast } from "react-toastify";
 
 export const Register = () => {
-	const [fullName, setFullName] = useState("");
+	const [firstName, setFirstName] = useState("");
+	const [lastName, setLastName] = useState("");
 	const [email, setEmail] = useState("");
 	const [phoneNumber, setPhoneNumber] = useState("");
 	const [password, setPassword] = useState("");
@@ -25,7 +26,7 @@ export const Register = () => {
 			setIsVerified(true);
 		} else {
 			// If not verified, redirect to send OTP page
-			navigate('/send-otp', { replace: true });
+			navigate("/send-otp", { replace: true });
 		}
 	}, [location.state, navigate]);
 
@@ -51,15 +52,25 @@ export const Register = () => {
 		setIsLoading(true);
 
 		try {
-			const result = await register(fullName, email, password, phoneNumber);
+			const result = await register(
+				firstName,
+				lastName,
+				email,
+				password,
+				phoneNumber
+			);
 			if (result.success) {
 				toast.success("Account created successfully");
 				navigate("/");
 			} else {
 				setError(result.message || "Email already registered");
 			}
-		} catch (err: any) {
-			setError(err.message || "An error occurred. Please try again.");
+		} catch (err: unknown) {
+			if (err instanceof Error) {
+				setError(err.message);
+			} else {
+				setError("An unknown error occurred. Please try again.");
+			}
 		} finally {
 			setIsLoading(false);
 		}
@@ -67,10 +78,10 @@ export const Register = () => {
 
 	return (
 		<div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-			<div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
+			<div className="w-full max-w-md bg-white rounded-2xl p-8">
 				<div className="text-center mb-8">
-					<div className="inline-flex items-center justify-center w-16 h-16 bg-slate-100 rounded-full mb-4">
-						<UserPlus className="w-8 h-8 text-slate-700" />
+					<div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-full mb-4">
+						<UserPlus className="w-8 h-8 text-[#fbbf24]" />
 					</div>
 					<h1 className="text-3xl font-bold text-gray-900 mb-2">
 						Create Account
@@ -94,16 +105,32 @@ export const Register = () => {
 				<form onSubmit={handleSubmit} className="space-y-5">
 					<div>
 						<label className="block text-sm font-medium text-gray-700 mb-2">
-							Full Name
+							First Name
 						</label>
 						<div className="relative">
 							<User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
 							<input
 								type="text"
-								value={fullName}
-								onChange={(e) => setFullName(e.target.value)}
-								placeholder="Enter your full name"
-								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+								value={firstName}
+								onChange={(e) => setFirstName(e.target.value)}
+								placeholder="Enter your first name"
+								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
+								required
+							/>
+						</div>
+					</div>
+					<div>
+						<label className="block text-sm font-medium text-gray-700 mb-2">
+							Last Name
+						</label>
+						<div className="relative">
+							<User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+							<input
+								type="text"
+								value={lastName}
+								onChange={(e) => setLastName(e.target.value)}
+								placeholder="Enter your last name"
+								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
 								required
 							/>
 						</div>
@@ -129,7 +156,9 @@ export const Register = () => {
 								<CheckCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-600" />
 							)}
 						</div>
-						<p className="mt-1 text-xs text-gray-500">Email verified and locked</p>
+						<p className="mt-1 text-xs text-gray-500">
+							Email verified and locked
+						</p>
 					</div>
 
 					<div>
@@ -143,7 +172,7 @@ export const Register = () => {
 								value={phoneNumber}
 								onChange={(e) => setPhoneNumber(e.target.value)}
 								placeholder="Enter your phone number"
-								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
 								required
 								maxLength={15}
 							/>
@@ -161,7 +190,7 @@ export const Register = () => {
 								value={password}
 								onChange={(e) => setPassword(e.target.value)}
 								placeholder="Create a password"
-								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
 								required
 								minLength={6}
 							/>
@@ -179,7 +208,7 @@ export const Register = () => {
 								value={confirmPassword}
 								onChange={(e) => setConfirmPassword(e.target.value)}
 								placeholder="Confirm your password"
-								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
 								required
 								minLength={6}
 							/>
@@ -192,7 +221,7 @@ export const Register = () => {
 						className={`w-full py-3 rounded-xl font-semibold text-white transition-all ${
 							isLoading
 								? "bg-gray-400 cursor-not-allowed"
-								: "bg-slate-700 hover:bg-slate-800 hover:shadow-lg"
+								: "bg-[#fbbf24] hover:bg-[#fbbf24] "
 						}`}
 					>
 						{isLoading ? (
@@ -211,7 +240,7 @@ export const Register = () => {
 						Already have an account?{" "}
 						<Link
 							to="/login"
-							className="text-slate-700 font-semibold hover:text-slate-800"
+							className="text-[#fbbf24] font-semibold hover:text-[#fbbf24]"
 						>
 							Sign in
 						</Link>

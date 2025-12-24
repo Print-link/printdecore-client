@@ -21,7 +21,7 @@ export const LocationStatus = ({
 				{locationPermission === "denied" && (
 					<button
 						onClick={onRequestLocation}
-						className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium text-yellow-900 bg-yellow-200 hover:bg-yellow-300 rounded-lg transition-colors touch-manipulation shadow-sm"
+						className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium text-white bg-[#fbbf24] hover:bg-[#fbbf24] rounded-lg transition-colors touch-manipulation"
 					>
 						<Navigation className="w-4 h-4 mr-2" />
 						Enable Location

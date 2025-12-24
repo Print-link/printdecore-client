@@ -125,43 +125,44 @@ class ApiService {
 
 	// Authentication methods
 	async register(
-		fullName: string,
+		firstName: string,
+		lastName: string,
 		email: string,
 		password: string,
 		phoneNumber: string
 	) {
 		const response = await this.request<{
-			client: {
-				_id: string;
+			customer: {
+				id: string;
+				firstName: string;
+				lastName: string;
 				email: string;
-				fullName: string;
 				phoneNumber: string;
-				isActive: boolean;
 				createdAt: string;
 				updatedAt: string;
 			};
 			token: string;
-		}>("/clients/register", {
+		}>("/auth/register/customer", {
 			method: "POST",
-			body: JSON.stringify({ fullName, email, password, phoneNumber }),
+			body: JSON.stringify({
+				firstName,
+				lastName,
+				email,
+				password,
+				phoneNumber,
+			}),
 		});
 		return response;
 	}
 
 	async login(email: string, password: string) {
 		const response = await this.request<{
-			client: {
-				_id: string;
+			customer: {
+				id: string;
 				email: string;
-				fullName: string;
-				phoneNumber: string;
-				isActive: boolean;
-				lastLogin?: string;
-				createdAt: string;
-				updatedAt: string;
 			};
 			token: string;
-		}>("/clients/login", {
+		}>("/auth/login/customer", {
 			method: "POST",
 			body: JSON.stringify({ email, password }),
 		});
@@ -285,61 +286,106 @@ class ApiService {
 		}
 	}
 
-	async getAllPrintStations(
+	async getBranchesNearMe(
 		latitude?: number,
 		longitude?: number,
 		maxDistance?: number
 	) {
-		let endpoint = "/clients/get-print-stations";
-		const params = new URLSearchParams();
-
+		// Use the new branches/nearme endpoint
 		if (latitude !== undefined && longitude !== undefined) {
-			params.append("latitude", latitude.toString());
-			params.append("longitude", longitude.toString());
+			const params = new URLSearchParams({
+				latitude: latitude.toString(),
+				longitude: longitude.toString(),
+			});
 			if (maxDistance !== undefined) {
-				params.append("maxDistance", maxDistance.toString());
+				params.append("radius", maxDistance.toString());
 			}
-			endpoint += `?${params.toString()}`;
+
+			const response = await this.request<
+				{
+					id: string;
+					name: string;
+					address: string;
+					distance?: number;
+					operatingHours: {
+						[key: string]: {
+							open: string;
+							close: string;
+						};
+					};
+					coverImage?: string;
+					phoneNumber?: string;
+					email?: string;
+					location?: {
+						id: string;
+						address: string;
+						latitude: number;
+						longitude: number;
+					};
+				}[]
+			>(`/branches/nearme?${params.toString()}`, {
+				method: "GET",
+			});
+
+			// Transform branches to printStations format for backward compatibility
+			return {
+				...response,
+				data: {
+					printStations: (response.data || []).map((branch) => ({
+						_id: branch.id,
+						id: branch.id,
+						name: branch.name,
+						email: branch.email || "",
+						businessName: branch.name,
+						businessPhone: branch.phoneNumber,
+						businessCoverImage: branch.coverImage,
+						location: branch.location
+							? {
+									latitude: branch.location.latitude,
+									longitude: branch.location.longitude,
+									address: branch.location.address,
+							  }
+							: undefined,
+						workingHours: branch.operatingHours
+							? Object.entries(branch.operatingHours).map(([day, hours]) => ({
+									day: day.toLowerCase(),
+									isOpen: !!hours.open && !!hours.close,
+									openTime: hours.open,
+									closeTime: hours.close,
+							  }))
+							: undefined,
+						distance: branch.distance,
+						createdAt: undefined,
+						updatedAt: undefined,
+					})),
+				},
+			};
 		}
 
+		// If no location provided, fetch all branches (or return empty)
+		// Note: The new API requires location, so we return empty array
+		return {
+			success: true,
+			data: {
+				printStations: [],
+			},
+		};
+	}
+
+	async getBranchById(branchId: string) {
 		const response = await this.request<{
-			printStations: {
-				_id: string;
-				id?: string;
-				name: string;
-				email: string;
-				businessName?: string;
-				businessPhone?: string;
-				businessCoverImage?: string;
-				location?: {
-					latitude: number;
-					longitude: number;
-					address: string;
-				};
-				workingHours?: Array<{
-					day: string;
-					isOpen: boolean;
-					openTime?: string;
-					closeTime?: string;
-				}>;
-				distance?: number;
-				profile?: {
-					id: string;
-					email: string;
-					name: string;
-				};
-				createdAt?: string;
-				updatedAt?: string;
-			}[];
-			userLocation?: {
-				latitude: number;
-				longitude: number;
-			};
-		}>(endpoint, {
+			id: string;
+			name: string;
+			address: string;
+			distance?: number;
+		}>(`/branches/${branchId}`, {
 			method: "GET",
 		});
 		return response;
 	}
+
+	// Note: Order-related methods have been moved to orderApi.ts
+	// Use the orderApi service for all order operations
 }
 
 export const apiService = new ApiService();

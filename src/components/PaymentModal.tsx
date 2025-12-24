@@ -63,7 +63,7 @@ export const PaymentModal = ({
 
 	return (
 		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-			<div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 relative">
+			<div className="bg-white rounded-lg max-w-md w-full p-6 relative">
 				<button
 					onClick={onClose}
 					className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"

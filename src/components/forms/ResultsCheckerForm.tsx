@@ -39,7 +39,7 @@ export const ResultsCheckerForm = ({
 							value={indexNumber}
 							onChange={(e) => onIndexNumberChange(e.target.value)}
 							placeholder="Enter your index number"
-							className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+							className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
 							required
 							disabled={loading}
 						/>
@@ -54,7 +54,7 @@ export const ResultsCheckerForm = ({
 							value={yearOfCompletion}
 							onChange={(e) => onYearOfCompletionChange(e.target.value)}
 							placeholder="e.g., 2023"
-							className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+							className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
 							required
 							disabled={loading}
 						/>
@@ -69,7 +69,7 @@ export const ResultsCheckerForm = ({
 								type="date"
 								value={dateOfBirth}
 								onChange={(e) => onDateOfBirthChange(e.target.value)}
-								className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+								className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
 								required
 								disabled={loading}
 							/>

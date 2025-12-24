@@ -49,7 +49,7 @@ export const ReportIssueModal = ({
 
 	return (
 		<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-			<div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+			<div className="bg-white rounded-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
 				{/* Header */}
 				<div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
 					<div className="flex items-center gap-3">
@@ -100,7 +100,7 @@ export const ReportIssueModal = ({
 							}}
 							placeholder="Please describe the issue you're experiencing with this order..."
 							rows={6}
-							className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+							className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent resize-none"
 							required
 							disabled={loading}
 						/>
@@ -122,7 +122,7 @@ export const ReportIssueModal = ({
 						<button
 							type="submit"
 							disabled={loading || !message.trim()}
-							className="px-4 py-2.5 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+							className="px-4 py-2.5 text-sm font-medium text-white bg-[#fbbf24] rounded-lg hover:bg-[#fbbf24] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
 						>
 							{loading ? (
 								<>

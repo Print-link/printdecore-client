@@ -32,7 +32,7 @@ export const CategoryCard = ({
 		<div
 			className={`relative bg-white rounded-xl border transition-all overflow-hidden ${
 				isClickable
-					? "border-gray-300 group hover:shadow-lg cursor-pointer"
+					? "border-gray-300 group  cursor-pointer"
 					: "border-gray-200 opacity-75 cursor-not-allowed"
 			}`}
 		>
@@ -50,11 +50,11 @@ export const CategoryCard = ({
 						/>
 					) : (
 						<div
-							className={`w-32 h-32 sm:w-36 sm:h-36 md:w-full md:h-48 bg-indigo-100 flex items-center justify-center transition-colors ${
-								isOpen ? "group-hover:bg-indigo-200" : ""
+							className={`w-32 h-32 sm:w-36 sm:h-36 md:w-full md:h-48 bg-white flex items-center justify-center transition-colors ${
+								isOpen ? "group-hover:bg-white" : ""
 							}`}
 						>
-							<Tag className="w-10 h-10 sm:w-12 sm:h-12 md:w-12 md:h-12 text-indigo-700" />
+							<Tag className="w-10 h-10 sm:w-12 sm:h-12 md:w-12 md:h-12 text-[#fbbf24]" />
 						</div>
 					)}
 					<div className="absolute top-2 right-2 z-20">
@@ -78,20 +78,21 @@ export const CategoryCard = ({
 							<h3
 								className={`text-base md:text-lg font-bold line-clamp-1 transition-colors flex-1 ${
 									isClickable
-										? "text-gray-900 group-hover:text-indigo-700"
+										? "text-gray-900 group-hover:text-[#fbbf24]"
 										: "text-gray-500"
 								}`}
 							>
 								{category.name}
 							</h3>
-							{category.admin.averageRating !== undefined && category.admin.averageRating > 0 && (
-								<div className="flex items-center gap-1 shrink-0 ml-2">
-									<Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-									<span className="text-sm font-semibold text-gray-700">
-										{category.admin.averageRating.toFixed(1)}
-									</span>
-								</div>
-							)}
+							{category.admin.averageRating !== undefined &&
+								category.admin.averageRating > 0 && (
+									<div className="flex items-center gap-1 shrink-0 ml-2">
+										<Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+										<span className="text-sm font-semibold text-gray-700">
+											{category.admin.averageRating?.toFixed(1)}
+										</span>
+									</div>
+								)}
 						</div>
 
 						{category.admin.businessName && (
@@ -138,8 +139,8 @@ export const CategoryCard = ({
 								<span className="text-xs md:text-sm font-medium text-gray-600">
 									Price:
 								</span>
-								<span className="text-base md:text-lg font-bold text-indigo-600">
-									GHS {category.unitPrice.toFixed(2)}
+								<span className="text-base md:text-lg font-bold text-[#fbbf24]">
+									GHS {category?.unitPrice?.toFixed(2)}
 								</span>
 							</div>
 						</div>
