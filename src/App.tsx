@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
 import { useAuth } from "./hooks/useAuth";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { ProtectedLayout } from "./components/ProtectedLayout";
@@ -10,6 +11,7 @@ import { Register } from "./pages/Register";
 import { SendOTP } from "./pages/SendOTP";
 import { VerifyOTP } from "./pages/VerifyOTP";
 import { Home } from "./pages/Home";
+import { Landing } from "./pages/Landing";
 import { History } from "./pages/History";
 import { Search } from "./pages/Search";
 import { PrintStationDetails } from "./pages/PrintStationDetails";
@@ -65,6 +67,8 @@ const AppRoutes = () => {
 				element={user ? <Navigate to="/" replace /> : <Register />}
 			/>
 			<Route path="/payment/callback" element={<PaymentCallback />} />
+			<Route path="/landing" element={<Landing />} />
+			<Route path="/welcome" element={<Landing />} />
 			<Route
 				path="/quote/confirm"
 				element={
@@ -112,13 +116,15 @@ const AppRoutes = () => {
 function App() {
 	return (
 		<QueryClientProvider client={queryClient}>
-			<BrowserRouter>
-				<AuthProvider>
-					<CartProvider>
-						<AppRoutes />
-					</CartProvider>
-				</AuthProvider>
-			</BrowserRouter>
+			<ThemeProvider>
+				<BrowserRouter>
+					<AuthProvider>
+						<CartProvider>
+							<AppRoutes />
+						</CartProvider>
+					</AuthProvider>
+				</BrowserRouter>
+			</ThemeProvider>
 		</QueryClientProvider>
 	);
 }

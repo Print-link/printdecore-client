@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { LogOut, Home, History, Menu, X, Search, ShoppingCart, Trash2 } from 'lucide-react';
+import { LogOut, Home, History, Menu, X, Search, ShoppingCart, Trash2, Moon, Sun } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useCart } from '../contexts/CartContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 export const ProtectedLayout = () => {
   const { user, logout } = useAuth();
   const { cart, removeFromCart, getCartTotal, branchId } = useCart();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState(() => {
@@ -255,6 +257,21 @@ export const ProtectedLayout = () => {
 								{user?.email}
 							</p>
 						</div>
+						{/* Theme Toggle */}
+						<button
+							onClick={toggleTheme}
+							className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-gray-300 rounded-lg font-semibold text-sm hover:bg-gray-50 hover:border-[#fbbf24] transition-all touch-manipulation mb-3"
+							aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+						>
+							{theme === 'light' ? (
+								<Moon className="w-4 h-4 text-gray-700" />
+							) : (
+								<Sun className="w-4 h-4 text-[#fbbf24]" />
+							)}
+							<span className="text-gray-700">
+								{theme === 'light' ? 'Dark Mode' : 'Light Mode'}
+							</span>
+						</button>
 						<button
 							onClick={handleLogout}
 							className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-red-300 text-red-600 rounded-lg font-semibold text-sm hover:bg-red-50 hover:border-red-400 transition-all touch-manipulation"
@@ -307,7 +324,7 @@ export const ProtectedLayout = () => {
 										: "Print History"}
 								</h1>
 							</div>
-							<div className="flex items-center space-x-4">
+							<div className="flex items-center space-x-2 sm:space-x-4">
 								{/* Search Icon - Only visible on mobile */}
 								<button
 									onClick={() => {
@@ -320,6 +337,19 @@ export const ProtectedLayout = () => {
 									aria-label="Search"
 								>
 									<Search className="w-6 h-6" />
+								</button>
+								{/* Theme Toggle - Visible on all screens */}
+								<button
+									onClick={toggleTheme}
+									className="p-2 text-gray-700 hover:text-[#fbbf24] hover:bg-white rounded-lg transition-colors touch-manipulation"
+									aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+									title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+								>
+									{theme === 'light' ? (
+										<Moon className="w-5 h-5" />
+									) : (
+										<Sun className="w-5 h-5 text-[#fbbf24]" />
+									)}
 								</button>
 								<span className="hidden sm:inline text-sm text-gray-600">
 									Welcome,{" "}

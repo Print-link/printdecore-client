@@ -52,17 +52,19 @@ export interface CreateSplitResponse {
 }
 
 export interface InitializePaymentData {
-	amount: number | string; // Amount in pesewas (multiply by 100) - Paystack accepts both
+	amount: number | string;
 	email: string;
-	subaccount?: string; // paystackSubaccountCode (for direct subaccount)
-	split_code?: string; // Split code (for split payments)
+	subaccount?: string;
+	split_code?: string;
 	metadata?: Record<string, unknown>;
-	callback_url?: string; // Optional callback URL
-	currency?: string; // Optional currency (defaults to NGN, use "GHS" for Ghana)
+	callback_url?: string;
+	currency?: string;
+	bearer?: "account" | "subaccount";
+	bearer_subaccount?: string;
 }
 
 export interface InitializePaymentResponse {
-	status: boolean; // Paystack uses "status" instead of "success"
+	status: boolean;
 	message: string;
 	data: {
 		authorization_url: string;
@@ -72,10 +74,10 @@ export interface InitializePaymentResponse {
 }
 
 export interface VerifyPaymentResponse {
-	status: boolean; // Paystack uses "status" instead of "success"
+	status: boolean;
 	message: string;
 	data: {
-		status: string; // Payment status: "success", "failed", etc.
+		status: string;
 		reference: string;
 		amount: number;
 		customer: {

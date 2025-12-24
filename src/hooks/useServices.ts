@@ -2,8 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import {
 	getServiceTemplates,
 	getAgentServices,
-	type ServiceTemplate,
-	type AgentService,
 } from "../services/orderApi";
 
 export const useServiceTemplates = (subCategoryId: string | undefined) => {

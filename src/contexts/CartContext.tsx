@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import type { AgentService, PriceCalculationResponse, FileInfo } from "../services/orderApi";
+import { createContext, useContext, useState, useEffect } from "react";
+import type { ReactNode } from "react";
+import type { AgentService, PriceCalculationResponse } from "../services/orderApi";
 
 export interface CartItem {
 	id: string; // Temporary ID for cart item

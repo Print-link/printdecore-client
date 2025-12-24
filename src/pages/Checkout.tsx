@@ -30,7 +30,6 @@ export const Checkout = () => {
 	} | null>(null);
 	const [loadingBranch, setLoadingBranch] = useState(false);
 
-	// Fetch branch information on mount
 	useEffect(() => {
 		const fetchBranch = async () => {
 			if (!branchId) return;
@@ -50,6 +49,20 @@ export const Checkout = () => {
 		fetchBranch();
 	}, [branchId]);
 
+	const getSubtotal = () => {
+		return getCartTotal();
+	};
+
+	const getTransactionFee = () => {
+		return Math.round(getCartTotal() * 0.015 * 100) / 100;
+	};
+
+	const getTotalWithFee = () => {
+		const subtotal = getCartTotal();
+		const fee = Math.round(subtotal * 0.015 * 100) / 100;
+		return Math.round((subtotal + fee) * 100) / 100;
+	};
+
 	const handlePlaceOrder = () => {
 		if (!user?._id || !branchId) {
 			toast.error("User authentication or branch information is missing");
@@ -66,7 +79,6 @@ export const Checkout = () => {
 			return;
 		}
 
-		// Open payment modal first
 		setShowPaymentModal(true);
 	};
 
@@ -83,14 +95,13 @@ export const Checkout = () => {
 		setIsProcessing(true);
 
 		try {
-			// Step 1: Create Order with verified payment reference
 			setCurrentStep("Creating order with verified payment...");
-			const totalAmount = getCartTotal();
+			const totalWithFee = getTotalWithFee();
 			const orderResponse = await createOrder(
 				user._id,
 				branchId,
 				paymentData.reference,
-				totalAmount
+				totalWithFee
 			);
 
 			if (!orderResponse.success || !orderResponse.data) {
@@ -100,12 +111,10 @@ export const Checkout = () => {
 			const order = orderResponse.data;
 			setOrderId(order.id);
 
-			// Step 2: Process each cart item
 			for (let i = 0; i < cart.length; i++) {
 				const item = cart[i];
 				setCurrentStep(`Processing item ${i + 1} of ${cart.length}...`);
 
-				// Step 2a: Upload files
 				let uploadedFiles: FileInfo[] = [];
 				if (item.files.length > 0) {
 					setCurrentStep(`Uploading files for item ${i + 1}...`);
@@ -133,7 +142,6 @@ export const Checkout = () => {
 					}
 				}
 
-				// Step 2b: Create order item with file URLs
 				setCurrentStep(`Creating order item ${i + 1}...`);
 				const orderItemResponse = await createOrderItem({
 					orderId: order.id,
@@ -144,7 +152,7 @@ export const Checkout = () => {
 					quantity: item.quantity,
 					options: {
 						...item.options,
-						files: uploadedFiles, // Include file URLs in options
+						files: uploadedFiles,
 					},
 					calculatedPrice: item.calculatedPrice,
 				});
@@ -154,21 +162,17 @@ export const Checkout = () => {
 				}
 			}
 
-			// Step 3: Clear cart immediately after successful order
 			clearCart();
 			toast.success("Cart cleared successfully");
 
-			// Step 4: Invalidate orders query cache to refresh history page
 			if (user?._id) {
 				queryClient.invalidateQueries({ queryKey: ["orders", user._id] });
 				queryClient.invalidateQueries({ queryKey: ["order", order.id] });
 			}
 
-			// Step 5: Order complete
 			setCurrentStep("Order placed successfully!");
 			toast.success("Order placed successfully!");
 
-			// Step 6: Redirect to order confirmation
 			setTimeout(() => {
 				navigate(`/order/${order.id}`);
 			}, 1500);
@@ -180,7 +184,6 @@ export const Checkout = () => {
 					: "Failed to place order. Please try again.";
 			toast.error(errorMessage);
 
-			// If order was created but items failed, user can retry
 			if (orderId) {
 				toast.info(
 					"Order was created but some items failed. You can retry or cancel the order."
@@ -228,7 +231,6 @@ export const Checkout = () => {
 
 	return (
 		<div className="w-full max-w-4xl mx-auto">
-			{/* Header */}
 			<div className="mb-4">
 				<button
 					onClick={() => navigate(-1)}
@@ -243,7 +245,6 @@ export const Checkout = () => {
 				<p className="text-sm text-gray-600">Review your order and place it</p>
 			</div>
 
-			{/* Order Summary */}
 			<div className="bg-white rounded-lg border-2 border-gray-200 p-4 mb-4">
 				<h2 className="text-lg font-semibold text-gray-900 mb-3">
 					Order Summary
@@ -264,15 +265,30 @@ export const Checkout = () => {
 						</div>
 					))}
 				</div>
-				<div className="pt-4 border-t border-gray-200 flex justify-between items-center">
-					<span className="text-lg font-semibold text-gray-900">Total</span>
-					<span className="text-2xl font-bold text-[#fbbf24]">
-						GHS {getCartTotal().toFixed(2)}
-					</span>
+				<div className="pt-4 border-t border-gray-200 space-y-2">
+					<div className="flex justify-between items-center">
+						<span className="text-sm font-medium text-gray-700">Subtotal</span>
+						<span className="text-base font-semibold text-gray-900">
+							GHS {getSubtotal().toFixed(2)}
+						</span>
+					</div>
+					<div className="flex justify-between items-center">
+						<span className="text-sm font-medium text-gray-700">
+							Transaction Fee (1.5%)
+						</span>
+						<span className="text-base font-semibold text-gray-900">
+							GHS {getTransactionFee().toFixed(2)}
+						</span>
+					</div>
+					<div className="pt-2 border-t border-gray-200 flex justify-between items-center">
+						<span className="text-lg font-semibold text-gray-900">Total</span>
+						<span className="text-2xl font-bold text-[#fbbf24]">
+							GHS {getTotalWithFee().toFixed(2)}
+						</span>
+					</div>
 				</div>
 			</div>
 
-			{/* Processing Status */}
 			{isProcessing && (
 				<div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4 mb-6">
 					<div className="flex items-center gap-3">
@@ -282,7 +298,6 @@ export const Checkout = () => {
 				</div>
 			)}
 
-			{/* Place Order Button */}
 			<div className="flex flex-col md:flex-row gap-4">
 				<button
 					onClick={() => navigate(-1)}
@@ -315,12 +330,11 @@ export const Checkout = () => {
 				</button>
 			</div>
 
-			{/* Payment Modal */}
 			{showPaymentModal && branch?.payStackSubAccountId && user?.email && (
 				<PaymentModal
 					isOpen={showPaymentModal}
 					onClose={() => setShowPaymentModal(false)}
-					amount={getCartTotal()}
+					amount={getTotalWithFee()}
 					email={user.email}
 					subaccount={branch.payStackSubAccountId}
 					onPaymentSuccess={handlePaymentSuccess}

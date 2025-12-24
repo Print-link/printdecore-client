@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getBranchesNearMe, type Branch } from "../services/orderApi";
+import { getBranchesNearMe } from "../services/orderApi";
 
 export const useBranchesNearMe = (
 	latitude?: number,

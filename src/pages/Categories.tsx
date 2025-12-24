@@ -114,12 +114,18 @@ export const Categories = () => {
 							</p>
 						</div>
 					) : (
-						<div className="space-y-3 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
-							{categories.map((category) => (
+						<div className="space-y-0 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
+							{categories.map((category, index) => (
 								<button
 									key={category.id}
 									onClick={() => handleCategoryClick(category.id)}
-									className="w-full bg-white rounded-lg p-4 border-2 border-gray-200 text-left group hover:border-[#fbbf24] transition-all flex items-center gap-3 md:flex-col md:items-start"
+									className={`w-full bg-white p-4 border-2 border-gray-200 text-left group hover:border-[#fbbf24] transition-all flex items-center gap-3 md:flex-col md:items-start ${
+										index === 0
+											? "rounded-t-lg md:rounded-lg"
+											: index === categories.length - 1
+											? "rounded-b-lg border-t-0 md:rounded-lg md:border-t-2"
+											: "border-t-0 md:rounded-lg md:border-t-2"
+									}`}
 								>
 									{category.imageUrl ? (
 										<img

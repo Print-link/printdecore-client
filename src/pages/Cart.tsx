@@ -7,7 +7,7 @@ import { EmptyState } from "../components/EmptyState";
 export const Cart = () => {
 	const { branchId } = useParams<{ branchId: string }>();
 	const navigate = useNavigate();
-	const { cart, removeFromCart, updateCartItem, getCartTotal, clearCart } = useCart();
+	const { cart, removeFromCart, updateCartItem, getCartTotal } = useCart();
 
 	const handleRemoveItem = (itemId: string) => {
 		removeFromCart(itemId);
@@ -85,12 +85,13 @@ export const Cart = () => {
 								<h3 className="text-lg font-semibold text-gray-900 mb-2">
 									{item.agentService?.serviceTemplateId || "Service"}
 								</h3>
-								
+
 								{/* Item Details */}
 								<div className="space-y-1 text-sm text-gray-600 mb-3">
 									{item.width && item.height && (
 										<div>
-											Dimensions: {item.width} × {item.height} {item.measurementUnit}
+											Dimensions: {item.width} × {item.height}{" "}
+											{item.measurementUnit}
 										</div>
 									)}
 									<div>Quantity: {item.quantity}</div>
@@ -113,16 +114,24 @@ export const Cart = () => {
 
 								{/* Quantity Controls */}
 								<div className="flex items-center gap-2">
-									<label className="text-sm font-semibold text-gray-700">Quantity:</label>
+									<label className="text-sm font-semibold text-gray-700">
+										Quantity:
+									</label>
 									<button
-										onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
+										onClick={() =>
+											handleQuantityChange(item.id, item.quantity - 1)
+										}
 										className="p-1.5 border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all"
 									>
 										<Minus className="w-4 h-4" />
 									</button>
-									<span className="w-12 text-center font-semibold">{item.quantity}</span>
+									<span className="w-12 text-center font-semibold">
+										{item.quantity}
+									</span>
 									<button
-										onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+										onClick={() =>
+											handleQuantityChange(item.id, item.quantity + 1)
+										}
 										className="p-1.5 border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all"
 									>
 										<Plus className="w-4 h-4" />
@@ -149,13 +158,31 @@ export const Cart = () => {
 
 			{/* Cart Summary */}
 			<div className="mt-6 bg-white rounded-lg border-2 border-gray-200 p-6">
-				<div className="flex justify-between items-center mb-4">
-					<span className="text-lg font-semibold text-gray-900">Total</span>
-					<span className="text-3xl font-bold text-[#fbbf24]">
-						GHS {getCartTotal().toFixed(2)}
-					</span>
+				<div className="space-y-3 mb-6">
+					<div className="flex justify-between items-center">
+						<span className="text-base font-medium text-gray-700">
+							Subtotal
+						</span>
+						<span className="text-lg font-semibold text-gray-900">
+							GHS {getCartTotal().toFixed(2)}
+						</span>
+					</div>
+					<div className="flex justify-between items-center">
+						<span className="text-base font-medium text-gray-700">
+							Transaction Fee
+						</span>
+						<span className="text-lg font-semibold text-gray-900">
+							GHS {(getCartTotal() * 0.015).toFixed(2)}
+						</span>
+					</div>
+					<div className="pt-3 border-t-2 border-gray-200 flex justify-between items-center">
+						<span className="text-lg font-semibold text-gray-900">Total</span>
+						<span className="text-3xl font-bold text-[#fbbf24]">
+							GHS {(getCartTotal() * 1.015).toFixed(2)}
+						</span>
+					</div>
 				</div>
-				<div className="flex gap-4">
+				<div className="flex gap-4 flex-col md:flex-row">
 					<button
 						onClick={handleContinueShopping}
 						className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-700 font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all"

@@ -12,7 +12,7 @@ import {
 	type SearchFilters,
 	type SearchResponse,
 } from "../services/orderApi";
-import { Loader2, Sliders, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Loader2, Sliders, ChevronLeft, ChevronRight } from "lucide-react";
 
 export const Search = () => {
 	const { userLocation, locationError, locationPermission, requestLocation } =

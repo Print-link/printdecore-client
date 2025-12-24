@@ -12,14 +12,15 @@ export const useOrders = (
 		queryFn: async () => {
 			const response = await getClientOrders(clientId, branchId, status);
 			// Handle both old and new response formats
-			if (response.success) {
+			if (response.success && response.data) {
 				// New format: response.data is array of orders
 				if (Array.isArray(response.data)) {
 					return response.data;
 				}
 				// Old format: response.data.orders
-				if (response.data?.orders && Array.isArray(response.data.orders)) {
-					return response.data.orders;
+				const data = response.data as unknown as { orders?: Order[] };
+				if (data && typeof data === 'object' && 'orders' in data && Array.isArray(data.orders)) {
+					return data.orders;
 				}
 			}
 			return [];

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Printer, AlertCircle, ArrowLeft } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { useGeolocation } from "../hooks/useGeolocation";
@@ -45,14 +45,13 @@ interface ResultsCheckerFormData {
 
 export const PrintStationDetails = () => {
 	const { id } = useParams<{ id: string }>();
-	// const [searchParams] = useSearchParams();
 	const navigate = useNavigate();
 	const { user } = useAuth();
 	const { userLocation } = useGeolocation();
 
 	const [uploadStatus, setUploadStatus] = useState<UploadStatus | null>(null);
 	const [printStation, setPrintStation] = useState<PrintStation | null>(null);
-	const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+	const [selectedCategory] = useState<Category | null>(
 		null
 	);
 	const [loading, setLoading] = useState<boolean>(true);
@@ -138,9 +137,8 @@ export const PrintStationDetails = () => {
 	});
 
 	const {
-		data: branch,
+		data: branchResponse,
 		isLoading: isBranchLoading,
-		error: branchError,
 	} = useQuery({
 		queryKey: ["branch", id],
 		queryFn: () => getBranchById(id || ""),
@@ -148,13 +146,41 @@ export const PrintStationDetails = () => {
 	});
 
 	const {
-		data: categories,
 		isLoading: isCategoriesLoading,
-		error: categoriesError,
 	} = useQuery({
 		queryKey: ["categories"],
 		queryFn: () => bussinessCategoryService.getAllBussinessCategories(),
 	});
+
+	// Convert branch data to printStation format
+	useEffect(() => {
+		if (branchResponse?.success && branchResponse.data) {
+			const branchData = branchResponse.data;
+			setPrintStation({
+				_id: branchData.id,
+				id: branchData.id,
+				name: branchData.name || "",
+				email: branchData.email || "",
+				address: branchData.address || "",
+				phoneNumber: branchData.phoneNumber,
+				coverImage: branchData.coverImage,
+				paystackSubaccountCode: branchData.payStackSubAccountId,
+				location: branchData.location ? {
+					latitude: branchData.location.latitude,
+					longitude: branchData.location.longitude,
+					address: branchData.location.address,
+				} : undefined,
+			} as PrintStation);
+			setLoading(false);
+		} else if (branchResponse && !branchResponse.success) {
+			setLoading(false);
+		}
+	}, [branchResponse]);
+
+	// Set loading state
+	useEffect(() => {
+		setLoading(isBranchLoading || isCategoriesLoading);
+	}, [isBranchLoading, isCategoriesLoading]);
 
 	useEffect(() => {
 		if (isResultsChecker && uploadStatus?.type === "error") {
