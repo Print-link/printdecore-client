@@ -146,12 +146,23 @@ export const Checkout = () => {
 				const orderItemResponse = await createOrderItem({
 					orderId: order.id,
 					agentServiceId: item.agentServiceId,
+					// New flexible pricing fields
+					selectedBaseConfigId: item.selectedBaseConfigId,
+					selectedOptions: item.selectedOptions,
+					selectedCustomSpecs: item.selectedCustomSpecs,
+					// Legacy fields
 					width: item.width,
 					height: item.height,
 					measurementUnit: item.measurementUnit,
 					quantity: item.quantity,
 					options: {
+						// Include new flexible config in options for reference
+						selectedBaseConfigId: item.selectedBaseConfigId,
+						selectedOptions: item.selectedOptions,
+						selectedCustomSpecs: item.selectedCustomSpecs,
+						// Legacy options
 						...item.options,
+						// File URLs
 						files: uploadedFiles,
 					},
 					calculatedPrice: item.calculatedPrice,

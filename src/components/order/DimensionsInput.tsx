@@ -20,9 +20,9 @@ export const DimensionsInput = ({
 	required = false,
 }: DimensionsInputProps) => {
 	return (
-		<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+		<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
 			<div>
-				<label className="block text-sm font-medium text-gray-700 mb-2">
+				<label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
 					Width *
 				</label>
 				<input
@@ -34,11 +34,11 @@ export const DimensionsInput = ({
 						onWidthChange(parseFloat(e.target.value) || undefined)
 					}
 					required={required}
-					className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
+					className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent transition-all"
 				/>
 			</div>
 			<div>
-				<label className="block text-sm font-medium text-gray-700 mb-2">
+				<label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
 					Height *
 				</label>
 				<input
@@ -50,11 +50,11 @@ export const DimensionsInput = ({
 						onHeightChange(parseFloat(e.target.value) || undefined)
 					}
 					required={required}
-					className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
+					className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent transition-all"
 				/>
 			</div>
-			<div>
-				<label className="block text-sm font-medium text-gray-700 mb-2">
+			<div className="sm:col-span-2 lg:col-span-1">
+				<label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
 					Unit
 				</label>
 				<select
@@ -62,7 +62,7 @@ export const DimensionsInput = ({
 					onChange={(e) =>
 						onMeasurementUnitChange(e.target.value as MeasurementUnit)
 					}
-					className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
+					className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent transition-all"
 				>
 					<option value="FEET">Feet</option>
 					<option value="INCH">Inches</option>

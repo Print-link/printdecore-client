@@ -15,11 +15,24 @@ import { useCart } from "../contexts/CartContext";
 import { FileUploadSection } from "../components/order/FileUploadSection";
 import { DimensionsInput } from "../components/order/DimensionsInput";
 import { OrderOptions } from "../components/order/OrderOptions";
+import { BaseConfigurationSelector } from "../components/order/BaseConfigurationSelector";
+import { CustomSpecificationsSelector } from "../components/order/CustomSpecificationsSelector";
 import { PricePreview } from "../components/order/PricePreview";
 import { AddToCartModal } from "../components/order/AddToCartModal";
 import type { MeasurementUnit } from "../services/orderApi";
+import {
+	hasFlexiblePricing,
+	getDefaultBaseConfig,
+	getDefaultOptions,
+} from "../utils/pricingUtils";
 
 interface OrderFormData {
+	// New flexible pricing format
+	selectedBaseConfigId?: string;
+	selectedOptions?: string[];
+	selectedCustomSpecs?: string[];
+
+	// Legacy format (for backward compatibility)
 	width?: number;
 	height?: number;
 	measurementUnit: MeasurementUnit;
@@ -39,6 +52,7 @@ export const OrderForm = () => {
 	const agentServiceId = searchParams.get("agentServiceId");
 	const serviceTemplateId = searchParams.get("serviceTemplateId");
 	const navigate = useNavigate();
+	const POPULAR_BASE_CONFIG_ID = "a4";
 
 	// Custom hooks
 	const { agentService, loading, error } = useAgentService(
@@ -81,8 +95,8 @@ export const OrderForm = () => {
 	}, [pdfPageCount]);
 
 	// Price calculation
-	const { priceInfo, calculatingPrice, formulaType } = useOrderPriceCalculation(
-		{
+	const { priceInfo, calculatingPrice, formulaType, usesFlexiblePricing } =
+		useOrderPriceCalculation({
 			agentServiceId,
 			formData: {
 				...formData,
@@ -95,8 +109,45 @@ export const OrderForm = () => {
 			agentService,
 			pdfPageCount,
 			selectedFilesLength: selectedFiles.length,
+		});
+
+	// Initialize default values for flexible pricing when agentService loads
+	useEffect(() => {
+		if (
+			agentService &&
+			hasFlexiblePricing(agentService) &&
+			agentService.pricingConfig
+		) {
+			setFormData((prev) => {
+				// 👇 if user already selected something, DO NOT override
+				if (prev.selectedBaseConfigId) {
+					return prev;
+				}
+	
+				const baseConfigs =
+					agentService.pricingConfig?.baseConfigurations || [];
+	
+				// 👇 Prefer A4 if it exists
+				const popularExists = baseConfigs.some(
+					(c) => c.id === POPULAR_BASE_CONFIG_ID
+				);
+	
+				const defaultBaseConfig = popularExists
+					? POPULAR_BASE_CONFIG_ID
+					: getDefaultBaseConfig(agentService.pricingConfig || null);
+	
+				return {
+					...prev,
+					selectedBaseConfigId: defaultBaseConfig || undefined,
+					selectedOptions:
+						prev.selectedOptions ||
+						getDefaultOptions(agentService.pricingConfig || null),
+					selectedCustomSpecs: prev.selectedCustomSpecs || [],
+				};
+			});
 		}
-	);
+	}, [agentService]);
+	
 
 	// Check if this is a PAGE_BASED service (Bond Paper) - use formulaType from hook or priceInfo
 	const isPageBased =
@@ -146,6 +197,8 @@ export const OrderForm = () => {
 				pdfPageCount,
 				width: formData.width,
 				height: formData.height,
+				agentService,
+				selectedBaseConfigId: formData.selectedBaseConfigId,
 			})
 		) {
 			return;
@@ -177,6 +230,11 @@ export const OrderForm = () => {
 				agentServiceId: agentServiceId!,
 				serviceTemplateId: serviceTemplateId!,
 				branchId: branchId!,
+				// New flexible pricing fields
+				selectedBaseConfigId: formData.selectedBaseConfigId,
+				selectedOptions: formData.selectedOptions,
+				selectedCustomSpecs: formData.selectedCustomSpecs,
+				// Legacy fields
 				width: formData.width,
 				height: formData.height,
 				measurementUnit: formData.measurementUnit,
@@ -222,6 +280,11 @@ export const OrderForm = () => {
 											agentServiceId: agentServiceId!,
 											serviceTemplateId: serviceTemplateId!,
 											branchId: branchId!,
+											// New flexible pricing fields
+											selectedBaseConfigId: formData.selectedBaseConfigId,
+											selectedOptions: formData.selectedOptions,
+											selectedCustomSpecs: formData.selectedCustomSpecs,
+											// Legacy fields
 											width: formData.width,
 											height: formData.height,
 											measurementUnit: formData.measurementUnit,
@@ -268,6 +331,11 @@ export const OrderForm = () => {
 				agentServiceId: agentServiceId!,
 				serviceTemplateId: serviceTemplateId!,
 				branchId: branchId!,
+				// New flexible pricing fields
+				selectedBaseConfigId: formData.selectedBaseConfigId,
+				selectedOptions: formData.selectedOptions,
+				selectedCustomSpecs: formData.selectedCustomSpecs,
+				// Legacy fields
 				width: formData.width,
 				height: formData.height,
 				measurementUnit: formData.measurementUnit,
@@ -313,6 +381,11 @@ export const OrderForm = () => {
 											agentServiceId: agentServiceId!,
 											serviceTemplateId: serviceTemplateId!,
 											branchId: branchId!,
+											// New flexible pricing fields
+											selectedBaseConfigId: formData.selectedBaseConfigId,
+											selectedOptions: formData.selectedOptions,
+											selectedCustomSpecs: formData.selectedCustomSpecs,
+											// Legacy fields
 											width: formData.width,
 											height: formData.height,
 											measurementUnit: formData.measurementUnit,
@@ -355,9 +428,11 @@ export const OrderForm = () => {
 
 	if (loading) {
 		return (
-			<div className="w-full max-w-6xl mx-auto bg-white rounded-2xl p-8">
-				<div className="flex items-center justify-center py-12">
-					<Loader2 className="w-8 h-8 text-[#fbbf24] animate-spin" />
+			<div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-0">
+				<div className="bg-white rounded-lg sm:rounded-2xl p-6 sm:p-8">
+					<div className="flex items-center justify-center py-8 sm:py-12">
+						<Loader2 className="w-6 h-6 sm:w-8 sm:h-8 text-[#fbbf24] animate-spin" />
+					</div>
 				</div>
 			</div>
 		);
@@ -365,42 +440,46 @@ export const OrderForm = () => {
 
 	if (error || !agentService) {
 		return (
-			<div className="w-full max-w-6xl mx-auto bg-white rounded-2xl p-8">
-				<div className="text-center py-12">
-					<AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-					<h2 className="text-xl font-semibold text-gray-900 mb-2">Error</h2>
-					<p className="text-gray-600 mb-4">
-						{error || "Agent service not found"}
-					</p>
-					<button
-						onClick={handleBack}
-						className="inline-flex items-center px-4 py-2 text-sm font-medium text-[#fbbf24] hover:text-[#fbbf24]"
-					>
-						<ArrowLeft className="w-4 h-4 mr-2" />
-						Go Back
-					</button>
+			<div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-0">
+				<div className="bg-white rounded-lg sm:rounded-2xl p-6 sm:p-8">
+					<div className="text-center py-8 sm:py-12">
+						<AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-red-500 mx-auto mb-3 sm:mb-4" />
+						<h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
+							Error
+						</h2>
+						<p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6 px-4">
+							{error || "Agent service not found"}
+						</p>
+						<button
+							onClick={handleBack}
+							className="inline-flex items-center px-4 sm:px-6 py-2 sm:py-2.5 text-sm sm:text-base font-medium text-[#fbbf24] hover:text-[#d97706] transition-colors"
+						>
+							<ArrowLeft className="w-4 h-4 mr-2" />
+							Go Back
+						</button>
+					</div>
 				</div>
 			</div>
 		);
 	}
 
 	return (
-		<div className="w-full max-w-4xl mx-auto">
+		<div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-0">
 			{/* Back Button */}
 			<button
 				onClick={handleBack}
-				className="mb-4 inline-flex items-center text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+				className="mb-4 sm:mb-6 inline-flex items-center text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
 			>
 				<ArrowLeft className="w-4 h-4 mr-2" />
 				Back
 			</button>
 
 			{/* Header */}
-			<div className="mb-4">
-				<h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-1">
+			<div className="mb-4 sm:mb-6">
+				<h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">
 					Configure Your Order
 				</h1>
-				<p className="text-sm text-gray-600">
+				<p className="text-xs sm:text-sm text-gray-600">
 					{isPageBased
 						? "Upload your PDF file and configure your order"
 						: "Fill in the details and upload your files"}
@@ -409,30 +488,120 @@ export const OrderForm = () => {
 
 			<form
 				onSubmit={handleAddToCart}
-				className="bg-white rounded-lg p-5 border-2 border-gray-200 space-y-4"
+				className="bg-white rounded-lg p-4 sm:p-5 lg:p-6 border-2 border-gray-200 space-y-4 sm:space-y-6"
 			>
-				{/* Dimensions - Hide for PAGE_BASED or while determining formula type */}
-				{!isPageBased && agentService && (
-					<DimensionsInput
-						width={formData.width}
-						height={formData.height}
-						measurementUnit={formData.measurementUnit}
-						onWidthChange={(width) =>
-							setFormData((prev) => ({ ...prev, width }))
-						}
-						onHeightChange={(height) =>
-							setFormData((prev) => ({ ...prev, height }))
-						}
-						onMeasurementUnitChange={(unit) =>
-							setFormData((prev) => ({ ...prev, measurementUnit: unit }))
-						}
-						required={!isPageBased}
-					/>
+				{/* Step 1: Base Configuration (New Flexible Pricing) - Matches PricingConfigForm order */}
+				{usesFlexiblePricing && agentService?.pricingConfig && (
+					<div className="border-b border-gray-200 pb-4 sm:pb-6">
+						<BaseConfigurationSelector
+							pricingConfig={agentService.pricingConfig}
+							selectedBaseConfigId={formData.selectedBaseConfigId || null}
+							onSelect={(configId) =>
+								setFormData((prev) => ({
+									...prev,
+									selectedBaseConfigId: configId,
+								}))
+							}
+							showDimensions={!isPageBased}
+							width={formData.width}
+							height={formData.height}
+							measurementUnit={formData.measurementUnit}
+							onWidthChange={(width) =>
+								setFormData((prev) => ({ ...prev, width }))
+							}
+							onHeightChange={(height) =>
+								setFormData((prev) => ({ ...prev, height }))
+							}
+							onMeasurementUnitChange={(unit) =>
+								setFormData((prev) => ({ ...prev, measurementUnit: unit }))
+							}
+						/>
+					</div>
+				)}
+
+				{/* Step 2: Options (New Flexible Pricing or Legacy) - Matches PricingConfigForm order */}
+				{agentService && (
+					<div className="border-b border-gray-200 pb-4 sm:pb-6">
+						{usesFlexiblePricing ? (
+							<OrderOptions
+								agentService={agentService}
+								selectedOptions={formData.selectedOptions || []}
+								onSelectedOptionsChange={(options) =>
+									setFormData((prev) => ({ ...prev, selectedOptions: options }))
+								}
+								isPageBased={isPageBased}
+							/>
+						) : (
+							<OrderOptions
+								agentService={agentService}
+								options={formData.options}
+								onOptionChange={(option, value) =>
+									setFormData((prev) => ({
+										...prev,
+										options: {
+											...prev.options,
+											[option]: value,
+										},
+									}))
+								}
+								isPageBased={isPageBased}
+							/>
+						)}
+					</div>
+				)}
+
+				{/* Step 3: Custom Specifications (New Flexible Pricing) - Matches PricingConfigForm order */}
+				{usesFlexiblePricing && agentService?.pricingConfig && (
+					<div className="border-b border-gray-200 pb-4 sm:pb-6">
+						<CustomSpecificationsSelector
+							pricingConfig={agentService.pricingConfig}
+							selectedCustomSpecs={formData.selectedCustomSpecs || []}
+							onToggle={(specId) => {
+								setFormData((prev) => {
+									const current = prev.selectedCustomSpecs || [];
+									if (current.includes(specId)) {
+										return {
+											...prev,
+											selectedCustomSpecs: current.filter(
+												(id) => id !== specId
+											),
+										};
+									} else {
+										return {
+											...prev,
+											selectedCustomSpecs: [...current, specId],
+										};
+									}
+								});
+							}}
+						/>
+					</div>
+				)}
+
+				{/* Dimensions - Legacy format or for area-based services (after pricing config sections) */}
+				{!usesFlexiblePricing && !isPageBased && agentService && (
+					<div className="border-b border-gray-200 pb-4 sm:pb-6">
+						<DimensionsInput
+							width={formData.width}
+							height={formData.height}
+							measurementUnit={formData.measurementUnit}
+							onWidthChange={(width) =>
+								setFormData((prev) => ({ ...prev, width }))
+							}
+							onHeightChange={(height) =>
+								setFormData((prev) => ({ ...prev, height }))
+							}
+							onMeasurementUnitChange={(unit) =>
+								setFormData((prev) => ({ ...prev, measurementUnit: unit }))
+							}
+							required={!isPageBased}
+						/>
+					</div>
 				)}
 
 				{/* Quantity */}
 				<div>
-					<label className="block text-sm font-medium text-gray-700 mb-2">
+					<label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
 						Quantity *
 					</label>
 					<input
@@ -446,27 +615,9 @@ export const OrderForm = () => {
 							}))
 						}
 						required
-						className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
+						className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent transition-all"
 					/>
 				</div>
-
-				{/* Options */}
-				{agentService && (
-					<OrderOptions
-						agentService={agentService}
-						options={formData.options}
-						onOptionChange={(option, value) =>
-							setFormData((prev) => ({
-								...prev,
-								options: {
-									...prev.options,
-									[option]: value,
-								},
-							}))
-						}
-						isPageBased={isPageBased}
-					/>
-				)}
 
 				{/* File Upload */}
 				<FileUploadSection
@@ -488,32 +639,35 @@ export const OrderForm = () => {
 						quantity={formData.quantity}
 						options={formData.options}
 						calculatingPrice={calculatingPrice}
+						selectedBaseConfigId={formData.selectedBaseConfigId}
+						selectedOptions={formData.selectedOptions}
+						selectedCustomSpecs={formData.selectedCustomSpecs}
 					/>
 				)}
 
 				{/* Submit Button */}
-				<div className="flex gap-4">
+				<div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2">
 					<button
 						type="button"
 						onClick={handleBack}
-						className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-700 font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all"
+						className="w-full sm:flex-1 px-4 sm:px-6 py-3 sm:py-3.5 text-sm sm:text-base border-2 border-gray-300 rounded-lg text-gray-700 font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all"
 					>
 						Cancel
 					</button>
 					<button
 						type="submit"
 						disabled={calculatingPrice || !priceInfo}
-						className="flex-1 px-4 py-3 bg-[#fbbf24] text-white rounded-lg font-semibold hover:bg-[#d97706] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-all"
+						className="w-full sm:flex-1 px-4 sm:px-6 py-3 sm:py-3.5 text-sm sm:text-base bg-[#fbbf24] text-white rounded-lg font-semibold hover:bg-[#d97706] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-all"
 					>
 						{calculatingPrice ? (
 							<>
-								<Loader2 className="w-4 h-4 mr-2 animate-spin" />
-								Calculating...
+								<Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" />
+								<span>Calculating...</span>
 							</>
 						) : (
 							<>
-								<ShoppingCart className="w-4 h-4 mr-2" />
-								Add to Cart
+								<ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+								<span>Add to Cart</span>
 							</>
 						)}
 					</button>

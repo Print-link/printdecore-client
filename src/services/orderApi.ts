@@ -127,27 +127,81 @@ export interface ServiceTemplate {
 	updatedAt: string;
 }
 
+// ==================== Flexible Pricing Types ====================
+
+/**
+ * Base configuration for flexible pricing (e.g., A6, A5, A4, A3, Custom)
+ */
+export interface BaseConfiguration {
+	id: string;
+	name: string;
+	description?: string;
+	unitPrice: number; // Base price for this configuration
+	width?: number; // Optional: predefined width
+	height?: number; // Optional: predefined height
+	isCustom?: boolean; // If true, allows custom dimensions
+}
+
+/**
+ * Pricing option (e.g., Color, Front & Back, Print & Cut)
+ */
+export interface PricingOption {
+	id: string;
+	name: string;
+	description?: string;
+	priceModifier: number; // Additional cost (can be percentage or fixed amount)
+	modifierType?: "PERCENTAGE" | "FIXED" | "PER_UNIT"; // How the modifier is applied
+	default?: boolean; // Whether this option is selected by default
+}
+
+/**
+ * Custom specification (e.g., Lamination, Binding, Hole Punching)
+ */
+export interface CustomSpecification {
+	id: string;
+	name: string;
+	description?: string;
+	priceModifier: number; // Additional cost
+	modifierType?: "PERCENTAGE" | "FIXED" | "PER_UNIT"; // How the modifier is applied
+}
+
+/**
+ * Flexible pricing configuration for an agent service
+ */
+export interface PricingConfig {
+	baseConfigurations: BaseConfiguration[];
+	options: PricingOption[];
+	customSpecifications?: CustomSpecification[];
+}
+
 export interface AgentService {
 	id: string;
 	branchId: string;
 	serviceTemplateId: string;
 	pricePerUnit?: number;
 	constant?: number;
-	colorPriceModifier?: number; // Fixed amount to add when color option is selected
+	colorPriceModifier?: number; // Fixed amount to add when color option is selected (legacy)
 	isActive: boolean;
 	supportsPrintCut: boolean;
 	supportsColor: boolean;
 	supportsFrontBack: boolean;
 	supportsFrontOnly: boolean;
 	formulaType?: string; // Pricing formula type from service template (e.g., "PAGE_BASED", "AREA_FEET")
+	pricingConfig?: PricingConfig; // New flexible pricing configuration
 	createdAt: string;
 	updatedAt: string;
 }
 
 export interface PriceCalculationRequest {
+	// New flexible pricing format
+	selectedBaseConfigId?: string; // ID of selected base configuration
+	selectedOptions?: string[]; // Array of selected option IDs
+	selectedCustomSpecs?: string[]; // Array of selected custom specification IDs
+	
+	// Legacy format (still supported for backward compatibility)
 	width?: number;
 	height?: number;
-	measurementUnit: MeasurementUnit;
+	measurementUnit?: MeasurementUnit; // Optional - not required for new flexible pricing
 	quantity: number;
 	options?: {
 		frontBack?: boolean;
@@ -158,16 +212,47 @@ export interface PriceCalculationRequest {
 		numberOfPages?: number; // Alternative name for filePages
 		[key: string]: unknown;
 	};
+	
+	// Common fields (used by both formats)
+	filePages?: number; // For PAGE_BASED formulas in new format
+}
+
+/**
+ * Price breakdown item for detailed pricing display
+ */
+export interface PriceBreakdownItem {
+	id: string;
+	name: string;
+	price: number;
+	type: "base" | "option" | "customSpec";
 }
 
 export interface PriceCalculationResponse {
 	calculatedPrice: number;
 	basePrice: number;
 	formulaType: string;
+	breakdown?: {
+		baseConfiguration?: {
+			id: string;
+			name: string;
+			price: number;
+		};
+		options?: Array<{
+			id: string;
+			name: string;
+			modifier: number;
+		}>;
+		customSpecs?: Array<{
+			id: string;
+			name: string;
+			modifier: number;
+		}>;
+	};
 	agentService: {
 		id: string;
 		pricePerUnit?: number;
 		constant?: number;
+		pricingConfig?: PricingConfig;
 	};
 }
 
@@ -233,11 +318,18 @@ export const getClientOrders = async (
 		if (branchId) params.append("branchId", branchId);
 		if (status) params.append("status", status);
 
-		const response = await axios.get<any>(
+		// Backend response type (before normalization)
+		interface BackendOrdersResponse {
+			status: boolean;
+			message?: string;
+			data?: Order[];
+		}
+
+		const response = await axios.get<BackendOrdersResponse>(
 			`${BASE_URL}/orders?${params.toString()}`,
 			{ headers: getAuthHeaders() }
 		);
-		
+
 		// Normalize backend response: convert "status" to "success"
 		const backendResponse = response.data;
 		return {
@@ -254,11 +346,17 @@ export const getOrderById = async (
 	orderId: string
 ): Promise<ApiResponse<Order>> => {
 	try {
-		const response = await axios.get<any>(
-			`${BASE_URL}/orders/${orderId}`,
-			{ headers: getAuthHeaders() }
-		);
-		
+		// Backend response type (before normalization)
+		interface BackendOrderResponse {
+			status: boolean;
+			message?: string;
+			data?: Order;
+		}
+
+		const response = await axios.get<BackendOrderResponse>(`${BASE_URL}/orders/${orderId}`, {
+			headers: getAuthHeaders(),
+		});
+
 		// Normalize backend response: convert "status" to "success"
 		const backendResponse = response.data;
 		return {
@@ -330,11 +428,33 @@ export const calculatePrice = async (
 	try {
 		// Clean up the request payload - remove undefined values
 		const cleanPayload: PriceCalculationRequest = {
-			measurementUnit: calculationData.measurementUnit,
 			quantity: calculationData.quantity,
 		};
 
-		// Only include width/height if they are defined and valid
+		// New flexible pricing format
+		if (calculationData.selectedBaseConfigId) {
+			cleanPayload.selectedBaseConfigId = calculationData.selectedBaseConfigId;
+		}
+		if (
+			calculationData.selectedOptions &&
+			calculationData.selectedOptions.length > 0
+		) {
+			cleanPayload.selectedOptions = calculationData.selectedOptions;
+		}
+		if (
+			calculationData.selectedCustomSpecs &&
+			calculationData.selectedCustomSpecs.length > 0
+		) {
+			cleanPayload.selectedCustomSpecs = calculationData.selectedCustomSpecs;
+		}
+		if (calculationData.filePages !== undefined) {
+			cleanPayload.filePages = calculationData.filePages;
+		}
+
+		// Legacy format (for backward compatibility)
+		if (calculationData.measurementUnit) {
+			cleanPayload.measurementUnit = calculationData.measurementUnit;
+		}
 		if (
 			calculationData.width !== undefined &&
 			calculationData.width !== null &&
@@ -350,7 +470,7 @@ export const calculatePrice = async (
 			cleanPayload.height = calculationData.height;
 		}
 
-		// Include options if they exist and have content
+		// Include legacy options if they exist and have content
 		if (
 			calculationData.options &&
 			Object.keys(calculationData.options).length > 0
@@ -406,6 +526,11 @@ export const rejectQuote = async (
 export const createOrderItem = async (orderItemData: {
 	orderId: string;
 	agentServiceId: string;
+	// New flexible pricing fields
+	selectedBaseConfigId?: string;
+	selectedOptions?: string[];
+	selectedCustomSpecs?: string[];
+	// Legacy fields
 	width?: number;
 	height?: number;
 	measurementUnit: MeasurementUnit;

@@ -6,8 +6,15 @@ import {
 	type PriceCalculationRequest,
 } from "../services/orderApi";
 import type { MeasurementUnit } from "../services/orderApi";
+import { hasFlexiblePricing } from "../utils/pricingUtils";
 
 interface OrderFormData {
+	// New flexible pricing format
+	selectedBaseConfigId?: string;
+	selectedOptions?: string[];
+	selectedCustomSpecs?: string[];
+
+	// Legacy format (for backward compatibility)
 	width?: number;
 	height?: number;
 	measurementUnit: MeasurementUnit;
@@ -44,10 +51,18 @@ export const useOrderPriceCalculation = ({
 	const [formulaType, setFormulaType] = useState<string | null>(null);
 	const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+	// Check if service uses flexible pricing
+	const usesFlexiblePricing = hasFlexiblePricing(agentService);
+
 	// Memoize form data to prevent unnecessary recalculations
 	const memoizedFormData = useMemo(
 		() => formData,
 		[
+			// New flexible pricing fields
+			formData.selectedBaseConfigId,
+			formData.selectedOptions?.join(","), // Convert array to string for comparison
+			formData.selectedCustomSpecs?.join(","), // Convert array to string for comparison
+			// Legacy fields
 			formData.width,
 			formData.height,
 			formData.measurementUnit,
@@ -66,23 +81,52 @@ export const useOrderPriceCalculation = ({
 
 		setCalculatingPrice(true);
 		try {
-			// Build request payload - the API function will clean undefined values
-			const options = { ...memoizedFormData.options };
+			const requestPayload: PriceCalculationRequest = {
+				quantity: memoizedFormData.quantity,
+			};
 
-			// If we have pdfPageCount, always include it in options (backend will use it if needed)
-			// This ensures PAGE_BASED calculations work even if formulaType isn't set yet
-			if (pdfPageCount && pdfPageCount > 0) {
-				options.filePages = pdfPageCount;
-				options.numberOfPages = pdfPageCount;
+			// Use new flexible pricing format if available
+			if (usesFlexiblePricing) {
+				if (memoizedFormData.selectedBaseConfigId) {
+					requestPayload.selectedBaseConfigId =
+						memoizedFormData.selectedBaseConfigId;
+				}
+				if (
+					memoizedFormData.selectedOptions &&
+					memoizedFormData.selectedOptions.length > 0
+				) {
+					requestPayload.selectedOptions = memoizedFormData.selectedOptions;
+				}
+				if (
+					memoizedFormData.selectedCustomSpecs &&
+					memoizedFormData.selectedCustomSpecs.length > 0
+				) {
+					requestPayload.selectedCustomSpecs =
+						memoizedFormData.selectedCustomSpecs;
+				}
+				// Include filePages for PAGE_BASED formulas in new format
+				if (pdfPageCount && pdfPageCount > 0) {
+					requestPayload.filePages = pdfPageCount;
+				}
+			} else {
+				// Legacy format
+				const options = { ...memoizedFormData.options };
+
+				// If we have pdfPageCount, always include it in options (backend will use it if needed)
+				// This ensures PAGE_BASED calculations work even if formulaType isn't set yet
+				if (pdfPageCount && pdfPageCount > 0) {
+					options.filePages = pdfPageCount;
+					options.numberOfPages = pdfPageCount;
+				}
+
+				requestPayload.width = memoizedFormData.width;
+				requestPayload.height = memoizedFormData.height;
+				requestPayload.measurementUnit = memoizedFormData.measurementUnit;
+				requestPayload.options =
+					Object.keys(options).length > 0 ? options : undefined;
 			}
 
-			const requestPayload: PriceCalculationRequest = {
-				width: memoizedFormData.width,
-				height: memoizedFormData.height,
-				measurementUnit: memoizedFormData.measurementUnit,
-				quantity: memoizedFormData.quantity,
-				options: Object.keys(options).length > 0 ? options : undefined,
-			};
+			console.log("calculation payload -->", requestPayload);
 
 			const response = await calculatePrice(agentServiceId, requestPayload);
 
@@ -105,6 +149,7 @@ export const useOrderPriceCalculation = ({
 		pdfPageCount,
 		priceInfo?.formulaType,
 		agentService?.formulaType,
+		usesFlexiblePricing,
 	]);
 
 	// Get formula type directly from agentService if available
@@ -165,6 +210,7 @@ export const useOrderPriceCalculation = ({
 		priceInfo,
 		calculatingPrice,
 		formulaType: formulaType || priceInfo?.formulaType,
+		usesFlexiblePricing,
 	};
 };
 
