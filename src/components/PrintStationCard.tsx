@@ -1,4 +1,4 @@
-import { Printer, MapPin, Mail, Navigation, Star } from "lucide-react";
+import { Printer, MapPin, Navigation, Star, Package } from "lucide-react";
 import type { PrintStation } from "../types/printStation";
 import { getDistanceColor, formatDistance } from "../utils/stationUtils";
 import { isStationOpen } from "../utils/workingHours";
@@ -15,9 +15,10 @@ export const PrintStationCard = ({
 }: PrintStationCardProps) => {
 	const stationId = station._id || station.id || "";
 	// Use backend's isOpen if available, otherwise calculate client-side
-	const openStatus = station.isOpen !== undefined 
-		? station.isOpen 
-		: isStationOpen(station.workingHours);
+	const openStatus =
+		station.isOpen !== undefined
+			? station.isOpen
+			: isStationOpen(station.workingHours);
 	const isOpen = openStatus === true;
 	const isClickable = openStatus === true;
 
@@ -113,10 +114,44 @@ export const PrintStationCard = ({
 									<span>{formatDistance(station.distance)}</span>
 								</div>
 							)}
-							{station.email && (
+							{/* {station.email && (
 								<div className="flex items-center text-xs md:text-sm text-gray-600">
 									<Mail className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2 text-gray-400 shrink-0" />
 									<span className="truncate">{station.email}</span>
+								</div>
+							)} */}
+
+							{/* Agent Services */}
+							{station.agentServices && station.agentServices.length > 0 && (
+								<div className="md:pt-2 md:mt-2 border-t border-gray-200">
+									<div className="flex items-center gap-1.5 mb-1.5">
+										<Package className="w-3 h-3 md:w-4 md:h-4 text-[#fbbf24] shrink-0" />
+										<span className="text-xs md:text-sm font-bold text-gray-900">
+											Services (
+											{station.totalServicesCount ||
+												station.agentServices.length}
+											)
+										</span>
+									</div>
+									<div className="flex flex-wrap gap-1.5">
+										{station.agentServices.slice(0, 5).map((service) => (
+											<span
+												key={service.id}
+												className="px-2 py-0.5 text-xs font-bold text-[#fbbf24] bg-[#fbbf24]/10 border border-[#fbbf24]/30 rounded"
+											>
+												{service.serviceName}
+											</span>
+										))}
+										{(station.totalServicesCount ||
+											station.agentServices.length) > 5 && (
+											<span className="px-2 py-0.5 text-xs font-semibold text-gray-600">
+												+
+												{(station.totalServicesCount ||
+													station.agentServices.length) - 5}{" "}
+												more
+											</span>
+										)}
+									</div>
 								</div>
 							)}
 						</div>
@@ -126,4 +161,3 @@ export const PrintStationCard = ({
 		</div>
 	);
 };
-

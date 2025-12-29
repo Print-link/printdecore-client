@@ -51,6 +51,8 @@ export const ServiceTemplates = () => {
 		);
 	};
 
+	console.log("Image Url ---- ", serviceTemplates)
+
 	const handleBack = () => {
 		navigate(-1);
 	};
@@ -120,17 +122,19 @@ export const ServiceTemplates = () => {
 						>
 							<div className="flex items-start gap-3 md:flex-col md:gap-4">
 								<div className="flex items-center gap-3 flex-1 min-w-0 md:flex-col md:items-start md:w-full">
-									<div className="w-12 h-12 bg-gray-50 rounded-lg flex items-center justify-center shrink-0 border-2 border-gray-200 group-hover:border-[#fbbf24] transition-colors">
+									{template.imageUrl ? (
+										<img src={template.imageUrl} alt={template.name} />
+									) : (
 										<Package className="w-6 h-6 text-[#fbbf24]" />
-									</div>
+									)}
 									<div className="flex-1 min-w-0 md:w-full">
 										<div className="flex items-start justify-between gap-2 mb-2">
 											<h3 className="text-base md:text-lg font-bold text-gray-900 group-hover:text-[#fbbf24] transition-colors">
 												{template.name}
 											</h3>
-											<span className="px-2 py-1 rounded text-xs font-semibold bg-gray-100 text-gray-700 border border-gray-200 shrink-0">
+											{/* <span className="px-2 py-1 rounded text-xs font-semibold bg-gray-100 text-gray-700 border border-gray-200 shrink-0">
 												{template.measurementUnit}
-											</span>
+											</span> */}
 										</div>
 										{template.description && (
 											<p className="text-sm text-gray-600 line-clamp-2 mb-2">

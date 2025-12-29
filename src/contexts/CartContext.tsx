@@ -8,6 +8,11 @@ export interface CartItem {
 	serviceTemplateId: string;
 	branchId: string;
 	serviceName?: string;
+	// New flexible pricing fields
+	selectedBaseConfigId?: string;
+	selectedOptions?: string[];
+	selectedCustomSpecs?: string[];
+	// Legacy fields (for backward compatibility)
 	width?: number;
 	height?: number;
 	measurementUnit: "FEET" | "INCH" | "UNIT";

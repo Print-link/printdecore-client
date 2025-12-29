@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const BASE_URL =
+	import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
 
 export interface ApiResponse<T> {
 	success: boolean;
@@ -322,6 +323,17 @@ class ApiService {
 						latitude: number;
 						longitude: number;
 					};
+					agentServices?: Array<{
+						id: string;
+						serviceTemplateId: string;
+						serviceName: string;
+						categoryName?: string;
+						pricePerUnit?: number;
+						formulaType?: string;
+						isActive: boolean;
+						hasFlexiblePricing?: boolean;
+					}>;
+					totalServicesCount?: number;
 				}[]
 			>(`/branches/nearme?${params.toString()}`, {
 				method: "GET",
@@ -355,6 +367,8 @@ class ApiService {
 							  }))
 							: undefined,
 						distance: branch.distance,
+						agentServices: branch.agentServices || [],
+						totalServicesCount: branch.totalServicesCount || 0,
 						createdAt: undefined,
 						updatedAt: undefined,
 					})),
