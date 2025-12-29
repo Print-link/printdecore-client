@@ -323,6 +323,17 @@ class ApiService {
 						latitude: number;
 						longitude: number;
 					};
+					agentServices?: Array<{
+						id: string;
+						serviceTemplateId: string;
+						serviceName: string;
+						categoryName?: string;
+						pricePerUnit?: number;
+						formulaType?: string;
+						isActive: boolean;
+						hasFlexiblePricing?: boolean;
+					}>;
+					totalServicesCount?: number;
 				}[]
 			>(`/branches/nearme?${params.toString()}`, {
 				method: "GET",
@@ -356,6 +367,8 @@ class ApiService {
 							  }))
 							: undefined,
 						distance: branch.distance,
+						agentServices: branch.agentServices || [],
+						totalServicesCount: branch.totalServicesCount || 0,
 						createdAt: undefined,
 						updatedAt: undefined,
 					})),

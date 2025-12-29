@@ -25,6 +25,17 @@ export interface PrintStation {
 	averageRating?: number;
 	createdAt?: string;
 	updatedAt?: string;
+	agentServices?: Array<{
+		id: string;
+		serviceTemplateId: string;
+		serviceName: string;
+		categoryName?: string;
+		pricePerUnit?: number;
+		formulaType?: string;
+		isActive: boolean;
+		hasFlexiblePricing?: boolean;
+	}>;
+	totalServicesCount?: number; // Total count of services (may be more than displayed)
 }
 
 export interface UserLocation {

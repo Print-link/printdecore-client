@@ -93,23 +93,42 @@ export const OrderDetails = () => {
 	const navigate = useNavigate();
 	const { user } = useAuth();
 	const { userLocation } = useGeolocation();
-	
+
 	const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 	const [submittingReport, setSubmittingReport] = useState(false);
 
 	// TanStack Query hooks
 	const { data: orderData, isLoading, error } = useOrder(id);
 	const order = orderData as OrderDetailsData | null;
-	const { data: orderItems = [], isLoading: loadingItems } = useOrderItems(order?.id || id);
+	const { data: orderItems = [], isLoading: loadingItems } = useOrderItems(
+		order?.id || id
+	);
 
-	// Derived data
-	const category =
+	console.log("order details data", orderData);
+	console.log("order items", orderItems);
+
+	// Derived data - get category/service info from order items (new flexible pricing) or order (legacy)
+	const firstOrderItem = orderItems.length > 0 ? orderItems[0] : null;
+	const agentService = firstOrderItem?.agentService;
+	const categoryFromItem = agentService?.category;
+	// const serviceTemplateFromItem = agentService?.serviceTemplate;
+	// const subCategoryFromItem = agentService?.subCategory;
+
+	// Legacy: try to get from order.categoryId
+	const categoryFromOrder =
 		typeof order?.categoryId === "object" && order.categoryId !== null
 			? order.categoryId
 			: null;
-	const categoryName = category?.name || "Unknown Category";
-	const categoryPrice = category?.unitPrice || 0;
-	const categoryType = category?.categoryType || order?.categoryType;
+
+	// Use category from order item (new system) or order (legacy)
+	const category = categoryFromItem || categoryFromOrder;
+	// Priority: category name > service template name > subcategory name > "Unknown Category"
+
+	// Priority: category unitPrice > agentService pricePerUnit > 0
+	// const categoryPrice = category?.unitPrice || agentService?.pricePerUnit || 0;
+	const categoryType =
+		/*category?.categoryType ||*/ order?.categoryType || null;
+	console.log("category ---", category);
 
 	const isResultsChecker =
 		categoryType === "wassce_result" ||
@@ -131,13 +150,17 @@ export const OrderDetails = () => {
 			: order?.clientId) ||
 		"";
 	const adminId =
-		typeof order?.adminId === "object" ? order.adminId._id : order?.adminId || "";
+		typeof order?.adminId === "object"
+			? order.adminId._id
+			: order?.adminId || "";
 
 	const admin =
 		typeof order?.adminId === "object" && order.adminId !== null
 			? order.adminId
 			: null;
-	const hasLocation = !!(admin?.location?.latitude && admin?.location?.longitude);
+	const hasLocation = !!(
+		admin?.location?.latitude && admin?.location?.longitude
+	);
 
 	const handleGetDirections = () => {
 		if (!admin || !admin.location?.latitude || !admin.location?.longitude) {
@@ -228,7 +251,7 @@ export const OrderDetails = () => {
 				<div className="lg:col-span-2 space-y-4">
 					<OrderItemsList items={orderItems} loading={loadingItems} />
 
-					<CategoryInfo name={categoryName} unitPrice={categoryPrice} />
+					<CategoryInfo category={category as Category} />
 
 					{isResultsChecker && (
 						<ResultsCheckerInfo
@@ -246,17 +269,18 @@ export const OrderDetails = () => {
 						/>
 					)}
 
-					{!isResultsChecker && (order.artwork || order.width || order.height) && (
-						<PrintJobDetails
-							artwork={order.artwork}
-							width={order.width}
-							height={order.height}
-							size={order.size}
-							quantity={order.quantity}
-							location={order.location}
-							description={order.description}
-						/>
-					)}
+					{!isResultsChecker &&
+						(order.artwork || order.width || order.height) && (
+							<PrintJobDetails
+								artwork={order.artwork}
+								width={order.width}
+								height={order.height}
+								size={order.size}
+								quantity={order.quantity}
+								location={order.location}
+								description={order.description}
+							/>
+						)}
 				</div>
 
 				{/* Right Column - Order Info, Branch & Executed By (1 column on desktop) */}

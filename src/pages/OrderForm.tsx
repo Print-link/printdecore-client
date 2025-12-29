@@ -74,6 +74,7 @@ export const OrderForm = () => {
 
 	const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 	const [showAddToCartModal, setShowAddToCartModal] = useState(false);
+	const [quantityInput, setQuantityInput] = useState<string>("1");
 
 	// Cart context
 	const { addToCart, branchId: cartBranchId, clearCart, cart } = useCart();
@@ -108,8 +109,13 @@ export const OrderForm = () => {
 			},
 			agentService,
 			pdfPageCount,
-			selectedFilesLength: selectedFiles.length,
 		});
+
+	// Sync quantity input with formData.quantity on initial load
+	useEffect(() => {
+		setQuantityInput(formData.quantity.toString());
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []); // Only run on mount
 
 	// Initialize default values for flexible pricing when agentService loads
 	useEffect(() => {
@@ -123,19 +129,19 @@ export const OrderForm = () => {
 				if (prev.selectedBaseConfigId) {
 					return prev;
 				}
-	
+
 				const baseConfigs =
 					agentService.pricingConfig?.baseConfigurations || [];
-	
+
 				// 👇 Prefer A4 if it exists
 				const popularExists = baseConfigs.some(
 					(c) => c.id === POPULAR_BASE_CONFIG_ID
 				);
-	
+
 				const defaultBaseConfig = popularExists
 					? POPULAR_BASE_CONFIG_ID
 					: getDefaultBaseConfig(agentService.pricingConfig || null);
-	
+
 				return {
 					...prev,
 					selectedBaseConfigId: defaultBaseConfig || undefined,
@@ -147,11 +153,13 @@ export const OrderForm = () => {
 			});
 		}
 	}, [agentService]);
-	
 
-	// Check if this is a PAGE_BASED service (Bond Paper) - use formulaType from hook or priceInfo
+	// Check if this is a PAGE_BASED service (Bond Paper) - use agentService.formulaType directly
+	// This ensures isPageBased is available regardless of configuration sequence
 	const isPageBased =
-		formulaType === "PAGE_BASED" || priceInfo?.formulaType === "PAGE_BASED";
+		agentService?.formulaType === "PAGE_BASED" ||
+		formulaType === "PAGE_BASED" ||
+		priceInfo?.formulaType === "PAGE_BASED";
 
 	const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const files = Array.from(e.target.files || []);
@@ -464,7 +472,7 @@ export const OrderForm = () => {
 	}
 
 	return (
-		<div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-0">
+		<div className="md:w-full md:max-w-4xl md:mx-auto md:px-4 lg:px-0">
 			{/* Back Button */}
 			<button
 				onClick={handleBack}
@@ -607,13 +615,35 @@ export const OrderForm = () => {
 					<input
 						type="number"
 						min="1"
-						value={formData.quantity}
-						onChange={(e) =>
-							setFormData((prev) => ({
-								...prev,
-								quantity: parseInt(e.target.value) || 1,
-							}))
-						}
+						value={quantityInput}
+						onChange={(e) => {
+							const value = e.target.value;
+							// Allow empty string and any numeric input
+							setQuantityInput(value);
+							const numValue = parseInt(value, 10);
+							// Update formData if it's a valid number >= 1, otherwise keep previous value
+							if (!isNaN(numValue) && numValue >= 1) {
+								setFormData((prev) => ({
+									...prev,
+									quantity: numValue,
+								}));
+							}
+						}}
+						onBlur={(e) => {
+							// Ensure minimum value of 1 when input loses focus
+							const value = e.target.value;
+							const numValue = parseInt(value, 10);
+							if (value === "" || isNaN(numValue) || numValue < 1) {
+								setQuantityInput("1");
+								setFormData((prev) => ({
+									...prev,
+									quantity: 1,
+								}));
+							} else {
+								// Sync input with formData value
+								setQuantityInput(numValue.toString());
+							}
+						}}
 						required
 						className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent transition-all"
 					/>

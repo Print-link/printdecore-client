@@ -69,20 +69,7 @@ export const SubCategories = () => {
 		return matchesSearch && matchesPricingType;
 	});
 
-	const getPricingTypeBadgeColor = (type: PricingType) => {
-		switch (type) {
-			case "AREA_BASED":
-				return "bg-blue-100 text-blue-700";
-			case "UNIT_BASED":
-				return "bg-green-100 text-green-700";
-			case "MIXED":
-				return "bg-purple-100 text-purple-700";
-			case "CUSTOM_QUOTE":
-				return "bg-orange-100 text-orange-700";
-			default:
-				return "bg-gray-100 text-gray-700";
-		}
-	};
+
 
 	if (loading) {
 		return (
@@ -201,21 +188,25 @@ export const SubCategories = () => {
 						>
 							<div className="flex items-start gap-3 md:flex-col md:gap-4">
 								<div className="flex items-center gap-3 flex-1 min-w-0 md:flex-col md:items-start md:w-full">
-									<div className="w-12 h-12 bg-gray-50 rounded-lg flex items-center justify-center shrink-0 border-2 border-gray-200 group-hover:border-[#fbbf24] transition-colors">
-										<Tag className="w-6 h-6 text-[#fbbf24]" />
-									</div>
+									{subCategory.imageUrl ? (
+										<img className="w-24 h-24" src={subCategory.imageUrl} alt={subCategory.name} />
+									) : (
+										<div className="w-12 h-12 bg-gray-50 rounded-lg flex items-center justify-center shrink-0 border-2 border-gray-200 group-hover:border-[#fbbf24] transition-colors">
+											<Tag className="w-6 h-6 text-[#fbbf24]" />
+										</div>
+									)}
 									<div className="flex-1 min-w-0 md:w-full">
 										<div className="flex items-start justify-between gap-2 mb-2">
 											<h3 className="text-base md:text-lg font-bold text-gray-900 group-hover:text-[#fbbf24] transition-colors">
 												{subCategory.name}
 											</h3>
-											<span
+											{/* <span
 												className={`px-2 py-1 rounded text-xs font-semibold shrink-0 ${getPricingTypeBadgeColor(
 													subCategory.pricingType as PricingType
 												)}`}
 											>
 												{subCategory.pricingType.replace("_", " ")}
-											</span>
+											</span> */}
 										</div>
 										{subCategory.description && (
 											<p className="text-sm text-gray-600 line-clamp-2 mb-2">

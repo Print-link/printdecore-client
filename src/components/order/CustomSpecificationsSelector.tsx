@@ -1,6 +1,6 @@
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import type { PricingConfig, CustomSpecification } from "../../services/orderApi";
+import type { PricingConfig } from "../../services/orderApi";
 import { formatPriceModifier } from "../../utils/pricingUtils";
 
 interface CustomSpecificationsSelectorProps {

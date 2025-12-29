@@ -13,6 +13,7 @@ export interface Category {
 	_id: string;
 	id: string;
 	name: string;
+	imageUrl?: string;
 	unitPrice: number;
 	description: string;
 	adminId: string;

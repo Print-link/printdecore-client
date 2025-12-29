@@ -9,6 +9,7 @@ export type OrderStatus =
 	| "PENDING"
 	| "QUOTED"
 	| "PAID"
+	| "RECEIVED"
 	| "IN_PROGRESS"
 	| "COMPLETED";
 
@@ -40,11 +41,36 @@ export interface OrderItem {
 		printCut?: boolean;
 		frontOnly?: boolean;
 		files?: FileInfo[];
+		selectedBaseConfigId?: string;
+		selectedOptions?: string[];
+		selectedCustomSpecs?: string[];
 		[key: string]: unknown;
 	};
 	calculatedPrice: number;
 	createdAt: string;
 	updatedAt: string;
+	agentService?: AgentService & {
+		serviceTemplate?: {
+			id: string;
+			name: string;
+			subCategoryId?: string;
+		};
+		subCategory?: {
+			id: string;
+			name: string;
+			categoryId?: string;
+		};
+		category?: {
+			id: string;
+			name: string;
+			unitPrice?: number;
+		};
+	};
+	selectedConfigDetails?: {
+		baseConfig?: { id: string; name: string };
+		options?: Array<{ id: string; name: string; priceModifier?: number }>;
+		customSpecs?: Array<{ id: string; name: string; priceModifier?: number }>;
+	};
 }
 
 export interface FileInfo {
@@ -90,6 +116,17 @@ export interface Branch {
 		latitude: number;
 		longitude: number;
 	};
+	agentServices?: Array<{
+		id: string;
+		serviceTemplateId: string;
+		serviceName: string;
+		categoryName?: string;
+		pricePerUnit?: number;
+		formulaType?: string;
+		isActive: boolean;
+		hasFlexiblePricing?: boolean;
+	}>;
+	totalServicesCount?: number; // Total count of services (may be more than displayed)
 }
 
 export interface Category {
@@ -115,6 +152,7 @@ export interface SubCategory {
 export interface ServiceTemplate {
 	id: string;
 	subCategoryId: string;
+	imageUrl?: string;
 	name: string;
 	measurementUnit: MeasurementUnit;
 	description?: string;
@@ -152,6 +190,7 @@ export interface PricingOption {
 	priceModifier: number; // Additional cost (can be percentage or fixed amount)
 	modifierType?: "PERCENTAGE" | "FIXED" | "PER_UNIT"; // How the modifier is applied
 	default?: boolean; // Whether this option is selected by default
+	enabled?: boolean; // Whether this option is enabled
 }
 
 /**
@@ -163,6 +202,7 @@ export interface CustomSpecification {
 	description?: string;
 	priceModifier: number; // Additional cost
 	modifierType?: "PERCENTAGE" | "FIXED" | "PER_UNIT"; // How the modifier is applied
+	enabled?: boolean; // Whether this specification is enabled
 }
 
 /**
@@ -197,7 +237,7 @@ export interface PriceCalculationRequest {
 	selectedBaseConfigId?: string; // ID of selected base configuration
 	selectedOptions?: string[]; // Array of selected option IDs
 	selectedCustomSpecs?: string[]; // Array of selected custom specification IDs
-	
+
 	// Legacy format (still supported for backward compatibility)
 	width?: number;
 	height?: number;
@@ -212,7 +252,7 @@ export interface PriceCalculationRequest {
 		numberOfPages?: number; // Alternative name for filePages
 		[key: string]: unknown;
 	};
-	
+
 	// Common fields (used by both formats)
 	filePages?: number; // For PAGE_BASED formulas in new format
 }
@@ -353,9 +393,12 @@ export const getOrderById = async (
 			data?: Order;
 		}
 
-		const response = await axios.get<BackendOrderResponse>(`${BASE_URL}/orders/${orderId}`, {
-			headers: getAuthHeaders(),
-		});
+		const response = await axios.get<BackendOrderResponse>(
+			`${BASE_URL}/orders/${orderId}`,
+			{
+				headers: getAuthHeaders(),
+			}
+		);
 
 		// Normalize backend response: convert "status" to "success"
 		const backendResponse = response.data;
@@ -374,7 +417,7 @@ export const getOrderItemsByOrderId = async (
 ): Promise<ApiResponse<OrderItem[]>> => {
 	try {
 		const response = await axios.get<ApiResponse<OrderItem[]>>(
-			`${BASE_URL}/order-items?orderId=${orderId}`,
+			`${BASE_URL}/order-items/order/${orderId}`,
 			{ headers: getAuthHeaders() }
 		);
 		return response.data;

@@ -1,5 +1,5 @@
 import React from "react";
-import { Clock, Info, CheckCircle, XCircle, Printer } from "lucide-react";
+import { Clock, Info, CheckCircle, XCircle, Printer, Package } from "lucide-react";
 import type { OrderStatus } from "../services/orderApi";
 
 export const formatFileSize = (bytes: number): string => {
@@ -25,6 +25,7 @@ export const getStatusBadge = (status?: string | OrderStatus): React.ReactElemen
 		PENDING: "bg-yellow-50 text-yellow-700 border border-yellow-200",
 		QUOTED: "bg-blue-50 text-blue-700 border border-blue-200",
 		PAID: "bg-green-50 text-green-700 border border-green-200",
+		RECEIVED: "bg-cyan-50 text-cyan-700 border border-cyan-200",
 		IN_PROGRESS: "bg-orange-50 text-orange-700 border border-orange-200",
 		COMPLETED: "bg-[#fbbf24]/10 text-[#fbbf24] border border-[#fbbf24]",
 		// Legacy statuses for backward compatibility
@@ -38,6 +39,7 @@ export const getStatusBadge = (status?: string | OrderStatus): React.ReactElemen
 		PENDING: <Clock className="w-4 h-4" />,
 		QUOTED: <Info className="w-4 h-4" />,
 		PAID: <CheckCircle className="w-4 h-4" />,
+		RECEIVED: <Package className="w-4 h-4" />,
 		IN_PROGRESS: <Printer className="w-4 h-4" />,
 		COMPLETED: <CheckCircle className="w-4 h-4" />,
 		// Legacy
