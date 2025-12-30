@@ -96,12 +96,14 @@ export const Checkout = () => {
 
 		try {
 			setCurrentStep("Creating order with verified payment...");
-			const totalWithFee = getTotalWithFee();
+			// Send base price (without transaction fee) to store in order
+			// Payment was made with totalWithFee, but order total excludes the transaction fee
+			const basePrice = getSubtotal();
 			const orderResponse = await createOrder(
 				user._id,
 				branchId,
 				paymentData.reference,
-				totalWithFee
+				basePrice
 			);
 
 			if (!orderResponse.success || !orderResponse.data) {
