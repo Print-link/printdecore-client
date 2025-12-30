@@ -161,6 +161,7 @@ export interface ServiceTemplate {
 	supportsColor: boolean;
 	supportsPrintCut: boolean;
 	pricingFormulaId: string;
+	branchId?: string;
 	createdAt: string;
 	updatedAt: string;
 }
@@ -218,6 +219,7 @@ export interface AgentService {
 	id: string;
 	branchId: string;
 	serviceTemplateId: string;
+	serviceName?: string;
 	pricePerUnit?: number;
 	constant?: number;
 	colorPriceModifier?: number; // Fixed amount to add when color option is selected (legacy)
@@ -709,11 +711,15 @@ export const getSubCategories = async (
 // ==================== Service Template APIs ====================
 
 export const getServiceTemplates = async (
-	subCategoryId: string
+	subCategoryId: string,
+	branchId?: string
 ): Promise<ApiResponse<ServiceTemplate[]>> => {
 	try {
+		const params = new URLSearchParams({ subCategoryId });
+		if (branchId) params.append("branchId", branchId);
+		
 		const response = await axios.get<ApiResponse<ServiceTemplate[]>>(
-			`${BASE_URL}/service-templates?subCategoryId=${subCategoryId}`,
+			`${BASE_URL}/service-templates?${params.toString()}`,
 			{ headers: getAuthHeaders() }
 		);
 		return response.data;
@@ -726,11 +732,15 @@ export const getServiceTemplates = async (
 
 export const getAgentServices = async (
 	branchId: string,
-	serviceTemplateId: string
+	serviceTemplateId?: string,
+	subCategoryId?: string
 ): Promise<ApiResponse<AgentService[]>> => {
 	try {
+		const params = new URLSearchParams({ branchId });
+		if (serviceTemplateId) params.append("serviceTemplateId", serviceTemplateId);
+		if (subCategoryId) params.append("subCategoryId", subCategoryId);
 		const response = await axios.get<ApiResponse<AgentService[]>>(
-			`${BASE_URL}/agent-services?branchId=${branchId}&serviceTemplateId=${serviceTemplateId}`,
+			`${BASE_URL}/agent-services?${params.toString()}`,
 			{ headers: getAuthHeaders() }
 		);
 		return response.data;

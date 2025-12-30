@@ -16,7 +16,7 @@ export const SubCategories = () => {
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
 	const [searchQuery, setSearchQuery] = useState<string>("");
-	const [selectedPricingType, setSelectedPricingType] = useState<PricingType | "ALL">("ALL");
+	const [selectedPricingType, _] = useState<PricingType | "ALL">("ALL");
 
 	useEffect(() => {
 		const fetchSubCategories = async () => {
@@ -50,7 +50,7 @@ export const SubCategories = () => {
 	}, [categoryId]);
 
 	const handleSubCategoryClick = (subCategoryId: string) => {
-		navigate(`/home/order/service-templates/${branchId}?subCategoryId=${subCategoryId}`);
+		navigate(`/home/order/configure/${branchId}?subCategoryId=${subCategoryId}`);
 	};
 
 	const handleBack = () => {
@@ -135,35 +135,6 @@ export const SubCategories = () => {
 						onChange={(e) => setSearchQuery(e.target.value)}
 						className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#fbbf24] focus:outline-none transition-colors"
 					/>
-				</div>
-
-				{/* Pricing Type Filter */}
-				<div className="flex flex-wrap gap-2">
-					<button
-						onClick={() => setSelectedPricingType("ALL")}
-						className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all border-2 ${
-							selectedPricingType === "ALL"
-								? "bg-[#fbbf24] text-white border-[#fbbf24]"
-								: "bg-white text-gray-700 border-gray-200 hover:border-gray-300"
-						}`}
-					>
-						All
-					</button>
-					{(["AREA_BASED", "UNIT_BASED", "MIXED", "CUSTOM_QUOTE"] as PricingType[]).map(
-						(type) => (
-							<button
-								key={type}
-								onClick={() => setSelectedPricingType(type)}
-								className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all border-2 ${
-									selectedPricingType === type
-										? "bg-[#fbbf24] text-white border-[#fbbf24]"
-										: "bg-white text-gray-700 border-gray-200 hover:border-gray-300"
-								}`}
-							>
-								{type.replace("_", " ")}
-							</button>
-						)
-					)}
 				</div>
 			</div>
 

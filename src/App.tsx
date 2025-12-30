@@ -20,8 +20,6 @@ import { OrderDetails } from "./pages/OrderDetails";
 import { PaymentCallback } from "./pages/PaymentCallback";
 import { QuoteConfirmation } from "./pages/QuoteConfirmation";
 import { SubCategories } from "./pages/SubCategories";
-import { ServiceTemplates } from "./pages/ServiceTemplates";
-import { AgentServices } from "./pages/AgentServices";
 import { OrderForm } from "./pages/OrderForm";
 import { Cart } from "./pages/Cart";
 import { Checkout } from "./pages/Checkout";
@@ -106,14 +104,6 @@ const AppRoutes = () => {
 				<Route
 					path="order/sub-categories/:branchId"
 					element={<SubCategories />}
-				/>
-				<Route
-					path="order/service-templates/:branchId"
-					element={<ServiceTemplates />}
-				/>
-				<Route
-					path="order/agent-services/:branchId"
-					element={<AgentServices />}
 				/>
 				<Route path="order/configure/:branchId" element={<OrderForm />} />
 				<Route path="order/cart/:branchId" element={<Cart />} />

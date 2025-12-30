@@ -12,8 +12,7 @@ export const useAgentService = (
 
 	useEffect(() => {
 		const fetchAgentService = async () => {
-			if (!agentServiceId) {
-				setError("Agent Service ID is missing");
+			if (!branchId || (!agentServiceId && !serviceTemplateId)) {
 				setLoading(false);
 				return;
 			}
@@ -22,11 +21,18 @@ export const useAgentService = (
 				setLoading(true);
 				setError(null);
 				const response = await getAgentServices(
-					branchId || "",
+					branchId,
 					serviceTemplateId || ""
 				);
 				if (response.success && response.data) {
-					const service = response.data.find((s) => s.id === agentServiceId);
+					let service: AgentService | undefined;
+					
+					if (agentServiceId) {
+						service = response.data.find((s) => s.id === agentServiceId);
+					} else if (serviceTemplateId) {
+						service = response.data[0];
+					}
+
 					if (service) {
 						setAgentService(service);
 					} else {
@@ -46,6 +52,6 @@ export const useAgentService = (
 		fetchAgentService();
 	}, [agentServiceId, branchId, serviceTemplateId]);
 
-	return { agentService, loading, error };
+	return { agentService, loading, error, setAgentService };
 };
 

@@ -25,6 +25,9 @@ import {
 	getDefaultBaseConfig,
 	getDefaultOptions,
 } from "../utils/pricingUtils";
+import { getAgentServices, type AgentService } from "../services/orderApi";
+import { EmptyState } from "../components/EmptyState";
+import { Check } from "lucide-react";
 
 interface OrderFormData {
 	// New flexible pricing format
@@ -48,17 +51,25 @@ interface OrderFormData {
 
 export const OrderForm = () => {
 	const { branchId } = useParams<{ branchId: string }>();
-	const [searchParams] = useSearchParams();
+	const [searchParams, setSearchParams] = useSearchParams();
 	const agentServiceId = searchParams.get("agentServiceId");
 	const serviceTemplateId = searchParams.get("serviceTemplateId");
+	const subCategoryId = searchParams.get("subCategoryId");
 	const navigate = useNavigate();
 	const POPULAR_BASE_CONFIG_ID = "a4";
 
-	// Custom hooks
+	// Variant selection state
+	const [availableVariants, setAvailableVariants] = useState<AgentService[]>([]);
+	const [selectedVariantId, setSelectedVariantId] = useState<string | null>(
+		agentServiceId
+	);
+	const [loadingVariants, setLoadingVariants] = useState(false);
+
+	// Custom hook
 	const { agentService, loading, error } = useAgentService(
-		agentServiceId,
+		selectedVariantId,
 		branchId,
-		serviceTemplateId
+		null // We use agentServiceId directly now
 	);
 
 	const [formData, setFormData] = useState<OrderFormData>({
@@ -98,7 +109,7 @@ export const OrderForm = () => {
 	// Price calculation
 	const { priceInfo, calculatingPrice, formulaType, usesFlexiblePricing } =
 		useOrderPriceCalculation({
-			agentServiceId,
+			agentServiceId: selectedVariantId,
 			formData: {
 				...formData,
 				options: {
@@ -117,6 +128,32 @@ export const OrderForm = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []); // Only run on mount
 
+	// Fetch priced variants for the subcategory
+	useEffect(() => {
+		const fetchVariants = async () => {
+			if (!subCategoryId || !branchId) return;
+			setLoadingVariants(true);
+			try {
+				const response = await getAgentServices(branchId, undefined, subCategoryId);
+				if (response.success && response.data) {
+					// Filter to only show active ones (manager consciously added pricing)
+					const pricedVariants = response.data.filter(s => s.isActive);
+					setAvailableVariants(pricedVariants);
+					
+					// Auto-select first variant if none selected
+					if (!selectedVariantId && pricedVariants.length > 0) {
+						setSelectedVariantId(pricedVariants[0].id);
+					}
+				}
+			} catch (err) {
+				console.error("Error fetching variants:", err);
+			} finally {
+				setLoadingVariants(false);
+			}
+		};
+		fetchVariants();
+	}, [subCategoryId, branchId]);
+
 	// Initialize default values for flexible pricing when agentService loads
 	useEffect(() => {
 		if (
@@ -125,15 +162,9 @@ export const OrderForm = () => {
 			agentService.pricingConfig
 		) {
 			setFormData((prev) => {
-				// 👇 if user already selected something, DO NOT override
-				if (prev.selectedBaseConfigId) {
-					return prev;
-				}
-
 				const baseConfigs =
 					agentService.pricingConfig?.baseConfigurations || [];
 
-				// 👇 Prefer A4 if it exists
 				const popularExists = baseConfigs.some(
 					(c) => c.id === POPULAR_BASE_CONFIG_ID
 				);
@@ -146,9 +177,8 @@ export const OrderForm = () => {
 					...prev,
 					selectedBaseConfigId: defaultBaseConfig || undefined,
 					selectedOptions:
-						prev.selectedOptions ||
 						getDefaultOptions(agentService.pricingConfig || null),
-					selectedCustomSpecs: prev.selectedCustomSpecs || [],
+					selectedCustomSpecs: [],
 				};
 			});
 		}
@@ -235,7 +265,7 @@ export const OrderForm = () => {
 			// Add to cart (files stay as File objects in memory - no upload yet)
 			const cartItem = {
 				id: `cart-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-				agentServiceId: agentServiceId!,
+				agentServiceId: selectedVariantId!,
 				serviceTemplateId: serviceTemplateId!,
 				branchId: branchId!,
 				// New flexible pricing fields
@@ -285,7 +315,7 @@ export const OrderForm = () => {
 											id: `cart-${Date.now()}-${Math.random()
 												.toString(36)
 												.substr(2, 9)}`,
-											agentServiceId: agentServiceId!,
+											agentServiceId: selectedVariantId!,
 											serviceTemplateId: serviceTemplateId!,
 											branchId: branchId!,
 											// New flexible pricing fields
@@ -336,7 +366,7 @@ export const OrderForm = () => {
 			// Add to cart (files stay as File objects in memory - no upload yet)
 			const cartItem = {
 				id: `cart-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-				agentServiceId: agentServiceId!,
+				agentServiceId: selectedVariantId!,
 				serviceTemplateId: serviceTemplateId!,
 				branchId: branchId!,
 				// New flexible pricing fields
@@ -386,7 +416,7 @@ export const OrderForm = () => {
 											id: `cart-${Date.now()}-${Math.random()
 												.toString(36)
 												.substr(2, 9)}`,
-											agentServiceId: agentServiceId!,
+											agentServiceId: selectedVariantId!,
 											serviceTemplateId: serviceTemplateId!,
 											branchId: branchId!,
 											// New flexible pricing fields
@@ -434,33 +464,86 @@ export const OrderForm = () => {
 		navigate(-1);
 	};
 
-	if (loading) {
+	const handleVariantSelect = (variantId: string) => {
+		setSelectedVariantId(variantId);
+		
+		// Update URL without navigation
+		const newParams = new URLSearchParams(searchParams);
+		newParams.set("agentServiceId", variantId);
+		// Keep subCategoryId and branchId as they are
+		setSearchParams(newParams);
+		
+		// Reset form data for new service
+		setFormData((prev) => ({
+			...prev,
+			measurementUnit: "FEET",
+			quantity: 1,
+			options: {
+				frontBack: false,
+				color: false,
+				printCut: false,
+				frontOnly: false,
+			},
+			selectedBaseConfigId: undefined,
+			selectedOptions: [],
+			selectedCustomSpecs: [],
+		}));
+		setSelectedFiles([]);
+	};
+
+	if (loadingVariants || (loading && !agentService)) {
 		return (
 			<div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-0">
 				<div className="bg-white rounded-lg sm:rounded-2xl p-6 sm:p-8">
-					<div className="flex items-center justify-center py-8 sm:py-12">
-						<Loader2 className="w-6 h-6 sm:w-8 sm:h-8 text-[#fbbf24] animate-spin" />
+					<div className="flex flex-col items-center justify-center py-8 sm:py-12">
+						<Loader2 className="w-8 h-8 text-[#fbbf24] animate-spin mb-4" />
+						<p className="text-sm text-gray-500 animate-pulse font-medium">
+							{loadingVariants ? "Loading variants..." : "Loading configuration..."}
+						</p>
 					</div>
 				</div>
 			</div>
 		);
 	}
 
-	if (error || !agentService) {
+	if (!loadingVariants && availableVariants.length === 0) {
+		return (
+			<div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-0">
+				<button
+					onClick={handleBack}
+					className="mb-4 sm:mb-6 inline-flex items-center text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+				>
+					<ArrowLeft className="w-4 h-4 mr-2" />
+					Back
+				</button>
+				<div className="bg-white rounded-2xl p-12 border-2 border-gray-100 flex flex-col items-center">
+					<EmptyState type="no-results" />
+					<p className="text-gray-500 mt-4 text-center font-medium">
+						No active services found for this subcategory.
+					</p>
+					<p className="text-xs text-gray-400 mt-2 text-center">
+						The branch manager needs to configure pricing before this service can be ordered.
+					</p>
+				</div>
+			</div>
+		);
+	}
+
+	if (error) {
 		return (
 			<div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-0">
 				<div className="bg-white rounded-lg sm:rounded-2xl p-6 sm:p-8">
 					<div className="text-center py-8 sm:py-12">
 						<AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-red-500 mx-auto mb-3 sm:mb-4" />
 						<h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
-							Error
+							Configuration Error
 						</h2>
 						<p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6 px-4">
-							{error || "Agent service not found"}
+							{error}
 						</p>
 						<button
 							onClick={handleBack}
-							className="inline-flex items-center px-4 sm:px-6 py-2 sm:py-2.5 text-sm sm:text-base font-medium text-[#fbbf24] hover:text-[#d97706] transition-colors"
+							className="inline-flex items-center justify-center px-6 py-2 text-sm font-bold rounded-lg border-2 border-gray-200 text-gray-600 hover:bg-gray-50 transition-all"
 						>
 							<ArrowLeft className="w-4 h-4 mr-2" />
 							Go Back
@@ -482,10 +565,36 @@ export const OrderForm = () => {
 				Back
 			</button>
 
+			{/* Variant Selection (Compact) */}
+			<div className="mb-6 bg-white rounded-xl border-2 border-amber-100 p-4 shadow-sm overflow-hidden">
+				<h2 className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-3">
+					Select Service Variant
+				</h2>
+				<div className="flex overflow-x-auto whitespace-nowrap gap-2 pb-2 scrollbar-hide">
+					{availableVariants.map((variant) => (
+						<button
+							key={variant.id}
+							type="button"
+							onClick={() => handleVariantSelect(variant.id)}
+							className={`px-4 py-2 rounded-lg text-sm font-bold border-2 transition-all flex items-center gap-2 flex-shrink-0 ${
+								selectedVariantId === variant.id
+									? "bg-amber-50 border-[#fbbf24] text-gray-900 shadow-sm"
+									: "bg-white border-gray-100 text-gray-500 hover:border-amber-200"
+							}`}
+						>
+							{selectedVariantId === variant.id && (
+								<Check className="w-3.5 h-3.5 text-[#fbbf24] stroke-[3px]" />
+							)}
+							{variant.serviceName || "Default Variant"}
+						</button>
+					))}
+				</div>
+			</div>
+
 			{/* Header */}
 			<div className="mb-4 sm:mb-6">
 				<h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">
-					Configure Your Order
+					Configure {agentService?.serviceName || "Your Order"}
 				</h1>
 				<p className="text-xs sm:text-sm text-gray-600">
 					{isPageBased
