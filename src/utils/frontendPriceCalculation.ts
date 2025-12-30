@@ -41,18 +41,23 @@ export const calculateOrderPriceFrontend = (
 
     // --- Flexible Pricing Calculation ---
 	if (agentService.pricingConfig) {
-        const config = agentService.pricingConfig;
-        
-        // Check if this is a PAGE_BASED service with flexible pricing
-        const isPageBased = formulaType === "PAGE_BASED" || agentService.formulaType === "PAGE_BASED";
-        const pagesPerCopy = request.filePages || request.options?.filePages || request.options?.numberOfPages || 0;
-        
-        // Handle double-sided (Front/Back) for page-based
-        let effectiveUnits = pagesPerCopy;
-        if (isPageBased && request.options?.frontBack) {
-            effectiveUnits = Math.ceil(pagesPerCopy / 2);
-        }
-        
+		const config = agentService.pricingConfig;
+
+		// Check if this is a PAGE_BASED service with flexible pricing
+		const isPageBased =
+			formulaType === "PAGE_BASED" || agentService.formulaType === "PAGE_BASED";
+		const pagesPerCopy =
+			request.filePages ||
+			request.options?.filePages ||
+			request.options?.numberOfPages ||
+			0;
+
+		// Handle double-sided (Front/Back) for page-based
+		let effectiveUnits = pagesPerCopy;
+		if (isPageBased && request.options?.frontBack) {
+			effectiveUnits = Math.ceil(pagesPerCopy / 2);
+		}
+
 		// 1. Base Configuration Price
 		let unitPrice = 0;
 		if (request.selectedBaseConfigId) {
@@ -60,106 +65,155 @@ export const calculateOrderPriceFrontend = (
 				(c) => c.id === request.selectedBaseConfigId
 			);
 			if (baseConfig) {
-			    unitPrice = baseConfig.unitPrice;
-                breakdown.baseConfiguration = {
-                    id: baseConfig.id,
-                    name: baseConfig.name,
-                    price: 0 // Will be set after calculation
-                };
+				unitPrice = baseConfig.unitPrice;
+				breakdown.baseConfiguration = {
+					id: baseConfig.id,
+					name: baseConfig.name,
+					price: 0, // Will be set after calculation
+				};
 			}
 		}
 
-		// 2. Calculate price modifiers (for PER_UNIT, add to unitPrice; for PERCENTAGE/FIXED, calculate separately)
+		// 2. Collect all modifiers by type (order-independent collection)
+		// Formula: ((unitPrice + PER_UNIT options) * quantity * pageCount) + FIXED + PERCENTAGE
 		let unitPriceWithModifiers = unitPrice;
-		const perUnitModifiers: Array<{ id: string; name: string; modifier: number; isOption: boolean }> = [];
-		const otherModifiers: Array<{ id: string; name: string; modifier: number; isOption: boolean }> = [];
+		const perUnitModifiers: Array<{
+			id: string;
+			name: string;
+			modifier: number;
+			isOption: boolean;
+		}> = [];
+		const fixedModifiers: Array<{
+			id: string;
+			name: string;
+			modifier: number;
+			isOption: boolean;
+		}> = [];
+		const percentageModifiers: Array<{
+			id: string;
+			name: string;
+			modifier: number;
+			isOption: boolean;
+		}> = [];
 
-		// Options
+		// Collect PER_UNIT modifiers from options (these are added to unitPrice before multiplying)
 		if (request.selectedOptions && request.selectedOptions.length > 0) {
 			request.selectedOptions.forEach((optId) => {
 				const option = config.options.find((o) => o.id === optId);
-				if (option) {
-					if (option.modifierType === "PER_UNIT") {
-						// For PAGE_BASED: PER_UNIT modifiers are added to unitPrice first
-						// Then (unitPrice + modifiers) * quantity * pagecount
-						unitPriceWithModifiers += option.priceModifier;
-						perUnitModifiers.push({
-							id: option.id,
-							name: option.name,
-							modifier: option.priceModifier,
-							isOption: true,
-						});
-					} else if (option.modifierType === "PERCENTAGE") {
-						// PERCENTAGE is calculated on base price, then added
-						otherModifiers.push({
-							id: option.id,
-							name: option.name,
-							modifier: 0, // Will be calculated after basePrice
-							isOption: true,
-						});
-					} else {
-						// FIXED - flat fee added once
-						otherModifiers.push({
-							id: option.id,
-							name: option.name,
-							modifier: option.priceModifier,
-							isOption: true,
-						});
-					}
+				if (option && option.modifierType === "PER_UNIT") {
+					unitPriceWithModifiers += option.priceModifier;
+					perUnitModifiers.push({
+						id: option.id,
+						name: option.name,
+						modifier: option.priceModifier,
+						isOption: true,
+					});
 				}
 			});
 		}
 
-		// Custom Specifications
-		if (request.selectedCustomSpecs && request.selectedCustomSpecs.length > 0 && config.customSpecifications) {
+		// Collect PER_UNIT modifiers from customSpecs (these are added to unitPrice before multiplying)
+		if (
+			request.selectedCustomSpecs &&
+			request.selectedCustomSpecs.length > 0 &&
+			config.customSpecifications
+		) {
 			request.selectedCustomSpecs.forEach((specId) => {
 				const spec = config.customSpecifications?.find((s) => s.id === specId);
-				if (spec) {
-					if (spec.modifierType === "PER_UNIT") {
-						// For PAGE_BASED: PER_UNIT modifiers are added to unitPrice first
-						unitPriceWithModifiers += spec.priceModifier;
-						perUnitModifiers.push({
-							id: spec.id,
-							name: spec.name,
-							modifier: spec.priceModifier,
-							isOption: false,
-						});
-					} else if (spec.modifierType === "PERCENTAGE") {
-						// PERCENTAGE is calculated on base price, then added
-						otherModifiers.push({
-							id: spec.id,
-							name: spec.name,
-							modifier: 0, // Will be calculated after basePrice
-							isOption: false,
-						});
-					} else {
-						// FIXED
-						otherModifiers.push({
-							id: spec.id,
-							name: spec.name,
-							modifier: spec.priceModifier,
-							isOption: false,
-						});
-					}
+				if (spec && spec.modifierType === "PER_UNIT") {
+					unitPriceWithModifiers += spec.priceModifier;
+					perUnitModifiers.push({
+						id: spec.id,
+						name: spec.name,
+						modifier: spec.priceModifier,
+						isOption: false,
+					});
 				}
 			});
 		}
 
-		// 3. Calculate base price: (unitPrice + PER_UNIT modifiers) * quantity * pagecount (for PAGE_BASED)
-		// Formula: (unitPrice + PER_UNIT modifiers) * quantity * pagecount
+		// Collect FIXED modifiers from options (these are added as flat fees after multiplication)
+		if (request.selectedOptions && request.selectedOptions.length > 0) {
+			request.selectedOptions.forEach((optId) => {
+				const option = config.options.find((o) => o.id === optId);
+				if (
+					option &&
+					(!option.modifierType || option.modifierType === "FIXED")
+				) {
+					fixedModifiers.push({
+						id: option.id,
+						name: option.name,
+						modifier: option.priceModifier,
+						isOption: true,
+					});
+				}
+			});
+		}
+
+		// Collect FIXED modifiers from customSpecs (these are added as flat fees after multiplication)
+		if (
+			request.selectedCustomSpecs &&
+			request.selectedCustomSpecs.length > 0 &&
+			config.customSpecifications
+		) {
+			request.selectedCustomSpecs.forEach((specId) => {
+				const spec = config.customSpecifications?.find((s) => s.id === specId);
+				if (spec && (!spec.modifierType || spec.modifierType === "FIXED")) {
+					fixedModifiers.push({
+						id: spec.id,
+						name: spec.name,
+						modifier: spec.priceModifier,
+						isOption: false,
+					});
+				}
+			});
+		}
+
+		// Collect PERCENTAGE modifiers from options (these are calculated on basePrice and added after multiplication)
+		if (request.selectedOptions && request.selectedOptions.length > 0) {
+			request.selectedOptions.forEach((optId) => {
+				const option = config.options.find((o) => o.id === optId);
+				if (option && option.modifierType === "PERCENTAGE") {
+					percentageModifiers.push({
+						id: option.id,
+						name: option.name,
+						modifier: option.priceModifier,
+						isOption: true,
+					});
+				}
+			});
+		}
+
+		// Collect PERCENTAGE modifiers from customSpecs (these are calculated on basePrice and added after multiplication)
+		if (
+			request.selectedCustomSpecs &&
+			request.selectedCustomSpecs.length > 0 &&
+			config.customSpecifications
+		) {
+			request.selectedCustomSpecs.forEach((specId) => {
+				const spec = config.customSpecifications?.find((s) => s.id === specId);
+				if (spec && spec.modifierType === "PERCENTAGE") {
+					percentageModifiers.push({
+						id: spec.id,
+						name: spec.name,
+						modifier: spec.priceModifier,
+						isOption: false,
+					});
+				}
+			});
+		}
+
+		// 3. Calculate base price: (unitPrice + PER_UNIT modifiers) * quantity * pageCount
+		// This is the first part of the formula: ((unitPrice + PER_UNIT options) * quantity * pageCount)
 		if (isPageBased) {
-			// For PAGE_BASED services, multiply by effectiveUnits (pagecount)
-			// If effectiveUnits is 0, result will be 0 (no pages = no price)
 			basePrice = unitPriceWithModifiers * quantity * effectiveUnits;
 		} else {
 			basePrice = unitPriceWithModifiers * quantity;
 		}
 
 		// Update breakdown baseConfiguration price
-		// For PAGE_BASED: show per-page price in breakdown, not total
 		if (breakdown.baseConfiguration) {
 			if (isPageBased) {
-				// Show per-page price in breakdown
 				breakdown.baseConfiguration.price = unitPrice;
 			} else {
 				breakdown.baseConfiguration.price = unitPrice * quantity;
@@ -168,88 +222,71 @@ export const calculateOrderPriceFrontend = (
 
 		calculatedPrice = basePrice;
 
-		// 4. Add PER_UNIT modifiers to breakdown
-		// For PAGE_BASED: show per-page modifier in breakdown, not total
+		// Add PER_UNIT modifiers to breakdown (for display purposes)
 		perUnitModifiers.forEach((mod) => {
-			let modifierAmount = 0;
-			if (isPageBased) {
-				// Show per-page modifier in breakdown
-				modifierAmount = mod.modifier;
-			} else {
-				modifierAmount = mod.modifier * quantity;
-			}
 			if (mod.isOption) {
 				breakdown.options?.push({
 					id: mod.id,
 					name: mod.name,
-					modifier: modifierAmount,
+					modifier: isPageBased ? mod.modifier : mod.modifier * quantity,
 				});
 			} else {
 				breakdown.customSpecs?.push({
 					id: mod.id,
 					name: mod.name,
-					modifier: modifierAmount,
+					modifier: isPageBased ? mod.modifier : mod.modifier * quantity,
 				});
 			}
 		});
 
-		// 5. Calculate and add other modifiers (PERCENTAGE and FIXED)
-		otherModifiers.forEach((mod) => {
-			const option = config.options.find((o) => o.id === mod.id);
-			const spec = config.customSpecifications?.find((s) => s.id === mod.id);
-			const modifierType = option?.modifierType || spec?.modifierType;
-			const priceModifier = option?.priceModifier || spec?.priceModifier || 0;
-
-			let modifierAmount = 0;
-			if (modifierType === "PERCENTAGE") {
-				// PERCENTAGE is calculated on the base unit price * quantity * pagecount
-				modifierAmount = basePrice * (priceModifier / 100);
+		// 4. Add FIXED modifiers (flat fees) - these are added after multiplication
+		fixedModifiers.forEach((mod) => {
+			calculatedPrice += mod.modifier;
+			if (mod.isOption) {
+				breakdown.options?.push({
+					id: mod.id,
+					name: mod.name,
+					modifier: mod.modifier,
+				});
 			} else {
-				// FIXED - for PAGE_BASED, treat as per-page modifier (multiply by quantity × pagecount)
-				// For other formula types, it's a flat fee
-				if (isPageBased && effectiveUnits > 0) {
-					modifierAmount = priceModifier * quantity * effectiveUnits;
-				} else {
-					modifierAmount = priceModifier;
-				}
+				breakdown.customSpecs?.push({
+					id: mod.id,
+					name: mod.name,
+					modifier: mod.modifier,
+				});
 			}
+		});
 
+		// 5. Add PERCENTAGE modifiers (calculated on basePrice) - these are added after multiplication
+		percentageModifiers.forEach((mod) => {
+			const modifierAmount = basePrice * (mod.modifier / 100);
 			calculatedPrice += modifierAmount;
-
-			// For breakdown display, show per-page modifier for PAGE_BASED
-			let breakdownModifier = modifierAmount;
-			if (isPageBased && modifierType !== "PERCENTAGE") {
-				// Show per-page modifier in breakdown
-				breakdownModifier = priceModifier;
-			}
-
 			if (mod.isOption) {
 				breakdown.options?.push({
 					id: mod.id,
 					name: mod.name,
-					modifier: breakdownModifier,
+					modifier: modifierAmount,
 				});
 			} else {
 				breakdown.customSpecs?.push({
 					id: mod.id,
 					name: mod.name,
-					modifier: breakdownModifier,
+					modifier: modifierAmount,
 				});
 			}
 		});
-        
-        return {
-            calculatedPrice,
-            basePrice,
-            formulaType,
-            breakdown,
-            agentService: {
-                id: agentService.id,
-                pricePerUnit: agentService.pricePerUnit,
-                pricingConfig: agentService.pricingConfig,
-            }
-        };
 
+		return {
+			calculatedPrice,
+			basePrice,
+			formulaType,
+			breakdown,
+			agentService: {
+				id: agentService.id,
+				pricePerUnit: agentService.pricePerUnit,
+				pricingConfig: agentService.pricingConfig,
+			},
+		};
 	} 
     
     // --- Legacy Pricing Calculation ---
