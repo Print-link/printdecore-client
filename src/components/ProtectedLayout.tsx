@@ -1,75 +1,110 @@
 import { useEffect, useState } from 'react';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { LogOut, Home, History, Menu, X, Search, ShoppingCart, Trash2, Moon, Sun } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
-import { useCart } from '../contexts/CartContext';
-import { useTheme } from '../contexts/ThemeContext';
+import { Outlet, useNavigate } from "react-router-dom";
+import {
+	LogOut,
+	Home,
+	History,
+	Menu,
+	X,
+	Search,
+	ShoppingCart,
+	Trash2,
+	Moon,
+	Sun,
+} from "lucide-react";
+import { useAuth } from "../hooks/useAuth";
+import { useCart } from "../contexts/CartContext";
+import { useTheme } from "../contexts/ThemeContext";
+import { useLocationAccess } from "../hooks/useLocationAccess";
+import { LocationBanner } from "./banners/LocationBanner";
+import { LocationModal } from "./modals/LocationModal";
 
 export const ProtectedLayout = () => {
-  const { user, logout } = useAuth();
-  const { cart, removeFromCart, getCartTotal, branchId } = useCart();
-  const { theme, toggleTheme } = useTheme();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [activeTab, setActiveTab] = useState(() => {
-    if (location.pathname === '/history') return 'history';
-    if (location.pathname === '/search') return 'search';
-    if (location.pathname.startsWith('/order/cart')) return 'cart';
-    return 'home';
-  });
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [cartExpanded, setCartExpanded] = useState(false);
+	const { user, logout } = useAuth();
+	const { cart, removeFromCart, getCartTotal, branchId } = useCart();
+	const {
+		hasLocation,
+		needsPermission,
+		permission,
+		error,
+		isLoading,
+		requestLocation,
+	} = useLocationAccess();
+	const { theme, toggleTheme } = useTheme();
+	const navigate = useNavigate();
+	//   const location = useLocation();
+	const [activeTab, setActiveTab] = useState(() => {
+		if (location.pathname === "/history") return "history";
+		if (location.pathname === "/search") return "search";
+		if (location.pathname.startsWith("/order/cart")) return "cart";
+		return "home";
+	});
+	const [drawerOpen, setDrawerOpen] = useState(false);
+	const [cartExpanded, setCartExpanded] = useState(false);
 
-  useEffect(() => {
-    if (location.pathname === '/history') {
-      setActiveTab('history');
-    } else if (location.pathname === '/search') {
-      setActiveTab('search');
-    } else if (location.pathname.startsWith('/order/cart')) {
-      setActiveTab('cart');
-    } else {
-      setActiveTab('home');
-    }
-    // Close drawer on mobile when route changes
-    if (window.innerWidth < 768) {
-      setDrawerOpen(false);
-    }
-  }, [location.pathname]);
+	useEffect(() => {
+		if (location.pathname === "/history") {
+			setActiveTab("history");
+		} else if (location.pathname === "/search") {
+			setActiveTab("search");
+		} else if (location.pathname.startsWith("/order/cart")) {
+			setActiveTab("cart");
+		} else {
+			setActiveTab("home");
+		}
+		// Close drawer on mobile when route changes
+		if (window.innerWidth < 768) {
+			setDrawerOpen(false);
+		}
+	}, [location.pathname]);
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
+	const handleLogout = () => {
+		logout();
+		navigate("/login");
+	};
 
-  const handleTabChange = (tab: 'home' | 'history' | 'search' | 'cart') => {
-    setActiveTab(tab);
-    if (tab === 'home') {
-      navigate('/home');
-    } else if (tab === 'history') {
-      navigate('/home/history');
-    } else if (tab === 'search') {
-      navigate('/home/search');
-    } else if (tab === 'cart' && branchId) {
-      navigate(`/home/order/cart/${branchId}`);
-    }
-    // Close drawer on mobile when navigation item is clicked
-    if (window.innerWidth < 768) {
-      setDrawerOpen(false);
-    }
-  };
+	const handleTabChange = (tab: "home" | "history" | "search" | "cart") => {
+		setActiveTab(tab);
+		if (tab === "home") {
+			navigate("/home");
+		} else if (tab === "history") {
+			navigate("/home/history");
+		} else if (tab === "search") {
+			navigate("/home/search");
+		} else if (tab === "cart" && branchId) {
+			navigate(`/home/order/cart/${branchId}`);
+		}
+		// Close drawer on mobile when navigation item is clicked
+		if (window.innerWidth < 768) {
+			setDrawerOpen(false);
+		}
+	};
 
-  const handleRemoveFromCart = (itemId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    removeFromCart(itemId);
-  };
+	const handleRemoveFromCart = (itemId: string, e: React.MouseEvent) => {
+		e.stopPropagation();
+		removeFromCart(itemId);
+	};
 
-  const toggleDrawer = () => {
-    setDrawerOpen(!drawerOpen);
-  };
+	const toggleDrawer = () => {
+		setDrawerOpen(!drawerOpen);
+	};
 
-  return (
+	return (
 		<div className="min-h-screen bg-gray-50 flex">
 			{/* Side Drawer - Always visible on desktop, toggleable on mobile */}
+			<LocationBanner
+				hasLocation={hasLocation}
+				needsPermission={needsPermission}
+			/>
+
+			<LocationModal
+				isOpen={needsPermission}
+				permission={permission}
+				error={error}
+				isLoading={isLoading}
+				onRequestLocation={requestLocation}
+			/>
+
 			<div
 				className={`fixed md:sticky top-0 left-0 h-screen w-72 bg-white border-r border-gray-200 z-50 transform transition-transform duration-300 ease-in-out shrink-0 ${
 					drawerOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
@@ -261,15 +296,17 @@ export const ProtectedLayout = () => {
 						<button
 							onClick={toggleTheme}
 							className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-gray-300 rounded-lg font-semibold text-sm hover:bg-gray-50 hover:border-[#fbbf24] transition-all touch-manipulation mb-3"
-							aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+							aria-label={`Switch to ${
+								theme === "light" ? "dark" : "light"
+							} mode`}
 						>
-							{theme === 'light' ? (
+							{theme === "light" ? (
 								<Moon className="w-4 h-4 text-gray-700" />
 							) : (
 								<Sun className="w-4 h-4 text-[#fbbf24]" />
 							)}
 							<span className="text-gray-700">
-								{theme === 'light' ? 'Dark Mode' : 'Light Mode'}
+								{theme === "light" ? "Dark Mode" : "Light Mode"}
 							</span>
 						</button>
 						<button
@@ -342,10 +379,14 @@ export const ProtectedLayout = () => {
 								<button
 									onClick={toggleTheme}
 									className="p-2 text-gray-700 hover:text-[#fbbf24] hover:bg-white rounded-lg transition-colors touch-manipulation"
-									aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-									title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+									aria-label={`Switch to ${
+										theme === "light" ? "dark" : "light"
+									} mode`}
+									title={`Switch to ${
+										theme === "light" ? "dark" : "light"
+									} mode`}
 								>
-									{theme === 'light' ? (
+									{theme === "light" ? (
 										<Moon className="w-5 h-5" />
 									) : (
 										<Sun className="w-5 h-5 text-[#fbbf24]" />
