@@ -113,11 +113,11 @@ export const ProtectedLayout = () => {
 			>
 				<div className="flex flex-col h-full">
 					{/* Drawer Header */}
-					<div className="relative flex items-center justify-center px-6 py-5 border-b-2 border-[#fbbf24] bg-white min-h-[80px]">
+					<div className="relative flex items-center justify-center px-6 h-20 border-b-2 border-[#fbbf24] bg-white">
 						<Logo
 							size="2xl"
 							onClick={() => navigate("/home")}
-							className="cursor-pointer absolute left-0"
+							className="cursor-pointer absolute left-6"
 						/>
 						<button
 							onClick={toggleDrawer}
@@ -336,9 +336,9 @@ export const ProtectedLayout = () => {
 			{/* Main Content Area */}
 			<div className="flex-1 flex flex-col min-w-0">
 				{/* Header */}
-				<header className="bg-white border-b-2 border-gray-200 sticky top-0 z-30">
-					<div className="px-4 sm:px-6 lg:px-8">
-						<div className="flex items-center justify-between h-16">
+				<header className="bg-white border-b-2 border-gray-200 sticky top-0 z-30 h-20">
+					<div className="px-4 sm:px-6 lg:px-8 h-full">
+						<div className="flex items-center justify-between h-full">
 							<div className="flex items-center gap-3 relative">
 								{/* Menu Button - Only visible on mobile */}
 								<button
