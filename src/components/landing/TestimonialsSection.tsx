@@ -29,22 +29,29 @@ const testimonials = [
 
 export const TestimonialsSection = () => {
 	return (
-		<section className="py-16 bg-gray-50">
+		<section className="py-20 bg-gray-50">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-12">
-					What our customers say
-				</h2>
+				<div className="text-center mb-16">
+					<h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+						What Our Customers Say
+					</h2>
+					<p className="text-xl text-gray-600 max-w-2xl mx-auto">
+						Join thousands of satisfied customers across Africa
+					</p>
+				</div>
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-8">
 					{testimonials.map((testimonial, index) => (
 						<div
 							key={index}
-							className="bg-white rounded-xl p-6 border-2 border-gray-200 hover:border-[#fbbf24] transition-all"
+							className="bg-white rounded-2xl p-8 border-2 border-gray-100 hover:border-[#fbbf24] transition-all hover:shadow-xl"
 						>
-							<div className="flex items-center gap-4 mb-4">
+							<Quote className="w-8 h-8 text-[#fbbf24] mb-4" />
+							<p className="text-gray-700 mb-6 leading-relaxed">"{testimonial.quote}"</p>
+							<div className="flex items-center gap-4">
 								<img
 									src={testimonial.image}
-									alt={testimonial.name}
-									className="w-16 h-16 rounded-full object-cover"
+									alt={`${testimonial.name} from ${testimonial.location}`}
+									className="w-12 h-12 rounded-full object-cover"
 									loading="lazy"
 								/>
 								<div>
@@ -56,8 +63,6 @@ export const TestimonialsSection = () => {
 									</p>
 								</div>
 							</div>
-							<Quote className="w-6 h-6 text-[#fbbf24] mb-2" />
-							<p className="text-gray-700 italic">"{testimonial.quote}"</p>
 						</div>
 					))}
 				</div>

@@ -5,7 +5,6 @@ import {
 	ServicesShowcaseSection,
 	KeyFeaturesSection,
 	TestimonialsSection,
-	StatisticsSection,
 	PrintStationCTA,
 	FinalCTASection,
 	Footer,
@@ -23,16 +22,15 @@ export const Landing = () => {
 	};
 
 	return (
-		<div className="min-h-screen bg-white">
+		<main className="min-h-screen bg-white">
 			<HeroSection onGetStarted={handleGetStarted} />
 			<HowItWorksSection />
 			<ServicesShowcaseSection />
 			<KeyFeaturesSection />
 			<TestimonialsSection />
-			<StatisticsSection />
 			<PrintStationCTA onJoinClick={handleJoinClick} />
 			<FinalCTASection onGetStarted={handleGetStarted} />
 			<Footer />
-		</div>
+		</main>
 	);
 };
