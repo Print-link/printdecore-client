@@ -20,6 +20,7 @@ import { RegularPrintForm } from "../components/forms/RegularPrintForm";
 import { PaymentModal } from "../components/PaymentModal";
 import { PrintStationHeader } from "../components/PrintStationHeader";
 import { StatusMessage } from "../components/StatusMessage";
+import { BranchRatingSection } from "../components/ratings/BranchRatingSection";
 import type { PrintStation } from "../types/printStation";
 import { useQuery } from "@tanstack/react-query";
 
@@ -170,6 +171,10 @@ export const PrintStationDetails = () => {
 					longitude: branchData.location.longitude,
 					address: branchData.location.address,
 				} : undefined,
+				averageRating: branchData.averageRating,
+				totalRatings: branchData.totalRatings,
+				agentServices: branchData.agentServices,
+				totalServicesCount: branchData.totalServicesCount,
 			} as PrintStation);
 			setLoading(false);
 		} else if (branchResponse && !branchResponse.success) {
@@ -652,6 +657,17 @@ export const PrintStationDetails = () => {
 						onPaymentError={handlePaymentErrorWithStatus}
 					/>
 				)}
+
+			{/* Rating Section */}
+			{id && (
+				<div className="mt-12 pt-12 border-t border-gray-200">
+					<BranchRatingSection
+						branchId={id}
+						averageRating={printStation?.averageRating}
+						totalRatings={printStation?.totalRatings}
+					/>
+				</div>
+			)}
 		</div>
 	);
 };

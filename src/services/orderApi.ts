@@ -127,6 +127,8 @@ export interface Branch {
 		hasFlexiblePricing?: boolean;
 	}>;
 	totalServicesCount?: number; // Total count of services (may be more than displayed)
+	averageRating?: number;
+	totalRatings?: number;
 }
 
 export interface Category {

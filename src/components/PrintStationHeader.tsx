@@ -1,6 +1,7 @@
 import { MapPin, ExternalLink } from "lucide-react";
 import type { Category } from "../types/category";
 import type { PrintStation } from "../types/printStation";
+import { RatingDisplay } from "./ratings/RatingDisplay";
 
 interface PrintStationHeaderProps {
 	printStation: PrintStation;
@@ -17,9 +18,19 @@ export const PrintStationHeader = ({
 		<div className="mb-6 sm:mb-8 p-4 bg-slate-50 rounded-xl border border-slate-100">
 			<div className="flex items-start justify-between mb-2">
 				<div className="flex-1">
-					<h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-						{printStation.name}
-					</h2>
+					<div className="flex items-center gap-3 mb-2">
+						<h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+							{printStation.name}
+						</h2>
+						{printStation.averageRating !== undefined &&
+							printStation.averageRating > 0 && (
+								<RatingDisplay
+									rating={printStation.averageRating}
+									totalRatings={printStation.totalRatings}
+									size="sm"
+								/>
+							)}
+					</div>
 					<p className="text-sm text-gray-600 mb-1">
 						<span className="font-medium">Email:</span> {printStation.email}
 					</p>

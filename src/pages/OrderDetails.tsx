@@ -20,6 +20,7 @@ import { PrintJobDetails } from "../components/order/PrintJobDetails";
 import { DeliveryNotice } from "../components/order/DeliveryNotice";
 import { LoadingState } from "../components/order/LoadingState";
 import { ErrorState } from "../components/order/ErrorState";
+import { BranchRatingSection } from "../components/ratings/BranchRatingSection";
 import type { Category, CategoryType } from "../types/category";
 import type { PrintStation } from "../types/printStation";
 
@@ -78,6 +79,8 @@ interface OrderDetailsData {
 		name: string;
 		phoneNumber?: string;
 		branchEmailAddress?: string;
+		averageRating?: number;
+		totalRatings?: number;
 		location?: {
 			id: string;
 			address: string;
@@ -300,6 +303,17 @@ export const OrderDetails = () => {
 
 			{/* Delivery Notice */}
 			<DeliveryNotice hasLocation={hasLocation} />
+
+			{/* Rating Section */}
+			{order.branch?.id && (
+				<div className="mt-12 pt-12 border-t border-gray-200">
+					<BranchRatingSection
+						branchId={order.branch.id}
+						averageRating={order.branch.averageRating}
+						totalRatings={order.branch.totalRatings}
+					/>
+				</div>
+			)}
 
 			{/* Report Issue Modal */}
 			<ReportIssueModal

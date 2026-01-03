@@ -1,6 +1,18 @@
 import { useState, useEffect } from "react";
 import { Star, MessageSquare, X } from "lucide-react";
-import { getRatingByAdmin, type Review } from "../services/ratingApi";
+// TODO: Update this component to use the new branch-based rating system
+// import { getBranchRatings, type BranchRating } from "../services/ratingApi";
+
+// Temporary type until component is updated to use branch ratings
+interface Review {
+	_id: string;
+	stars: number;
+	comment?: string;
+	createdAt: string;
+	client?: {
+		fullName?: string;
+	};
+}
 
 interface ReviewsProps {
 	adminId: string;
@@ -20,11 +32,10 @@ export const Reviews = ({ adminId }: ReviewsProps) => {
 			try {
 				setLoading(true);
 				setError(null);
-				const response = await getRatingByAdmin(adminId);
-				if (response.success && response.data?.rating) {
-					setReviews(response.data.rating.reviews || []);
-					setAverageRating(response.data.rating.averageRating || 0);
-				}
+				// TODO: Update to use branch-based rating API
+				// For now, showing empty state
+				setReviews([]);
+				setAverageRating(0);
 			} catch (err) {
 				console.error("Error fetching reviews:", err);
 				setError("Failed to load reviews");

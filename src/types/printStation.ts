@@ -23,6 +23,7 @@ export interface PrintStation {
 		name: string;
 	};
 	averageRating?: number;
+	totalRatings?: number;
 	createdAt?: string;
 	updatedAt?: string;
 	agentServices?: Array<{

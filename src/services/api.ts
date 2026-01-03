@@ -334,6 +334,8 @@ class ApiService {
 						hasFlexiblePricing?: boolean;
 					}>;
 					totalServicesCount?: number;
+					averageRating?: number;
+					totalRatings?: number;
 				}[]
 			>(`/branches/nearme?${params.toString()}`, {
 				method: "GET",
@@ -369,6 +371,8 @@ class ApiService {
 						distance: branch.distance,
 						agentServices: branch.agentServices || [],
 						totalServicesCount: branch.totalServicesCount || 0,
+						averageRating: branch.averageRating,
+						totalRatings: branch.totalRatings,
 						createdAt: undefined,
 						updatedAt: undefined,
 					})),
