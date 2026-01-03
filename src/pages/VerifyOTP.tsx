@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Shield, AlertCircle, ArrowRight, ArrowLeft } from 'lucide-react';
+import { AlertCircle, ArrowRight, ArrowLeft } from 'lucide-react';
 import { apiService } from '../services/api';
+import { Logo } from "../components/Logo";
 
 export const VerifyOTP = () => {
-	const [otp, setOtp] = useState(['', '', '', '', '', '']);
-	const [error, setError] = useState('');
+	const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+	const [error, setError] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
-	const [email, setEmail] = useState('');
+	const [email, setEmail] = useState("");
 	const navigate = useNavigate();
 	const location = useLocation();
 
@@ -18,7 +19,7 @@ export const VerifyOTP = () => {
 			setEmail(stateEmail);
 		} else {
 			// If no email in state, redirect to send OTP page
-			navigate('/send-otp', { replace: true });
+			navigate("/send-otp", { replace: true });
 		}
 	}, [location.state, navigate]);
 
@@ -31,7 +32,7 @@ export const VerifyOTP = () => {
 		const newOtp = [...otp];
 		newOtp[index] = value.slice(-1); // Only take the last character
 		setOtp(newOtp);
-		setError('');
+		setError("");
 
 		// Auto-focus next input
 		if (value && index < 5) {
@@ -40,9 +41,12 @@ export const VerifyOTP = () => {
 		}
 	};
 
-	const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+	const handleKeyDown = (
+		index: number,
+		e: React.KeyboardEvent<HTMLInputElement>
+	) => {
 		// Handle backspace
-		if (e.key === 'Backspace' && !otp[index] && index > 0) {
+		if (e.key === "Backspace" && !otp[index] && index > 0) {
 			const prevInput = document.getElementById(`otp-${index - 1}`);
 			prevInput?.focus();
 		}
@@ -50,29 +54,29 @@ export const VerifyOTP = () => {
 
 	const handlePaste = (e: React.ClipboardEvent) => {
 		e.preventDefault();
-		const pastedData = e.clipboardData.getData('text').trim();
-		
+		const pastedData = e.clipboardData.getData("text").trim();
+
 		if (/^\d{6}$/.test(pastedData)) {
-			const newOtp = pastedData.split('');
+			const newOtp = pastedData.split("");
 			setOtp(newOtp);
-			setError('');
+			setError("");
 			// Focus the last input
-			document.getElementById('otp-5')?.focus();
+			document.getElementById("otp-5")?.focus();
 		}
 	};
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		setError('');
+		setError("");
 
-		const otpString = otp.join('');
+		const otpString = otp.join("");
 		if (otpString.length !== 6) {
-			setError('Please enter the complete 6-digit code');
+			setError("Please enter the complete 6-digit code");
 			return;
 		}
 
 		if (!email) {
-			setError('Email is required');
+			setError("Email is required");
 			return;
 		}
 
@@ -82,18 +86,22 @@ export const VerifyOTP = () => {
 			const response = await apiService.verifyOtp(email, otpString);
 			if (response.success) {
 				// Navigate to registration page with verified email
-				navigate('/register', { state: { email, verified: true } });
+				navigate("/register", { state: { email, verified: true } });
 			} else {
-				setError(response.message || 'Invalid verification code. Please try again.');
+				setError(
+					response.message || "Invalid verification code. Please try again."
+				);
 				// Clear OTP on error
-				setOtp(['', '', '', '', '', '']);
-				document.getElementById('otp-0')?.focus();
+				setOtp(["", "", "", "", "", ""]);
+				document.getElementById("otp-0")?.focus();
 			}
-		} catch (err: any) {
-			setError(err.message || 'An error occurred. Please try again.');
+		} catch (err: unknown) {
+			setError(
+				(err as Error).message || "An error occurred. Please try again."
+			);
 			// Clear OTP on error
-			setOtp(['', '', '', '', '', '']);
-			document.getElementById('otp-0')?.focus();
+			setOtp(["", "", "", "", "", ""]);
+			document.getElementById("otp-0")?.focus();
 		} finally {
 			setIsLoading(false);
 		}
@@ -102,22 +110,22 @@ export const VerifyOTP = () => {
 	const handleResend = async () => {
 		if (!email) return;
 
-		setError('');
+		setError("");
 		setIsLoading(true);
 
 		try {
 			const response = await apiService.sendOtp(email);
 			if (response.success) {
-				setError('');
+				setError("");
 				// Show success message (you could use toast here)
-				alert('Verification code has been resent to your email');
-				setOtp(['', '', '', '', '', '']);
-				document.getElementById('otp-0')?.focus();
+				alert("Verification code has been resent to your email");
+				setOtp(["", "", "", "", "", ""]);
+				document.getElementById("otp-0")?.focus();
 			} else {
-				setError(response.message || 'Failed to resend OTP. Please try again.');
+				setError(response.message || "Failed to resend OTP. Please try again.");
 			}
-		} catch (err: any) {
-			setError(err.message || 'An error occurred. Please try again.');
+		} catch (err: unknown) {
+			setError((err as Error).message || "An error occurred. Please try again.");
 		} finally {
 			setIsLoading(false);
 		}
@@ -127,15 +135,13 @@ export const VerifyOTP = () => {
 		<div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
 			<div className="w-full max-w-md bg-white rounded-2xl p-8">
 				<div className="text-center mb-8">
-					<div className="inline-flex items-center justify-center w-16 h-16 bg-slate-100 rounded-full mb-4">
-						<Shield className="w-8 h-8 text-[#fbbf24]" />
+					<div className="flex justify-center mb-4">
+						<Logo size="lg" />
 					</div>
 					<h1 className="text-3xl font-bold text-gray-900 mb-2">
 						Enter Verification Code
 					</h1>
-					<p className="text-gray-600 mb-1">
-						We've sent a 6-digit code to
-					</p>
+					<p className="text-gray-600 mb-1">We've sent a 6-digit code to</p>
 					<p className="text-sm font-semibold text-gray-900">{email}</p>
 				</div>
 
@@ -173,11 +179,11 @@ export const VerifyOTP = () => {
 
 					<button
 						type="submit"
-						disabled={isLoading || otp.join('').length !== 6}
+						disabled={isLoading || otp.join("").length !== 6}
 						className={`w-full py-3 rounded-xl font-semibold text-white transition-all flex items-center justify-center ${
-							isLoading || otp.join('').length !== 6
-								? 'bg-gray-400 cursor-not-allowed'
-								: 'bg-[#fbbf24] hover:bg-[#fbbf24] '
+							isLoading || otp.join("").length !== 6
+								? "bg-gray-400 cursor-not-allowed"
+								: "bg-[#fbbf24] hover:bg-[#fbbf24] "
 						}`}
 					>
 						{isLoading ? (
@@ -207,7 +213,7 @@ export const VerifyOTP = () => {
 					<div className="text-center">
 						<button
 							type="button"
-							onClick={() => navigate('/send-otp')}
+							onClick={() => navigate("/send-otp")}
 							disabled={isLoading}
 							className="text-sm text-gray-600 hover:text-gray-700 flex items-center justify-center mx-auto"
 						>
@@ -218,7 +224,7 @@ export const VerifyOTP = () => {
 
 					<div className="text-center pt-2 border-t border-gray-200">
 						<p className="text-sm text-gray-600">
-							Already have an account?{' '}
+							Already have an account?{" "}
 							<Link
 								to="/login"
 								className="text-[#fbbf24] font-semibold hover:text-[#fbbf24]"

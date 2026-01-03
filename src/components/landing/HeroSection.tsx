@@ -1,5 +1,6 @@
 import { Check, Star, MapPin } from "lucide-react";
 import heroImage from "../../assets/images/HeroImage.jpg";
+import { Logo } from "../Logo";
 
 interface HeroSectionProps {
 	onGetStarted: () => void;
@@ -27,6 +28,9 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
 			</div>
 			<div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 				<div className="text-center">
+					<div className="flex justify-center mb-8">
+						<Logo size="2xl" />
+					</div>
 					<h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-black dark:text-white mb-6 leading-tight">
 						Connect with local print stations
 						<br />

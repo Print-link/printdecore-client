@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Mail, Lock, AlertCircle } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { toast } from "react-toastify";
+import { Logo } from '../components/Logo';
 
 export const Login = () => {
 	// Load last login email from localStorage if available
@@ -50,6 +51,9 @@ export const Login = () => {
 		<div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
 			<div className="w-full max-w-md bg-white rounded-2xl p-8">
 				<div className="text-center mb-8">
+					<div className="flex justify-center mb-4">
+						<Logo size="lg" />
+					</div>
 					<h1 className="text-3xl font-bold text-gray-900 mb-2">
 						Welcome Back
 					</h1>

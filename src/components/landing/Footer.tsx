@@ -1,4 +1,5 @@
 import { MapPin, Mail, Phone, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+import { Logo } from "../Logo";
 
 const footerLinks = {
 	product: [
@@ -45,10 +46,8 @@ export const Footer = () => {
 					{/* Brand Section */}
 					<div className="lg:col-span-2">
 						<div className="mb-4">
-							<h3 className="text-2xl font-bold text-[#fbbf24] mb-2">
-								PaperLink
-							</h3>
-							<p className="text-sm text-gray-400 dark:text-gray-500">
+							<Logo size="lg" className="mb-2" />
+							<p className="text-sm text-gray-400 dark:text-gray-500 mt-2">
 								by piper & co
 							</p>
 						</div>

@@ -1,8 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { UserPlus, Mail, Lock, User, Phone, AlertCircle, CheckCircle } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
+import {
+	Mail,
+	Lock,
+	User,
+	Phone,
+	AlertCircle,
+	CheckCircle,
+} from "lucide-react";
+import { useAuth } from "../hooks/useAuth";
 import { toast } from "react-toastify";
+import { Logo } from "../components/Logo";
 
 export const Register = () => {
 	const [firstName, setFirstName] = useState("");
@@ -80,8 +88,8 @@ export const Register = () => {
 		<div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
 			<div className="w-full max-w-md bg-white rounded-2xl p-8">
 				<div className="text-center mb-8">
-					<div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-full mb-4">
-						<UserPlus className="w-8 h-8 text-[#fbbf24]" />
+					<div className="flex justify-center mb-4">
+						<Logo size="lg" />
 					</div>
 					<h1 className="text-3xl font-bold text-gray-900 mb-2">
 						Create Account

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, AlertCircle, ArrowRight } from 'lucide-react';
 import { apiService } from '../services/api';
+import { Logo } from '../components/Logo';
 
 export const SendOTP = () => {
 	const [email, setEmail] = useState('');
@@ -44,8 +45,8 @@ export const SendOTP = () => {
 		<div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
 			<div className="w-full max-w-md bg-white rounded-2xl p-8">
 				<div className="text-center mb-8">
-					<div className="inline-flex items-center justify-center w-16 h-16 bg-slate-100 rounded-full mb-4">
-						<Mail className="w-8 h-8 text-[#fbbf24]" />
+					<div className="flex justify-center mb-4">
+						<Logo size="lg" />
 					</div>
 					<h1 className="text-3xl font-bold text-gray-900 mb-2">
 						Verify Your Email

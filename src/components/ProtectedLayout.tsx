@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
 	LogOut,
 	Home,
@@ -18,6 +18,7 @@ import { useTheme } from "../contexts/ThemeContext";
 import { useLocationAccess } from "../hooks/useLocationAccess";
 import { LocationBanner } from "./banners/LocationBanner";
 import { LocationModal } from "./modals/LocationModal";
+import { Logo } from "./Logo";
 
 export const ProtectedLayout = () => {
 	const { user, logout } = useAuth();
@@ -32,7 +33,7 @@ export const ProtectedLayout = () => {
 	} = useLocationAccess();
 	const { theme, toggleTheme } = useTheme();
 	const navigate = useNavigate();
-	//   const location = useLocation();
+	const location = useLocation();
 	const [activeTab, setActiveTab] = useState(() => {
 		if (location.pathname === "/history") return "history";
 		if (location.pathname === "/search") return "search";
@@ -112,11 +113,15 @@ export const ProtectedLayout = () => {
 			>
 				<div className="flex flex-col h-full">
 					{/* Drawer Header */}
-					<div className="flex items-center justify-between px-6 py-5 border-b-2 border-[#fbbf24] bg-[#fbbf24]">
-						<h2 className="text-xl font-bold text-white">Print Station</h2>
+					<div className="relative flex items-center justify-center px-6 py-5 border-b-2 border-[#fbbf24] bg-white min-h-[80px]">
+						<Logo
+							size="2xl"
+							onClick={() => navigate("/home")}
+							className="cursor-pointer absolute left-0"
+						/>
 						<button
 							onClick={toggleDrawer}
-							className="md:hidden p-1.5 text-white hover:bg-white/10 rounded transition-colors"
+							className="absolute right-6 p-1.5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors md:hidden"
 							aria-label="Close menu"
 						>
 							<X className="w-5 h-5" />
@@ -334,7 +339,7 @@ export const ProtectedLayout = () => {
 				<header className="bg-white border-b-2 border-gray-200 sticky top-0 z-30">
 					<div className="px-4 sm:px-6 lg:px-8">
 						<div className="flex items-center justify-between h-16">
-							<div className="flex items-center gap-3">
+							<div className="flex items-center gap-3 relative">
 								{/* Menu Button - Only visible on mobile */}
 								<button
 									onClick={toggleDrawer}
@@ -347,13 +352,18 @@ export const ProtectedLayout = () => {
 										<Menu className="w-6 h-6" />
 									)}
 								</button>
-								<h1 className="text-xl font-bold text-gray-900 md:hidden">
-									Print Station
-								</h1>
+								{/* Mobile Logo */}
+								<div className="md:hidden">
+									<Logo
+										size="2xl"
+										onClick={() => navigate("/home")}
+										className="cursor-pointer absolute left-8 top-1/2 -translate-y-1/2"
+									/>
+								</div>
 								{/* Desktop Title */}
 								<h1 className="hidden md:block text-xl font-bold text-gray-900">
 									{activeTab === "home"
-										? "Print Stations"
+										? "Print Agents"
 										: activeTab === "search"
 										? "Search"
 										: activeTab === "cart"
