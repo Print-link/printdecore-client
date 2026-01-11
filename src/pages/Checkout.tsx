@@ -18,7 +18,7 @@ export const Checkout = () => {
 	const { branchId } = useParams<{ branchId: string }>();
 	const navigate = useNavigate();
 	const { user } = useAuth();
-	const { cart, clearCart, getCartTotal } = useCart();
+	const { cart, clearCart, getCartTotal, comment } = useCart();
 	const queryClient = useQueryClient();
 
 	const [isProcessing, setIsProcessing] = useState(false);
@@ -103,7 +103,8 @@ export const Checkout = () => {
 				user._id,
 				branchId,
 				paymentData.reference,
-				basePrice
+				basePrice,
+				comment || undefined
 			);
 
 			if (!orderResponse.success || !orderResponse.data) {

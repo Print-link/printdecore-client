@@ -21,7 +21,9 @@ export interface AuthContextType {
 		lastName: string,
 		email: string,
 		password: string,
-		phoneNumber: string
+		phoneNumber: string,
+		country?: string,
+		currency?: string
 	) => Promise<{ success: boolean; message?: string }>;
 	logout: () => void;
 	isLoading: boolean;

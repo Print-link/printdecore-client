@@ -337,12 +337,13 @@ export const createOrder = async (
 	clientId: string,
 	branchId: string,
 	paymentReference: string,
-	totalPrice: number
+	totalPrice: number,
+	comment?: string
 ): Promise<ApiResponse<Order>> => {
 	try {
 		const response = await axios.post<ApiResponse<Order>>(
 			`${BASE_URL}/orders`,
-			{ clientId, branchId, paymentReference, totalPrice },
+			{ clientId, branchId, paymentReference, totalPrice, comment },
 			{ headers: getAuthHeaders() }
 		);
 		return response.data;

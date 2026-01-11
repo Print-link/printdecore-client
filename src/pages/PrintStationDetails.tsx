@@ -21,6 +21,7 @@ import { PaymentModal } from "../components/PaymentModal";
 import { PrintStationHeader } from "../components/PrintStationHeader";
 import { StatusMessage } from "../components/StatusMessage";
 import { BranchRatingSection } from "../components/ratings/BranchRatingSection";
+import { AuthPrompt } from "../components/AuthPrompt";
 import type { PrintStation } from "../types/printStation";
 import { useQuery } from "@tanstack/react-query";
 
@@ -52,9 +53,7 @@ export const PrintStationDetails = () => {
 
 	const [uploadStatus, setUploadStatus] = useState<UploadStatus | null>(null);
 	const [printStation, setPrintStation] = useState<PrintStation | null>(null);
-	const [selectedCategory] = useState<Category | null>(
-		null
-	);
+	const [selectedCategory] = useState<Category | null>(null);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [orderDetails, setOrderDetails] = useState<OrderDetails>({
 		artwork: "",
@@ -75,6 +74,7 @@ export const PrintStationDetails = () => {
 		undefined
 	);
 	const [showPaymentModal, setShowPaymentModal] = useState(false);
+	const [showAuthPrompt, setShowAuthPrompt] = useState(false);
 
 	const categoryType = selectedCategory?.categoryType;
 	const isResultsChecker =
@@ -137,18 +137,13 @@ export const PrintStationDetails = () => {
 		userId: user?._id || "",
 	});
 
-	const {
-		data: branchResponse,
-		isLoading: isBranchLoading,
-	} = useQuery({
+	const { data: branchResponse, isLoading: isBranchLoading } = useQuery({
 		queryKey: ["branch", id],
 		queryFn: () => getBranchById(id || ""),
 		enabled: !!id,
 	});
 
-	const {
-		isLoading: isCategoriesLoading,
-	} = useQuery({
+	const { isLoading: isCategoriesLoading } = useQuery({
 		queryKey: ["categories"],
 		queryFn: () => bussinessCategoryService.getAllBussinessCategories(),
 	});
@@ -166,11 +161,13 @@ export const PrintStationDetails = () => {
 				phoneNumber: branchData.phoneNumber,
 				coverImage: branchData.coverImage,
 				paystackSubaccountCode: branchData.payStackSubAccountId,
-				location: branchData.location ? {
-					latitude: branchData.location.latitude,
-					longitude: branchData.location.longitude,
-					address: branchData.location.address,
-				} : undefined,
+				location: branchData.location
+					? {
+							latitude: branchData.location.latitude,
+							longitude: branchData.location.longitude,
+							address: branchData.location.address,
+					  }
+					: undefined,
 				averageRating: branchData.averageRating,
 				totalRatings: branchData.totalRatings,
 				agentServices: branchData.agentServices,
@@ -272,7 +269,13 @@ export const PrintStationDetails = () => {
 
 	const handleResultsCheckerSubmit = useCallback(
 		async (data: ResultsCheckerFormData) => {
-			if (!selectedCategory || !id || !user?._id || !printStation) return;
+			if (!selectedCategory || !id || !printStation) return;
+
+			// Check if user is authenticated
+			if (!user) {
+				setShowAuthPrompt(true);
+				return;
+			}
 
 			if (!printStation.paystackSubaccountCode) {
 				toast.error(
@@ -472,6 +475,10 @@ export const PrintStationDetails = () => {
 		[handlePaymentError]
 	);
 
+	const handleAuthPromptClose = () => {
+		setShowAuthPrompt(false);
+	};
+
 	if (loading) {
 		return (
 			<div className="w-full max-w-3xl mx-auto bg-white rounded-2xl p-8">
@@ -638,25 +645,36 @@ export const PrintStationDetails = () => {
 					</>
 				)}
 			</button>
+			<div>
+				{showPaymentModal &&
+					printStation &&
+					printStation.paystackSubaccountCode &&
+					totalPrice !== undefined &&
+					user && (
+						<PaymentModal
+							isOpen={showPaymentModal}
+							onClose={() => {
+								setShowPaymentModal(false);
+								setPendingSubmission(null);
+							}}
+							amount={totalPrice}
+							email={user.email}
+							subaccount={printStation.paystackSubaccountCode}
+							onPaymentSuccess={handlePaymentSuccess}
+							onPaymentError={handlePaymentErrorWithStatus}
+						/>
+					)}
+			</div>
 
-			{showPaymentModal &&
-				printStation &&
-				printStation.paystackSubaccountCode &&
-				totalPrice !== undefined &&
-				user && (
-					<PaymentModal
-						isOpen={showPaymentModal}
-						onClose={() => {
-							setShowPaymentModal(false);
-							setPendingSubmission(null);
-						}}
-						amount={totalPrice}
-						email={user.email}
-						subaccount={printStation.paystackSubaccountCode}
-						onPaymentSuccess={handlePaymentSuccess}
-						onPaymentError={handlePaymentErrorWithStatus}
-					/>
-				)}
+			{/* Authentication Prompt */}
+			{showAuthPrompt && (
+				<AuthPrompt
+					isOpen={showAuthPrompt}
+					onClose={handleAuthPromptClose}
+					message="Sign in to place orders and access printing services"
+					title="Authentication Required"
+				/>
+			)}
 
 			{/* Rating Section */}
 			{id && (

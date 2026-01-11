@@ -3,13 +3,17 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Loader2, AlertCircle, ArrowLeft, Tag } from "lucide-react";
 import { getCategories, type Category } from "../services/orderApi";
 import { Reviews } from "../components/Reviews";
+import { useAuth } from "../hooks/useAuth";
+import { AuthPrompt } from "../components/AuthPrompt";
 
 export const Categories = () => {
 	const { id } = useParams<{ id: string }>();
 	const navigate = useNavigate();
+	const { user } = useAuth();
 	const [categories, setCategories] = useState<Category[]>([]);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
+	const [showAuthPrompt, setShowAuthPrompt] = useState(false);
 
 	useEffect(() => {
 		const fetchCategories = async () => {
@@ -42,8 +46,16 @@ export const Categories = () => {
 		fetchCategories();
 	}, [id]);
 
-	const handleCategoryClick = (categoryId: string) => {
+const handleCategoryClick = (categoryId: string) => {
+		if (!user) {
+			setShowAuthPrompt(true);
+			return;
+		}
 		navigate(`/home/order/sub-categories/${id}?categoryId=${categoryId}`);
+	};
+
+	const handleAuthPromptClose = () => {
+		setShowAuthPrompt(false);
 	};
 
 	const handleBack = () => {
@@ -81,26 +93,27 @@ export const Categories = () => {
 		);
 	}
 
-	return (
-		<div className="w-full max-w-7xl mx-auto">
-			{/* Back Button */}
-			<button
-				onClick={handleBack}
-				className="mb-4 inline-flex items-center text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
-			>
-				<ArrowLeft className="w-4 h-4 mr-2" />
-				Back
-			</button>
-
-			{/* Header */}
-			<div className="mb-4">
-				<h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-1">
-					Select a Category
-				</h1>
-				<p className="text-sm text-gray-600">
-					Choose a print category to continue with your order
-				</p>
-			</div>
+return (
+		<>
+			<div className="w-full max-w-7xl mx-auto">
+				{/* Back Button */}
+				<button
+					onClick={handleBack}
+					className="mb-4 inline-flex items-center text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+				>
+					<ArrowLeft className="w-4 h-4 mr-2" />
+					Back
+				</button>
+				
+				{/* Header */}
+				<div className="mb-4">
+					<h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-1">
+						Select a Category
+					</h1>
+					<p className="text-sm text-gray-600">
+						Choose a print category to continue with your order
+					</p>
+				</div>
 
 			{/* Main Content: Categories on left, Reviews on right (desktop) */}
 			<div className="flex flex-col lg:flex-row gap-4">
@@ -161,7 +174,16 @@ export const Categories = () => {
 				{/* Reviews Section - Desktop sidebar, Mobile bottom sheet */}
 				{id && <Reviews adminId={id} />}
 			</div>
-		</div>
+</div>
+			
+			{/* Authentication Prompt */}
+			<AuthPrompt
+				isOpen={showAuthPrompt}
+				onClose={handleAuthPromptClose}
+				message="Sign in to place orders and access printing services"
+				title="Sign In Required"
+			/>
+		</>
 	);
 };
 

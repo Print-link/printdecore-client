@@ -106,6 +106,13 @@ export const useOrderPriceCalculation = ({
 						if (pdfPageCount && pdfPageCount > 0) {
 							requestPayload.filePages = pdfPageCount;
 						}
+						// Pass dimensions for area-based services (AREA_FEET, AREA_INCH, AREA_OR_UNIT)
+						// These are needed even with flexible pricing for area calculations
+						if (memoizedFormData.width && memoizedFormData.height) {
+							requestPayload.width = memoizedFormData.width;
+							requestPayload.height = memoizedFormData.height;
+							requestPayload.measurementUnit = memoizedFormData.measurementUnit;
+						}
 						// Also pass legacy options for compatibility (e.g., frontBack for PAGE_BASED)
 						if (memoizedFormData.options) {
 							requestPayload.options = {

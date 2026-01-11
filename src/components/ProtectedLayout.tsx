@@ -7,10 +7,12 @@ import {
 	Menu,
 	X,
 	Search,
-	ShoppingCart,
 	Trash2,
 	Moon,
 	Sun,
+	PrinterIcon,
+	User,
+	LogIn,
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { useCart } from "../contexts/CartContext";
@@ -64,7 +66,13 @@ export const ProtectedLayout = () => {
 		navigate("/login");
 	};
 
-	const handleTabChange = (tab: "home" | "history" | "search" | "cart") => {
+const handleTabChange = (tab: "home" | "history" | "search" | "cart") => {
+		// Check if user is trying to access protected features without authentication
+		if (!user && (tab === "history" || tab === "cart")) {
+			navigate("/login");
+			return;
+		}
+		
 		setActiveTab(tab);
 		if (tab === "home") {
 			navigate("/home");
@@ -161,53 +169,57 @@ export const ProtectedLayout = () => {
 								/>
 								<span>Search</span>
 							</button>
-							<button
-								onClick={() => handleTabChange("history")}
-								className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-base transition-all touch-manipulation ${
-									activeTab === "history"
-										? "bg-[#fbbf24] text-white border-2 border-[#fbbf24]"
-										: "text-gray-700 hover:bg-gray-50 hover:text-gray-900 border-2 border-transparent"
-								}`}
-							>
-								<History
-									className={`w-5 h-5 ${
-										activeTab === "history" ? "text-white" : "text-gray-500"
+{user && (
+							<>
+								<button
+									onClick={() => handleTabChange("history")}
+									className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-base transition-all touch-manipulation ${
+										activeTab === "history"
+											? "bg-[#fbbf24] text-white border-2 border-[#fbbf24]"
+											: "text-gray-700 hover:bg-gray-50 hover:text-gray-900 border-2 border-transparent"
 									}`}
-								/>
-								<span>Print History</span>
-							</button>
-							<button
-								onClick={() => {
-									if (branchId) {
-										handleTabChange("cart");
-									} else {
-										// If no branchId, can't navigate to cart
-										return;
-									}
-								}}
-								disabled={!branchId || cart.length === 0}
-								className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-base transition-all touch-manipulation relative ${
-									activeTab === "cart"
-										? "bg-[#fbbf24] text-white border-2 border-[#fbbf24]"
-										: "text-gray-700 hover:bg-gray-50 hover:text-gray-900 border-2 border-transparent"
-								} ${
-									!branchId || cart.length === 0
-										? "opacity-50 cursor-not-allowed"
-										: ""
-								}`}
-							>
-								<ShoppingCart
-									className={`w-5 h-5 ${
-										activeTab === "cart" ? "text-white" : "text-gray-500"
+								>
+									<History
+										className={`w-5 h-5 ${
+											activeTab === "history" ? "text-white" : "text-gray-500"
+										}`}
+									/>
+									<span>Print History</span>
+								</button>
+								<button
+									onClick={() => {
+										if (branchId) {
+											handleTabChange("cart");
+										} else {
+											// If no branchId, can't navigate to cart
+											return;
+										}
+									}}
+									disabled={!branchId || cart.length === 0}
+									className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-base transition-all touch-manipulation relative ${
+										activeTab === "cart"
+											? "bg-[#fbbf24] text-white border-2 border-[#fbbf24]"
+											: "text-gray-700 hover:bg-gray-50 hover:text-gray-900 border-2 border-transparent"
+									} ${
+										!branchId || cart.length === 0
+											? "opacity-50 cursor-not-allowed"
+											: ""
 									}`}
-								/>
-								<span>Cart</span>
-								{cart.length > 0 && (
-									<span className="ml-auto bg-[#fbbf24] text-white text-xs font-bold px-2 py-0.5 rounded-full">
-										{cart.length}
-									</span>
-								)}
-							</button>
+								>
+									<PrinterIcon
+										className={`w-5 h-5 ${
+											activeTab === "cart" ? "text-white" : "text-gray-500"
+										}`}
+									/>
+									<span>Printing Tray</span>
+									{cart.length > 0 && (
+										<span className="ml-auto bg-[#fbbf24] text-white text-xs font-bold px-2 py-0.5 rounded-full">
+											{cart.length}
+										</span>
+									)}
+								</button>
+							</>
+						)}
 						</div>
 
 						{/* Cart Items Display */}
@@ -275,7 +287,7 @@ export const ProtectedLayout = () => {
 												}}
 												className="w-full px-3 py-2 bg-[#fbbf24] text-white text-sm font-medium rounded-lg hover:bg-[#fbbf24] transition-colors"
 											>
-												View Cart
+												View Tray
 											</button>
 										)}
 									</div>
@@ -284,43 +296,89 @@ export const ProtectedLayout = () => {
 						)}
 					</nav>
 
-					{/* Drawer Footer */}
+{/* Drawer Footer */}
 					<div className="p-4 border-t-2 border-gray-200 bg-gray-50">
-						<div className="mb-4 px-3 py-3 bg-white rounded-lg border-2 border-gray-200">
-							<p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
-								Signed in as
-							</p>
-							<p className="text-sm font-semibold text-gray-900 truncate">
-								{user?.firstName} {user?.lastName}
-							</p>
-							<p className="text-xs text-gray-500 truncate mt-0.5">
-								{user?.email}
-							</p>
-						</div>
-						{/* Theme Toggle */}
-						<button
-							onClick={toggleTheme}
-							className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-gray-300 rounded-lg font-semibold text-sm hover:bg-gray-50 hover:border-[#fbbf24] transition-all touch-manipulation mb-3"
-							aria-label={`Switch to ${
-								theme === "light" ? "dark" : "light"
-							} mode`}
-						>
-							{theme === "light" ? (
-								<Moon className="w-4 h-4 text-gray-700" />
-							) : (
-								<Sun className="w-4 h-4 text-[#fbbf24]" />
-							)}
-							<span className="text-gray-700">
-								{theme === "light" ? "Dark Mode" : "Light Mode"}
-							</span>
-						</button>
-						<button
-							onClick={handleLogout}
-							className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-red-300 text-red-600 rounded-lg font-semibold text-sm hover:bg-red-50 hover:border-red-400 transition-all touch-manipulation"
-						>
-							<LogOut className="w-4 h-4" />
-							<span>Logout</span>
-						</button>
+						{user ? (
+							<>
+								<div className="mb-4 px-3 py-3 bg-white rounded-lg border-2 border-gray-200">
+									<p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
+										Signed in as
+									</p>
+									<p className="text-sm font-semibold text-gray-900 truncate">
+										{user?.firstName} {user?.lastName}
+									</p>
+									<p className="text-xs text-gray-500 truncate mt-0.5">
+										{user?.email}
+									</p>
+								</div>
+								{/* Theme Toggle */}
+								<button
+									onClick={toggleTheme}
+									className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-gray-300 rounded-lg font-semibold text-sm hover:bg-gray-50 hover:border-[#fbbf24] transition-all touch-manipulation mb-3"
+									aria-label={`Switch to ${
+										theme === "light" ? "dark" : "light"
+									} mode`}
+								>
+									{theme === "light" ? (
+										<Moon className="w-4 h-4 text-gray-700" />
+									) : (
+										<Sun className="w-4 h-4 text-[#fbbf24]" />
+									)}
+									<span className="text-gray-700">
+										{theme === "light" ? "Dark Mode" : "Light Mode"}
+									</span>
+								</button>
+								<button
+									onClick={handleLogout}
+									className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-red-300 text-red-600 rounded-lg font-semibold text-sm hover:bg-red-50 hover:border-red-400 transition-all touch-manipulation"
+								>
+									<LogOut className="w-4 h-4" />
+									<span>Logout</span>
+								</button>
+							</>
+						) : (
+							<>
+								<div className="mb-4 px-3 py-3 bg-white rounded-lg border-2 border-gray-200">
+									<p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+										Not signed in
+									</p>
+									<p className="text-sm text-gray-600">
+										Sign in to place orders and view history
+									</p>
+								</div>
+								{/* Theme Toggle */}
+								<button
+									onClick={toggleTheme}
+									className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-gray-300 rounded-lg font-semibold text-sm hover:bg-gray-50 hover:border-[#fbbf24] transition-all touch-manipulation mb-3"
+									aria-label={`Switch to ${
+										theme === "light" ? "dark" : "light"
+									} mode`}
+								>
+									{theme === "light" ? (
+										<Moon className="w-4 h-4 text-gray-700" />
+									) : (
+										<Sun className="w-4 h-4 text-[#fbbf24]" />
+									)}
+									<span className="text-gray-700">
+										{theme === "light" ? "Dark Mode" : "Light Mode"}
+									</span>
+								</button>
+								<button
+									onClick={() => navigate("/login")}
+									className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#fbbf24] text-white border-2 border-[#fbbf24] rounded-lg font-semibold text-sm hover:bg-[#f59e0b] transition-all touch-manipulation"
+								>
+									<LogIn className="w-4 h-4" />
+									<span>Sign In</span>
+								</button>
+								<button
+									onClick={() => navigate("/register")}
+									className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-lg font-semibold text-sm hover:bg-gray-50 transition-all touch-manipulation"
+								>
+									<User className="w-4 h-4" />
+									<span>Create Account</span>
+								</button>
+							</>
+						)}
 					</div>
 				</div>
 			</div>
@@ -402,20 +460,38 @@ export const ProtectedLayout = () => {
 										<Sun className="w-5 h-5 text-[#fbbf24]" />
 									)}
 								</button>
-								<span className="hidden sm:inline text-sm text-gray-600">
-									Welcome,{" "}
-									<span className="font-semibold text-gray-900">
-										{user?.firstName} {user?.lastName}
-									</span>
-								</span>
-								<button
-									onClick={handleLogout}
-									className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-[#fbbf24] hover:bg-white rounded-lg transition-colors touch-manipulation"
-									aria-label="Logout"
-								>
-									<LogOut className="w-4 h-4 sm:mr-2" />
-									<span className="hidden sm:inline">Logout</span>
-								</button>
+{user ? (
+									<>
+										<span className="hidden sm:inline text-sm text-gray-600">
+											Welcome,{" "}
+											<span className="font-semibold text-gray-900">
+												{user?.firstName} {user?.lastName}
+											</span>
+										</span>
+										<button
+											onClick={handleLogout}
+											className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-[#fbbf24] hover:bg-white rounded-lg transition-colors touch-manipulation"
+											aria-label="Logout"
+										>
+											<LogOut className="w-4 h-4 sm:mr-2" />
+											<span className="hidden sm:inline">Logout</span>
+										</button>
+									</>
+								) : (
+									<>
+										<span className="hidden sm:inline text-sm text-gray-600">
+											Browse print agents
+										</span>
+										<button
+											onClick={() => navigate("/login")}
+											className="flex items-center px-3 py-2 text-sm font-medium text-[#fbbf24] border-2 border-[#fbbf24] bg-white hover:bg-[#fbbf24] hover:text-white rounded-lg transition-colors touch-manipulation"
+											aria-label="Sign in"
+										>
+											<LogIn className="w-4 h-4 sm:mr-2" />
+											<span className="hidden sm:inline">Sign In</span>
+										</button>
+									</>
+								)}
 							</div>
 						</div>
 					</div>

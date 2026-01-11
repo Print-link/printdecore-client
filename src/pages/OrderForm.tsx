@@ -47,6 +47,7 @@ interface OrderFormData {
 		frontOnly?: boolean;
 	};
 	description?: string; // For CUSTOM_QUOTE
+	comment?: string; // Customer comment or special instructions
 }
 
 export const OrderForm = () => {
@@ -59,7 +60,9 @@ export const OrderForm = () => {
 	const POPULAR_BASE_CONFIG_ID = "a4";
 
 	// Variant selection state
-	const [availableVariants, setAvailableVariants] = useState<AgentService[]>([]);
+	const [availableVariants, setAvailableVariants] = useState<AgentService[]>(
+		[]
+	);
 	const [selectedVariantId, setSelectedVariantId] = useState<string | null>(
 		agentServiceId
 	);
@@ -88,7 +91,13 @@ export const OrderForm = () => {
 	const [quantityInput, setQuantityInput] = useState<string>("1");
 
 	// Cart context
-	const { addToCart, branchId: cartBranchId, clearCart, cart } = useCart();
+	const {
+		addToCart,
+		branchId: cartBranchId,
+		clearCart,
+		cart,
+		setComment,
+	} = useCart();
 
 	// PDF page counting
 	const { pdfPageCount, countingPages, setPdfPageCount } =
@@ -134,12 +143,16 @@ export const OrderForm = () => {
 			if (!subCategoryId || !branchId) return;
 			setLoadingVariants(true);
 			try {
-				const response = await getAgentServices(branchId, undefined, subCategoryId);
+				const response = await getAgentServices(
+					branchId,
+					undefined,
+					subCategoryId
+				);
 				if (response.success && response.data) {
 					// Filter to only show active ones (manager consciously added pricing)
-					const pricedVariants = response.data.filter(s => s.isActive);
+					const pricedVariants = response.data.filter((s) => s.isActive);
 					setAvailableVariants(pricedVariants);
-					
+
 					// Auto-select first variant if none selected
 					if (!selectedVariantId && pricedVariants.length > 0) {
 						setSelectedVariantId(pricedVariants[0].id);
@@ -176,8 +189,9 @@ export const OrderForm = () => {
 				return {
 					...prev,
 					selectedBaseConfigId: defaultBaseConfig || undefined,
-					selectedOptions:
-						getDefaultOptions(agentService.pricingConfig || null),
+					selectedOptions: getDefaultOptions(
+						agentService.pricingConfig || null
+					),
 					selectedCustomSpecs: [],
 				};
 			});
@@ -289,6 +303,10 @@ export const OrderForm = () => {
 			};
 
 			addToCart(cartItem);
+			// Store comment in cart context if provided
+			if (formData.comment) {
+				setComment(formData.comment);
+			}
 			setShowAddToCartModal(false);
 			toast.success("Item added to cart!");
 			navigate(`/home/order/cart/${branchId}`); // Go to cart
@@ -466,13 +484,13 @@ export const OrderForm = () => {
 
 	const handleVariantSelect = (variantId: string) => {
 		setSelectedVariantId(variantId);
-		
+
 		// Update URL without navigation
 		const newParams = new URLSearchParams(searchParams);
 		newParams.set("agentServiceId", variantId);
 		// Keep subCategoryId and branchId as they are
 		setSearchParams(newParams);
-		
+
 		// Reset form data for new service
 		setFormData((prev) => ({
 			...prev,
@@ -498,7 +516,9 @@ export const OrderForm = () => {
 					<div className="flex flex-col items-center justify-center py-8 sm:py-12">
 						<Loader2 className="w-8 h-8 text-[#fbbf24] animate-spin mb-4" />
 						<p className="text-sm text-gray-500 animate-pulse font-medium">
-							{loadingVariants ? "Loading variants..." : "Loading configuration..."}
+							{loadingVariants
+								? "Loading variants..."
+								: "Loading configuration..."}
 						</p>
 					</div>
 				</div>
@@ -522,7 +542,8 @@ export const OrderForm = () => {
 						No active services found for this subcategory.
 					</p>
 					<p className="text-xs text-gray-400 mt-2 text-center">
-						The branch manager needs to configure pricing before this service can be ordered.
+						The branch manager needs to configure pricing before this service
+						can be ordered.
 					</p>
 				</div>
 			</div>
@@ -768,6 +789,22 @@ export const OrderForm = () => {
 					countingPages={countingPages}
 				/>
 
+				{/* Comment Field */}
+				<div>
+					<label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
+						Comment (Optional)
+					</label>
+					<textarea
+						value={formData.comment || ""}
+						onChange={(e) =>
+							setFormData((prev) => ({ ...prev, comment: e.target.value }))
+						}
+						placeholder="Add any special instructions or comments for this order..."
+						rows={4}
+						className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent transition-all resize-y"
+					/>
+				</div>
+
 				{/* Price Preview */}
 				{priceInfo && agentService && (
 					<PricePreview
@@ -806,7 +843,7 @@ export const OrderForm = () => {
 						) : (
 							<>
 								<ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-								<span>Add to Cart</span>
+								<span>Add To Tray</span>
 							</>
 						)}
 					</button>

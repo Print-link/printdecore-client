@@ -11,7 +11,7 @@ import { Register } from "./pages/Register";
 import { SendOTP } from "./pages/SendOTP";
 import { VerifyOTP } from "./pages/VerifyOTP";
 import { Home } from "./pages/Home";
-import { Landing } from "./pages/Landing";
+
 import { History } from "./pages/History";
 import { Search } from "./pages/Search";
 import { PrintStationDetails } from "./pages/PrintStationDetails";
@@ -48,13 +48,10 @@ const AppRoutes = () => {
 
 	return (
 		<Routes>
-			{/* Public Landing Page - Redirect authenticated users to home */}
-			<Route 
-				path="/" 
-				element={user ? <Navigate to="/home" replace /> : <Landing />} 
-			/>
+			{/* Root route - redirect to home (now accessible without auth) */}
+			<Route path="/" element={<Navigate to="/home" replace />} />
 			
-			{/* Auth Routes */}
+			{/* Auth Routes - redirect to home if already authenticated */}
 			<Route
 				path="/login"
 				element={user ? <Navigate to="/home" replace /> : <Login />}
@@ -72,12 +69,34 @@ const AppRoutes = () => {
 				element={user ? <Navigate to="/home" replace /> : <Register />}
 			/>
 			
-			{/* Public Routes - Landing page accessible even when authenticated */}
+			{/* Public Routes */}
 			<Route path="/payment/callback" element={<PaymentCallback />} />
-			<Route path="/landing" element={<Landing />} />
-			<Route path="/welcome" element={<Landing />} />
 			
-			{/* Protected Routes */}
+			{/* Main App Routes - Accessible without authentication */}
+			<Route path="/home" element={<ProtectedLayout />}>
+				<Route index element={<Home />} />
+				<Route path="search" element={<Search />} />
+				<Route path="categories/:id" element={<Categories />} />
+				<Route path="print-station/:id" element={<PrintStationDetails />} />
+			</Route>
+			
+			{/* Protected Routes - Require authentication */}
+			<Route
+				path="/home/history"
+				element={
+					<ProtectedRoute>
+						<History />
+					</ProtectedRoute>
+				}
+			/>
+			<Route
+				path="/home/order/:id"
+				element={
+					<ProtectedRoute>
+						<OrderDetails />
+					</ProtectedRoute>
+				}
+			/>
 			<Route
 				path="/quote/confirm"
 				element={
@@ -86,30 +105,41 @@ const AppRoutes = () => {
 					</ProtectedRoute>
 				}
 			/>
+			{/* Order Flow Routes - Require authentication */}
 			<Route
-				path="/home"
+				path="/home/order/sub-categories/:branchId"
 				element={
 					<ProtectedRoute>
-						<ProtectedLayout />
+						<SubCategories />
 					</ProtectedRoute>
 				}
-			>
-				<Route index element={<Home />} />
-				<Route path="history" element={<History />} />
-				<Route path="search" element={<Search />} />
-				<Route path="order/:id" element={<OrderDetails />} />
-				<Route path="categories/:id" element={<Categories />} />
-				<Route path="print-station/:id" element={<PrintStationDetails />} />
-				{/* New Order Flow Routes */}
-				<Route
-					path="order/sub-categories/:branchId"
-					element={<SubCategories />}
-				/>
-				<Route path="order/configure/:branchId" element={<OrderForm />} />
-				<Route path="order/cart/:branchId" element={<Cart />} />
-				<Route path="order/checkout/:branchId" element={<Checkout />} />
-			</Route>
-			<Route path="*" element={<Navigate to="/" replace />} />
+			/>
+			<Route
+				path="/home/order/configure/:branchId"
+				element={
+					<ProtectedRoute>
+						<OrderForm />
+					</ProtectedRoute>
+				}
+			/>
+			<Route
+				path="/home/order/cart/:branchId"
+				element={
+					<ProtectedRoute>
+						<Cart />
+					</ProtectedRoute>
+				}
+			/>
+			<Route
+				path="/home/order/checkout/:branchId"
+				element={
+					<ProtectedRoute>
+						<Checkout />
+					</ProtectedRoute>
+				}
+			/>
+			
+			<Route path="*" element={<Navigate to="/home" replace />} />
 		</Routes>
 	);
 };
