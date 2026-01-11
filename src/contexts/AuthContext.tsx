@@ -258,7 +258,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 		lastName: string,
 		email: string,
 		password: string,
-		phoneNumber: string
+		phoneNumber: string,
+		country?: string,
+		currency?: string
 	): Promise<{ success: boolean; message?: string }> => {
 		try {
 			const response = await apiService.register(
@@ -266,7 +268,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 				lastName,
 				email,
 				password,
-				phoneNumber
+				phoneNumber,
+				country,
+				currency
 			);
 
 			if (response.success && response.data) {

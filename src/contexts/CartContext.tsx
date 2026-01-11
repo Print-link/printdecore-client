@@ -35,6 +35,8 @@ export interface CartItem {
 interface CartContextType {
 	cart: CartItem[];
 	branchId: string | null;
+	comment: string;
+	setComment: (comment: string) => void;
 	addToCart: (item: CartItem) => void;
 	removeFromCart: (itemId: string) => void;
 	updateCartItem: (itemId: string, updates: Partial<CartItem>) => void;
@@ -47,16 +49,19 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 const CART_STORAGE_KEY = "piper_cart";
 const BRANCH_STORAGE_KEY = "piper_cart_branch";
+const CART_COMMENT_KEY = "piper_cart_comment";
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
 	const [cart, setCart] = useState<CartItem[]>([]);
 	const [branchId, setBranchId] = useState<string | null>(null);
+	const [comment, setComment] = useState<string>("");
 
 	// Load cart from localStorage on mount
 	useEffect(() => {
 		try {
 			const savedCart = localStorage.getItem(CART_STORAGE_KEY);
 			const savedBranchId = localStorage.getItem(BRANCH_STORAGE_KEY);
+			const savedComment = localStorage.getItem(CART_COMMENT_KEY);
 			
 			if (savedCart) {
 				// Note: File objects can't be stored in localStorage
@@ -71,6 +76,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 			
 			if (savedBranchId) {
 				setBranchId(savedBranchId);
+			}
+			
+			if (savedComment) {
+				setComment(savedComment);
 			}
 		} catch (error) {
 			console.error("Error loading cart from localStorage:", error);
@@ -95,6 +104,15 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 			localStorage.removeItem(BRANCH_STORAGE_KEY);
 		}
 	}, [branchId]);
+
+	// Save comment to localStorage
+	useEffect(() => {
+		if (comment) {
+			localStorage.setItem(CART_COMMENT_KEY, comment);
+		} else {
+			localStorage.removeItem(CART_COMMENT_KEY);
+		}
+	}, [comment]);
 
 	const addToCart = (item: CartItem, options?: { autoClear?: boolean }) => {
 		// Set branchId if not set
@@ -135,8 +153,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 	const clearCart = () => {
 		setCart([]);
 		setBranchId(null);
+		setComment("");
 		localStorage.removeItem(CART_STORAGE_KEY);
 		localStorage.removeItem(BRANCH_STORAGE_KEY);
+		localStorage.removeItem(CART_COMMENT_KEY);
 	};
 
 	const getCartTotal = () => {
@@ -152,6 +172,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 			value={{
 				cart,
 				branchId,
+				comment,
+				setComment,
 				addToCart,
 				removeFromCart,
 				updateCartItem,

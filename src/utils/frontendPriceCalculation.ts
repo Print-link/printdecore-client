@@ -6,24 +6,26 @@ import type {
 } from "../services/orderApi";
 
 // Helper to calculate area in square feet
+// For INCH: (W * H) / 144 = area in sqft
+// For FEET: W * H = area in sqft
 const calculateAreaInSqFt = (
 	width: number,
 	height: number,
 	unit: MeasurementUnit
 ): number => {
-	let widthInFt = width;
-	let heightInFt = height;
-
 	if (unit === "INCH") {
-		widthInFt = width / 12;
-		heightInFt = height / 12;
+		// Convert square inches to square feet: divide by 144 (12 * 12)
+		return (width * height) / 144;
+	} else if (unit === "FEET") {
+		// Already in square feet
+		return width * height;
 	} else if (unit === "UNIT") {
 		// Treat as 1x1 for unit based if dimensions not provided, 
         // but usually UNIT based doesn't use this helper directly in same way
 		return 0; 
 	}
 
-	return widthInFt * heightInFt;
+	return 0;
 };
 
 export const calculateOrderPriceFrontend = (
@@ -43,9 +45,17 @@ export const calculateOrderPriceFrontend = (
 	if (agentService.pricingConfig) {
 		const config = agentService.pricingConfig;
 
-		// Check if this is a PAGE_BASED service with flexible pricing
+		// Determine formula type
 		const isPageBased =
 			formulaType === "PAGE_BASED" || agentService.formulaType === "PAGE_BASED";
+		const isAreaFeet =
+			formulaType === "AREA_FEET" || agentService.formulaType === "AREA_FEET";
+		const isAreaInch =
+			formulaType === "AREA_INCH" || agentService.formulaType === "AREA_INCH";
+		const isAreaOrUnit =
+			formulaType === "AREA_OR_UNIT" || agentService.formulaType === "AREA_OR_UNIT";
+		const isAreaBased = isAreaFeet || isAreaInch || isAreaOrUnit;
+
 		const pagesPerCopy =
 			request.filePages ||
 			request.options?.filePages ||
@@ -203,11 +213,42 @@ export const calculateOrderPriceFrontend = (
 			});
 		}
 
-		// 3. Calculate base price: (unitPrice + PER_UNIT modifiers) * quantity * pageCount
-		// This is the first part of the formula: ((unitPrice + PER_UNIT options) * quantity * pageCount)
+		// 3. Calculate base price based on formula type
+		// For PAGE_BASED: (unitPrice + PER_UNIT modifiers) * quantity * pageCount
+		// For AREA_BASED: (W * H * (unitPrice + PER_UNIT modifiers)) / constant (if INCH) or W * H * (unitPrice + PER_UNIT modifiers) (if FEET)
 		if (isPageBased) {
 			basePrice = unitPriceWithModifiers * quantity * effectiveUnits;
+		} else if (isAreaBased) {
+			const width = request.width || 0;
+			const height = request.height || 0;
+			const measurementUnit = request.measurementUnit || "FEET";
+			const constant = agentService.constant || 144;
+
+			if (!width || !height || !unitPrice) {
+				// If no dimensions, fall back to unit price for AREA_OR_UNIT
+				if (isAreaOrUnit && unitPrice) {
+					basePrice = unitPriceWithModifiers * quantity;
+				} else {
+					basePrice = 0;
+				}
+			} else {
+				// Calculate area-based price
+				// For INCH: (W * H * unitPrice) / 144
+				// For FEET: W * H * unitPrice
+				if (measurementUnit === "INCH") {
+					// Formula: (W * H * sqr) / 144
+					const areaPrice = (width * height * unitPriceWithModifiers) / constant;
+					basePrice = areaPrice * quantity;
+				} else if (measurementUnit === "FEET") {
+					// Formula: W * H * sqr
+					const areaPrice = width * height * unitPriceWithModifiers;
+					basePrice = areaPrice * quantity;
+				} else {
+					basePrice = unitPriceWithModifiers * quantity;
+				}
+			}
 		} else {
+			// UNIT_BASED or other
 			basePrice = unitPriceWithModifiers * quantity;
 		}
 
@@ -215,6 +256,21 @@ export const calculateOrderPriceFrontend = (
 		if (breakdown.baseConfiguration) {
 			if (isPageBased) {
 				breakdown.baseConfiguration.price = unitPrice;
+			} else if (isAreaBased) {
+				const width = request.width || 0;
+				const height = request.height || 0;
+				const measurementUnit = request.measurementUnit || "FEET";
+				const constant = agentService.constant || 144;
+
+				if (width && height) {
+					if (measurementUnit === "INCH") {
+						breakdown.baseConfiguration.price = (width * height * unitPrice) / constant;
+					} else {
+						breakdown.baseConfiguration.price = width * height * unitPrice;
+					}
+				} else {
+					breakdown.baseConfiguration.price = unitPrice;
+				}
 			} else {
 				breakdown.baseConfiguration.price = unitPrice * quantity;
 			}
@@ -340,7 +396,7 @@ export const calculateOrderPriceFrontend = (
         // Debug logs (optional, can be removed)
         console.log('calc:', { pagesPerCopy, effectiveUnits, totalUnits, costPerPage, startupFee, calculatedPrice });
     } 
-    // 2. AREA_BASED (Square Feet)
+    // 2. AREA_BASED (Square Feet) - Legacy
     else if (formulaType === "AREA_FEET" || agentService.formulaType === "AREA_FEET") {
          formulaType = "AREA_FEET";
          const pricePerSqFt = agentService.pricePerUnit || 0;
@@ -350,10 +406,67 @@ export const calculateOrderPriceFrontend = (
          const height = request.height || 0;
          const unit = request.measurementUnit || "FEET";
          
+         // Formula: W * H * sqr (for FEET) or (W * H * sqr) / 144 (for INCH)
          const areaSqFt = calculateAreaInSqFt(width, height, unit);
          const totalArea = areaSqFt * quantity;
          
          calculatedPrice = (totalArea * pricePerSqFt) + startupFee;
+         basePrice = calculatedPrice;
+    }
+    // 2b. AREA_INCH (Square Inches) - Legacy
+    else if (formulaType === "AREA_INCH" || agentService.formulaType === "AREA_INCH") {
+         formulaType = "AREA_INCH";
+         const pricePerSqFt = agentService.pricePerUnit || 0;
+         const startupFee = agentService.constant || 0;
+         const constant = agentService.constant || 144;
+         
+         const width = request.width || 0;
+         const height = request.height || 0;
+         const unit = request.measurementUnit || "INCH";
+         
+         // Formula: (W * H * sqr) / 144
+         // If input is in inches: (W * H * pricePerSqFt) / 144
+         // If input is in feet: convert to inches first
+         let areaPrice = 0;
+         if (unit === "INCH") {
+             areaPrice = (width * height * pricePerSqFt) / constant;
+         } else {
+             // Convert feet to inches
+             const widthInInches = width * 12;
+             const heightInInches = height * 12;
+             areaPrice = (widthInInches * heightInInches * pricePerSqFt) / constant;
+         }
+         
+         calculatedPrice = (areaPrice * quantity) + startupFee;
+         basePrice = calculatedPrice;
+    }
+    // 2c. AREA_OR_UNIT (Area if dimensions provided, otherwise unit price) - Legacy
+    else if (formulaType === "AREA_OR_UNIT" || agentService.formulaType === "AREA_OR_UNIT") {
+         formulaType = "AREA_OR_UNIT";
+         const pricePerSqFt = agentService.pricePerUnit || 0;
+         const startupFee = agentService.constant || 0;
+         const constant = agentService.constant || 144;
+         
+         const width = request.width || 0;
+         const height = request.height || 0;
+         const unit = request.measurementUnit || "FEET";
+         
+         // Use area if dimensions provided, otherwise use unit price
+         if (width && height && pricePerSqFt) {
+             // Formula: W * H * sqr (for FEET) or (W * H * sqr) / 144 (for INCH)
+             let areaPrice = 0;
+             if (unit === "INCH") {
+                 areaPrice = (width * height * pricePerSqFt) / constant;
+             } else {
+                 areaPrice = width * height * pricePerSqFt;
+             }
+             calculatedPrice = (areaPrice * quantity) + startupFee;
+         } else if (pricePerSqFt) {
+             // Fall back to unit price
+             calculatedPrice = (pricePerSqFt * quantity) + startupFee;
+         } else {
+             calculatedPrice = startupFee;
+         }
          basePrice = calculatedPrice;
     }
     // 3. UNIT_BASED (Per Item)

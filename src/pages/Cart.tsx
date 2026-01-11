@@ -7,7 +7,7 @@ import { EmptyState } from "../components/EmptyState";
 export const Cart = () => {
 	const { branchId } = useParams<{ branchId: string }>();
 	const navigate = useNavigate();
-	const { cart, removeFromCart, updateCartItem, getCartTotal } = useCart();
+	const { cart, removeFromCart, updateCartItem, getCartTotal, comment, setComment } = useCart();
 
 	const handleRemoveItem = (itemId: string) => {
 		removeFromCart(itemId);
@@ -154,6 +154,20 @@ export const Cart = () => {
 						</div>
 					</div>
 				))}
+			</div>
+
+			{/* Comment Section */}
+			<div className="mt-6 bg-white rounded-lg border-2 border-gray-200 p-6">
+				<label className="block text-base font-semibold text-gray-900 mb-2">
+					Order Comment (Optional)
+				</label>
+				<textarea
+					value={comment}
+					onChange={(e) => setComment(e.target.value)}
+					placeholder="Add any special instructions or comments for your order..."
+					rows={4}
+					className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent transition-all resize-y"
+				/>
 			</div>
 
 			{/* Cart Summary */}

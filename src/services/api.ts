@@ -130,7 +130,9 @@ class ApiService {
 		lastName: string,
 		email: string,
 		password: string,
-		phoneNumber: string
+		phoneNumber: string,
+		country?: string,
+		currency?: string
 	) {
 		const response = await this.request<{
 			customer: {
@@ -139,6 +141,8 @@ class ApiService {
 				lastName: string;
 				email: string;
 				phoneNumber: string;
+				country?: string;
+				currency?: string;
 				createdAt: string;
 				updatedAt: string;
 			};
@@ -151,6 +155,8 @@ class ApiService {
 				email,
 				password,
 				phoneNumber,
+				country,
+				currency,
 			}),
 		});
 		return response;

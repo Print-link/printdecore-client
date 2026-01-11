@@ -7,10 +7,17 @@ import {
 	Phone,
 	AlertCircle,
 	CheckCircle,
+	Globe,
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { toast } from "react-toastify";
 import { Logo } from "../components/Logo";
+import {
+	getSupportedCountries,
+	getCurrencyByCountry,
+	detectCountryFromPhone,
+	detectCountryFromGeolocation,
+} from "../utils/countryUtils";
 
 export const Register = () => {
 	const [firstName, setFirstName] = useState("");
@@ -19,12 +26,15 @@ export const Register = () => {
 	const [phoneNumber, setPhoneNumber] = useState("");
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
+	const [country, setCountry] = useState<string>("");
 	const [error, setError] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 	const [isVerified, setIsVerified] = useState(false);
+	const [detectingCountry, setDetectingCountry] = useState(false);
 	const { register } = useAuth();
 	const navigate = useNavigate();
 	const location = useLocation();
+	const supportedCountries = getSupportedCountries();
 
 	useEffect(() => {
 		// Check if user came from OTP verification
@@ -37,6 +47,44 @@ export const Register = () => {
 			navigate("/send-otp", { replace: true });
 		}
 	}, [location.state, navigate]);
+
+	// Auto-detect country on component mount
+	useEffect(() => {
+		const autoDetectCountry = async () => {
+			if (country) return; // Don't override if already set
+
+			setDetectingCountry(true);
+			try {
+				// Try geolocation first
+				const detectedCountry = await detectCountryFromGeolocation();
+				if (detectedCountry) {
+					setCountry(detectedCountry);
+					setDetectingCountry(false);
+					return;
+				}
+			} catch (error) {
+				console.error("Error detecting country from geolocation:", error);
+			}
+
+			// Fallback to default (Ghana)
+			setCountry("GH");
+			setDetectingCountry(false);
+		};
+
+		autoDetectCountry();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []); // Only run once on mount
+
+	// Auto-detect country from phone number when it changes
+	useEffect(() => {
+		if (phoneNumber && phoneNumber.length > 5 && !country) {
+			const detected = detectCountryFromPhone(phoneNumber);
+			if (detected) {
+				setCountry(detected);
+			}
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [phoneNumber]); // Only trigger on phoneNumber change, not country
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -60,12 +108,15 @@ export const Register = () => {
 		setIsLoading(true);
 
 		try {
+			const currency = getCurrencyByCountry(country || "GH");
 			const result = await register(
 				firstName,
 				lastName,
 				email,
 				password,
-				phoneNumber
+				phoneNumber,
+				country || "GH",
+				currency
 			);
 			if (result.success) {
 				toast.success("Account created successfully");
@@ -179,12 +230,60 @@ export const Register = () => {
 								type="tel"
 								value={phoneNumber}
 								onChange={(e) => setPhoneNumber(e.target.value)}
-								placeholder="Enter your phone number"
+								placeholder="Enter your phone number (e.g., +233 XX XXX XXXX)"
 								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
 								required
-								maxLength={15}
+								maxLength={20}
 							/>
 						</div>
+						{phoneNumber && (
+							<p className="mt-1 text-xs text-gray-500">
+								{detectCountryFromPhone(phoneNumber)
+									? `Detected: ${
+											supportedCountries.find(
+												(c) => c.code === detectCountryFromPhone(phoneNumber)
+											)?.name || detectCountryFromPhone(phoneNumber)
+									  }`
+									: "Enter your phone number with country code"}
+							</p>
+						)}
+					</div>
+
+					<div>
+						<label className="block text-sm font-medium text-gray-700 mb-2">
+							Country
+							{detectingCountry && (
+								<span className="ml-2 text-xs text-gray-500">
+									(Detecting...)
+								</span>
+							)}
+						</label>
+						<div className="relative">
+							<Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+							<select
+								value={country}
+								onChange={(e) => setCountry(e.target.value)}
+								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent appearance-none bg-white"
+								required
+							>
+								<option value="">Select your country</option>
+								{supportedCountries.map((countryOption) => (
+									<option key={countryOption.code} value={countryOption.code}>
+										{countryOption.flag} {countryOption.name} (
+										{countryOption.currency})
+									</option>
+								))}
+							</select>
+						</div>
+						{country && (
+							<p className="mt-1 text-xs text-gray-500">
+								Currency: {getCurrencyByCountry(country)} -{" "}
+								{
+									supportedCountries.find((c) => c.code === country)
+										?.currencyName
+								}
+							</p>
+						)}
 					</div>
 
 					<div>
