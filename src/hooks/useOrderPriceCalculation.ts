@@ -27,6 +27,7 @@ interface OrderFormData {
 		filePages?: number;
 		numberOfPages?: number;
 	};
+	calculationBasis?: "INCH" | "FEET";
 }
 
 interface UseOrderPriceCalculationProps {
@@ -43,9 +44,7 @@ export const useOrderPriceCalculation = ({
 	pdfPageCount,
 }: UseOrderPriceCalculationProps) => {
 	const [calculatingPrice, setCalculatingPrice] = useState<boolean>(false);
-	const [priceInfo, setPriceInfo] = useState<PriceCalculationResponse | null>(
-		null
-	);
+	const [priceInfo, setPriceInfo] = useState<PriceCalculationResponse | null>(null);
 	const [formulaType, setFormulaType] = useState<string | null>(null);
 
 	// Check if service uses flexible pricing
@@ -70,10 +69,9 @@ export const useOrderPriceCalculation = ({
 			formData.options.frontOnly,
 			formData.options.filePages,
 			formData.options.numberOfPages,
+			formData.calculationBasis,
 		]
 	);
-
-	// Removed calculatePriceAsync as we use frontend calculation now
 
 	// Get formula type directly from agentService if available
 	useEffect(() => {
@@ -106,20 +104,14 @@ export const useOrderPriceCalculation = ({
 						if (pdfPageCount && pdfPageCount > 0) {
 							requestPayload.filePages = pdfPageCount;
 						}
-						// Pass dimensions for area-based services (AREA_FEET, AREA_INCH, AREA_OR_UNIT)
-						// These are needed even with flexible pricing for area calculations
+						// Pass dimensions for area-based services (AREA_FEET, AREA_INCH, AREA_OR_UNIT, AREA_UNIT)
 						if (memoizedFormData.width && memoizedFormData.height) {
 							requestPayload.width = memoizedFormData.width;
 							requestPayload.height = memoizedFormData.height;
 							requestPayload.measurementUnit = memoizedFormData.measurementUnit;
 						}
-						// Also pass legacy options for compatibility (e.g., frontBack for PAGE_BASED)
-						if (memoizedFormData.options) {
-							requestPayload.options = {
-								...memoizedFormData.options,
-								filePages: pdfPageCount,
-								numberOfPages: pdfPageCount,
-							};
+						if (memoizedFormData.calculationBasis) {
+							requestPayload.calculationBasis = memoizedFormData.calculationBasis;
 						}
 					} else {
 						const options = { ...memoizedFormData.options };
@@ -131,6 +123,9 @@ export const useOrderPriceCalculation = ({
 						requestPayload.height = memoizedFormData.height;
 						requestPayload.measurementUnit = memoizedFormData.measurementUnit;
 						requestPayload.options = Object.keys(options).length > 0 ? options : undefined;
+						if (memoizedFormData.calculationBasis) {
+							requestPayload.calculationBasis = memoizedFormData.calculationBasis;
+						}
 					}
 
 					console.log('request payload ---', requestPayload)
@@ -159,7 +154,7 @@ export const useOrderPriceCalculation = ({
 		agentService,
 		pdfPageCount,
 		usesFlexiblePricing,
-		formulaType // kept for consistency if needed, though local calc is fast
+		formulaType
 	]);
 
 	return {
@@ -169,4 +164,3 @@ export const useOrderPriceCalculation = ({
 		usesFlexiblePricing,
 	};
 };
-

@@ -16,7 +16,7 @@ export const SubCategories = () => {
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
 	const [searchQuery, setSearchQuery] = useState<string>("");
-	const [selectedPricingType, _] = useState<PricingType | "ALL">("ALL");
+	const [selectedPricingType] = useState<PricingType | "ALL">("ALL");
 
 	useEffect(() => {
 		const fetchSubCategories = async () => {
@@ -144,18 +144,12 @@ export const SubCategories = () => {
 			) : filteredSubCategories.length === 0 ? (
 				<EmptyState type="no-results" onClearSearch={() => setSearchQuery("")} />
 			) : (
-				<div className="space-y-0 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4 md:space-y-0">
-					{filteredSubCategories.map((subCategory, index) => (
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+					{filteredSubCategories.map((subCategory) => (
 						<button
 							key={subCategory.id}
 							onClick={() => handleSubCategoryClick(subCategory.id)}
-							className={`w-full bg-white p-4 border-2 border-gray-200 text-left group hover:border-[#fbbf24] transition-all ${
-								index === 0
-									? "rounded-t-lg md:rounded-lg"
-									: index === filteredSubCategories.length - 1
-									? "rounded-b-lg border-t-0 md:rounded-lg md:border-t-2"
-									: "border-t-0 md:rounded-lg md:border-t-2"
-							}`}
+							className="w-full bg-white p-4 border-2 border-gray-200 rounded-lg text-left group hover:border-[#fbbf24] transition-all"
 						>
 							<div className="flex items-start gap-3 md:flex-col md:gap-4">
 								<div className="flex items-center gap-3 flex-1 min-w-0 md:flex-col md:items-start md:w-full">

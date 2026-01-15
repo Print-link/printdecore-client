@@ -259,6 +259,7 @@ export interface PriceCalculationRequest {
 
 	// Common fields (used by both formats)
 	filePages?: number; // For PAGE_BASED formulas in new format
+	calculationBasis?: 'INCH' | 'FEET';
 }
 
 /**
@@ -582,6 +583,7 @@ export const createOrderItem = async (orderItemData: {
 	width?: number;
 	height?: number;
 	measurementUnit: MeasurementUnit;
+	formulaType?: string;
 	quantity: number;
 	options?: OrderItem["options"];
 	calculatedPrice: number;

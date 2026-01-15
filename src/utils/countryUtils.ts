@@ -72,7 +72,7 @@ export function getCountryByCode(countryCode: string | undefined | null) {
  * Check if a currency is supported by Paystack
  */
 export function isPaystackSupportedCurrency(currency: string): boolean {
-  return PAYSTACK_SUPPORTED_CURRENCIES.includes(currency.toUpperCase() as any);
+  return PAYSTACK_SUPPORTED_CURRENCIES.includes(currency.toUpperCase() as typeof PAYSTACK_SUPPORTED_CURRENCIES[number]);
 }
 
 /**

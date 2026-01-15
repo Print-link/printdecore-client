@@ -14,6 +14,7 @@ import { validateOrderForm } from "../utils/orderValidation";
 import { useCart } from "../contexts/CartContext";
 import { FileUploadSection } from "../components/order/FileUploadSection";
 import { DimensionsInput } from "../components/order/DimensionsInput";
+import { CalculationBasisSelector } from "../components/order/CalculationBasisSelector";
 import { OrderOptions } from "../components/order/OrderOptions";
 import { BaseConfigurationSelector } from "../components/order/BaseConfigurationSelector";
 import { CustomSpecificationsSelector } from "../components/order/CustomSpecificationsSelector";
@@ -30,6 +31,7 @@ import { EmptyState } from "../components/EmptyState";
 import { Check } from "lucide-react";
 
 interface OrderFormData {
+	calculationBasis?: "INCH" | "FEET";
 	// New flexible pricing format
 	selectedBaseConfigId?: string;
 	selectedOptions?: string[];
@@ -76,6 +78,7 @@ export const OrderForm = () => {
 	);
 
 	const [formData, setFormData] = useState<OrderFormData>({
+		calculationBasis: "FEET",
 		measurementUnit: "FEET",
 		quantity: 1,
 		options: {
@@ -205,6 +208,17 @@ export const OrderForm = () => {
 		formulaType === "PAGE_BASED" ||
 		priceInfo?.formulaType === "PAGE_BASED";
 
+	// Check if this service should show calculation basis selector and dimensions
+	const shouldShowCalculationBasis =
+		agentService?.formulaType === "AREA_OR_UNIT" ||
+		agentService?.formulaType === "AREA_FEET" ||
+		agentService?.formulaType === "AREA_INCH" ||
+		agentService?.formulaType === "AREA_UNIT" ||
+		formulaType === "AREA_OR_UNIT" ||
+		formulaType === "AREA_FEET" ||
+		formulaType === "AREA_INCH" ||
+		formulaType === "AREA_UNIT";
+
 	const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const files = Array.from(e.target.files || []);
 
@@ -290,6 +304,7 @@ export const OrderForm = () => {
 				width: formData.width,
 				height: formData.height,
 				measurementUnit: formData.measurementUnit,
+				formulaType: priceInfo?.formulaType,
 				quantity: formData.quantity,
 				options: {
 					...formData.options,
@@ -344,6 +359,7 @@ export const OrderForm = () => {
 											width: formData.width,
 											height: formData.height,
 											measurementUnit: formData.measurementUnit,
+											formulaType: priceInfo?.formulaType,
 											quantity: formData.quantity,
 											options: {
 												...formData.options,
@@ -395,6 +411,7 @@ export const OrderForm = () => {
 				width: formData.width,
 				height: formData.height,
 				measurementUnit: formData.measurementUnit,
+				formulaType: priceInfo?.formulaType,
 				quantity: formData.quantity,
 				options: {
 					...formData.options,
@@ -445,6 +462,7 @@ export const OrderForm = () => {
 											width: formData.width,
 											height: formData.height,
 											measurementUnit: formData.measurementUnit,
+											formulaType: priceInfo?.formulaType,
 											quantity: formData.quantity,
 											options: {
 												...formData.options,
@@ -576,7 +594,7 @@ export const OrderForm = () => {
 	}
 
 	return (
-		<div className="md:w-full md:max-w-4xl md:mx-auto md:px-4 lg:px-0">
+		<div className="w-full max-w-4xl mx-auto px-4 lg:px-0">
 			{/* Back Button */}
 			<button
 				onClick={handleBack}
@@ -716,13 +734,26 @@ export const OrderForm = () => {
 					</div>
 				)}
 
-				{/* Dimensions - Legacy format or for area-based services (after pricing config sections) */}
-				{!usesFlexiblePricing && !isPageBased && agentService && (
-					<div className="border-b border-gray-200 pb-4 sm:pb-6">
+				{/* Calculation Basis Selector and Dimensions for AREA_OR_UNIT, FEET, UNIT formula types */}
+				{shouldShowCalculationBasis && agentService && (
+					<div className="border-b border-gray-200 pb-4 sm:pb-6 space-y-4">
+						<CalculationBasisSelector
+							calculationBasis={formData.calculationBasis || "FEET"}
+							onCalculationBasisChange={(basis) =>
+								setFormData((prev) => ({
+									...prev,
+									calculationBasis: basis,
+									// Also update measurementUnit to match for consistency
+									measurementUnit: basis,
+								}))
+							}
+							disabled={calculatingPrice}
+						/>
+
 						<DimensionsInput
 							width={formData.width}
 							height={formData.height}
-							measurementUnit={formData.measurementUnit}
+							measurementUnit={formData.calculationBasis || "FEET"}
 							onWidthChange={(width) =>
 								setFormData((prev) => ({ ...prev, width }))
 							}
@@ -730,12 +761,40 @@ export const OrderForm = () => {
 								setFormData((prev) => ({ ...prev, height }))
 							}
 							onMeasurementUnitChange={(unit) =>
-								setFormData((prev) => ({ ...prev, measurementUnit: unit }))
+								setFormData((prev) => ({
+									...prev,
+									measurementUnit: unit,
+									calculationBasis: unit as "INCH" | "FEET",
+								}))
 							}
-							required={!isPageBased}
+							required={true}
 						/>
 					</div>
 				)}
+
+				{/* Dimensions - Legacy format for other non-page-based services */}
+				{!usesFlexiblePricing &&
+					!isPageBased &&
+					!shouldShowCalculationBasis &&
+					agentService && (
+						<div className="border-b border-gray-200 pb-4 sm:pb-6">
+							<DimensionsInput
+								width={formData.width}
+								height={formData.height}
+								measurementUnit={formData.measurementUnit}
+								onWidthChange={(width) =>
+									setFormData((prev) => ({ ...prev, width }))
+								}
+								onHeightChange={(height) =>
+									setFormData((prev) => ({ ...prev, height }))
+								}
+								onMeasurementUnitChange={(unit) =>
+									setFormData((prev) => ({ ...prev, measurementUnit: unit }))
+								}
+								required={!isPageBased}
+							/>
+						</div>
+					)}
 
 				{/* Quantity */}
 				<div>
@@ -815,9 +874,9 @@ export const OrderForm = () => {
 						quantity={formData.quantity}
 						options={formData.options}
 						calculatingPrice={calculatingPrice}
-						selectedBaseConfigId={formData.selectedBaseConfigId}
-						selectedOptions={formData.selectedOptions}
-						selectedCustomSpecs={formData.selectedCustomSpecs}
+						width={formData.width}
+						height={formData.height}
+						calculationBasis={formData.calculationBasis}
 					/>
 				)}
 
@@ -861,6 +920,7 @@ export const OrderForm = () => {
 						width: formData.width,
 						height: formData.height,
 						measurementUnit: formData.measurementUnit,
+						formulaType: priceInfo?.formulaType,
 						quantity: formData.quantity,
 						options: {
 							...formData.options,
