@@ -16,6 +16,7 @@ export interface CartItem {
 	width?: number;
 	height?: number;
 	measurementUnit: "FEET" | "INCH" | "UNIT";
+	formulaType?: string;
 	quantity: number;
 	options: {
 		frontBack?: boolean;
@@ -89,7 +90,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 	// Save cart to localStorage (without files)
 	useEffect(() => {
 		try {
-			const cartWithoutFiles = cart.map(({ files, ...item }) => item);
+			const cartWithoutFiles = cart.map(({ ...item }) => item);
 			localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartWithoutFiles));
 		} catch (error) {
 			console.error("Error saving cart to localStorage:", error);
@@ -187,6 +188,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 	);
 };
 
+/* eslint-disable react-refresh/only-export-components */
 export const useCart = () => {
 	const context = useContext(CartContext);
 	if (context === undefined) {

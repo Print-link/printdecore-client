@@ -12,6 +12,7 @@ interface AddToCartModalProps {
 		height?: number;
 		measurementUnit: "FEET" | "INCH" | "UNIT";
 		quantity: number;
+		formulaType: string;
 		options: {
 			frontBack?: boolean;
 			color?: boolean;

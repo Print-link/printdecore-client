@@ -54,7 +54,9 @@ export const calculateOrderPriceFrontend = (
 			formulaType === "AREA_INCH" || agentService.formulaType === "AREA_INCH";
 		const isAreaOrUnit =
 			formulaType === "AREA_OR_UNIT" || agentService.formulaType === "AREA_OR_UNIT";
-		const isAreaBased = isAreaFeet || isAreaInch || isAreaOrUnit;
+		const isAreaUnit =
+			formulaType === "AREA_UNIT" || agentService.formulaType === "AREA_UNIT";
+		const isAreaBased = isAreaFeet || isAreaInch || isAreaOrUnit || isAreaUnit;
 
 		const pagesPerCopy =
 			request.filePages ||
@@ -221,12 +223,13 @@ export const calculateOrderPriceFrontend = (
 		} else if (isAreaBased) {
 			const width = request.width || 0;
 			const height = request.height || 0;
-			const measurementUnit = request.measurementUnit || "FEET";
+			// Use calculationBasis if provided, otherwise fall back to measurementUnit
+			const measurementUnit = request.calculationBasis || request.measurementUnit || "FEET";
 			const constant = agentService.constant || 144;
 
 			if (!width || !height || !unitPrice) {
-				// If no dimensions, fall back to unit price for AREA_OR_UNIT
-				if (isAreaOrUnit && unitPrice) {
+				// If no dimensions, fall back to unit price for AREA_OR_UNIT or AREA_UNIT
+				if ((isAreaOrUnit || isAreaUnit) && unitPrice) {
 					basePrice = unitPriceWithModifiers * quantity;
 				} else {
 					basePrice = 0;
@@ -236,15 +239,13 @@ export const calculateOrderPriceFrontend = (
 				// For INCH: (W * H * unitPrice) / 144
 				// For FEET: W * H * unitPrice
 				if (measurementUnit === "INCH") {
-					// Formula: (W * H * sqr) / 144
+					// Formula: (W * H * unitPriceWithModifiers) / constant
 					const areaPrice = (width * height * unitPriceWithModifiers) / constant;
 					basePrice = areaPrice * quantity;
-				} else if (measurementUnit === "FEET") {
-					// Formula: W * H * sqr
+				} else {
+					// Formula: W * H * unitPriceWithModifiers (assume FEET)
 					const areaPrice = width * height * unitPriceWithModifiers;
 					basePrice = areaPrice * quantity;
-				} else {
-					basePrice = unitPriceWithModifiers * quantity;
 				}
 			}
 		} else {
@@ -259,11 +260,11 @@ export const calculateOrderPriceFrontend = (
 			} else if (isAreaBased) {
 				const width = request.width || 0;
 				const height = request.height || 0;
-				const measurementUnit = request.measurementUnit || "FEET";
+				const unit = request.calculationBasis || request.measurementUnit || "FEET";
 				const constant = agentService.constant || 144;
 
 				if (width && height) {
-					if (measurementUnit === "INCH") {
+					if (unit === "INCH") {
 						breakdown.baseConfiguration.price = (width * height * unitPrice) / constant;
 					} else {
 						breakdown.baseConfiguration.price = width * height * unitPrice;
@@ -354,10 +355,6 @@ export const calculateOrderPriceFrontend = (
         const pricePerPage = agentService.pricePerUnit || 0;
         const startupFee = agentService.constant || 0;
         
-        // Options like "Color" might be handled via legacy `colorPriceModifier` or `options` object?
-        // AgentService has `colorPriceModifier`.
-        // options: { color: boolean, ... }
-        
         let costPerPage = pricePerPage;
         
         // Legacy modifier: Color
@@ -365,14 +362,6 @@ export const calculateOrderPriceFrontend = (
             costPerPage += agentService.colorPriceModifier;
         }
 
-        // Legacy: Front/Back (Double sided)
-        // Usually double sided might be x2 or a specific multiplier. 
-        // Without specific backend logic, standard might be x2 or just handled by `filePages`.
-        // If `filePages` is total pages in PDF, and we print front/back, the number of sheets changes but "pages printed" (impressions) is constant?
-        // Or is price per SHEET?
-        // "Page Based" usually means price per impression.
-        // So `quantity` (copies) * `filePages` (pages per copy) * `costPerPage`.
-        
 		// Priority:
 		// 1. request.filePages (passed explicitly from PDF count)
 		// 2. request.options.filePages (legacy location)
@@ -381,8 +370,6 @@ export const calculateOrderPriceFrontend = (
 		const pagesPerCopy = request.filePages || request.options?.filePages || request.options?.numberOfPages || 0;
         
         // Handle double-sided (Front/Back)
-        // If frontBack is true, we calculate based on SHEETS (impressions / 2)
-        // assuming pricePerUnit is "Per Sheet"
         let effectiveUnits = pagesPerCopy;
         if (request.options?.frontBack) {
             effectiveUnits = Math.ceil(pagesPerCopy / 2);
@@ -392,19 +379,16 @@ export const calculateOrderPriceFrontend = (
         
         calculatedPrice = (totalUnits * costPerPage) + startupFee;
         basePrice = calculatedPrice; 
-        
-        // Debug logs (optional, can be removed)
-        console.log('calc:', { pagesPerCopy, effectiveUnits, totalUnits, costPerPage, startupFee, calculatedPrice });
     } 
     // 2. AREA_BASED (Square Feet) - Legacy
-    else if (formulaType === "AREA_FEET" || agentService.formulaType === "AREA_FEET") {
-         formulaType = "AREA_FEET";
+    else if (formulaType === "AREA_FEET" || agentService.formulaType === "AREA_FEET" || agentService.formulaType === "AREA_UNIT") {
+         formulaType = agentService.formulaType || "AREA_FEET";
          const pricePerSqFt = agentService.pricePerUnit || 0;
          const startupFee = agentService.constant || 0;
          
          const width = request.width || 0;
          const height = request.height || 0;
-         const unit = request.measurementUnit || "FEET";
+         const unit = (request.calculationBasis ?? request.measurementUnit ?? "FEET") as "INCH" | "FEET" | "UNIT";
          
          // Formula: W * H * sqr (for FEET) or (W * H * sqr) / 144 (for INCH)
          const areaSqFt = calculateAreaInSqFt(width, height, unit);
@@ -422,11 +406,8 @@ export const calculateOrderPriceFrontend = (
          
          const width = request.width || 0;
          const height = request.height || 0;
-         const unit = request.measurementUnit || "INCH";
+         const unit = (request.calculationBasis ?? request.measurementUnit ?? "INCH") as "INCH" | "FEET" | "UNIT";
          
-         // Formula: (W * H * sqr) / 144
-         // If input is in inches: (W * H * pricePerSqFt) / 144
-         // If input is in feet: convert to inches first
          let areaPrice = 0;
          if (unit === "INCH") {
              areaPrice = (width * height * pricePerSqFt) / constant;
@@ -449,7 +430,7 @@ export const calculateOrderPriceFrontend = (
          
          const width = request.width || 0;
          const height = request.height || 0;
-         const unit = request.measurementUnit || "FEET";
+         const unit = (request.calculationBasis ?? request.measurementUnit ?? "FEET") as "INCH" | "FEET" | "UNIT";
          
          // Use area if dimensions provided, otherwise use unit price
          if (width && height && pricePerSqFt) {
@@ -475,7 +456,6 @@ export const calculateOrderPriceFrontend = (
         const pricePerUnit = agentService.pricePerUnit || 0;
         const startupFee = agentService.constant || 0;
         
-        // Legacy Color Modifier for Unit based? 
         let currentUnitPrice = pricePerUnit;
          if (request.options?.color && agentService.colorPriceModifier) {
             currentUnitPrice += agentService.colorPriceModifier;

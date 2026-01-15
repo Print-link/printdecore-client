@@ -1,4 +1,4 @@
-import { useTheme } from "../contexts/ThemeContext";
+// import { useTheme } from "../contexts/ThemeContext";
 
 interface LogoProps {
 	className?: string;
@@ -15,14 +15,14 @@ const sizeClasses = {
 };
 
 export const Logo = ({ className = "", size = "md", onClick }: LogoProps) => {
-	const { theme } = useTheme();
-	const logoPath = theme === "dark" 
-		? "/paperlink-light.svg" 
-		: "/paperlink-dark.svg";
+	// const { theme } = useTheme();
+	// const logoPath = theme === "dark" 
+	// 	? "/paperlink-light.svg" 
+	// 	: "/paperlink-dark.svg";
 
 	return (
 		<img
-			src={logoPath}
+			src={"/logoArt.png"}
 			alt="PaperLink Logo"
 			className={`${sizeClasses[size]} ${className} ${onClick ? "cursor-pointer" : ""} object-contain`}
 			onClick={onClick}

@@ -157,6 +157,7 @@ export const Checkout = () => {
 					width: item.width,
 					height: item.height,
 					measurementUnit: item.measurementUnit,
+					formulaType: item.formulaType,
 					quantity: item.quantity,
 					options: {
 						// Include new flexible config in options for reference

@@ -36,21 +36,22 @@ export const ProtectedLayout = () => {
 	const { theme, toggleTheme } = useTheme();
 	const navigate = useNavigate();
 	const location = useLocation();
+
 	const [activeTab, setActiveTab] = useState(() => {
-		if (location.pathname === "/history") return "history";
-		if (location.pathname === "/search") return "search";
-		if (location.pathname.startsWith("/order/cart")) return "cart";
+		if (location.pathname.includes("/history")) return "history";
+		if (location.pathname.includes("/search")) return "search";
+		if (location.pathname.includes("/order/cart")) return "cart";
 		return "home";
 	});
 	const [drawerOpen, setDrawerOpen] = useState(false);
 	const [cartExpanded, setCartExpanded] = useState(false);
 
 	useEffect(() => {
-		if (location.pathname === "/history") {
+		if (location.pathname.includes("/history")) {
 			setActiveTab("history");
-		} else if (location.pathname === "/search") {
+		} else if (location.pathname.includes("/search")) {
 			setActiveTab("search");
-		} else if (location.pathname.startsWith("/order/cart")) {
+		} else if (location.pathname.includes("/order/cart")) {
 			setActiveTab("cart");
 		} else {
 			setActiveTab("home");
@@ -397,7 +398,7 @@ const handleTabChange = (tab: "home" | "history" | "search" | "cart") => {
 				<header className="bg-white border-b-2 border-gray-200 sticky top-0 z-30 h-20">
 					<div className="px-4 sm:px-6 lg:px-8 h-full">
 						<div className="flex items-center justify-between h-full">
-							<div className="flex items-center gap-3 relative">
+							<div className="flex items-center gap-3">
 								{/* Menu Button - Only visible on mobile */}
 								<button
 									onClick={toggleDrawer}
@@ -413,9 +414,9 @@ const handleTabChange = (tab: "home" | "history" | "search" | "cart") => {
 								{/* Mobile Logo */}
 								<div className="md:hidden">
 									<Logo
-										size="2xl"
+										size="md"
 										onClick={() => navigate("/home")}
-										className="cursor-pointer absolute left-8 top-1/2 -translate-y-1/2"
+										className="cursor-pointer"
 									/>
 								</div>
 								{/* Desktop Title */}
@@ -460,7 +461,9 @@ const handleTabChange = (tab: "home" | "history" | "search" | "cart") => {
 										<Sun className="w-5 h-5 text-[#fbbf24]" />
 									)}
 								</button>
-{user ? (
+							</div>
+							<div className="flex items-center space-x-2 sm:space-x-4">
+								{user ? (
 									<>
 										<span className="hidden sm:inline text-sm text-gray-600">
 											Welcome,{" "}
@@ -507,4 +510,3 @@ const handleTabChange = (tab: "home" | "history" | "search" | "cart") => {
 		</div>
 	);
 };
-

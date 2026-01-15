@@ -78,66 +78,65 @@ const AppRoutes = () => {
 				<Route path="search" element={<Search />} />
 				<Route path="categories/:id" element={<Categories />} />
 				<Route path="print-station/:id" element={<PrintStationDetails />} />
+				
+				{/* Protected Routes - Require authentication */}
+				<Route
+					path="history"
+					element={
+						<ProtectedRoute>
+							<History />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path="order/:id"
+					element={
+						<ProtectedRoute>
+							<OrderDetails />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path="order/sub-categories/:branchId"
+					element={
+						<ProtectedRoute>
+							<SubCategories />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path="order/configure/:branchId"
+					element={
+						<ProtectedRoute>
+							<OrderForm />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path="order/cart/:branchId"
+					element={
+						<ProtectedRoute>
+							<Cart />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path="order/checkout/:branchId"
+					element={
+						<ProtectedRoute>
+							<Checkout />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path="quote/confirm"
+					element={
+						<ProtectedRoute>
+							<QuoteConfirmation />
+						</ProtectedRoute>
+					}
+				/>
 			</Route>
-			
-			{/* Protected Routes - Require authentication */}
-			<Route
-				path="/home/history"
-				element={
-					<ProtectedRoute>
-						<History />
-					</ProtectedRoute>
-				}
-			/>
-			<Route
-				path="/home/order/:id"
-				element={
-					<ProtectedRoute>
-						<OrderDetails />
-					</ProtectedRoute>
-				}
-			/>
-			<Route
-				path="/quote/confirm"
-				element={
-					<ProtectedRoute>
-						<QuoteConfirmation />
-					</ProtectedRoute>
-				}
-			/>
-			{/* Order Flow Routes - Require authentication */}
-			<Route
-				path="/home/order/sub-categories/:branchId"
-				element={
-					<ProtectedRoute>
-						<SubCategories />
-					</ProtectedRoute>
-				}
-			/>
-			<Route
-				path="/home/order/configure/:branchId"
-				element={
-					<ProtectedRoute>
-						<OrderForm />
-					</ProtectedRoute>
-				}
-			/>
-			<Route
-				path="/home/order/cart/:branchId"
-				element={
-					<ProtectedRoute>
-						<Cart />
-					</ProtectedRoute>
-				}
-			/>
-			<Route
-				path="/home/order/checkout/:branchId"
-				element={
-					<ProtectedRoute>
-						<Checkout />
-					</ProtectedRoute>
-				}
-			/>
 			
 			<Route path="*" element={<Navigate to="/home" replace />} />
 		</Routes>

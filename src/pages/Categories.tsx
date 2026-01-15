@@ -127,18 +127,12 @@ return (
 							</p>
 						</div>
 					) : (
-						<div className="space-y-0 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
-							{categories.map((category, index) => (
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							{categories.map((category) => (
 								<button
 									key={category.id}
 									onClick={() => handleCategoryClick(category.id)}
-									className={`w-full bg-white p-4 border-2 border-gray-200 text-left group hover:border-[#fbbf24] transition-all flex items-center gap-3 md:flex-col md:items-start ${
-										index === 0
-											? "rounded-t-lg md:rounded-lg"
-											: index === categories.length - 1
-											? "rounded-b-lg border-t-0 md:rounded-lg md:border-t-2"
-											: "border-t-0 md:rounded-lg md:border-t-2"
-									}`}
+									className="w-full bg-white p-4 border-2 border-gray-200 rounded-lg text-left group hover:border-[#fbbf24] transition-all flex items-center gap-3 md:flex-col md:items-start"
 								>
 									{category.imageUrl ? (
 										<img
@@ -186,4 +180,3 @@ return (
 		</>
 	);
 };
-
