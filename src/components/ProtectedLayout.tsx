@@ -122,18 +122,18 @@ const handleTabChange = (tab: "home" | "history" | "search" | "cart") => {
 			>
 				<div className="flex flex-col h-full">
 					{/* Drawer Header */}
-					<div className="relative flex items-center justify-center px-6 h-20 border-b-2 border-[#fbbf24] bg-white">
+					<div className="flex items-center justify-between px-6 h-20 border-b-2 border-[#fbbf24] bg-white dark:bg-[#1a1a1a]">
 						<Logo
-							size="2xl"
+							size="xl"
 							onClick={() => navigate("/home")}
-							className="cursor-pointer absolute left-6"
+							className="cursor-pointer"
 						/>
 						<button
 							onClick={toggleDrawer}
-							className="absolute right-6 p-1.5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors md:hidden"
+							className="p-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors md:hidden"
 							aria-label="Close menu"
 						>
-							<X className="w-5 h-5" />
+							<X className="w-6 h-6" />
 						</button>
 					</div>
 
@@ -298,87 +298,83 @@ const handleTabChange = (tab: "home" | "history" | "search" | "cart") => {
 					</nav>
 
 {/* Drawer Footer */}
-					<div className="p-4 border-t-2 border-gray-200 bg-gray-50">
+					<div className="p-4 border-t-2 border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#262626]">
 						{user ? (
-							<>
-								<div className="mb-4 px-3 py-3 bg-white rounded-lg border-2 border-gray-200">
-									<p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
-										Signed in as
+							<div className="space-y-3">
+								<div className="px-4 py-3 bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
+									<p className="text-[10px] font-bold text-[#fbbf24] uppercase tracking-wider mb-1">
+										Account
 									</p>
-									<p className="text-sm font-semibold text-gray-900 truncate">
+									<p className="text-sm font-bold text-gray-900 dark:text-white truncate">
 										{user?.firstName} {user?.lastName}
 									</p>
-									<p className="text-xs text-gray-500 truncate mt-0.5">
+									<p className="text-xs text-gray-500 dark:text-gray-400 truncate">
 										{user?.email}
 									</p>
 								</div>
-								{/* Theme Toggle */}
-								<button
-									onClick={toggleTheme}
-									className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-gray-300 rounded-lg font-semibold text-sm hover:bg-gray-50 hover:border-[#fbbf24] transition-all touch-manipulation mb-3"
-									aria-label={`Switch to ${
-										theme === "light" ? "dark" : "light"
-									} mode`}
-								>
-									{theme === "light" ? (
-										<Moon className="w-4 h-4 text-gray-700" />
-									) : (
-										<Sun className="w-4 h-4 text-[#fbbf24]" />
-									)}
-									<span className="text-gray-700">
-										{theme === "light" ? "Dark Mode" : "Light Mode"}
-									</span>
-								</button>
-								<button
-									onClick={handleLogout}
-									className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-red-300 text-red-600 rounded-lg font-semibold text-sm hover:bg-red-50 hover:border-red-400 transition-all touch-manipulation"
-								>
-									<LogOut className="w-4 h-4" />
-									<span>Logout</span>
-								</button>
-							</>
+								
+								<div className="grid grid-cols-2 gap-2">
+									<button
+										onClick={toggleTheme}
+										className="flex flex-col items-center justify-center gap-1 p-3 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 rounded-xl hover:border-[#fbbf24] dark:hover:border-[#fbbf24] transition-all group"
+									>
+										{theme === "light" ? (
+											<Moon className="w-5 h-5 text-gray-600 group-hover:text-[#fbbf24]" />
+										) : (
+											<Sun className="w-5 h-5 text-[#fbbf24]" />
+										)}
+										<span className="text-[10px] font-bold text-gray-500 uppercase">Theme</span>
+									</button>
+									<button
+										onClick={handleLogout}
+										className="flex flex-col items-center justify-center gap-1 p-3 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 rounded-xl hover:border-red-500 dark:hover:border-red-500 transition-all group"
+									>
+										<LogOut className="w-5 h-5 text-gray-600 group-hover:text-red-500" />
+										<span className="text-[10px] font-bold text-gray-500 uppercase">Logout</span>
+									</button>
+								</div>
+							</div>
 						) : (
-							<>
-								<div className="mb-4 px-3 py-3 bg-white rounded-lg border-2 border-gray-200">
-									<p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
-										Not signed in
+							<div className="space-y-3">
+								<div className="px-4 py-3 bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
+									<p className="text-[10px] font-bold text-[#fbbf24] uppercase tracking-wider mb-1">
+										Guest Mode
 									</p>
-									<p className="text-sm text-gray-600">
-										Sign in to place orders and view history
+									<p className="text-xs text-gray-500 dark:text-gray-400">
+										Sign in to place orders and sync history
 									</p>
 								</div>
-								{/* Theme Toggle */}
-								<button
-									onClick={toggleTheme}
-									className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-gray-300 rounded-lg font-semibold text-sm hover:bg-gray-50 hover:border-[#fbbf24] transition-all touch-manipulation mb-3"
-									aria-label={`Switch to ${
-										theme === "light" ? "dark" : "light"
-									} mode`}
-								>
-									{theme === "light" ? (
-										<Moon className="w-4 h-4 text-gray-700" />
-									) : (
-										<Sun className="w-4 h-4 text-[#fbbf24]" />
-									)}
-									<span className="text-gray-700">
-										{theme === "light" ? "Dark Mode" : "Light Mode"}
-									</span>
-								</button>
-								<button
-									onClick={() => navigate("/login")}
-									className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#fbbf24] text-white border-2 border-[#fbbf24] rounded-lg font-semibold text-sm hover:bg-[#f59e0b] transition-all touch-manipulation"
-								>
-									<LogIn className="w-4 h-4" />
-									<span>Sign In</span>
-								</button>
-								<button
-									onClick={() => navigate("/register")}
-									className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-lg font-semibold text-sm hover:bg-gray-50 transition-all touch-manipulation"
-								>
-									<User className="w-4 h-4" />
-									<span>Create Account</span>
-								</button>
-							</>
+								
+								<div className="space-y-2">
+									<button
+										onClick={() => navigate("/login")}
+										className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#fbbf24] hover:bg-[#f59e0b] text-white rounded-xl font-bold text-sm transition-all shadow-sm"
+									>
+										<LogIn className="w-4 h-4" />
+										<span>Sign In</span>
+									</button>
+									<div className="grid grid-cols-2 gap-2">
+										<button
+											onClick={toggleTheme}
+											className="flex flex-col items-center justify-center gap-1 p-2.5 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 rounded-xl hover:border-[#fbbf24] transition-all group"
+										>
+											{theme === "light" ? (
+												<Moon className="w-4 h-4 text-gray-600 group-hover:text-[#fbbf24]" />
+											) : (
+												<Sun className="w-4 h-4 text-[#fbbf24]" />
+											)}
+											<span className="text-[10px] font-bold text-gray-500 uppercase">Theme</span>
+										</button>
+										<button
+											onClick={() => navigate("/register")}
+											className="flex flex-col items-center justify-center gap-1 p-2.5 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 rounded-xl hover:border-[#fbbf24] transition-all group"
+										>
+											<User className="w-4 h-4 text-gray-600 group-hover:text-[#fbbf24]" />
+											<span className="text-[10px] font-bold text-gray-500 uppercase">Join</span>
+										</button>
+									</div>
+								</div>
+							</div>
 						)}
 					</div>
 				</div>
@@ -395,14 +391,14 @@ const handleTabChange = (tab: "home" | "history" | "search" | "cart") => {
 			{/* Main Content Area */}
 			<div className="flex-1 flex flex-col min-w-0">
 				{/* Header */}
-				<header className="bg-white border-b-2 border-gray-200 sticky top-0 z-30 h-20">
-					<div className="px-4 sm:px-6 lg:px-8 h-full">
-						<div className="flex items-center justify-between h-full">
-							<div className="flex items-center gap-3">
+				<header className="bg-white dark:bg-[#1a1a1a] border-b border-gray-200 dark:border-gray-800 sticky top-0 z-30 h-20 shadow-sm">
+					<div className="px-4 sm:px-6 lg:px-8 h-full mx-auto w-full">
+						<div className="flex items-center justify-between h-full gap-4">
+							<div className="flex items-center gap-4 min-w-0">
 								{/* Menu Button - Only visible on mobile */}
 								<button
 									onClick={toggleDrawer}
-									className="md:hidden p-2 text-gray-700 hover:text-[#fbbf24] hover:bg-white rounded-lg transition-colors touch-manipulation"
+									className="md:hidden p-2.5 text-gray-700 dark:text-gray-300 hover:text-[#fbbf24] hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-all touch-manipulation flex-shrink-0"
 									aria-label="Toggle menu"
 								>
 									{drawerOpen ? (
@@ -411,90 +407,111 @@ const handleTabChange = (tab: "home" | "history" | "search" | "cart") => {
 										<Menu className="w-6 h-6" />
 									)}
 								</button>
+								
 								{/* Mobile Logo */}
-								<div className="md:hidden">
+								<div className="md:hidden flex-shrink-0">
 									<Logo
 										size="md"
 										onClick={() => navigate("/home")}
 										className="cursor-pointer"
 									/>
 								</div>
+								
 								{/* Desktop Title */}
-								<h1 className="hidden md:block text-xl font-bold text-gray-900">
-									{activeTab === "home"
-										? "Print Agents"
-										: activeTab === "search"
-										? "Search"
-										: activeTab === "cart"
-										? "Shopping Cart"
-										: "Print History"}
-								</h1>
+								<div className="hidden md:flex flex-col">
+									<h1 className="text-xl font-bold text-gray-900 dark:text-white leading-tight">
+										{activeTab === "home"
+											? "Print Agents"
+											: activeTab === "search"
+											? "Search Services"
+											: activeTab === "cart"
+											? "Printing Tray"
+											: "Print History"}
+									</h1>
+									<p className="text-[10px] font-bold text-[#fbbf24] uppercase tracking-widest">
+										{activeTab === "home" ? "Find branch near you" : "Printdecore Dashboard"}
+									</p>
+								</div>
 							</div>
-							<div className="flex items-center space-x-2 sm:space-x-4">
-								{/* Search Icon - Only visible on mobile */}
-								<button
-									onClick={() => {
-										navigate("/home/search");
-										if (window.innerWidth < 768) {
-											setDrawerOpen(false);
-										}
-									}}
-									className="md:hidden p-2 text-gray-700 hover:text-[#fbbf24] hover:bg-white rounded-lg transition-colors touch-manipulation"
-									aria-label="Search"
-								>
-									<Search className="w-6 h-6" />
-								</button>
-								{/* Theme Toggle - Visible on all screens */}
-								<button
-									onClick={toggleTheme}
-									className="p-2 text-gray-700 hover:text-[#fbbf24] hover:bg-white rounded-lg transition-colors touch-manipulation"
-									aria-label={`Switch to ${
-										theme === "light" ? "dark" : "light"
-									} mode`}
-									title={`Switch to ${
-										theme === "light" ? "dark" : "light"
-									} mode`}
-								>
-									{theme === "light" ? (
-										<Moon className="w-5 h-5" />
-									) : (
-										<Sun className="w-5 h-5 text-[#fbbf24]" />
-									)}
-								</button>
-							</div>
-							<div className="flex items-center space-x-2 sm:space-x-4">
-								{user ? (
-									<>
-										<span className="hidden sm:inline text-sm text-gray-600">
-											Welcome,{" "}
-											<span className="font-semibold text-gray-900">
-												{user?.firstName} {user?.lastName}
-											</span>
-										</span>
-										<button
-											onClick={handleLogout}
-											className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-[#fbbf24] hover:bg-white rounded-lg transition-colors touch-manipulation"
-											aria-label="Logout"
-										>
-											<LogOut className="w-4 h-4 sm:mr-2" />
-											<span className="hidden sm:inline">Logout</span>
-										</button>
-									</>
-								) : (
-									<>
-										<span className="hidden sm:inline text-sm text-gray-600">
-											Browse print agents
-										</span>
+
+							<div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+								{/* Desktop Welcome Text */}
+								{user && (
+									<div className="hidden sm:flex flex-col items-end min-w-0">
+										<p className="text-xs text-gray-500 dark:text-gray-400">Welcome back,</p>
+										<p className="text-sm font-bold text-gray-900 dark:text-white truncate max-w-[150px]">
+											{user?.firstName} {user?.lastName}
+										</p>
+									</div>
+								)}
+
+								<div className="flex items-center bg-gray-50 dark:bg-gray-800/50 p-1 rounded-xl border border-gray-100 dark:border-gray-800">
+									{/* Search Icon - Only visible on mobile */}
+									<button
+										onClick={() => {
+											navigate("/home/search");
+											if (window.innerWidth < 768) {
+												setDrawerOpen(false);
+											}
+										}}
+										className="md:hidden p-2 text-gray-700 dark:text-gray-300 hover:text-[#fbbf24] rounded-lg transition-colors"
+										aria-label="Search"
+									>
+										<Search className="w-5 h-5" />
+									</button>
+									
+									{/* Theme Toggle */}
+									<button
+										onClick={toggleTheme}
+										className="p-2 text-gray-700 dark:text-gray-300 hover:text-[#fbbf24] rounded-lg transition-colors"
+										aria-label="Toggle theme"
+									>
+										{theme === "light" ? (
+											<Moon className="w-5 h-5" />
+										) : (
+											<Sun className="w-5 h-5 text-[#fbbf24]" />
+										)}
+									</button>
+									
+									{/* User/Auth Dropdown Shortcut (Mobile Only) */}
+									{!user && (
 										<button
 											onClick={() => navigate("/login")}
-											className="flex items-center px-3 py-2 text-sm font-medium text-[#fbbf24] border-2 border-[#fbbf24] bg-white hover:bg-[#fbbf24] hover:text-white rounded-lg transition-colors touch-manipulation"
-											aria-label="Sign in"
+											className="md:hidden p-2 text-gray-700 dark:text-gray-300 hover:text-[#fbbf24] rounded-lg transition-colors"
+											aria-label="Login"
 										>
-											<LogIn className="w-4 h-4 sm:mr-2" />
-											<span className="hidden sm:inline">Sign In</span>
+											<LogIn className="w-5 h-5" />
 										</button>
-									</>
-								)}
+									)}
+								</div>
+
+								{/* Desktop Auth Buttons */}
+								<div className="hidden md:flex items-center gap-3">
+									{user ? (
+										<button
+											onClick={handleLogout}
+											className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-gray-700 dark:text-gray-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all"
+										>
+											<LogOut className="w-4 h-4" />
+											<span>Logout</span>
+										</button>
+									) : (
+										<>
+											<button
+												onClick={() => navigate("/login")}
+												className="text-sm font-bold text-gray-700 dark:text-gray-300 hover:text-[#fbbf24] px-3 py-2 transition-colors"
+											>
+												Sign In
+											</button>
+											<button
+												onClick={() => navigate("/register")}
+												className="px-4 py-2 bg-[#fbbf24] hover:bg-[#f59e0b] text-white text-sm font-bold rounded-xl shadow-sm transition-all transform hover:-translate-y-0.5"
+											>
+												Get Started
+											</button>
+										</>
+									)}
+								</div>
 							</div>
 						</div>
 					</div>

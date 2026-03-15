@@ -1,5 +1,5 @@
 // import { useTheme } from "../contexts/ThemeContext";
-
+import logoArt from "../assets/LogoArt.png";
 interface LogoProps {
 	className?: string;
 	size?: "sm" | "md" | "lg" | "xl" | "2xl";
@@ -15,15 +15,10 @@ const sizeClasses = {
 };
 
 export const Logo = ({ className = "", size = "md", onClick }: LogoProps) => {
-	// const { theme } = useTheme();
-	// const logoPath = theme === "dark" 
-	// 	? "/paperlink-light.svg" 
-	// 	: "/paperlink-dark.svg";
-
 	return (
 		<img
-			src={"/logoArt.png"}
-			alt="PaperLink Logo"
+			src={logoArt}
+			alt="Printdecore Logo"
 			className={`${sizeClasses[size]} ${className} ${onClick ? "cursor-pointer" : ""} object-contain`}
 			onClick={onClick}
 		/>
