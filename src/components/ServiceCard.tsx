@@ -11,13 +11,20 @@ export const ServiceCard = ({ result }: ServiceCardProps) => {
 
 	console.log("services ----", result)
 
+	const handleBranchClick = (branchId: string, e?: React.MouseEvent) => {
+		e?.stopPropagation();
+		navigate(
+			`/home/order/configure/${branchId}?serviceTemplateId=${result.service.id}`
+		);
+	};
+
 	const handleClick = () => {
-		// Navigate to agent services page for the first available branch
 		if (result.branches && result.branches.length > 0) {
-			const branch = result.branches[0];
-			navigate(
-				`/order/agent-services/${branch.branchId}?serviceTemplateId=${result.service.id}`
-			);
+			// If only one branch, go directly to order form
+			if (result.branches.length === 1) {
+				handleBranchClick(result.branches[0].branchId);
+			}
+			// If multiple branches, do nothing — user picks a branch from the list below
 		}
 	};
 
@@ -123,7 +130,7 @@ export const ServiceCard = ({ result }: ServiceCardProps) => {
 				</div>
 			)}
 
-			{/* Branches */}
+			{/* Branches — each one is clickable to order */}
 			{result.branches && result.branches.length > 0 && (
 				<div className="pt-4 border-t border-gray-200">
 					<div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
@@ -133,22 +140,31 @@ export const ServiceCard = ({ result }: ServiceCardProps) => {
 							{result.branches.length !== 1 ? "es" : ""} available
 						</span>
 					</div>
-					<div className="space-y-1">
+					<div className="space-y-1.5">
 						{result.branches.slice(0, 3).map((branch) => (
 							<div
 								key={branch.id}
-								className="flex items-center justify-between text-xs"
+								onClick={(e) => handleBranchClick(branch.branchId, e)}
+								className="flex items-center justify-between text-xs px-2.5 py-2 -mx-2.5 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/10 cursor-pointer transition-colors"
 							>
-								<span className="text-gray-700">{branch.branchName}</span>
-								{branch.distance && (
-									<span className="text-gray-500">
-										{branch.distance.toFixed(1)} km
-									</span>
-								)}
+								<span className="text-gray-700 font-medium">{branch.branchName}</span>
+								<div className="flex items-center gap-2">
+									{branch.pricePerUnit != null && (
+										<span className="text-[#fbbf24] font-semibold">
+											GHS {branch.pricePerUnit.toFixed(2)}
+										</span>
+									)}
+									{branch.distance != null && (
+										<span className="text-gray-400">
+											{branch.distance.toFixed(1)} km
+										</span>
+									)}
+									<span className="text-[#fbbf24]">→</span>
+								</div>
 							</div>
 						))}
 						{result.branches.length > 3 && (
-							<div className="text-xs text-[#fbbf24]">
+							<div className="text-xs text-[#fbbf24] px-2.5">
 								+{result.branches.length - 3} more
 							</div>
 						)}
@@ -157,11 +173,20 @@ export const ServiceCard = ({ result }: ServiceCardProps) => {
 			)}
 
 			{/* Action */}
-			<div className="mt-4 pt-4 border-t border-gray-200">
-				<span className="text-sm font-medium text-[#fbbf24] group-hover:text-[#d97706]">
-					View Pricing & Order →
-				</span>
-			</div>
+			{result.branches && result.branches.length === 1 && (
+				<div className="mt-4 pt-4 border-t border-gray-200">
+					<span className="text-sm font-medium text-[#fbbf24] group-hover:text-[#d97706]">
+						View Pricing & Order →
+					</span>
+				</div>
+			)}
+			{result.branches && result.branches.length > 1 && (
+				<div className="mt-3 pt-3 border-t border-gray-200">
+					<span className="text-xs text-gray-400">
+						Select a branch above to order
+					</span>
+				</div>
+			)}
 		</button>
 	);
 };

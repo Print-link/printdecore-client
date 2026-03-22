@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useGeolocation } from "../hooks/useGeolocation";
 import { LocationStatus } from "../components/LocationStatus";
 import { SearchAutocomplete } from "../components/SearchAutocomplete";
@@ -15,14 +16,24 @@ import {
 import { Loader2, Sliders, ChevronLeft, ChevronRight } from "lucide-react";
 
 export const Search = () => {
+	const [urlSearchParams] = useSearchParams();
 	const { userLocation, locationError, locationPermission, requestLocation } =
 		useGeolocation();
 
-	const [filters, setFilters] = useState<SearchFilters>({
-		page: 1,
-		limit: 20,
-		sortBy: "name",
-		sortOrder: "asc",
+	const [filters, setFilters] = useState<SearchFilters>(() => {
+		const initial: SearchFilters = {
+			page: 1,
+			limit: 20,
+			sortBy: "name",
+			sortOrder: "asc",
+		};
+		const categoryId = urlSearchParams.get("categoryId");
+		const subCategoryId = urlSearchParams.get("subCategoryId");
+		const query = urlSearchParams.get("query");
+		if (categoryId) initial.categoryId = categoryId;
+		if (subCategoryId) initial.subCategoryId = subCategoryId;
+		if (query) initial.query = query;
+		return initial;
 	});
 	const [searchData, setSearchData] = useState<SearchResponse | null>(null);
 	const [loading, setLoading] = useState<boolean>(false);

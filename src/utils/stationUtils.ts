@@ -1,20 +1,43 @@
 import type { PrintStation, UserLocation } from "../types/printStation";
 
+export type SearchMode = "location" | "service";
+
 export const filterStations = (
 	stations: PrintStation[],
-	searchQuery: string
+	searchQuery: string,
+	searchMode?: SearchMode
 ): PrintStation[] => {
 	if (!searchQuery.trim()) {
 		return stations;
 	}
 
 	const query = searchQuery.toLowerCase().trim();
+
+	if (searchMode === "location") {
+		return stations.filter((station) => {
+			const addressMatch = station.location?.address
+				?.toLowerCase()
+				.includes(query);
+			return addressMatch;
+		});
+	}
+
+	if (searchMode === "service") {
+		return stations.filter((station) => {
+			return station.agentServices?.some(
+				(service) =>
+					service.serviceName?.toLowerCase().includes(query) ||
+					service.categoryName?.toLowerCase().includes(query)
+			);
+		});
+	}
+
+	// Default: filter by branch name
 	return stations.filter((station) => {
 		const businessNameMatch = station.businessName
 			?.toLowerCase()
 			.includes(query);
 		const nameMatch = station.name.toLowerCase().includes(query);
-
 		return businessNameMatch || nameMatch;
 	});
 };
