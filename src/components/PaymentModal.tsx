@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import { usePayment } from "../hooks/usePayment";
 import { PaymentModalContent } from "./PaymentModalContent";
+import type { PendingCartItem } from "../services/paystackService";
 
 interface PaymentData {
 	reference: string;
@@ -14,10 +15,16 @@ interface PaymentModalProps {
 	amount: number;
 	email: string;
 	subaccount: string;
-	currency?: string; // Optional currency, will be auto-detected from user profile if not provided
-	country?: string; // Optional country for currency detection
+	currency?: string;
+	country?: string;
 	onPaymentSuccess: (paymentData: PaymentData) => void;
 	onPaymentError: (error: string) => void;
+	// Pending payment context for webhook recovery
+	clientId?: string;
+	branchId?: string;
+	totalPrice?: number;
+	cartItems?: PendingCartItem[];
+	comment?: string;
 }
 
 export const PaymentModal = ({
@@ -30,6 +37,11 @@ export const PaymentModal = ({
 	country,
 	onPaymentSuccess,
 	onPaymentError,
+	clientId,
+	branchId,
+	totalPrice,
+	cartItems,
+	comment,
 }: PaymentModalProps) => {
 	const hasInitializedRef = useRef(false);
 	const { loading, verifying, error, initialize, reset, setError } = usePayment(
@@ -46,6 +58,11 @@ export const PaymentModal = ({
 				}, 2000);
 			},
 			onPaymentError,
+			clientId,
+			branchId,
+			totalPrice,
+			cartItems,
+			comment,
 		}
 	);
 

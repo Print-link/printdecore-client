@@ -13,6 +13,12 @@ import {
 import type { FileInfo } from "../services/orderApi";
 import { getBranchById } from "../services/branches.service";
 import { PaymentModal } from "../components/PaymentModal";
+import {
+	recoverPayments,
+	clearPendingPayment,
+	type PendingCartItem,
+	type StagedFileInfo,
+} from "../services/paystackService";
 
 export const Checkout = () => {
 	const { branchId } = useParams<{ branchId: string }>();
@@ -29,6 +35,11 @@ export const Checkout = () => {
 		payStackSubAccountId?: string;
 	} | null>(null);
 	const [loadingBranch, setLoadingBranch] = useState(false);
+	const [isStagingFiles, setIsStagingFiles] = useState(false);
+	// Staged file URLs per cart item index — uploaded before payment
+	const [stagedFilesMap, setStagedFilesMap] = useState<
+		Map<number, StagedFileInfo[]>
+	>(new Map());
 
 	useEffect(() => {
 		const fetchBranch = async () => {
@@ -49,6 +60,30 @@ export const Checkout = () => {
 		fetchBranch();
 	}, [branchId]);
 
+	// Check for payments completed while the app was closed
+	useEffect(() => {
+		if (!user?._id) return;
+
+		const checkRecovery = async () => {
+			try {
+				const recovered = await recoverPayments();
+				const completedOrder = recovered.find((r) => r.status === "recovered" && r.orderId);
+				if (completedOrder?.orderId) {
+					toast.success(
+						"Your previous payment was completed successfully! Redirecting to your order."
+					);
+					clearCart();
+					setTimeout(() => {
+						navigate(`/home/order/${completedOrder.orderId}`);
+					}, 1500);
+				}
+			} catch {
+				// Non-blocking
+			}
+		};
+		checkRecovery();
+	}, [user?._id, clearCart, navigate]);
+
 	const getSubtotal = () => {
 		return getCartTotal();
 	};
@@ -63,7 +98,7 @@ export const Checkout = () => {
 		return Math.round((subtotal + fee) * 100) / 100;
 	};
 
-	const handlePlaceOrder = () => {
+	const handlePlaceOrder = async () => {
 		if (!user?._id || !branchId) {
 			toast.error("User authentication or branch information is missing");
 			return;
@@ -77,6 +112,54 @@ export const Checkout = () => {
 		if (!branch?.payStackSubAccountId) {
 			toast.error("Branch payment information is not configured");
 			return;
+		}
+
+		// Stage files to Cloudinary BEFORE opening payment.
+		// This ensures files are recoverable if the app dies after payment.
+		const hasFiles = cart.some((item) => item.files.length > 0);
+		if (hasFiles) {
+			setIsStagingFiles(true);
+			setCurrentStep("Preparing your files...");
+			try {
+				const newMap = new Map<number, StagedFileInfo[]>();
+				for (let i = 0; i < cart.length; i++) {
+					const item = cart[i];
+					if (item.files.length > 0) {
+						setCurrentStep(
+							`Uploading files for item ${i + 1} of ${cart.length}...`
+						);
+						const uploadResponse = await uploadMultipleFiles(
+							item.files,
+							`orders/staging/${Date.now()}`
+						);
+						if (uploadResponse.success && uploadResponse.data) {
+							newMap.set(
+								i,
+								uploadResponse.data.map((file) => ({
+									url: file.url,
+									publicId: file.publicId,
+									name: file.name,
+									size: file.size,
+									type: file.type,
+									width: file.width,
+									height: file.height,
+									format: file.format,
+									bytes: file.bytes,
+								}))
+							);
+						}
+					}
+				}
+				setStagedFilesMap(newMap);
+			} catch (error) {
+				console.error("File staging failed:", error);
+				toast.error("Failed to upload files. Please try again.");
+				setIsStagingFiles(false);
+				setCurrentStep("");
+				return;
+			}
+			setIsStagingFiles(false);
+			setCurrentStep("");
 		}
 
 		setShowPaymentModal(true);
@@ -116,36 +199,23 @@ export const Checkout = () => {
 
 			for (let i = 0; i < cart.length; i++) {
 				const item = cart[i];
-				setCurrentStep(`Processing item ${i + 1} of ${cart.length}...`);
+				setCurrentStep(`Creating order item ${i + 1} of ${cart.length}...`);
 
-				let uploadedFiles: FileInfo[] = [];
-				if (item.files.length > 0) {
-					setCurrentStep(`Uploading files for item ${i + 1}...`);
-					const uploadResponse = await uploadMultipleFiles(
-						item.files,
-						`orders/${order.id}/items/temp`
-					);
+				// Use pre-staged files (uploaded before payment started)
+				const stagedFiles: FileInfo[] = (stagedFilesMap.get(i) || []).map(
+					(f) => ({
+						url: f.url,
+						publicId: f.publicId,
+						name: f.name,
+						size: f.size,
+						type: f.type,
+						width: f.width,
+						height: f.height,
+						format: f.format,
+						bytes: f.bytes,
+					})
+				);
 
-					if (uploadResponse.success && uploadResponse.data) {
-						uploadedFiles = uploadResponse.data.map((file) => ({
-							url: file.url,
-							publicId: file.publicId,
-							name: file.name,
-							size: file.size,
-							type: file.type,
-							width: file.width,
-							height: file.height,
-							format: file.format,
-							bytes: file.bytes,
-						}));
-					} else {
-						console.warn(
-							`Failed to upload files for item ${i + 1}, continuing...`
-						);
-					}
-				}
-
-				setCurrentStep(`Creating order item ${i + 1}...`);
 				const orderItemResponse = await createOrderItem({
 					orderId: order.id,
 					agentServiceId: item.agentServiceId,
@@ -166,8 +236,8 @@ export const Checkout = () => {
 						selectedCustomSpecs: item.selectedCustomSpecs,
 						// Legacy options
 						...item.options,
-						// File URLs
-						files: uploadedFiles,
+						// Pre-staged file URLs
+						files: stagedFiles,
 					},
 					calculatedPrice: item.calculatedPrice,
 				});
@@ -179,6 +249,9 @@ export const Checkout = () => {
 
 			clearCart();
 			toast.success("Cart cleared successfully");
+
+			// Clear pending payment from Redis — order was created successfully
+			clearPendingPayment(paymentData.reference).catch(() => {});
 
 			if (user?._id) {
 				queryClient.invalidateQueries({ queryKey: ["orders", user._id] });
@@ -304,7 +377,7 @@ export const Checkout = () => {
 				</div>
 			</div>
 
-			{isProcessing && (
+			{(isProcessing || isStagingFiles) && (
 				<div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4 mb-6">
 					<div className="flex items-center gap-3">
 						<Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
@@ -325,16 +398,17 @@ export const Checkout = () => {
 					onClick={handlePlaceOrder}
 					disabled={
 						isProcessing ||
+						isStagingFiles ||
 						!user ||
 						loadingBranch ||
 						!branch?.payStackSubAccountId
 					}
 					className="flex-1 px-4 py-3 bg-[#fbbf24] text-white rounded-lg font-semibold hover:bg-[#d97706] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all"
 				>
-					{isProcessing ? (
+					{isProcessing || isStagingFiles ? (
 						<>
 							<Loader2 className="w-4 h-4 animate-spin" />
-							Processing...
+							{isStagingFiles ? "Preparing files..." : "Processing..."}
 						</>
 					) : (
 						<>
@@ -354,6 +428,32 @@ export const Checkout = () => {
 					subaccount={branch.payStackSubAccountId}
 					onPaymentSuccess={handlePaymentSuccess}
 					onPaymentError={handlePaymentError}
+					clientId={user._id}
+					branchId={branchId}
+					totalPrice={getSubtotal()}
+					comment={comment || undefined}
+					cartItems={cart.map((item, idx) => ({
+						agentServiceId: item.agentServiceId,
+						selectedBaseConfigId: item.selectedBaseConfigId,
+						selectedOptions: item.selectedOptions,
+						selectedCustomSpecs: item.selectedCustomSpecs,
+						width: item.width,
+						height: item.height,
+						measurementUnit: item.measurementUnit,
+						formulaType: item.formulaType,
+						quantity: item.quantity,
+						options: {
+							frontBack: item.options.frontBack,
+							color: item.options.color,
+							printCut: item.options.printCut,
+							frontOnly: item.options.frontOnly,
+							filePages: item.options.filePages,
+							numberOfPages: item.options.numberOfPages,
+						},
+						calculatedPrice: item.calculatedPrice,
+						fileCount: item.files.length,
+						stagedFiles: stagedFilesMap.get(idx),
+					}))}
 				/>
 			)}
 		</div>

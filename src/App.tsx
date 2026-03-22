@@ -19,6 +19,7 @@ import { Categories } from "./pages/Categories";
 import { OrderDetails } from "./pages/OrderDetails";
 import { PaymentCallback } from "./pages/PaymentCallback";
 import { QuoteConfirmation } from "./pages/QuoteConfirmation";
+import { WhatsAppQuotePayment } from "./pages/WhatsAppQuotePayment";
 import { SubCategories } from "./pages/SubCategories";
 import { OrderForm } from "./pages/OrderForm";
 import { Cart } from "./pages/Cart";
@@ -71,6 +72,7 @@ const AppRoutes = () => {
 			
 			{/* Public Routes */}
 			<Route path="/payment/callback" element={<PaymentCallback />} />
+			<Route path="/quote/pay/:token" element={<WhatsAppQuotePayment />} />
 			
 			{/* Main App Routes - Accessible without authentication */}
 			<Route path="/home" element={<ProtectedLayout />}>

@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from "react";
-import { initializePayment, verifyPayment } from "../services/paystackService";
+import { initializePayment, verifyPayment, type PendingCartItem } from "../services/paystackService";
 import { getCurrencyByCountry } from "../utils/countryUtils";
 
 interface PaymentData {
@@ -15,6 +15,12 @@ interface UsePaymentProps {
 	country?: string; // Optional country for currency detection
 	onPaymentSuccess: (paymentData: PaymentData) => void;
 	onPaymentError: (error: string) => void;
+	// Pending payment context for webhook recovery
+	clientId?: string;
+	branchId?: string;
+	totalPrice?: number;
+	cartItems?: PendingCartItem[];
+	comment?: string;
 }
 
 export const usePayment = ({
@@ -25,6 +31,11 @@ export const usePayment = ({
 	country,
 	onPaymentSuccess,
 	onPaymentError,
+	clientId,
+	branchId,
+	totalPrice,
+	cartItems,
+	comment,
 }: UsePaymentProps) => {
 	const [loading, setLoading] = useState(false);
 	const [verifying, setVerifying] = useState(false);
@@ -201,6 +212,12 @@ export const usePayment = ({
 						},
 					],
 				},
+				// Pending payment context — stored in Redis for webhook recovery
+				clientId,
+				branchId,
+				totalPrice,
+				cartItems,
+				comment,
 			});
 
 			if (response.status && response.data?.authorization_url) {
@@ -252,6 +269,11 @@ export const usePayment = ({
 		verifyPaymentStatus,
 		createMessageHandler,
 		cleanupListeners,
+		clientId,
+		branchId,
+		totalPrice,
+		cartItems,
+		comment,
 	]);
 
 	const reset = useCallback(() => {
