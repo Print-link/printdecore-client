@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { TrendingUp, Star, Zap, Sparkles, Search, ChevronDown, MapPin, Wrench } from "lucide-react";
+import { ChartLineUp, Star, Lightning, Sparkle, MagnifyingGlass, CaretDown, MapPin, Wrench } from "@phosphor-icons/react";
 import { useGeolocation } from "../hooks/useGeolocation";
 import { usePrintStations } from "../hooks/usePrintStations";
 import { useCategories } from "../hooks/useCategories";
@@ -105,7 +105,7 @@ export const Home = () => {
         {/* Branch filter with search mode dropdown */}
         <div className="flex gap-2">
           <div className="relative flex-1">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500 pointer-events-none" />
+            <MagnifyingGlass size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
@@ -128,11 +128,11 @@ export const Home = () => {
               className="flex items-center gap-1.5 px-3.5 py-3 text-sm font-medium bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-2xl text-gray-700 dark:text-gray-300 shadow-sm hover:border-[#fbbf24]/60 focus:outline-none focus:ring-2 focus:ring-[#fbbf24]/50 transition-all whitespace-nowrap"
             >
               {searchMode === "location" ? (
-                <MapPin className="w-4 h-4 text-[#fbbf24]" />
+                <MapPin size={16} weight="regular" className="text-[#fbbf24]" />
               ) : searchMode === "service" ? (
-                <Wrench className="w-4 h-4 text-[#fbbf24]" />
+                <Wrench size={16} weight="regular" className="text-[#fbbf24]" />
               ) : (
-                <Search className="w-4 h-4 text-gray-400" />
+                <MagnifyingGlass size={16} weight="regular" className="text-gray-400" />
               )}
               <span className="hidden sm:inline">
                 {searchMode === "location"
@@ -141,7 +141,7 @@ export const Home = () => {
                   ? "Service"
                   : "Branch"}
               </span>
-              <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+              <CaretDown size={14} weight="bold" className="text-gray-400" />
             </button>
 
             {dropdownOpen && (
@@ -152,7 +152,7 @@ export const Home = () => {
                     !searchMode ? "text-[#fbbf24] font-semibold bg-amber-50/50 dark:bg-amber-900/10" : "text-gray-700 dark:text-gray-300"
                   }`}
                 >
-                  <Search className="w-4 h-4" />
+                  <MagnifyingGlass size={16} weight="regular" />
                   Branch
                 </button>
                 <button
@@ -161,7 +161,7 @@ export const Home = () => {
                     searchMode === "location" ? "text-[#fbbf24] font-semibold bg-amber-50/50 dark:bg-amber-900/10" : "text-gray-700 dark:text-gray-300"
                   }`}
                 >
-                  <MapPin className="w-4 h-4" />
+                  <MapPin size={16} weight="regular" />
                   Location
                 </button>
                 <button
@@ -170,7 +170,7 @@ export const Home = () => {
                     searchMode === "service" ? "text-[#fbbf24] font-semibold bg-amber-50/50 dark:bg-amber-900/10" : "text-gray-700 dark:text-gray-300"
                   }`}
                 >
-                  <Wrench className="w-4 h-4" />
+                  <Wrench size={16} weight="regular" />
                   Service
                 </button>
               </div>
@@ -216,7 +216,7 @@ export const Home = () => {
             <HorizontalScrollSection
               title="Popular"
               subtitle="Most visited by customers"
-              icon={<TrendingUp className="w-4 h-4 text-[#fbbf24]" />}
+              icon={<ChartLineUp size={16} weight="duotone" className="text-[#fbbf24]" />}
               showAllLink="/home/search?sort=popular"
             >
               {popularStations.map((station) => (
@@ -249,7 +249,7 @@ export const Home = () => {
             <HorizontalScrollSection
               title="Top Rated"
               subtitle="Highest rated by our users"
-              icon={<Star className="w-4 h-4 text-[#fbbf24] fill-[#fbbf24]" />}
+              icon={<Star size={16} weight="fill" className="text-[#fbbf24]" />}
               showAllLink="/home/search?sort=rating"
             >
               {topRatedStations.map((station) => (
@@ -266,7 +266,7 @@ export const Home = () => {
             <HorizontalScrollSection
               title="Nearest to You"
               subtitle="Closest agents in your area"
-              icon={<Zap className="w-4 h-4 text-[#fbbf24]" />}
+              icon={<Lightning size={16} weight="duotone" className="text-[#fbbf24]" />}
               showAllLink="/home/search?sort=distance"
             >
               {fastDeliveryStations.map((station) => (
@@ -283,7 +283,7 @@ export const Home = () => {
             <HorizontalScrollSection
               title="New on Printdecore"
               subtitle="Recently joined agents"
-              icon={<Sparkles className="w-4 h-4 text-[#fbbf24]" />}
+              icon={<Sparkle size={16} weight="duotone" className="text-[#fbbf24]" />}
               showAllLink="/home/search?sort=new"
             >
               {newStations.map((station) => (

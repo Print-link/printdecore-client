@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Mail, Lock, AlertCircle } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { toast } from "react-toastify";
+import { WarningCircle, EnvelopeSimple, LockSimple } from '@phosphor-icons/react';
 import { Logo } from '../components/Logo';
 
 export const Login = () => {
@@ -62,7 +62,7 @@ export const Login = () => {
 
 				{error && (
 					<div className="mb-6 p-4 bg-red-50 text-red-800 rounded-lg flex items-center">
-						<AlertCircle className="w-5 h-5 mr-3 shrink-0" />
+						<WarningCircle size={20} weight="duotone" className="mr-3 shrink-0" />
 						<p className="text-sm font-medium">{error}</p>
 					</div>
 				)}
@@ -73,7 +73,7 @@ export const Login = () => {
 							Email Address
 						</label>
 						<div className="relative">
-							<Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+							<EnvelopeSimple size={20} weight="regular" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
 							<input
 								type="email"
 								value={email}
@@ -90,7 +90,7 @@ export const Login = () => {
 							Password
 						</label>
 						<div className="relative">
-							<Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+							<LockSimple size={20} weight="regular" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
 							<input
 								type="password"
 								value={password}

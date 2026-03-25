@@ -1,4 +1,4 @@
-import { X, Sliders } from "lucide-react";
+import { X, SlidersHorizontal } from "@phosphor-icons/react";
 import type { SearchFilters, SearchResponse } from "../services/orderApi";
 
 interface FilterSidebarProps {
@@ -42,7 +42,7 @@ export const FilterSidebar = ({
 		<div className="bg-white rounded-xl border border-gray-300 p-6 h-fit">
 			<div className="flex items-center justify-between mb-6">
 				<div className="flex items-center gap-2">
-					<Sliders className="w-5 h-5 text-gray-700" />
+					<SlidersHorizontal size={20} weight="duotone" className="text-gray-700" />
 					<h3 className="text-lg font-semibold text-gray-900">Filters</h3>
 				</div>
 				{onClose && (
@@ -50,7 +50,7 @@ export const FilterSidebar = ({
 						onClick={onClose}
 						className="md:hidden text-gray-500 hover:text-gray-700"
 					>
-						<X className="w-5 h-5" />
+						<X size={20} weight="bold" />
 					</button>
 				)}
 			</div>

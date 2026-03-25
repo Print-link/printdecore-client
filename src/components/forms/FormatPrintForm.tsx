@@ -1,4 +1,4 @@
-import { Upload, FileText, X, Calculator } from "lucide-react";
+import { UploadSimple, FileText, X, Calculator } from "@phosphor-icons/react";
 import type { Category } from "../../types/category";
 
 interface FormatPrintFormProps {
@@ -76,13 +76,14 @@ export const FormatPrintForm = ({
 				>
 					{!selectedFile ? (
 						<div className="text-center">
-							<Upload className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400 mx-auto mb-2 sm:mb-3" />
+							<UploadSimple size={32} weight="duotone" className="text-gray-400 mx-auto mb-2 sm:mb-3 sm:hidden" />
+						<UploadSimple size={40} weight="duotone" className="text-gray-400 mx-auto mb-2 sm:mb-3 hidden sm:block" />
 							<p className="text-xs sm:text-sm font-semibold text-gray-700 mb-2">
 								Drag and drop your file here
 							</p>
 							<p className="text-xs text-gray-500 mb-2 sm:mb-3">or</p>
 							<label className="inline-flex items-center px-4 py-2.5 sm:py-2 bg-[#fbbf24] text-white rounded-lg text-sm font-semibold cursor-pointer hover:bg-[#d97706] transition-colors touch-manipulation">
-								<Upload className="w-4 h-4 mr-2" />
+								<UploadSimple size={16} weight="bold" className="mr-2" />
 								Browse Files
 								<input
 									type="file"
@@ -100,7 +101,8 @@ export const FormatPrintForm = ({
 						<div className="flex items-center justify-between bg-white rounded-lg p-2 sm:p-3 border border-gray-200">
 							<div className="flex items-center flex-1 min-w-0 pr-2">
 								<div className="w-8 h-8 sm:w-10 sm:h-10 bg-red-100 rounded-lg flex items-center justify-center mr-2 sm:mr-3 shrink-0">
-									<FileText className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
+									<FileText size={16} weight="regular" className="text-red-600 sm:hidden" />
+								<FileText size={20} weight="regular" className="text-red-600 hidden sm:block" />
 								</div>
 								<div className="flex-1 min-w-0">
 									<p className="text-xs sm:text-sm font-semibold text-gray-900 truncate">
@@ -118,7 +120,8 @@ export const FormatPrintForm = ({
 								disabled={loading}
 								aria-label="Remove file"
 							>
-								<X className="w-5 h-5 sm:w-4 sm:h-4" />
+								<X size={20} weight="bold" className="sm:hidden" />
+							<X size={16} weight="bold" className="hidden sm:block" />
 							</button>
 						</div>
 					)}
@@ -183,7 +186,7 @@ export const FormatPrintForm = ({
 					{isRegularFormat && selectedFile && regularFormatProperties && (
 						<div className="bg-green-50 border border-green-200 rounded-lg p-4">
 							<div className="flex items-center gap-2 mb-2">
-								<Calculator className="w-5 h-5 text-green-600" />
+								<Calculator size={20} weight="duotone" className="text-green-600" />
 								<h4 className="text-sm font-semibold text-green-900">Price Calculation</h4>
 							</div>
 							{pdfPageCount === undefined ? (

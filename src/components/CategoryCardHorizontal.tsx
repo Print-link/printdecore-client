@@ -1,4 +1,4 @@
-import { Tag } from "lucide-react";
+import { Tag } from "@phosphor-icons/react";
 import type { Category } from "../services/orderApi";
 
 interface CategoryCardHorizontalProps {
@@ -25,7 +25,7 @@ export const CategoryCardHorizontal = ({
           />
         ) : (
           <div className="w-full h-24 bg-linear-to-br from-amber-50 to-orange-50 dark:from-gray-800 dark:to-gray-700 flex items-center justify-center">
-            <Tag className="w-7 h-7 text-[#fbbf24]" />
+            <Tag size={28} weight="duotone" className="text-[#fbbf24]" />
           </div>
         )}
         <div className="absolute inset-x-0 bottom-0 h-8 bg-linear-to-t from-black/20 to-transparent" />

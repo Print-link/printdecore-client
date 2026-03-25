@@ -1,4 +1,4 @@
-import { MapPin, Phone, Mail } from "lucide-react";
+import { MapPin, Phone, EnvelopeSimple, Buildings } from "@phosphor-icons/react";
 
 interface BranchInfoProps {
 	branch: {
@@ -17,50 +17,49 @@ interface BranchInfoProps {
 
 export const BranchInfo = ({ branch }: BranchInfoProps) => {
 	return (
-		<div className="bg-white rounded-lg border-2 border-gray-200 p-4">
-			<h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
-				<MapPin className="w-5 h-5" />
-				Branch Information
-			</h3>
-			<div className="space-y-4">
+		<div className="bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-100 dark:border-gray-800 p-5">
+			<div className="flex items-center gap-2.5 mb-4">
+				<div className="w-8 h-8 rounded-lg bg-gray-900 flex items-center justify-center">
+					<Buildings size={16} weight="duotone" className="text-white" />
+				</div>
+				<h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">
+					Branch
+				</h3>
+			</div>
+			<div className="space-y-3">
 				<div>
-					<p className="text-xs text-gray-500 mb-1">Branch Name</p>
-					<p className="text-base font-semibold text-gray-900">
+					<p className="text-base font-bold text-gray-900 dark:text-white">
 						{branch.name}
 					</p>
 				</div>
+
 				{branch.location?.address && (
-					<div>
-						<p className="text-xs text-gray-500 mb-1">Address</p>
-						<p className="text-sm font-medium text-gray-900">
+					<div className="flex items-start gap-2.5">
+						<MapPin size={16} weight="duotone" className="text-gray-400 dark:text-gray-500 mt-0.5 shrink-0" />
+						<p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
 							{branch.location.address}
 						</p>
 					</div>
 				)}
+
 				{branch.phoneNumber && (
-					<div className="flex items-start gap-2">
-						<Phone className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
-						<div>
-							<p className="text-xs text-gray-500 mb-1">Phone</p>
-							<p className="text-sm font-medium text-gray-900">
-								{branch.phoneNumber}
-							</p>
-						</div>
+					<div className="flex items-center gap-2.5">
+						<Phone size={16} weight="duotone" className="text-gray-400 dark:text-gray-500 shrink-0" />
+						<a href={`tel:${branch.phoneNumber}`} className="text-sm text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white transition-colors">
+							{branch.phoneNumber}
+						</a>
 					</div>
 				)}
+
 				{branch.branchEmailAddress && (
-					<div className="flex items-start gap-2">
-						<Mail className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
-						<div>
-							<p className="text-xs text-gray-500 mb-1">Email</p>
-							<p className="text-sm font-medium text-gray-900 break-all">
-								{branch.branchEmailAddress}
-							</p>
-						</div>
+					<div className="flex items-center gap-2.5">
+						<EnvelopeSimple size={16} weight="duotone" className="text-gray-400 dark:text-gray-500 shrink-0" />
+						<a href={`mailto:${branch.branchEmailAddress}`} className="text-sm text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white transition-colors break-all">
+							{branch.branchEmailAddress}
+						</a>
 					</div>
 				)}
 			</div>
 		</div>
 	);
 };
-

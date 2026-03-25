@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+import { X } from "@phosphor-icons/react";
 import type { AgentService, PriceCalculationResponse } from "../../services/orderApi";
 
 interface AddToCartModalProps {
@@ -46,16 +46,16 @@ export const AddToCartModal = ({
 			/>
 
 			{/* Modal */}
-			<div className="relative bg-white rounded-lg border-2 border-gray-200 max-w-sm w-full overflow-hidden">
+			<div className="relative bg-white dark:bg-[#1e1e1e] rounded-lg border-2 border-gray-200 dark:border-gray-700 max-w-sm w-full overflow-hidden">
 				{/* Header */}
-				<div className="px-4 py-3 border-b-2 border-gray-200 flex items-center justify-between">
-					<h2 className="text-base font-bold text-gray-900">Add to Cart</h2>
+				<div className="px-4 py-3 border-b-2 border-gray-200 dark:border-gray-700 flex items-center justify-between">
+					<h2 className="text-base font-bold text-gray-900 dark:text-white">Add to Cart</h2>
 					<button
 						onClick={onClose}
-						className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+						className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 transition-colors"
 						aria-label="Close"
 					>
-						<X className="w-5 h-5" />
+						<X size={20} weight="bold" />
 					</button>
 				</div>
 
@@ -67,8 +67,8 @@ export const AddToCartModal = ({
 						{/* Dimensions */}
 						{itemDetails.width && itemDetails.height && (
 							<div className="flex justify-between text-sm">
-								<span className="text-gray-600">Dimensions</span>
-								<span className="font-semibold text-gray-900">
+								<span className="text-gray-600 dark:text-gray-400">Dimensions</span>
+								<span className="font-semibold text-gray-900 dark:text-white">
 									{itemDetails.width} × {itemDetails.height} {itemDetails.measurementUnit}
 								</span>
 							</div>
@@ -76,15 +76,15 @@ export const AddToCartModal = ({
 
 						{/* Quantity */}
 						<div className="flex justify-between text-sm">
-							<span className="text-gray-600">Quantity</span>
-							<span className="font-semibold text-gray-900">{itemDetails.quantity}</span>
+							<span className="text-gray-600 dark:text-gray-400">Quantity</span>
+							<span className="font-semibold text-gray-900 dark:text-white">{itemDetails.quantity}</span>
 						</div>
 
 						{/* PDF Pages (for PAGE_BASED) */}
 						{itemDetails.isPageBased && itemDetails.options.filePages && (
 							<div className="flex justify-between text-sm">
-								<span className="text-gray-600">PDF Pages</span>
-								<span className="font-semibold text-gray-900">
+								<span className="text-gray-600 dark:text-gray-400">PDF Pages</span>
+								<span className="font-semibold text-gray-900 dark:text-white">
 									{itemDetails.options.filePages}
 								</span>
 							</div>
@@ -92,8 +92,8 @@ export const AddToCartModal = ({
 
 						{/* Files */}
 						<div className="flex justify-between text-sm">
-							<span className="text-gray-600">Files</span>
-							<span className="font-semibold text-gray-900">
+							<span className="text-gray-600 dark:text-gray-400">Files</span>
+							<span className="font-semibold text-gray-900 dark:text-white">
 								{itemDetails.filesCount} file{itemDetails.filesCount !== 1 ? "s" : ""}
 							</span>
 						</div>
@@ -102,20 +102,20 @@ export const AddToCartModal = ({
 						{(itemDetails.options.frontBack ||
 							itemDetails.options.color ||
 							itemDetails.options.printCut) && (
-							<div className="pt-2 border-t border-gray-200">
+							<div className="pt-2 border-t border-gray-200 dark:border-gray-700">
 								<div className="flex flex-wrap gap-2">
 									{itemDetails.options.frontBack && (
-										<span className="px-2 py-1 text-xs font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded">
+										<span className="px-2 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-[#161616] border border-gray-200 dark:border-gray-700 rounded">
 											Front & Back
 										</span>
 									)}
 									{itemDetails.options.color && (
-										<span className="px-2 py-1 text-xs font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded">
+										<span className="px-2 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-[#161616] border border-gray-200 dark:border-gray-700 rounded">
 											Color
 										</span>
 									)}
 									{itemDetails.options.printCut && (
-										<span className="px-2 py-1 text-xs font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded">
+										<span className="px-2 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-[#161616] border border-gray-200 dark:border-gray-700 rounded">
 											Print & Cut
 										</span>
 									)}
@@ -125,9 +125,9 @@ export const AddToCartModal = ({
 					</div>
 
 					{/* Price */}
-					<div className="pt-2 border-t-2 border-gray-200">
+					<div className="pt-2 border-t-2 border-gray-200 dark:border-gray-700">
 						<div className="flex items-center justify-between">
-							<span className="text-sm font-semibold text-gray-700">Total</span>
+							<span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Total</span>
 							<span className="text-xl font-bold text-[#fbbf24]">
 								GHS {itemDetails.calculatedPrice.toFixed(2)}
 							</span>
@@ -136,10 +136,10 @@ export const AddToCartModal = ({
 				</div>
 
 				{/* Footer Actions */}
-				<div className="px-4 py-3 border-t-2 border-gray-200 flex gap-2">
+				<div className="px-4 py-3 border-t-2 border-gray-200 dark:border-gray-700 flex gap-2">
 					<button
 						onClick={onClose}
-						className="flex-1 px-4 py-2.5 border-2 border-gray-200 rounded-lg text-gray-700 font-semibold hover:bg-gray-50 transition-colors"
+						className="flex-1 px-4 py-2.5 border-2 border-gray-200 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-50 transition-colors"
 					>
 						Cancel
 					</button>

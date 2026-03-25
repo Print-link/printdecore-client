@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Loader2, Tag, Package, Layers } from "lucide-react";
+import { MagnifyingGlass, SpinnerGap, Tag, Package, Stack } from "@phosphor-icons/react";
 import { getSearchSuggestions, type SearchSuggestions } from "../services/orderApi";
 
 interface SearchAutocompleteProps {
@@ -121,7 +121,7 @@ export const SearchAutocomplete = ({
 		<div className={`relative ${className}`}>
 			{/* Input */}
 			<div className="relative">
-				<Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-400 dark:text-gray-500 pointer-events-none" />
+				<MagnifyingGlass size={18} weight="regular" className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 pointer-events-none" />
 				<input
 					ref={inputRef}
 					type="text"
@@ -133,7 +133,7 @@ export const SearchAutocomplete = ({
 					className="w-full pl-11 pr-11 py-3.5 bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-2xl text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#fbbf24]/50 focus:border-[#fbbf24] transition-all duration-200"
 				/>
 				{loading && (
-					<Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300 animate-spin" />
+					<SpinnerGap size={16} weight="bold" className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 animate-spin" />
 				)}
 			</div>
 
@@ -157,7 +157,7 @@ export const SearchAutocomplete = ({
 									}`}
 								>
 									<div className="w-7 h-7 rounded-lg bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center shrink-0">
-										<Tag className="w-3.5 h-3.5 text-[#fbbf24]" />
+										<Tag size={14} weight="duotone" className="text-[#fbbf24]" />
 									</div>
 									<span className="text-sm font-medium text-gray-800 dark:text-gray-200">{category.name}</span>
 								</button>
@@ -181,7 +181,7 @@ export const SearchAutocomplete = ({
 										}`}
 									>
 										<div className="w-7 h-7 rounded-lg bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center shrink-0">
-											<Layers className="w-3.5 h-3.5 text-[#fbbf24]" />
+											<Stack size={14} weight="duotone" className="text-[#fbbf24]" />
 										</div>
 										<div>
 											<p className="text-sm font-medium text-gray-800 dark:text-gray-200">{subCategory.name}</p>
@@ -209,7 +209,7 @@ export const SearchAutocomplete = ({
 										}`}
 									>
 										<div className="w-7 h-7 rounded-lg bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center shrink-0">
-											<Package className="w-3.5 h-3.5 text-[#fbbf24]" />
+											<Package size={14} weight="duotone" className="text-[#fbbf24]" />
 										</div>
 										<div>
 											<p className="text-sm font-medium text-gray-800 dark:text-gray-200">{service.name}</p>

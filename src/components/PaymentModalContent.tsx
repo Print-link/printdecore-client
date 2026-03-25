@@ -1,4 +1,4 @@
-import { Loader2, CheckCircle, AlertCircle } from "lucide-react";
+import { SpinnerGap, CheckCircle, WarningCircle } from "@phosphor-icons/react";
 
 interface PaymentModalContentProps {
 	loading: boolean;
@@ -19,21 +19,21 @@ export const PaymentModalContent = ({
 		<div className="text-center">
 			{loading && (
 				<>
-					<Loader2 className="w-12 h-12 text-[#fbbf24] animate-spin mx-auto mb-4" />
-					<h3 className="text-lg font-semibold text-gray-900 mb-2">
+					<SpinnerGap size={48} weight="bold" className="text-[#fbbf24] animate-spin mx-auto mb-4" />
+					<h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
 						Initializing Payment
 					</h3>
-					<p className="text-sm text-gray-600">Redirecting to Paystack...</p>
+					<p className="text-sm text-gray-600 dark:text-gray-400">Redirecting to Paystack...</p>
 				</>
 			)}
 
 			{verifying && (
 				<>
-					<Loader2 className="w-12 h-12 text-[#fbbf24] animate-spin mx-auto mb-4" />
-					<h3 className="text-lg font-semibold text-gray-900 mb-2">
+					<SpinnerGap size={48} weight="bold" className="text-[#fbbf24] animate-spin mx-auto mb-4" />
+					<h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
 						Verifying Payment
 					</h3>
-					<p className="text-sm text-gray-600">
+					<p className="text-sm text-gray-600 dark:text-gray-400">
 						Please wait while we verify your payment...
 					</p>
 				</>
@@ -41,8 +41,8 @@ export const PaymentModalContent = ({
 
 			{error && !loading && !verifying && (
 				<>
-					<AlertCircle className="w-12 h-12 text-red-600 mx-auto mb-4" />
-					<h3 className="text-lg font-semibold text-gray-900 mb-2">
+					<WarningCircle size={48} weight="duotone" className="text-red-600 mx-auto mb-4" />
+					<h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
 						Payment Error
 					</h3>
 					<p className="text-sm text-red-600 mb-4">{error}</p>
@@ -57,20 +57,20 @@ export const PaymentModalContent = ({
 
 			{!loading && !verifying && !error && (
 				<>
-					<CheckCircle className="w-12 h-12 text-green-600 mx-auto mb-4" />
-					<h3 className="text-lg font-semibold text-gray-900 mb-2">
+					<CheckCircle size={48} weight="duotone" className="text-green-600 mx-auto mb-4" />
+					<h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
 						Payment Successful
 					</h3>
-					<p className="text-sm text-gray-600">
+					<p className="text-sm text-gray-600 dark:text-gray-400">
 						Your payment has been verified. Processing your order...
 					</p>
 				</>
 			)}
 
-			<div className="mt-6 pt-4 border-t border-gray-200">
+			<div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
 				<div className="flex justify-between items-center text-sm">
-					<span className="text-gray-600">Amount:</span>
-					<span className="font-semibold text-gray-900">
+					<span className="text-gray-600 dark:text-gray-400">Amount:</span>
+					<span className="font-semibold text-gray-900 dark:text-white">
 						GHS {amount?.toFixed(2)}
 					</span>
 				</div>

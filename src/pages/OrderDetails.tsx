@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "@phosphor-icons/react";
 import { toast } from "react-toastify";
 import { useOrder, useOrderItems } from "../hooks/useOrders";
 import { useAuth } from "../hooks/useAuth";
@@ -232,9 +232,9 @@ export const OrderDetails = () => {
 			{/* Back Button */}
 			<button
 				onClick={() => navigate("/home/history")}
-				className="mb-4 flex items-center text-sm text-gray-600 hover:text-gray-900 transition-colors"
+				className="mb-4 flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
 			>
-				<ArrowLeft className="w-4 h-4 mr-2" />
+				<ArrowLeft size={16} weight="bold" className="mr-2" />
 				Back to History
 			</button>
 
@@ -306,7 +306,7 @@ export const OrderDetails = () => {
 
 			{/* Rating Section */}
 			{order.branch?.id && (
-				<div className="mt-12 pt-12 border-t border-gray-200">
+				<div className="mt-12 pt-12 border-t border-gray-200 dark:border-gray-700">
 					<BranchRatingSection
 						branchId={order.branch.id}
 						averageRating={order.branch.averageRating}

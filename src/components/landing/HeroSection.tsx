@@ -1,4 +1,4 @@
-import { Check, ArrowRight, MapPin } from "lucide-react";
+import { Check, ArrowRight, MapPin } from "@phosphor-icons/react";
 import heroImage from "../../assets/images/HeroImage1.jpg";
 import { Logo } from "../Logo";
 
@@ -60,17 +60,26 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
 					{/* Key Benefits - Stack on mobile */}
 					<div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 md:gap-4 mb-6 md:mb-8 px-2">
 						<div className="flex items-center gap-2 bg-white/15 backdrop-blur-md px-4 py-2.5 md:px-5 md:py-3 rounded-full border border-white/30 shadow-lg text-sm md:text-base">
-							<Check className="w-4 h-4 md:w-5 md:h-5 text-[#fbbf24] flex-shrink-0" />
+							<>
+								<Check size={16} weight="bold" className="text-[#fbbf24] flex-shrink-0 md:hidden" />
+								<Check size={20} weight="bold" className="text-[#fbbf24] flex-shrink-0 hidden md:block" />
+							</>
 							<span className="font-semibold text-white whitespace-nowrap">
 								Find Nearby Stations
 							</span>
 						</div>
 						<div className="flex items-center gap-2 bg-white/15 backdrop-blur-md px-4 py-2.5 md:px-5 md:py-3 rounded-full border border-white/30 shadow-lg text-sm md:text-base">
-							<Check className="w-4 h-4 md:w-5 md:h-5 text-[#fbbf24] flex-shrink-0" />
+							<>
+								<Check size={16} weight="bold" className="text-[#fbbf24] flex-shrink-0 md:hidden" />
+								<Check size={20} weight="bold" className="text-[#fbbf24] flex-shrink-0 hidden md:block" />
+							</>
 							<span className="font-semibold text-white whitespace-nowrap">Instant Pricing</span>
 						</div>
 						<div className="flex items-center gap-2 bg-white/15 backdrop-blur-md px-4 py-2.5 md:px-5 md:py-3 rounded-full border border-white/30 shadow-lg text-sm md:text-base">
-							<Check className="w-4 h-4 md:w-5 md:h-5 text-[#fbbf24] flex-shrink-0" />
+							<>
+								<Check size={16} weight="bold" className="text-[#fbbf24] flex-shrink-0 md:hidden" />
+								<Check size={20} weight="bold" className="text-[#fbbf24] flex-shrink-0 hidden md:block" />
+							</>
 							<span className="font-semibold text-white whitespace-nowrap">Real-Time Tracking</span>
 						</div>
 					</div>
@@ -83,14 +92,14 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
 							aria-label="Find print stations near you"
 						>
 							Get Started Now
-							<ArrowRight className="w-5 h-5" />
+							<ArrowRight size={20} weight="bold" />
 						</button>
 						<button
 							onClick={onGetStarted}
 							className="inline-flex items-center justify-center gap-2 bg-white/15 backdrop-blur-md text-white border-2 border-white/40 px-6 py-3 md:px-8 md:py-4 rounded-lg text-base md:text-lg font-semibold hover:bg-white/25 transition-all shadow-lg w-full sm:w-auto"
 							aria-label="Find print stations using location"
 						>
-							<MapPin className="w-5 h-5" />
+							<MapPin size={20} weight="bold" />
 							Use My Location
 						</button>
 					</div>

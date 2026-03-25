@@ -1,38 +1,38 @@
-import { MapPin, Calculator, Upload, Clock, Shield, Zap } from "lucide-react";
+import { MapPin, Calculator, UploadSimple, Clock, ShieldCheck, Lightning } from "@phosphor-icons/react";
 
 const features = [
 	{
-		icon: <MapPin className="w-8 h-8" />,
+		icon: <MapPin size={32} weight="duotone" />,
 		title: "Location-Based",
 		description:
 			"Find print stations near you. Get your orders faster with local pickup or delivery.",
 	},
 	{
-		icon: <Calculator className="w-8 h-8" />,
+		icon: <Calculator size={32} weight="duotone" />,
 		title: "Instant Pricing",
 		description:
 			"Get real-time price calculations based on your specifications. No surprises.",
 	},
 	{
-		icon: <Upload className="w-8 h-8" />,
+		icon: <UploadSimple size={32} weight="duotone" />,
 		title: "Easy File Upload",
 		description:
 			"Upload multiple design files. Support for images, PDFs, and more.",
 	},
 	{
-		icon: <Clock className="w-8 h-8" />,
+		icon: <Clock size={32} weight="duotone" />,
 		title: "Order Tracking",
 		description:
 			"Track your order status from pending to completion in real-time.",
 	},
 	{
-		icon: <Shield className="w-8 h-8" />,
+		icon: <ShieldCheck size={32} weight="duotone" />,
 		title: "Secure Payments",
 		description:
 			"Pay securely with Paystack. Your payment is protected and verified.",
 	},
 	{
-		icon: <Zap className="w-8 h-8" />,
+		icon: <Lightning size={32} weight="duotone" />,
 		title: "Fast Turnaround",
 		description:
 			"Connect directly with local print shops for quick order fulfillment.",

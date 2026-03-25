@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Loader2, AlertCircle, ArrowLeft, Tag } from "lucide-react";
+import { SpinnerGap, WarningCircle, ArrowLeft, Tag, CaretRight } from "@phosphor-icons/react";
 import { getCategories, type Category } from "../services/orderApi";
 import { Reviews } from "../components/Reviews";
 import { useAuth } from "../hooks/useAuth";
@@ -64,9 +64,9 @@ const handleCategoryClick = (categoryId: string) => {
 
 	if (loading) {
 		return (
-			<div className="w-full max-w-6xl mx-auto bg-white rounded-2xl p-8">
+			<div className="w-full max-w-6xl mx-auto bg-white dark:bg-[#1e1e1e] rounded-2xl p-8">
 				<div className="flex items-center justify-center py-12">
-					<Loader2 className="w-8 h-8 text-[#fbbf24] animate-spin" />
+					<SpinnerGap size={32} weight="bold" className="text-[#fbbf24] animate-spin" />
 				</div>
 			</div>
 		);
@@ -74,18 +74,18 @@ const handleCategoryClick = (categoryId: string) => {
 
 	if (error) {
 		return (
-			<div className="w-full max-w-6xl mx-auto bg-white rounded-2xl p-8">
+			<div className="w-full max-w-6xl mx-auto bg-white dark:bg-[#1e1e1e] rounded-2xl p-8">
 				<div className="text-center py-12">
-					<AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-					<h2 className="text-xl font-semibold text-gray-900 mb-2">
+					<WarningCircle size={48} weight="duotone" className="text-red-500 mx-auto mb-4" />
+					<h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
 						Error Loading Categories
 					</h2>
-					<p className="text-gray-600 mb-4">{error}</p>
+					<p className="text-gray-600 dark:text-gray-400 mb-4">{error}</p>
 					<button
 						onClick={handleBack}
 						className="inline-flex items-center px-4 py-2 text-sm font-medium text-[#fbbf24] hover:text-[#fbbf24]"
 					>
-						<ArrowLeft className="w-4 h-4 mr-2" />
+						<ArrowLeft size={16} weight="bold" className="mr-2" />
 						Go Back
 					</button>
 				</div>
@@ -96,22 +96,25 @@ const handleCategoryClick = (categoryId: string) => {
 return (
 		<>
 			<div className="w-full max-w-7xl mx-auto">
-				{/* Back Button */}
-				<button
-					onClick={handleBack}
-					className="mb-4 inline-flex items-center text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
-				>
-					<ArrowLeft className="w-4 h-4 mr-2" />
-					Back
-				</button>
-				
+				{/* Breadcrumb Navigation */}
+				<nav className="mb-4 flex items-center gap-1.5 text-sm">
+					<button
+						onClick={handleBack}
+						className="text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors font-medium"
+					>
+						Print Station
+					</button>
+					<CaretRight size={12} weight="bold" className="text-gray-300 dark:text-gray-600" />
+					<span className="text-gray-900 dark:text-white font-semibold">Categories</span>
+				</nav>
+
 				{/* Header */}
 				<div className="mb-4">
-					<h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-1">
+					<h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-0.5">
 						Select a Category
 					</h1>
-					<p className="text-sm text-gray-600">
-						Choose a print category to continue with your order
+					<p className="text-sm text-gray-500 dark:text-gray-400">
+						{categories.length} {categories.length === 1 ? "category" : "categories"} available
 					</p>
 				</div>
 
@@ -120,44 +123,43 @@ return (
 				{/* Categories Section */}
 				<div className="flex-1">
 					{categories.length === 0 ? (
-						<div className="bg-white rounded-2xl p-8 text-center">
-							<Tag className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-							<p className="text-gray-600">
+						<div className="bg-white dark:bg-[#1e1e1e] rounded-2xl p-8 text-center">
+							<Tag size={48} weight="duotone" className="text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+							<p className="text-gray-600 dark:text-gray-400">
 								No categories available for this print station.
 							</p>
 						</div>
 					) : (
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<div className="space-y-2">
 							{categories.map((category) => (
 								<button
 									key={category.id}
 									onClick={() => handleCategoryClick(category.id)}
-									className="w-full bg-white p-4 border-2 border-gray-200 rounded-lg text-left group hover:border-[#fbbf24] transition-all flex items-center gap-3 md:flex-col md:items-start"
+									className="w-full group bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-100 dark:border-gray-800 p-4 text-left transition-all duration-200 hover:shadow-lg hover:shadow-gray-900/5 hover:border-gray-200 active:scale-[0.995]"
 								>
-									{category.imageUrl ? (
-										<img
-											src={category.imageUrl}
-											alt={category.name}
-											className="w-16 h-16 md:w-20 md:h-20 object-cover rounded-lg shrink-0"
-										/>
-									) : (
-										<div className="w-16 h-16 md:w-20 md:h-20 bg-gray-50 rounded-lg flex items-center justify-center shrink-0 border-2 border-gray-200 group-hover:border-[#fbbf24] transition-colors">
-											<Tag className="w-8 h-8 md:w-10 md:h-10 text-[#fbbf24]" />
-										</div>
-									)}
-									<div className="flex-1 min-w-0">
-										<h3 className="text-base md:text-lg font-bold text-gray-900 mb-1 group-hover:text-[#fbbf24] transition-colors">
-											{category.name}
-										</h3>
-										{category.description && (
-											<p className="text-sm text-gray-600 line-clamp-2 md:line-clamp-3 mb-2">
-												{category.description}
-											</p>
+									<div className="flex items-center gap-4">
+										{category.imageUrl ? (
+											<img
+												src={category.imageUrl}
+												alt={category.name}
+												className="w-12 h-12 object-cover rounded-xl shrink-0"
+											/>
+										) : (
+											<div className="w-12 h-12 bg-gray-50 dark:bg-[#161616] rounded-xl flex items-center justify-center shrink-0">
+												<Tag size={24} weight="duotone" className="text-[#fbbf24]" />
+											</div>
 										)}
-										<div className="flex items-center text-sm font-semibold text-[#fbbf24]">
-											<span>View SubCategories</span>
-											<span className="ml-2 hidden md:inline">→</span>
+										<div className="flex-1 min-w-0">
+											<h3 className="text-sm font-bold text-gray-900 dark:text-white mb-0.5">
+												{category.name}
+											</h3>
+											{category.description && (
+												<p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">
+													{category.description}
+												</p>
+											)}
 										</div>
+										<CaretRight size={16} weight="bold" className="text-gray-300 dark:text-gray-600 group-hover:text-[#fbbf24] group-hover:translate-x-0.5 transition-all duration-300 shrink-0" />
 									</div>
 								</button>
 							))}
@@ -169,7 +171,7 @@ return (
 				{id && <Reviews adminId={id} />}
 			</div>
 </div>
-			
+
 			{/* Authentication Prompt */}
 			<AuthPrompt
 				isOpen={showAuthPrompt}

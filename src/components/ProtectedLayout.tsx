@@ -1,23 +1,23 @@
 import { useEffect, useState } from 'react';
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
-	LogOut,
-	Home,
-	History,
-	Menu,
+	SignOut,
+	House,
+	ClockCounterClockwise,
+	List,
 	X,
-	Search,
-	Trash2,
+	MagnifyingGlass,
+	Trash,
 	Moon,
 	Sun,
-	PrinterIcon,
+	Printer,
 	User,
-	LogIn,
-	ShoppingBag,
-	ChevronDown,
-	ChevronUp,
-	Sparkles,
-} from "lucide-react";
+	SignIn,
+	Bag,
+	CaretDown,
+	CaretUp,
+	Sparkle,
+} from "@phosphor-icons/react";
 import { useAuth } from "../hooks/useAuth";
 import { useCart } from "../contexts/CartContext";
 import { useTheme } from "../contexts/ThemeContext";
@@ -170,7 +170,7 @@ export const ProtectedLayout = () => {
 						className="md:hidden p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
 						aria-label="Close menu"
 					>
-						<X className="w-5 h-5" />
+						<X size={20} weight="bold" />
 					</button>
 				</div>
 
@@ -180,8 +180,8 @@ export const ProtectedLayout = () => {
 					<p className="px-4 mb-2 text-[10px] font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest">
 						Discover
 					</p>
-					{navItem("home", <Home className="w-5 h-5" />, "Home")}
-					{navItem("search", <Search className="w-5 h-5" />, "Search")}
+					{navItem("home", <House size={20} weight="duotone" />, "Home")}
+					{navItem("search", <MagnifyingGlass size={20} weight="regular" />, "Search")}
 
 					{/* My Account section */}
 					{user && (
@@ -189,10 +189,10 @@ export const ProtectedLayout = () => {
 							<p className="px-4 pt-4 mb-2 text-[10px] font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest">
 								My Account
 							</p>
-							{navItem("history", <History className="w-5 h-5" />, "Print History")}
+							{navItem("history", <ClockCounterClockwise size={20} weight="duotone" />, "Print History")}
 							{navItem(
 								"cart",
-								<PrinterIcon className="w-5 h-5" />,
+								<Printer size={20} weight="duotone" />,
 								"Printing Tray",
 								cart.length > 0 ? cart.length : undefined,
 								!branchId || cart.length === 0
@@ -208,7 +208,7 @@ export const ProtectedLayout = () => {
 								className="w-full flex items-center justify-between px-4 py-3 bg-amber-50 dark:bg-amber-900/10 hover:bg-amber-100 dark:hover:bg-amber-900/20 transition-colors"
 							>
 								<div className="flex items-center gap-2">
-									<ShoppingBag className="w-4 h-4 text-[#fbbf24]" />
+									<Bag size={16} weight="duotone" className="text-[#fbbf24]" />
 									<span className="text-sm font-bold text-gray-800 dark:text-gray-200">
 										Cart ({cart.length})
 									</span>
@@ -218,9 +218,9 @@ export const ProtectedLayout = () => {
 										GHS {getCartTotal().toFixed(2)}
 									</span>
 									{cartExpanded ? (
-										<ChevronUp className="w-4 h-4 text-gray-500" />
+										<CaretUp size={16} weight="bold" className="text-gray-500" />
 									) : (
-										<ChevronDown className="w-4 h-4 text-gray-500" />
+										<CaretDown size={16} weight="bold" className="text-gray-500" />
 									)}
 								</div>
 							</button>
@@ -248,7 +248,7 @@ export const ProtectedLayout = () => {
 													className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors shrink-0"
 													aria-label="Remove item"
 												>
-													<Trash2 className="w-3.5 h-3.5" />
+													<Trash size={14} weight="regular" />
 												</button>
 											</div>
 										))}
@@ -299,9 +299,9 @@ export const ProtectedLayout = () => {
 									className="flex items-center justify-center gap-2 p-2.5 bg-white dark:bg-[#1e1e1e] border border-gray-100 dark:border-gray-800 rounded-xl hover:border-[#fbbf24] dark:hover:border-[#fbbf24] transition-all group text-sm font-semibold text-gray-600 dark:text-gray-400"
 								>
 									{theme === "light" ? (
-										<Moon className="w-4 h-4 group-hover:text-[#fbbf24]" />
+										<Moon size={16} weight="duotone" className="group-hover:text-[#fbbf24]" />
 									) : (
-										<Sun className="w-4 h-4 text-[#fbbf24]" />
+										<Sun size={16} weight="duotone" className="text-[#fbbf24]" />
 									)}
 									<span className="text-xs">Theme</span>
 								</button>
@@ -309,7 +309,7 @@ export const ProtectedLayout = () => {
 									onClick={handleLogout}
 									className="flex items-center justify-center gap-2 p-2.5 bg-white dark:bg-[#1e1e1e] border border-gray-100 dark:border-gray-800 rounded-xl hover:border-red-400 hover:text-red-500 dark:hover:border-red-500 transition-all group text-sm font-semibold text-gray-600 dark:text-gray-400"
 								>
-									<LogOut className="w-4 h-4 group-hover:text-red-500" />
+									<SignOut size={16} weight="bold" className="group-hover:text-red-500" />
 									<span className="text-xs">Logout</span>
 								</button>
 							</div>
@@ -319,7 +319,7 @@ export const ProtectedLayout = () => {
 							{/* Guest prompt */}
 							<div className="px-3 py-3 bg-linear-to-r from-amber-50 to-orange-50 dark:from-amber-900/10 dark:to-orange-900/10 rounded-xl border border-amber-100 dark:border-amber-800/30">
 								<div className="flex items-center gap-2 mb-1">
-									<Sparkles className="w-3.5 h-3.5 text-[#fbbf24]" />
+									<Sparkle size={14} weight="duotone" className="text-[#fbbf24]" />
 									<p className="text-[11px] font-bold text-[#fbbf24] uppercase tracking-wider">
 										Guest Mode
 									</p>
@@ -333,7 +333,7 @@ export const ProtectedLayout = () => {
 								onClick={() => navigate("/login")}
 								className="w-full flex items-center justify-center gap-2 py-2.5 bg-[#fbbf24] hover:bg-[#f59e0b] text-black rounded-xl font-bold text-sm transition-all shadow-sm shadow-amber-200/50 hover:shadow-amber-200"
 							>
-								<LogIn className="w-4 h-4" />
+								<SignIn size={16} weight="bold" />
 								Sign In
 							</button>
 
@@ -343,9 +343,9 @@ export const ProtectedLayout = () => {
 									className="flex items-center justify-center gap-2 p-2.5 bg-white dark:bg-[#1e1e1e] border border-gray-100 dark:border-gray-800 rounded-xl hover:border-[#fbbf24] transition-all group text-xs font-semibold text-gray-600 dark:text-gray-400"
 								>
 									{theme === "light" ? (
-										<Moon className="w-4 h-4 group-hover:text-[#fbbf24]" />
+										<Moon size={16} weight="duotone" className="group-hover:text-[#fbbf24]" />
 									) : (
-										<Sun className="w-4 h-4 text-[#fbbf24]" />
+										<Sun size={16} weight="duotone" className="text-[#fbbf24]" />
 									)}
 									Theme
 								</button>
@@ -353,7 +353,7 @@ export const ProtectedLayout = () => {
 									onClick={() => navigate("/register")}
 									className="flex items-center justify-center gap-2 p-2.5 bg-white dark:bg-[#1e1e1e] border border-gray-100 dark:border-gray-800 rounded-xl hover:border-[#fbbf24] transition-all group text-xs font-semibold text-gray-600 dark:text-gray-400"
 								>
-									<User className="w-4 h-4 group-hover:text-[#fbbf24]" />
+									<User size={16} weight="regular" className="group-hover:text-[#fbbf24]" />
 									Join
 								</button>
 							</div>
@@ -382,7 +382,7 @@ export const ProtectedLayout = () => {
 									className="md:hidden p-2 text-gray-600 dark:text-gray-400 hover:text-[#fbbf24] hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-all"
 									aria-label="Toggle menu"
 								>
-									{drawerOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+									{drawerOpen ? <X size={20} weight="bold" /> : <List size={20} weight="bold" />}
 								</button>
 
 								<div className="md:hidden">
@@ -424,7 +424,7 @@ export const ProtectedLayout = () => {
 										className="md:hidden p-2 text-gray-600 dark:text-gray-400 hover:text-[#fbbf24] rounded-lg transition-colors"
 										aria-label="Search"
 									>
-										<Search className="w-5 h-5" />
+										<MagnifyingGlass size={20} weight="regular" />
 									</button>
 
 									<button
@@ -433,9 +433,9 @@ export const ProtectedLayout = () => {
 										aria-label="Toggle theme"
 									>
 										{theme === "light" ? (
-											<Moon className="w-5 h-5" />
+											<Moon size={20} weight="duotone" />
 										) : (
-											<Sun className="w-5 h-5 text-[#fbbf24]" />
+											<Sun size={20} weight="duotone" className="text-[#fbbf24]" />
 										)}
 									</button>
 
@@ -445,7 +445,7 @@ export const ProtectedLayout = () => {
 											className="md:hidden p-2 text-gray-600 dark:text-gray-400 hover:text-[#fbbf24] rounded-lg transition-colors"
 											aria-label="Login"
 										>
-											<LogIn className="w-5 h-5" />
+											<SignIn size={20} weight="bold" />
 										</button>
 									)}
 								</div>
@@ -456,7 +456,7 @@ export const ProtectedLayout = () => {
 											onClick={handleLogout}
 											className="flex items-center gap-2 px-3 py-2 text-sm font-bold text-gray-600 dark:text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all"
 										>
-											<LogOut className="w-4 h-4" />
+											<SignOut size={16} weight="bold" />
 											Logout
 										</button>
 									) : (

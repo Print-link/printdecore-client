@@ -1,6 +1,6 @@
 import { useEffect, useRef, useMemo } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { Loader2, AlertCircle } from "lucide-react";
+import { SpinnerGap, WarningCircle } from "@phosphor-icons/react";
 import { verifyPayment } from "../services/paystackService";
 
 export const PaymentCallback = () => {
@@ -107,7 +107,7 @@ export const PaymentCallback = () => {
 			<div className="bg-white rounded-lg max-w-md w-full p-6 text-center">
 				{paymentReference ? (
 					<>
-						<Loader2 className="w-12 h-12 text-[#fbbf24] animate-spin mx-auto mb-4" />
+						<SpinnerGap size={48} weight="bold" className="text-[#fbbf24] animate-spin mx-auto mb-4" />
 						<h3 className="text-lg font-semibold text-gray-900 mb-2">
 							Verifying Payment
 						</h3>
@@ -122,7 +122,7 @@ export const PaymentCallback = () => {
 					</>
 				) : (
 					<>
-						<AlertCircle className="w-12 h-12 text-yellow-600 mx-auto mb-4" />
+						<WarningCircle size={48} weight="duotone" className="text-yellow-600 mx-auto mb-4" />
 						<h3 className="text-lg font-semibold text-gray-900 mb-2">
 							No Payment Reference
 						</h3>

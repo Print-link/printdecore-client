@@ -13,7 +13,7 @@ import {
 	type SearchFilters,
 	type SearchResponse,
 } from "../services/orderApi";
-import { Loader2, Sliders, ChevronLeft, ChevronRight } from "lucide-react";
+import { SpinnerGap, SlidersHorizontal, CaretLeft, CaretRight } from "@phosphor-icons/react";
 
 export const Search = () => {
 	const [urlSearchParams] = useSearchParams();
@@ -132,7 +132,7 @@ export const Search = () => {
 						onClick={() => setShowFilters(!showFilters)}
 						className="md:hidden px-4 py-3 border border-gray-300 rounded-lg flex items-center gap-2 hover:bg-gray-50"
 					>
-						<Sliders className="w-5 h-5" />
+						<SlidersHorizontal size={20} weight="regular" />
 						Filters
 					</button>
 				</div>
@@ -230,7 +230,7 @@ export const Search = () => {
 							{/* Results Grid */}
 							{loading ? (
 								<div className="flex items-center justify-center py-12">
-									<Loader2 className="w-8 h-8 text-[#fbbf24] animate-spin" />
+									<SpinnerGap size={32} className="text-[#fbbf24] animate-spin" weight="bold" />
 								</div>
 							) : (
 								<div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6">
@@ -250,7 +250,7 @@ export const Search = () => {
 										disabled={!searchData.pagination.hasPrev}
 										className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 flex items-center gap-2"
 									>
-										<ChevronLeft className="w-4 h-4" />
+										<CaretLeft size={16} weight="bold" />
 										Previous
 									</button>
 									<span className="px-4 py-2 text-sm text-gray-700">
@@ -265,7 +265,7 @@ export const Search = () => {
 										className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 flex items-center gap-2"
 									>
 										Next
-										<ChevronRight className="w-4 h-4" />
+										<CaretRight size={16} weight="bold" />
 									</button>
 								</div>
 							)}

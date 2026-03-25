@@ -1,4 +1,4 @@
-import { MapPin, FileText, Upload, Package, ArrowRight } from "lucide-react";
+import { MapPin, FileText, UploadSimple, Package, ArrowRight } from "@phosphor-icons/react";
 
 const steps = [
 	{
@@ -15,7 +15,7 @@ const steps = [
 	},
 	{
 		number: "03",
-		icon: Upload,
+		icon: UploadSimple,
 		title: "Upload & Configure",
 		description: "Upload your design files and configure size, quantity, paper type, and finishing options. Get instant pricing.",
 	},
@@ -47,7 +47,7 @@ export const HowItWorksSection = () => {
 								{/* Connection Line */}
 								{index < steps.length - 1 && (
 									<div className="hidden lg:block absolute top-12 left-full w-full h-0.5 bg-gradient-to-r from-[#fbbf24] to-transparent z-0">
-										<ArrowRight className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 text-[#fbbf24]" />
+										<ArrowRight size={16} weight="bold" className="absolute right-0 top-1/2 -translate-y-1/2 text-[#fbbf24]" />
 									</div>
 								)}
 								<div className="relative bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 border-2 border-gray-100 hover:border-[#fbbf24] transition-all hover:shadow-xl">
@@ -57,7 +57,7 @@ export const HowItWorksSection = () => {
 									</div>
 									{/* Icon */}
 									<div className="text-[#fbbf24] mb-4 mt-4 flex justify-center">
-										<Icon className="w-10 h-10" />
+										<Icon size={40} weight="duotone" />
 									</div>
 									{/* Content */}
 									<h3 className="text-xl font-bold text-gray-900 mb-3 text-center">

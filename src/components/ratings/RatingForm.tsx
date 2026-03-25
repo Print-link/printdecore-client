@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Star, X } from "lucide-react";
+import { Star, X } from "@phosphor-icons/react";
 import { useMyRating, useCreateRating, useUpdateRating, useDeleteRating } from "../../hooks/useRatings";
 import { useAuth } from "../../hooks/useAuth";
 import type { CreateRatingData } from "../../services/ratingApi";
@@ -112,7 +112,7 @@ export const RatingForm = ({
 						onClick={onCancel}
 						className="text-gray-400 hover:text-gray-600 transition-colors"
 					>
-						<X className="w-5 h-5" />
+						<X size={20} weight="bold" />
 					</button>
 				)}
 			</div>
@@ -137,11 +137,13 @@ export const RatingForm = ({
 									className="focus:outline-none transition-transform hover:scale-110"
 								>
 									<Star
-										className={`w-8 h-8 ${
+										size={32}
+										weight="fill"
+										className={
 											isActive
-												? "fill-yellow-400 text-yellow-400"
-												: "fill-gray-300 text-gray-300"
-										}`}
+												? "text-yellow-400"
+												: "text-gray-300"
+										}
 									/>
 								</button>
 							);

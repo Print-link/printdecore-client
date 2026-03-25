@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Star, User } from "lucide-react";
+import { Star, User } from "@phosphor-icons/react";
 import { useBranchRatings } from "../../hooks/useRatings";
 import { RatingDisplay } from "./RatingDisplay";
 import type { BranchRating } from "../../services/ratingApi";
@@ -46,7 +46,7 @@ export const RatingsList = ({ branchId, limit: initialLimit = 10 }: RatingsListP
 	if (!ratingsData || ratingsData.data.length === 0) {
 		return (
 			<div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center text-gray-500">
-				<Star className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+				<Star size={48} weight="duotone" className="mx-auto mb-3 text-gray-400" />
 				<p className="text-lg font-medium">No ratings yet</p>
 				<p className="text-sm mt-1">Be the first to rate this branch!</p>
 			</div>
@@ -89,7 +89,7 @@ export const RatingsList = ({ branchId, limit: initialLimit = 10 }: RatingsListP
 									className="w-10 h-10 rounded-full object-cover"
 								/>
 							) : (
-								<User className="w-6 h-6 text-blue-600" />
+								<User size={24} weight="duotone" className="text-blue-600" />
 							)}
 						</div>
 

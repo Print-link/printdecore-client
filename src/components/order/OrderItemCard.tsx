@@ -1,4 +1,11 @@
-import { FileText, Tag } from "lucide-react";
+import {
+	FileText,
+	Tag,
+	StackSimple,
+	Ruler,
+	HashStraight,
+	Paperclip,
+} from "@phosphor-icons/react";
 import type { OrderItem, FileInfo } from "../../services/orderApi";
 import { formatFileSize } from "../../utils/orderUtils";
 
@@ -10,87 +17,95 @@ interface OrderItemCardProps {
 export const OrderItemCard = ({ item, index }: OrderItemCardProps) => {
 	const filePages = item.options?.filePages;
 	const hasFilePages = typeof filePages === 'number' && filePages > 0;
-	
-	// Get selected options and custom specs from options (flexible pricing)
+
 	const selectedOptions = item.options?.selectedOptions as string[] | undefined;
 	const selectedCustomSpecs = item.options?.selectedCustomSpecs as string[] | undefined;
 	const agentService = item.agentService;
-	
-	// Get option and custom spec names from agentService pricing config
+
 	const pricingOptions = agentService?.pricingConfig?.options || [];
 	const customSpecs = agentService?.pricingConfig?.customSpecifications || [];
-	
-	// Map selected option IDs to names
+
 	const selectedOptionNames = selectedOptions
 		?.map(optId => {
 			const option = pricingOptions.find(o => o.id === optId);
 			return option ? { id: optId, name: option.name, modifier: option.priceModifier, modifierType: option.modifierType } : null;
 		})
 		.filter((opt): opt is NonNullable<typeof opt> => opt !== null) || [];
-	
-	// Map selected custom spec IDs to names
+
 	const selectedCustomSpecNames = selectedCustomSpecs
 		?.map(specId => {
 			const spec = customSpecs.find(s => s.id === specId);
 			return spec ? { id: specId, name: spec.name, modifier: spec.priceModifier, modifierType: spec.modifierType } : null;
 		})
 		.filter((spec): spec is NonNullable<typeof spec> => spec !== null) || [];
-	
-	// Legacy options (for backward compatibility)
+
 	const hasLegacyOptions = item.options?.frontBack || item.options?.color || item.options?.printCut;
 	const hasFlexibleOptions = selectedOptionNames.length > 0 || selectedCustomSpecNames.length > 0;
-	// const hasAnyOptions = hasLegacyOptions || hasFlexibleOptions; // Removed unused variable
 
 	return (
-		<div className="border-2 border-gray-200 rounded-lg p-3">
-			<div className="flex items-start justify-between mb-2">
-				<div className="flex-1">
-					<h4 className="text-sm font-semibold text-gray-900 mb-1">
-						Item {index + 1}
-					</h4>
-					<div className="space-y-1 text-xs text-gray-600">
-						{item.width && item.height && (
-							<div>
-								Dimensions: {item.width} × {item.height} {item.measurementUnit}
-							</div>
-						)}
-						<div>Quantity: {item.quantity}</div>
-						{hasFilePages && (
-							<div>PDF Pages: {filePages}</div>
-						)}
+		<div className="rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 p-4 hover:bg-gray-50 transition-colors duration-200">
+			{/* Header Row */}
+			<div className="flex items-start justify-between mb-3">
+				<div className="flex items-center gap-2.5">
+					<div className="w-7 h-7 rounded-lg bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 flex items-center justify-center">
+						<span className="text-xs font-bold text-gray-500 dark:text-gray-400">{index + 1}</span>
+					</div>
+					<div>
+						<h4 className="text-sm font-semibold text-gray-900 dark:text-white">
+							Item {index + 1}
+						</h4>
 					</div>
 				</div>
 				<div className="text-right">
-					<p className="text-sm font-bold text-[#fbbf24]">
+					<p className="text-base font-bold text-gray-900 dark:text-white">
 						GHS {item.calculatedPrice.toFixed(2)}
 					</p>
 				</div>
 			</div>
-			
-			{/* Price Modifiers - Flexible Pricing Options & Custom Specs */}
-			{hasFlexibleOptions && (
-				<div className="mt-3 pt-3 border-t-2 border-[#fbbf24]/30">
-					<div className="flex items-center gap-2 mb-2">
-						<Tag className="w-4 h-4 text-[#fbbf24]" />
-						<h5 className="text-xs font-bold text-gray-900 uppercase tracking-wide">
-							Price Modifiers
-						</h5>
+
+			{/* Details Grid */}
+			<div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 mb-3">
+				{item.width && item.height && (
+					<div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 bg-white dark:bg-[#1e1e1e] rounded-lg px-3 py-2 border border-gray-100 dark:border-gray-800">
+						<Ruler size={14} weight="duotone" className="text-gray-400 dark:text-gray-500 shrink-0" />
+						<span>{item.width} x {item.height} {item.measurementUnit}</span>
 					</div>
-					<div className="space-y-2">
-						{/* Selected Options */}
+				)}
+				<div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 bg-white dark:bg-[#1e1e1e] rounded-lg px-3 py-2 border border-gray-100 dark:border-gray-800">
+					<HashStraight size={14} weight="duotone" className="text-gray-400 dark:text-gray-500 shrink-0" />
+					<span>Qty: {item.quantity}</span>
+				</div>
+				{hasFilePages && (
+					<div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 bg-white dark:bg-[#1e1e1e] rounded-lg px-3 py-2 border border-gray-100 dark:border-gray-800">
+						<StackSimple size={14} weight="duotone" className="text-gray-400 dark:text-gray-500 shrink-0" />
+						<span>{filePages} page{filePages !== 1 ? "s" : ""}</span>
+					</div>
+				)}
+			</div>
+
+			{/* Flexible Pricing Options & Custom Specs */}
+			{hasFlexibleOptions && (
+				<div className="mt-3 pt-3 border-t border-gray-200/60 dark:border-gray-700/60">
+					<div className="flex items-center gap-2 mb-2.5">
+						<Tag size={14} weight="duotone" className="text-gray-400 dark:text-gray-500" />
+						<span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+							Modifiers
+						</span>
+					</div>
+					<div className="space-y-2.5">
 						{selectedOptionNames.length > 0 && (
 							<div>
-								<div className="text-xs font-semibold text-gray-700 mb-1.5">Options:</div>
-								<div className="flex flex-wrap gap-2">
+								<div className="text-[11px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1.5">Options</div>
+								<div className="flex flex-wrap gap-1.5">
 									{selectedOptionNames.map((opt) => (
 										<span
 											key={opt.id}
-											className="px-3 py-1.5 text-xs font-bold text-[#fbbf24] bg-[#fbbf24]/10 border-2 border-[#fbbf24]/30 rounded-lg"
+											className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-lg"
 										>
 											{opt.name}
 											{opt.modifier > 0 && (
-												<span className="ml-1.5 text-[#d97706]">
-													(+GHS {opt.modifier.toFixed(2)})
+												<span className="text-emerald-600 font-semibold">
+													+GHS {opt.modifier.toFixed(2)}
 												</span>
 											)}
 										</span>
@@ -98,21 +113,20 @@ export const OrderItemCard = ({ item, index }: OrderItemCardProps) => {
 								</div>
 							</div>
 						)}
-						
-						{/* Selected Custom Specs */}
+
 						{selectedCustomSpecNames.length > 0 && (
 							<div>
-								<div className="text-xs font-semibold text-gray-700 mb-1.5">Add-ons:</div>
-								<div className="flex flex-wrap gap-2">
+								<div className="text-[11px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1.5">Add-ons</div>
+								<div className="flex flex-wrap gap-1.5">
 									{selectedCustomSpecNames.map((spec) => (
 										<span
 											key={spec.id}
-											className="px-3 py-1.5 text-xs font-bold text-[#fbbf24] bg-[#fbbf24]/10 border-2 border-[#fbbf24]/30 rounded-lg"
+											className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-violet-700 bg-violet-50 border border-violet-200 rounded-lg"
 										>
 											{spec.name}
 											{spec.modifier > 0 && (
-												<span className="ml-1.5 text-[#d97706]">
-													(+GHS {spec.modifier.toFixed(2)})
+												<span className="text-violet-600 font-semibold">
+													+GHS {spec.modifier.toFixed(2)}
 												</span>
 											)}
 										</span>
@@ -123,22 +137,22 @@ export const OrderItemCard = ({ item, index }: OrderItemCardProps) => {
 					</div>
 				</div>
 			)}
-			
-			{/* Legacy Options (for backward compatibility) */}
+
+			{/* Legacy Options */}
 			{hasLegacyOptions && !hasFlexibleOptions && (
-				<div className="flex flex-wrap gap-2 mt-2 pt-2 border-t border-gray-200">
+				<div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-gray-200/60 dark:border-gray-700/60">
 					{item.options?.frontBack && (
-						<span className="px-2 py-1 text-xs font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded">
+						<span className="px-2.5 py-1 text-xs font-medium text-gray-600 dark:text-gray-400 bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-lg">
 							Front & Back
 						</span>
 					)}
 					{item.options?.color && (
-						<span className="px-2 py-1 text-xs font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded">
+						<span className="px-2.5 py-1 text-xs font-medium text-gray-600 dark:text-gray-400 bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-lg">
 							Color
 						</span>
 					)}
 					{item.options?.printCut && (
-						<span className="px-2 py-1 text-xs font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded">
+						<span className="px-2.5 py-1 text-xs font-medium text-gray-600 dark:text-gray-400 bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-lg">
 							Print & Cut
 						</span>
 					)}
@@ -147,28 +161,34 @@ export const OrderItemCard = ({ item, index }: OrderItemCardProps) => {
 
 			{/* Files */}
 			{item.options?.files && item.options.files.length > 0 && (
-				<div className="mt-2 pt-2 border-t border-gray-200">
-					<p className="text-xs text-gray-500 mb-1">Files ({item.options.files.length}):</p>
-					<div className="space-y-1">
+				<div className="mt-3 pt-3 border-t border-gray-200/60 dark:border-gray-700/60">
+					<div className="flex items-center gap-2 mb-2">
+						<Paperclip size={14} weight="duotone" className="text-gray-400 dark:text-gray-500" />
+						<span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+							Attachments ({item.options.files.length})
+						</span>
+					</div>
+					<div className="space-y-1.5">
 						{item.options.files.map((file, fileIndex) => {
 							const fileInfo = file as FileInfo;
 							return (
-								<div key={fileIndex} className="flex items-center gap-2 text-xs">
-									<FileText className="w-3 h-3 text-gray-400" />
-									<a
-										href={fileInfo.url}
-										target="_blank"
-										rel="noopener noreferrer"
-										className="text-[#fbbf24] hover:underline truncate"
-									>
+								<a
+									key={fileIndex}
+									href={fileInfo.url}
+									target="_blank"
+									rel="noopener noreferrer"
+									className="flex items-center gap-2.5 text-xs bg-white dark:bg-[#1e1e1e] rounded-lg px-3 py-2 border border-gray-100 dark:border-gray-800 hover:border-gray-200 hover:bg-gray-50 transition-colors group"
+								>
+									<FileText size={14} weight="duotone" className="text-gray-400 group-hover:text-[#d97706] transition-colors shrink-0" />
+									<span className="text-gray-700 dark:text-gray-300 group-hover:text-gray-900 truncate font-medium">
 										{fileInfo.name || `File ${fileIndex + 1}`}
-									</a>
+									</span>
 									{fileInfo.bytes && (
-										<span className="text-gray-500">
-											({formatFileSize(fileInfo.bytes)})
+										<span className="text-gray-400 dark:text-gray-500 shrink-0">
+											{formatFileSize(fileInfo.bytes)}
 										</span>
 									)}
-								</div>
+								</a>
 							);
 						})}
 					</div>
@@ -177,4 +197,3 @@ export const OrderItemCard = ({ item, index }: OrderItemCardProps) => {
 		</div>
 	);
 };
-

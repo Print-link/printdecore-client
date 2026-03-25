@@ -1,4 +1,4 @@
-import { User } from "lucide-react";
+import { UserCircle, EnvelopeSimple, Phone } from "@phosphor-icons/react";
 
 interface ExecutedByInfoProps {
 	executedBy: {
@@ -11,38 +11,40 @@ interface ExecutedByInfoProps {
 
 export const ExecutedByInfo = ({ executedBy }: ExecutedByInfoProps) => {
 	return (
-		<div className="bg-white rounded-lg border-2 border-gray-200 p-4">
-			<h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
-				<User className="w-5 h-5" />
-				Executed By
-			</h3>
-			<div className="space-y-4">
+		<div className="bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-100 dark:border-gray-800 p-5">
+			<div className="flex items-center gap-2.5 mb-4">
+				<div className="w-8 h-8 rounded-lg bg-gray-900 flex items-center justify-center">
+					<UserCircle size={16} weight="duotone" className="text-white" />
+				</div>
+				<h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">
+					Executed By
+				</h3>
+			</div>
+			<div className="space-y-3">
 				{executedBy.name && (
-					<div>
-						<p className="text-xs text-gray-500 mb-1">Full Name</p>
-						<p className="text-sm font-semibold text-gray-900">
-							{executedBy.name}
-						</p>
-					</div>
+					<p className="text-base font-bold text-gray-900 dark:text-white">
+						{executedBy.name}
+					</p>
 				)}
+
 				{executedBy.email && (
-					<div>
-						<p className="text-xs text-gray-500 mb-1">Email</p>
-						<p className="text-sm font-medium text-gray-900 break-all">
+					<div className="flex items-center gap-2.5">
+						<EnvelopeSimple size={16} weight="duotone" className="text-gray-400 dark:text-gray-500 shrink-0" />
+						<a href={`mailto:${executedBy.email}`} className="text-sm text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white transition-colors break-all">
 							{executedBy.email}
-						</p>
+						</a>
 					</div>
 				)}
+
 				{executedBy.phone && (
-					<div>
-						<p className="text-xs text-gray-500 mb-1">Phone Number</p>
-						<p className="text-sm font-medium text-gray-900">
+					<div className="flex items-center gap-2.5">
+						<Phone size={16} weight="duotone" className="text-gray-400 dark:text-gray-500 shrink-0" />
+						<a href={`tel:${executedBy.phone}`} className="text-sm text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white transition-colors">
 							{executedBy.phone}
-						</p>
+						</a>
 					</div>
 				)}
 			</div>
 		</div>
 	);
 };
-

@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { Plus } from "@phosphor-icons/react";
 import { useState } from "react";
 import type { PricingConfig } from "../../services/orderApi";
 import { formatPriceModifier } from "../../utils/pricingUtils";
@@ -39,7 +39,7 @@ export const CustomSpecificationsSelector = ({
 	return (
 		<div className="space-y-3 sm:space-y-4">
 			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
-				<label className="block text-sm sm:text-base font-medium text-gray-700">
+				<label className="block text-sm sm:text-base font-medium text-gray-700 dark:text-gray-300">
 					Add-ons & Extras
 				</label>
 				{onAddCustom && (
@@ -48,7 +48,8 @@ export const CustomSpecificationsSelector = ({
 						onClick={() => setShowAddDialog(true)}
 						className="inline-flex items-center gap-1 text-xs sm:text-sm text-[#fbbf24] hover:text-[#d97706] font-medium transition-colors self-start sm:self-auto"
 					>
-						<Plus className="w-3 h-3 sm:w-4 sm:h-4" />
+						<Plus size={12} weight="bold" className="sm:hidden" />
+					<Plus size={16} weight="bold" className="hidden sm:inline" />
 						<span className="whitespace-nowrap">Add Custom Specification</span>
 					</button>
 				)}
@@ -64,7 +65,7 @@ export const CustomSpecificationsSelector = ({
 							className={`flex flex-col sm:flex-row sm:items-center p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition-all ${
 								isSelected
 									? "border-[#fbbf24] bg-[#fef3c7]"
-									: "border-gray-200 hover:border-gray-300"
+									: "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
 							}`}
 						>
 							<div className="flex items-start sm:items-center flex-1">
@@ -76,7 +77,7 @@ export const CustomSpecificationsSelector = ({
 								/>
 								<div className="flex-1 min-w-0">
 									<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
-										<span className="text-sm sm:text-base font-medium text-gray-900 break-words">
+										<span className="text-sm sm:text-base font-medium text-gray-900 dark:text-white break-words">
 											{spec.name}
 										</span>
 										<span className="text-xs sm:text-sm font-medium text-[#fbbf24] whitespace-nowrap">
@@ -87,7 +88,7 @@ export const CustomSpecificationsSelector = ({
 										</span>
 									</div>
 									{spec.description && (
-										<p className="text-xs sm:text-sm text-gray-600 mt-1 sm:mt-1.5">
+										<p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 sm:mt-1.5">
 											{spec.description}
 										</p>
 									)}
@@ -101,12 +102,12 @@ export const CustomSpecificationsSelector = ({
 			{/* Add Custom Specification Dialog */}
 			{showAddDialog && onAddCustom && (
 				<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 sm:p-6">
-					<div className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full space-y-4 sm:space-y-5 max-h-[90vh] overflow-y-auto">
-						<h3 className="text-base sm:text-lg font-semibold text-gray-900">
+					<div className="bg-white dark:bg-[#1e1e1e] rounded-lg p-4 sm:p-6 max-w-md w-full space-y-4 sm:space-y-5 max-h-[90vh] overflow-y-auto">
+						<h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
 							Add Custom Specification
 						</h3>
 						<div>
-							<label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
+							<label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">
 								Specification Name
 							</label>
 							<input
@@ -114,11 +115,11 @@ export const CustomSpecificationsSelector = ({
 								value={newSpecName}
 								onChange={(e) => setNewSpecName(e.target.value)}
 								placeholder="e.g., Lamination, Binding"
-								className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent transition-all"
+								className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent transition-all"
 							/>
 						</div>
 						<div>
-							<label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
+							<label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">
 								Price Modifier
 							</label>
 							<input
@@ -128,9 +129,9 @@ export const CustomSpecificationsSelector = ({
 								placeholder="0.00"
 								min="0"
 								step="0.01"
-								className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent transition-all"
+								className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent transition-all"
 							/>
-							<p className="text-xs sm:text-sm text-gray-500 mt-1 sm:mt-1.5">
+							<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 sm:mt-1.5">
 								Additional cost per unit/page
 							</p>
 						</div>
@@ -150,7 +151,7 @@ export const CustomSpecificationsSelector = ({
 									setNewSpecName("");
 									setNewSpecPrice("");
 								}}
-								className="w-full sm:flex-1 px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-all"
+								className="w-full sm:flex-1 px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-semibold hover:bg-gray-50 transition-all"
 							>
 								Cancel
 							</button>

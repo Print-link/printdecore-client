@@ -1,4 +1,4 @@
-import { Printer, MapPin, Star, Navigation } from "lucide-react";
+import { Printer, MapPin, Star, Compass } from "@phosphor-icons/react";
 import type { PrintStation } from "../types/printStation";
 import { formatDistance } from "../utils/stationUtils";
 import { isStationOpen } from "../utils/workingHours";
@@ -47,7 +47,7 @@ export const PrintStationCardHorizontal = ({
           />
         ) : (
           <div className="w-full h-36 bg-linear-to-br from-amber-50 to-orange-50 dark:from-gray-800 dark:to-gray-700 flex items-center justify-center">
-            <Printer className="w-10 h-10 text-[#fbbf24]" />
+            <Printer size={40} weight="duotone" className="text-[#fbbf24]" />
           </div>
         )}
         {/* Status badge */}
@@ -71,7 +71,7 @@ export const PrintStationCardHorizontal = ({
         <div className="flex items-center gap-3 mb-2">
           {station.averageRating !== undefined && station.averageRating > 0 && (
             <div className="flex items-center gap-1 bg-amber-50 dark:bg-amber-900/20 rounded-full px-2 py-0.5">
-              <Star className="w-3 h-3 text-[#fbbf24] fill-[#fbbf24]" />
+              <Star size={12} weight="fill" className="text-[#fbbf24]" />
               <span className="text-xs font-bold text-gray-700 dark:text-gray-300">
                 {station.averageRating.toFixed(1)}
               </span>
@@ -80,7 +80,7 @@ export const PrintStationCardHorizontal = ({
 
           {station.distance !== undefined && (
             <div className="flex items-center gap-1 text-gray-400 dark:text-gray-500">
-              <Navigation className="w-3 h-3" />
+              <Compass size={12} weight="regular" />
               <span className="text-xs font-medium">{formatDistance(station.distance)}</span>
             </div>
           )}
@@ -88,7 +88,7 @@ export const PrintStationCardHorizontal = ({
 
         {station.location?.address && (
           <div className="flex items-start gap-1 text-gray-400 dark:text-gray-500">
-            <MapPin className="w-3 h-3 mt-0.5 shrink-0" />
+            <MapPin size={12} weight="regular" className="mt-0.5 shrink-0" />
             <span className="text-xs line-clamp-1">{station.location.address}</span>
           </div>
         )}

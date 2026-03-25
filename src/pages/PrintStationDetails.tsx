@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Printer, AlertCircle, ArrowLeft } from "lucide-react";
+import { Printer, WarningCircle, ArrowLeft } from "@phosphor-icons/react";
 import { useAuth } from "../hooks/useAuth";
 import { useGeolocation } from "../hooks/useGeolocation";
 import { useFileHandling } from "../hooks/useFileHandling";
@@ -481,7 +481,7 @@ export const PrintStationDetails = () => {
 
 	if (loading) {
 		return (
-			<div className="w-full max-w-3xl mx-auto bg-white rounded-2xl p-8">
+			<div className="w-full max-w-3xl mx-auto bg-white dark:bg-[#1e1e1e] rounded-2xl p-8">
 				<div className="flex items-center justify-center py-12">
 					<div className="w-8 h-8 border-4 border-[#fbbf24] border-t-transparent rounded-full animate-spin"></div>
 				</div>
@@ -491,20 +491,20 @@ export const PrintStationDetails = () => {
 
 	if (!printStation) {
 		return (
-			<div className="w-full max-w-3xl bg-white p-8">
+			<div className="w-full max-w-3xl bg-white dark:bg-[#1e1e1e] p-8">
 				<div className="text-center py-12">
-					<AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-					<h2 className="text-xl font-semibold text-gray-900 mb-2">
+					<WarningCircle size={48} weight="duotone" className="text-red-500 mx-auto mb-4" />
+					<h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
 						Print Station Not Found
 					</h2>
-					<p className="text-gray-600 mb-4">
+					<p className="text-gray-600 dark:text-gray-400 mb-4">
 						The print station you're looking for doesn't exist.
 					</p>
 					<button
 						onClick={() => navigate("/home")}
 						className="inline-flex items-center px-4 py-2 bg-[#fbbf24] text-white rounded-lg hover:bg-[#fbbf24] transition-colors"
 					>
-						<ArrowLeft className="w-4 h-4 mr-2" />
+						<ArrowLeft size={16} weight="bold" className="mr-2" />
 						Back to Home
 					</button>
 				</div>
@@ -513,12 +513,12 @@ export const PrintStationDetails = () => {
 	}
 
 	return (
-		<div className="w-full max-w-3xl bg-white p-4 lg:p-8">
+		<div className="w-full max-w-3xl bg-white dark:bg-[#1e1e1e] p-4 lg:p-8">
 			<button
 				onClick={() => navigate("/home/search")}
-				className="mb-4 sm:mb-6 flex items-center text-sm text-gray-600 hover:text-[#fbbf24] transition-colors"
+				className="mb-4 sm:mb-6 flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-[#fbbf24] transition-colors"
 			>
-				<ArrowLeft className="w-4 h-4 mr-2" />
+				<ArrowLeft size={16} weight="bold" className="mr-2" />
 				Back to Print Stations
 			</button>
 
@@ -530,16 +530,16 @@ export const PrintStationDetails = () => {
 
 			<div className="text-center mb-6 sm:mb-8">
 				<div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-slate-100 rounded-full mb-3 sm:mb-4">
-					<Printer className="w-6 h-6 sm:w-8 sm:h-8 text-[#fbbf24]" />
+					<Printer size={32} weight="duotone" className="text-[#fbbf24]" />
 				</div>
-				<h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+				<h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
 					{isResultsChecker
 						? "Results Checker Request"
 						: isFormatCategory
 						? "Format Print Order"
 						: "Print Job Order Form"}
 				</h1>
-				<p className="text-sm sm:text-base text-gray-600">
+				<p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
 					{isResultsChecker
 						? "Fill in the required information to check your results"
 						: isFormatCategory
@@ -619,7 +619,7 @@ export const PrintStationDetails = () => {
 			<button
 				onClick={handleUpload}
 				disabled={uploading || !isFormValid}
-				className={`w-full mt-4 sm:mt-6 py-3.5 sm:py-4 rounded-xl font-semibold text-white transition-all flex items-center justify-center text-sm sm:text-base touch-manipulation ${
+				className={`w-full mt-4 sm:mt-6 py-3.5 sm:py-4 rounded-xl font-semibold text-white transition-all flex items-center justify-center text-sm sm:text-base touch-manipulation${
 					uploading || !isFormValid
 						? "bg-gray-400 cursor-not-allowed"
 						: "bg-[#fbbf24] hover:bg-[#fbbf24] active:bg-[#fbbf24]"
@@ -636,7 +636,7 @@ export const PrintStationDetails = () => {
 					</>
 				) : (
 					<>
-						<Printer className="w-5 h-5 mr-2 sm:mr-3" />
+						<Printer size={20} weight="bold" className="mr-2 sm:mr-3" />
 						{isResultsChecker
 							? "Check Results"
 							: isFormatCategory
@@ -678,7 +678,7 @@ export const PrintStationDetails = () => {
 
 			{/* Rating Section */}
 			{id && (
-				<div className="mt-12 pt-12 border-t border-gray-200">
+				<div className="mt-12 pt-12 border-t border-gray-200 dark:border-gray-700">
 					<BranchRatingSection
 						branchId={id}
 						averageRating={printStation?.averageRating}

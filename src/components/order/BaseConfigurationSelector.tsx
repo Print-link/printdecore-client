@@ -41,7 +41,7 @@ export const BaseConfigurationSelector = ({
 
 	return (
 		<div className="space-y-4">
-			<label className="block text-sm font-medium text-gray-700 mb-3">
+			<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
 				Base Configuration *
 			</label>
 
@@ -56,7 +56,7 @@ export const BaseConfigurationSelector = ({
 								className={`relative flex items-center p-3 border-2 rounded-lg cursor-pointer transition-all ${
 									isSelected
 										? "border-[#fbbf24] bg-[#fef3c7]"
-										: "border-gray-200 hover:border-gray-300"
+										: "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
 								}`}
 							>
 								<input
@@ -69,7 +69,7 @@ export const BaseConfigurationSelector = ({
 								/>
 								<div className="flex-1">
 									<div className="flex items-center justify-between">
-										<span className="font-semibold text-gray-900">
+										<span className="font-semibold text-gray-900 dark:text-white">
 											{config.name}
 										</span>
 										<div>
@@ -87,7 +87,7 @@ export const BaseConfigurationSelector = ({
 										</div>
 									</div>
 									{config.description && (
-										<p className="text-xs text-gray-600 mt-1">
+										<p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
 											{config.description}
 										</p>
 									)}
@@ -96,10 +96,10 @@ export const BaseConfigurationSelector = ({
 
 							{/* Show custom size input when custom is selected */}
 							{isCustom && isSelected && showDimensions && (
-								<div className="ml-0 sm:ml-7 mt-3 sm:mt-2 p-3 sm:p-4 bg-gray-50 rounded-lg space-y-3 sm:space-y-2">
+								<div className="ml-0 sm:ml-7 mt-3 sm:mt-2 p-3 sm:p-4 bg-gray-50 dark:bg-[#161616] rounded-lg space-y-3 sm:space-y-2">
 									<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-2">
 										<div>
-											<label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-1">
+											<label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-1">
 												Width
 											</label>
 											<input
@@ -111,11 +111,11 @@ export const BaseConfigurationSelector = ({
 												placeholder="0"
 												min="0"
 												step="0.01"
-												className="w-full px-3 sm:px-2 py-2 sm:py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
+												className="w-full px-3 sm:px-2 py-2 sm:py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
 											/>
 										</div>
 										<div>
-											<label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-1">
+											<label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-1">
 												Height
 											</label>
 											<input
@@ -127,13 +127,13 @@ export const BaseConfigurationSelector = ({
 												placeholder="0"
 												min="0"
 												step="0.01"
-												className="w-full px-3 sm:px-2 py-2 sm:py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
+												className="w-full px-3 sm:px-2 py-2 sm:py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
 											/>
 										</div>
 									</div>
 									{onMeasurementUnitChange && (
 										<div>
-											<label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-1">
+											<label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-1">
 												Unit
 											</label>
 											<select
@@ -143,7 +143,7 @@ export const BaseConfigurationSelector = ({
 														e.target.value as "FEET" | "INCH" | "UNIT"
 													)
 												}
-												className="w-full px-3 sm:px-2 py-2 sm:py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
+												className="w-full px-3 sm:px-2 py-2 sm:py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
 											>
 												<option value="FEET">Feet</option>
 												<option value="INCH">Inches</option>

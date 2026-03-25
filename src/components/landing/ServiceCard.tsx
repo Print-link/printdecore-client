@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { CaretLeft, CaretRight } from "@phosphor-icons/react";
 
 interface ServiceCardProps {
 	service: {
@@ -108,7 +108,7 @@ export const ServiceCard = ({ service, serviceIndex }: ServiceCardProps) => {
 							className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
 							aria-label="Previous image"
 						>
-							<ChevronLeft className="w-4 h-4" />
+							<CaretLeft size={16} weight="bold" />
 						</button>
 						<button
 							onClick={(e) => {
@@ -118,7 +118,7 @@ export const ServiceCard = ({ service, serviceIndex }: ServiceCardProps) => {
 							className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
 							aria-label="Next image"
 						>
-							<ChevronRight className="w-4 h-4" />
+							<CaretRight size={16} weight="bold" />
 						</button>
 					</>
 				)}

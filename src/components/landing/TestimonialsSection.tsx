@@ -1,4 +1,4 @@
-import { Quote } from "lucide-react";
+import { Quotes } from "@phosphor-icons/react";
 
 const testimonials = [
 	{
@@ -45,7 +45,7 @@ export const TestimonialsSection = () => {
 							key={index}
 							className="bg-white rounded-2xl p-8 border-2 border-gray-100 hover:border-[#fbbf24] transition-all hover:shadow-xl"
 						>
-							<Quote className="w-8 h-8 text-[#fbbf24] mb-4" />
+							<Quotes size={32} weight="duotone" className="text-[#fbbf24] mb-4" />
 							<p className="text-gray-700 mb-6 leading-relaxed">"{testimonial.quote}"</p>
 							<div className="flex items-center gap-4">
 								<img

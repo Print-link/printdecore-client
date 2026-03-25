@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { MapPin, DollarSign, Check, Package } from "lucide-react";
+import { MapPin, CurrencyDollar, Check, Package } from "@phosphor-icons/react";
 import type { SearchResult } from "../services/orderApi";
 
 interface ServiceCardProps {
@@ -46,7 +46,7 @@ export const ServiceCard = ({ result }: ServiceCardProps) => {
 	return (
 		<button
 			onClick={handleClick}
-			className="w-full bg-white rounded-xl p-6 border border-gray-300 text-left hover:border-[#fbbf24]  transition-all group"
+			className="w-full bg-white dark:bg-[#1e1e1e] rounded-xl p-6 border border-gray-300 dark:border-gray-600 text-left hover:border-[#fbbf24]  transition-all group"
 		>
 			{/* Header */}
 			<div className="flex items-start justify-between mb-4">
@@ -60,17 +60,17 @@ export const ServiceCard = ({ result }: ServiceCardProps) => {
 							/>
 						) : (
 							<div className="w-8 h-8 bg-[#FFF9E6] rounded flex items-center justify-center">
-								<Package className="w-4 h-4 text-[#fbbf24]" />
+								<Package size={16} weight="duotone" className="text-[#fbbf24]" />
 							</div>
 						)}
 						<div>
-							<div className="text-xs text-gray-500">{result.category.name}</div>
-							<div className="text-xs text-gray-400">
+							<div className="text-xs text-gray-500 dark:text-gray-400">{result.category.name}</div>
+							<div className="text-xs text-gray-400 dark:text-gray-500">
 								{result.subCategory.name}
 							</div>
 						</div>
 					</div>
-					<h3 className="text-lg font-bold text-gray-900 group-hover:text-[#fbbf24] transition-colors">
+					<h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-[#fbbf24] transition-colors">
 						{result.service.name}
 					</h3>
 				</div>
@@ -86,26 +86,26 @@ export const ServiceCard = ({ result }: ServiceCardProps) => {
 			{/* Service Features */}
 			<div className="flex flex-wrap gap-2 mb-4">
 				{result.service.allowsCustomSize && (
-					<div className="flex items-center gap-1 text-xs text-gray-600">
-						<Check className="w-3 h-3 text-[#fbbf24]" />
+					<div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
+						<Check size={12} weight="regular" className="text-[#fbbf24]" />
 						Custom Size
 					</div>
 				)}
 				{result.service.supportsFrontBack && (
-					<div className="flex items-center gap-1 text-xs text-gray-600">
-						<Check className="w-3 h-3 text-[#fbbf24]" />
+					<div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
+						<Check size={12} weight="regular" className="text-[#fbbf24]" />
 						Front & Back
 					</div>
 				)}
 				{result.service.supportsColor && (
-					<div className="flex items-center gap-1 text-xs text-gray-600">
-						<Check className="w-3 h-3 text-[#fbbf24]" />
+					<div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
+						<Check size={12} weight="regular" className="text-[#fbbf24]" />
 						Color
 					</div>
 				)}
 				{result.service.supportsPrintCut && (
-					<div className="flex items-center gap-1 text-xs text-gray-600">
-						<Check className="w-3 h-3 text-[#fbbf24]" />
+					<div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
+						<Check size={12} weight="regular" className="text-[#fbbf24]" />
 						Print & Cut
 					</div>
 				)}
@@ -114,8 +114,8 @@ export const ServiceCard = ({ result }: ServiceCardProps) => {
 			{/* Price Information */}
 			{result.priceRange && (
 				<div className="mb-4">
-					<div className="flex items-center gap-2 text-sm text-gray-600 mb-1">
-						<DollarSign className="w-4 h-4" />
+					<div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-1">
+						<CurrencyDollar size={16} weight="regular" />
 						<span>Price Range:</span>
 					</div>
 					<div className="text-lg font-bold text-[#fbbf24]">
@@ -123,7 +123,7 @@ export const ServiceCard = ({ result }: ServiceCardProps) => {
 						{result.priceRange.max.toFixed(2)}
 					</div>
 					{result.estimatedPrice && (
-						<div className="text-xs text-gray-500 mt-1">
+						<div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
 							Estimated: GHS {result.estimatedPrice.toFixed(2)}
 						</div>
 					)}
@@ -132,9 +132,9 @@ export const ServiceCard = ({ result }: ServiceCardProps) => {
 
 			{/* Branches — each one is clickable to order */}
 			{result.branches && result.branches.length > 0 && (
-				<div className="pt-4 border-t border-gray-200">
-					<div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-						<MapPin className="w-4 h-4" />
+				<div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+					<div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
+						<MapPin size={16} weight="regular" />
 						<span>
 							{result.branches.length} branch
 							{result.branches.length !== 1 ? "es" : ""} available
@@ -147,7 +147,7 @@ export const ServiceCard = ({ result }: ServiceCardProps) => {
 								onClick={(e) => handleBranchClick(branch.branchId, e)}
 								className="flex items-center justify-between text-xs px-2.5 py-2 -mx-2.5 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/10 cursor-pointer transition-colors"
 							>
-								<span className="text-gray-700 font-medium">{branch.branchName}</span>
+								<span className="text-gray-700 dark:text-gray-300 font-medium">{branch.branchName}</span>
 								<div className="flex items-center gap-2">
 									{branch.pricePerUnit != null && (
 										<span className="text-[#fbbf24] font-semibold">
@@ -155,7 +155,7 @@ export const ServiceCard = ({ result }: ServiceCardProps) => {
 										</span>
 									)}
 									{branch.distance != null && (
-										<span className="text-gray-400">
+										<span className="text-gray-400 dark:text-gray-500">
 											{branch.distance.toFixed(1)} km
 										</span>
 									)}
@@ -174,15 +174,15 @@ export const ServiceCard = ({ result }: ServiceCardProps) => {
 
 			{/* Action */}
 			{result.branches && result.branches.length === 1 && (
-				<div className="mt-4 pt-4 border-t border-gray-200">
+				<div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
 					<span className="text-sm font-medium text-[#fbbf24] group-hover:text-[#d97706]">
 						View Pricing & Order →
 					</span>
 				</div>
 			)}
 			{result.branches && result.branches.length > 1 && (
-				<div className="mt-3 pt-3 border-t border-gray-200">
-					<span className="text-xs text-gray-400">
+				<div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+					<span className="text-xs text-gray-400 dark:text-gray-500">
 						Select a branch above to order
 					</span>
 				</div>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Star, MessageSquare, X } from "lucide-react";
+import { Star, ChatText, X } from "@phosphor-icons/react";
 // TODO: Update this component to use the new branch-based rating system
 // import { getBranchRatings, type BranchRating } from "../services/ratingApi";
 
@@ -60,11 +60,13 @@ export const Reviews = ({ adminId }: ReviewsProps) => {
 		return Array.from({ length: 5 }, (_, i) => (
 			<Star
 				key={i}
-				className={`w-4 h-4 ${
+				size={16}
+				weight={i < rating ? "fill" : "regular"}
+				className={
 					i < rating
-						? "text-yellow-500 fill-yellow-500"
-						: "text-gray-300"
-				}`}
+						? "text-yellow-500"
+						: "text-gray-300 dark:text-gray-600"
+				}
 			/>
 		));
 	};
@@ -72,22 +74,22 @@ export const Reviews = ({ adminId }: ReviewsProps) => {
 	// Desktop Reviews Sidebar
 	const DesktopReviews = () => (
 		<div className="hidden lg:block w-80 shrink-0">
-			<div className="sticky top-4 bg-white rounded-xl border border-gray-200 p-6">
-				<h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-					<MessageSquare className="w-5 h-5 text-[#fbbf24]" />
+			<div className="sticky top-4 bg-white dark:bg-[#1e1e1e] rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+				<h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+					<ChatText size={20} weight="duotone" className="text-[#fbbf24]" />
 					Reviews
 				</h3>
 
 				{averageRating > 0 && (
-					<div className="mb-6 pb-6 border-b border-gray-200">
+					<div className="mb-6 pb-6 border-b border-gray-200 dark:border-gray-700 dark:border-gray-700">
 						<div className="flex items-center gap-2 mb-2">
 							<div className="flex items-center gap-1">
-								<Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-								<span className="text-2xl font-bold text-gray-900">
+								<Star size={20} weight="fill" className="text-yellow-500" />
+								<span className="text-2xl font-bold text-gray-900 dark:text-white dark:text-white">
 									{averageRating?.toFixed(1)}
 								</span>
 							</div>
-							<span className="text-sm text-gray-600">
+							<span className="text-sm text-gray-600 dark:text-gray-400">
 								({reviews.length} {reviews.length === 1 ? "review" : "reviews"})
 							</span>
 						</div>
@@ -101,7 +103,7 @@ export const Reviews = ({ adminId }: ReviewsProps) => {
 				) : error ? (
 					<div className="text-sm text-red-600 py-4">{error}</div>
 				) : reviews.length === 0 ? (
-					<div className="text-sm text-gray-500 py-4 text-center">
+					<div className="text-sm text-gray-500 dark:text-gray-400 py-4 text-center">
 						No reviews yet
 					</div>
 				) : (
@@ -109,14 +111,14 @@ export const Reviews = ({ adminId }: ReviewsProps) => {
 						{reviews.map((review) => (
 							<div
 								key={review._id}
-								className="border-b border-gray-100 pb-4 last:border-0 last:pb-0"
+								className="border-b border-gray-100 dark:border-gray-800 dark:border-gray-800 pb-4 last:border-0 last:pb-0"
 							>
 								<div className="flex items-start justify-between mb-2">
 									<div className="flex-1">
-										<p className="text-sm font-semibold text-gray-900">
+										<p className="text-sm font-semibold text-gray-900 dark:text-white dark:text-white">
 											{review.client?.fullName || "Anonymous"}
 										</p>
-										<p className="text-xs text-gray-500">
+										<p className="text-xs text-gray-500 dark:text-gray-400">
 											{formatDate(review.createdAt)}
 										</p>
 									</div>
@@ -125,7 +127,7 @@ export const Reviews = ({ adminId }: ReviewsProps) => {
 									</div>
 								</div>
 								{review.comment && (
-									<p className="text-sm text-gray-700 mt-2">{review.comment}</p>
+									<p className="text-sm text-gray-700 dark:text-gray-300 dark:text-gray-300 mt-2">{review.comment}</p>
 								)}
 							</div>
 						))}
@@ -143,7 +145,7 @@ export const Reviews = ({ adminId }: ReviewsProps) => {
 				onClick={() => setShowBottomSheet(true)}
 				className="lg:hidden fixed bottom-6 right-6 z-40 bg-[#fbbf24] text-white px-6 py-3 rounded-full  hover:bg-[#fbbf24] transition-colors flex items-center gap-2"
 			>
-				<MessageSquare className="w-5 h-5" />
+				<ChatText size={20} weight="duotone" />
 				<span className="font-semibold">
 					Reviews {reviews.length > 0 && `(${reviews.length})`}
 				</span>
@@ -159,21 +161,21 @@ export const Reviews = ({ adminId }: ReviewsProps) => {
 
 			{/* Bottom Sheet */}
 			<div
-				className={`lg:hidden fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl z-50 transition-transform duration-300 ${
+				className={`lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-[#1e1e1e] rounded-t-3xl shadow-2xl z-50 transition-transform duration-300 ${
 					showBottomSheet ? "translate-y-0" : "translate-y-full"
 				}`}
 				style={{ maxHeight: "85vh" }}
 			>
-				<div className="flex items-center justify-between p-4 border-b border-gray-200">
+				<div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 dark:border-gray-700">
 					<h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-						<MessageSquare className="w-5 h-5 text-[#fbbf24]" />
+						<ChatText size={20} weight="duotone" className="text-[#fbbf24]" />
 						Reviews
 					</h3>
 					<button
 						onClick={() => setShowBottomSheet(false)}
-						className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+						className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
 					>
-						<X className="w-5 h-5 text-gray-600" />
+						<X size={20} weight="bold" className="text-gray-600 dark:text-gray-400" />
 					</button>
 				</div>
 
@@ -183,15 +185,15 @@ export const Reviews = ({ adminId }: ReviewsProps) => {
 				>
 					<div className="p-4">
 						{averageRating > 0 && (
-							<div className="mb-6 pb-6 border-b border-gray-200">
+							<div className="mb-6 pb-6 border-b border-gray-200 dark:border-gray-700 dark:border-gray-700">
 								<div className="flex items-center gap-2 mb-2">
 									<div className="flex items-center gap-1">
-										<Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-										<span className="text-2xl font-bold text-gray-900">
+										<Star size={20} weight="fill" className="text-yellow-500" />
+										<span className="text-2xl font-bold text-gray-900 dark:text-white dark:text-white">
 											{averageRating.toFixed(1)}
 										</span>
 									</div>
-									<span className="text-sm text-gray-600">
+									<span className="text-sm text-gray-600 dark:text-gray-400">
 										({reviews.length}{" "}
 										{reviews.length === 1 ? "review" : "reviews"})
 									</span>
@@ -206,7 +208,7 @@ export const Reviews = ({ adminId }: ReviewsProps) => {
 						) : error ? (
 							<div className="text-sm text-red-600 py-4">{error}</div>
 						) : reviews.length === 0 ? (
-							<div className="text-sm text-gray-500 py-4 text-center">
+							<div className="text-sm text-gray-500 dark:text-gray-400 py-4 text-center">
 								No reviews yet
 							</div>
 						) : (
@@ -214,14 +216,14 @@ export const Reviews = ({ adminId }: ReviewsProps) => {
 								{reviews.map((review) => (
 									<div
 										key={review._id}
-										className="border-b border-gray-100 pb-4 last:border-0 last:pb-0"
+										className="border-b border-gray-100 dark:border-gray-800 dark:border-gray-800 pb-4 last:border-0 last:pb-0"
 									>
 										<div className="flex items-start justify-between mb-2">
 											<div className="flex-1">
-												<p className="text-sm font-semibold text-gray-900">
+												<p className="text-sm font-semibold text-gray-900 dark:text-white dark:text-white">
 													{review.client?.fullName || "Anonymous"}
 												</p>
-												<p className="text-xs text-gray-500">
+												<p className="text-xs text-gray-500 dark:text-gray-400">
 													{formatDate(review.createdAt)}
 												</p>
 											</div>
@@ -230,7 +232,7 @@ export const Reviews = ({ adminId }: ReviewsProps) => {
 											</div>
 										</div>
 										{review.comment && (
-											<p className="text-sm text-gray-700 mt-2">
+											<p className="text-sm text-gray-700 dark:text-gray-300 dark:text-gray-300 mt-2">
 												{review.comment}
 											</p>
 										)}

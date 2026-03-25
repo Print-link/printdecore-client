@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
-	Mail,
-	Lock,
+	EnvelopeSimple,
+	LockSimple,
 	User,
 	Phone,
-	AlertCircle,
+	WarningCircle,
 	CheckCircle,
-	Globe,
-} from "lucide-react";
+	GlobeSimple,
+} from "@phosphor-icons/react";
 import { useAuth } from "../hooks/useAuth";
 import { toast } from "react-toastify";
 import { Logo } from "../components/Logo";
@@ -148,7 +148,7 @@ export const Register = () => {
 					<p className="text-gray-600">Complete your registration</p>
 					{isVerified && (
 						<div className="mt-3 inline-flex items-center px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium">
-							<CheckCircle className="w-4 h-4 mr-1.5" />
+							<CheckCircle size={16} weight="regular" className="mr-1.5" />
 							Email verified
 						</div>
 					)}
@@ -156,7 +156,7 @@ export const Register = () => {
 
 				{error && (
 					<div className="mb-6 p-4 bg-red-50 text-red-800 rounded-lg flex items-center">
-						<AlertCircle className="w-5 h-5 mr-3" />
+						<WarningCircle size={20} weight="regular" className="mr-3" />
 						<p className="text-sm font-medium">{error}</p>
 					</div>
 				)}
@@ -167,7 +167,7 @@ export const Register = () => {
 							First Name
 						</label>
 						<div className="relative">
-							<User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+							<User size={20} weight="regular" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
 							<input
 								type="text"
 								value={firstName}
@@ -183,7 +183,7 @@ export const Register = () => {
 							Last Name
 						</label>
 						<div className="relative">
-							<User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+							<User size={20} weight="regular" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
 							<input
 								type="text"
 								value={lastName}
@@ -200,7 +200,7 @@ export const Register = () => {
 							Email Address
 						</label>
 						<div className="relative">
-							<Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+							<EnvelopeSimple size={20} weight="regular" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
 							<input
 								type="email"
 								value={email}
@@ -212,7 +212,7 @@ export const Register = () => {
 								readOnly
 							/>
 							{isVerified && (
-								<CheckCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-600" />
+								<CheckCircle size={20} weight="regular" className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-600" />
 							)}
 						</div>
 						<p className="mt-1 text-xs text-gray-500">
@@ -225,7 +225,7 @@ export const Register = () => {
 							Phone Number
 						</label>
 						<div className="relative">
-							<Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+							<Phone size={20} weight="regular" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
 							<input
 								type="tel"
 								value={phoneNumber}
@@ -259,7 +259,7 @@ export const Register = () => {
 							)}
 						</label>
 						<div className="relative">
-							<Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+							<GlobeSimple size={20} weight="regular" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
 							<select
 								value={country}
 								onChange={(e) => setCountry(e.target.value)}
@@ -291,7 +291,7 @@ export const Register = () => {
 							Password
 						</label>
 						<div className="relative">
-							<Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+							<LockSimple size={20} weight="regular" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
 							<input
 								type="password"
 								value={password}
@@ -309,7 +309,7 @@ export const Register = () => {
 							Confirm Password
 						</label>
 						<div className="relative">
-							<Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+							<LockSimple size={20} weight="regular" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
 							<input
 								type="password"
 								value={confirmPassword}

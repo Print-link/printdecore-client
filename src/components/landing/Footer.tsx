@@ -1,4 +1,4 @@
-import { MapPin, Mail, Phone, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+import { MapPin, EnvelopeSimple, Phone, FacebookLogo, TwitterLogo, InstagramLogo, LinkedinLogo } from "@phosphor-icons/react";
 import { Logo } from "../Logo";
 
 const footerLinks = {
@@ -29,10 +29,10 @@ const footerLinks = {
 };
 
 const socialLinks = [
-	{ name: "Facebook", icon: Facebook, href: "#" },
-	{ name: "Twitter", icon: Twitter, href: "#" },
-	{ name: "Instagram", icon: Instagram, href: "#" },
-	{ name: "LinkedIn", icon: Linkedin, href: "#" },
+	{ name: "Facebook", icon: FacebookLogo, href: "#" },
+	{ name: "Twitter", icon: TwitterLogo, href: "#" },
+	{ name: "Instagram", icon: InstagramLogo, href: "#" },
+	{ name: "LinkedIn", icon: LinkedinLogo, href: "#" },
 ];
 
 export const Footer = () => {
@@ -59,19 +59,19 @@ export const Footer = () => {
 						{/* Contact Info */}
 						<div className="space-y-3 mb-6">
 							<div className="flex items-center gap-3 text-sm text-gray-400 dark:text-gray-500">
-								<Mail className="w-4 h-4 text-[#fbbf24]" />
+								<EnvelopeSimple size={16} weight="regular" className="text-[#fbbf24]" />
 								<a href="mailto:printdecoreofficial@gmail.com" className="hover:text-[#fbbf24] transition-colors">
 									printdecoreofficial@gmail.com
 								</a>
 							</div>
 							<div className="flex items-center gap-3 text-sm text-gray-400 dark:text-gray-500">
-								<Phone className="w-4 h-4 text-[#fbbf24]" />
+								<Phone size={16} weight="regular" className="text-[#fbbf24]" />
 								<a href="tel:+233123456789" className="hover:text-[#fbbf24] transition-colors">
 									+233 123 456 789
 								</a>
 							</div>
 							<div className="flex items-center gap-3 text-sm text-gray-400 dark:text-gray-500">
-								<MapPin className="w-4 h-4 text-[#fbbf24]" />
+								<MapPin size={16} weight="regular" className="text-[#fbbf24]" />
 								<span>Accra, Ghana</span>
 							</div>
 						</div>
@@ -87,7 +87,7 @@ export const Footer = () => {
 										aria-label={social.name}
 										className="w-10 h-10 rounded-full bg-gray-800 dark:bg-gray-900 flex items-center justify-center hover:bg-[#fbbf24] hover:text-black transition-all group"
 									>
-										<Icon className="w-5 h-5 text-gray-400 group-hover:text-black transition-colors" />
+										<Icon size={20} weight="regular" className="text-gray-400 group-hover:text-black transition-colors" />
 									</a>
 								);
 							})}

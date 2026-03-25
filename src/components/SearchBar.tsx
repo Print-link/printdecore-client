@@ -1,4 +1,4 @@
-import { Search, X } from "lucide-react";
+import { MagnifyingGlass, X } from "@phosphor-icons/react";
 
 interface SearchBarProps {
 	searchQuery: string;
@@ -23,7 +23,7 @@ export const SearchBar = ({
 		<div className="mb-6">
 			<div className="relative">
 				<div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-					<Search className="h-5 w-5 text-gray-400" />
+					<MagnifyingGlass size={20} weight="regular" className="text-gray-400" />
 				</div>
 				<input
 					type="text"
@@ -38,7 +38,7 @@ export const SearchBar = ({
 						className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
 						aria-label="Clear search"
 					>
-						<X className="h-5 w-5" />
+						<X size={20} weight="bold" />
 					</button>
 				)}
 			</div>

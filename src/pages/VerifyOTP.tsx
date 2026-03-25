@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { AlertCircle, ArrowRight, ArrowLeft } from 'lucide-react';
+import { WarningCircle, ArrowRight, ArrowLeft } from '@phosphor-icons/react';
 import { apiService } from '../services/api';
 import { Logo } from "../components/Logo";
 
@@ -147,7 +147,7 @@ export const VerifyOTP = () => {
 
 				{error && (
 					<div className="mb-6 p-4 bg-red-50 text-red-800 rounded-lg flex items-center">
-						<AlertCircle className="w-5 h-5 mr-3 shrink-0" />
+						<WarningCircle size={20} weight="duotone" className="mr-3 shrink-0" />
 						<p className="text-sm font-medium">{error}</p>
 					</div>
 				)}
@@ -194,7 +194,7 @@ export const VerifyOTP = () => {
 						) : (
 							<>
 								Verify Code
-								<ArrowRight className="w-5 h-5 ml-2" />
+								<ArrowRight size={20} weight="bold" className="ml-2" />
 							</>
 						)}
 					</button>
@@ -217,7 +217,7 @@ export const VerifyOTP = () => {
 							disabled={isLoading}
 							className="text-sm text-gray-600 hover:text-gray-700 flex items-center justify-center mx-auto"
 						>
-							<ArrowLeft className="w-4 h-4 mr-1" />
+							<ArrowLeft size={16} weight="bold" className="mr-1" />
 							Change email address
 						</button>
 					</div>

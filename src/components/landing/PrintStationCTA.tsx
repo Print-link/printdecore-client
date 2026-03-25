@@ -1,4 +1,4 @@
-import { ArrowRight, Check, Printer } from "lucide-react";
+import { ArrowRight, Check, Printer } from "@phosphor-icons/react";
 
 const benefits = [
 	"Get discovered by local customers",
@@ -28,7 +28,7 @@ export const PrintStationCTA = ({ onJoinClick }: PrintStationCTAProps) => {
 							<ul className="space-y-3 mb-6">
 								{benefits.map((benefit, index) => (
 									<li key={index} className="flex items-center gap-3">
-										<Check className="w-5 h-5 text-[#fbbf24]" />
+										<Check size={20} weight="bold" className="text-[#fbbf24]" />
 										<span className="text-gray-700 dark:text-[var(--text-secondary)]">{benefit}</span>
 									</li>
 								))}
@@ -38,12 +38,12 @@ export const PrintStationCTA = ({ onJoinClick }: PrintStationCTAProps) => {
 								className="inline-flex items-center gap-2 bg-[#fbbf24] text-black px-6 py-3 rounded-lg font-semibold hover:bg-[#fcd34d] transition-all"
 							>
 								Join as Print Station
-								<ArrowRight className="w-5 h-5" />
+								<ArrowRight size={20} weight="bold" />
 							</button>
 						</div>
 						<div className="hidden md:block">
 							<div className="bg-[#fbbf24]/10 dark:bg-[#fbbf24]/20 rounded-xl p-8">
-								<Printer className="w-32 h-32 text-[#fbbf24] mx-auto" />
+								<Printer size={128} weight="duotone" className="text-[#fbbf24] mx-auto" />
 							</div>
 						</div>
 					</div>

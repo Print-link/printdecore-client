@@ -1,4 +1,4 @@
-import { Navigation } from "lucide-react";
+import { Compass } from "@phosphor-icons/react";
 
 interface FinalCTASectionProps {
 	onGetStarted: () => void;
@@ -19,7 +19,7 @@ export const FinalCTASection = ({ onGetStarted }: FinalCTASectionProps) => {
 					className="inline-flex items-center gap-2 bg-[#fbbf24] text-black px-8 py-4 rounded-lg text-lg font-semibold hover:bg-[#fcd34d] transition-all transform hover:scale-105 shadow-xl"
 				>
 					Find Print Stations
-					<Navigation className="w-5 h-5" />
+					<Compass size={20} weight="bold" />
 				</button>
 			</div>
 		</section>

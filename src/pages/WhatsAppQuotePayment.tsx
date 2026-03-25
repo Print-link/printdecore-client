@@ -3,16 +3,16 @@ import { useParams, useNavigate } from "react-router-dom";
 import {
 	FileText,
 	CheckCircle,
-	AlertCircle,
+	WarningCircle,
 	Clock,
 	XCircle,
 	MapPin,
-	Mail,
+	EnvelopeSimple,
 	Phone,
-	LogIn,
+	SignIn,
 	User,
-	History,
-} from "lucide-react";
+	ClockCounterClockwise,
+} from "@phosphor-icons/react";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useAuth } from "../hooks/useAuth";
@@ -310,10 +310,10 @@ export const WhatsAppQuotePayment = () => {
 
 	if (fetching || authLoading) {
 		return (
-			<div className="min-h-screen flex items-center justify-center bg-gray-50">
+			<div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#161616]">
 				<div className="text-center">
 					<div className="w-10 h-10 border-4 border-[#fbbf24] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-					<p className="text-gray-500 text-sm">Loading quote...</p>
+					<p className="text-gray-500 dark:text-gray-400 text-sm">Loading quote...</p>
 				</div>
 			</div>
 		);
@@ -323,15 +323,15 @@ export const WhatsAppQuotePayment = () => {
 
 	if (error && !quote) {
 		return (
-			<div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-				<div className="max-w-md w-full bg-white border border-gray-200 rounded-2xl p-8 text-center">
+			<div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#161616] px-4">
+				<div className="max-w-md w-full bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-2xl p-8 text-center">
 					<div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-						<AlertCircle className="w-8 h-8 text-red-500" />
+						<WarningCircle size={32} weight="duotone" className="text-red-500" />
 					</div>
-					<h2 className="text-xl font-bold text-gray-900 mb-2">
+					<h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
 						Quote Unavailable
 					</h2>
-					<p className="text-gray-600 mb-6">{error}</p>
+					<p className="text-gray-600 dark:text-gray-400 mb-6">{error}</p>
 					<button
 						onClick={() => navigate("/")}
 						className="px-6 py-3 bg-[#fbbf24] text-white rounded-lg font-semibold hover:bg-[#f59e0b] transition-colors"
@@ -349,22 +349,22 @@ export const WhatsAppQuotePayment = () => {
 
 	if (paymentSuccess || quote.paymentStatus === "paid") {
 		return (
-			<div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-				<div className="max-w-md w-full bg-white border border-gray-200 rounded-2xl p-8 text-center">
+			<div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#161616] px-4">
+				<div className="max-w-md w-full bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-2xl p-8 text-center">
 					<div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-						<CheckCircle className="w-10 h-10 text-green-500" />
+						<CheckCircle size={40} weight="duotone" className="text-green-500" />
 					</div>
-					<h2 className="text-2xl font-bold text-gray-900 mb-2">
+					<h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
 						Payment Confirmed
 					</h2>
-					<p className="text-gray-600 mb-2">
+					<p className="text-gray-600 dark:text-gray-400 mb-2">
 						Your payment of{" "}
-						<span className="font-bold text-gray-900">
+						<span className="font-bold text-gray-900 dark:text-white">
 							{formatCurrency(quote.amount, quote.currency)}
 						</span>{" "}
 						has been received.
 					</p>
-					<p className="text-gray-500 text-sm mb-6">
+					<p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
 						This order is now in your order history. The business has
 						been notified and will process it.
 					</p>
@@ -373,7 +373,7 @@ export const WhatsAppQuotePayment = () => {
 							onClick={() => navigate("/home/history")}
 							className="inline-flex items-center gap-2 px-6 py-3 bg-[#fbbf24] text-white rounded-lg font-semibold hover:bg-[#f59e0b] transition-colors"
 						>
-							<History className="w-4 h-4" />
+							<ClockCounterClockwise size={16} weight="bold" />
 							View Order History
 						</button>
 					)}
@@ -386,21 +386,21 @@ export const WhatsAppQuotePayment = () => {
 
 	if (isExpiredOrCancelled) {
 		return (
-			<div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-				<div className="max-w-md w-full bg-white border border-gray-200 rounded-2xl p-8 text-center">
-					<div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+			<div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#161616] px-4">
+				<div className="max-w-md w-full bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-2xl p-8 text-center">
+					<div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
 						{quote.status === "expired" ? (
-							<Clock className="w-8 h-8 text-gray-400" />
+							<Clock size={32} weight="duotone" className="text-gray-400 dark:text-gray-500" />
 						) : (
-							<XCircle className="w-8 h-8 text-gray-400" />
+							<XCircle size={32} weight="duotone" className="text-gray-400 dark:text-gray-500" />
 						)}
 					</div>
-					<h2 className="text-xl font-bold text-gray-900 mb-2">
+					<h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
 						Quote{" "}
 						{quote.status.charAt(0).toUpperCase() +
 							quote.status.slice(1)}
 					</h2>
-					<p className="text-gray-600 mb-6">
+					<p className="text-gray-600 dark:text-gray-400 mb-6">
 						{quote.status === "expired"
 							? "This quote has expired. Please contact the business for a new quote."
 							: quote.status === "declined"
@@ -412,7 +412,7 @@ export const WhatsAppQuotePayment = () => {
 							href={`tel:${quote.branchPhone}`}
 							className="inline-flex items-center gap-2 px-6 py-3 bg-[#fbbf24] text-white rounded-lg font-semibold hover:bg-[#f59e0b] transition-colors"
 						>
-							<Phone className="w-4 h-4" />
+							<Phone size={16} weight="bold" />
 							Contact Business
 						</a>
 					)}
@@ -425,13 +425,13 @@ export const WhatsAppQuotePayment = () => {
 
 	if (verifying) {
 		return (
-			<div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-				<div className="max-w-md w-full bg-white border border-gray-200 rounded-2xl p-8 text-center">
+			<div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#161616] px-4">
+				<div className="max-w-md w-full bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-2xl p-8 text-center">
 					<div className="w-10 h-10 border-4 border-[#fbbf24] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-					<h2 className="text-xl font-bold text-gray-900 mb-2">
+					<h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
 						Verifying Payment
 					</h2>
-					<p className="text-gray-500">
+					<p className="text-gray-500 dark:text-gray-400">
 						Please wait while we confirm your payment...
 					</p>
 				</div>
@@ -442,37 +442,37 @@ export const WhatsAppQuotePayment = () => {
 	// ─── Main payment view ──────────────────────────────────────────────
 
 	return (
-		<div className="min-h-screen bg-gray-50 py-8 px-4">
+		<div className="min-h-screen bg-gray-50 dark:bg-[#161616] py-8 px-4">
 			<div className="max-w-2xl mx-auto">
 				{/* Business Header */}
-				<div className="bg-white border border-gray-200 rounded-2xl mb-6 overflow-hidden">
+				<div className="bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-2xl mb-6 overflow-hidden">
 					<div className="px-8 py-6">
 						<div className="flex items-start gap-5">
 							{quote.branchCoverImage && !logoError ? (
 								<img
 									src={quote.branchCoverImage}
 									alt={quote.branchName || "Business"}
-									className="w-16 h-16 object-contain rounded-xl border border-gray-200 flex-shrink-0"
+									className="w-16 h-16 object-contain rounded-xl border border-gray-200 dark:border-gray-700 flex-shrink-0"
 									onError={() => setLogoError(true)}
 								/>
 							) : (
-								<div className="w-16 h-16 bg-[#fbbf24]/10 rounded-xl border border-gray-200 flex items-center justify-center flex-shrink-0">
-									<FileText className="w-8 h-8 text-[#fbbf24]" />
+								<div className="w-16 h-16 bg-[#fbbf24]/10 rounded-xl border border-gray-200 dark:border-gray-700 flex items-center justify-center flex-shrink-0">
+									<FileText size={32} weight="duotone" className="text-[#fbbf24]" />
 								</div>
 							)}
 							<div className="flex-1 min-w-0">
-								<h2 className="text-xl font-bold text-gray-900 mb-1">
+								<h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
 									{quote.branchName || "Business Quote"}
 								</h2>
 								{quote.branchAddress && (
-									<p className="text-sm text-gray-500 flex items-center gap-1.5">
-										<MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+									<p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+										<MapPin size={14} weight="regular" className="flex-shrink-0" />
 										{quote.branchAddress}
 									</p>
 								)}
 								{quote.branchEmail && (
-									<p className="text-sm text-gray-500 flex items-center gap-1.5 mt-0.5">
-										<Mail className="w-3.5 h-3.5 flex-shrink-0" />
+									<p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1.5 mt-0.5">
+										<EnvelopeSimple size={14} weight="regular" className="flex-shrink-0" />
 										{quote.branchEmail}
 									</p>
 								)}
@@ -485,13 +485,13 @@ export const WhatsAppQuotePayment = () => {
 				<div className="mb-6">
 					<div className="flex items-center gap-3 mb-2">
 						<div className="w-10 h-10 bg-[#fbbf24] rounded-xl flex items-center justify-center">
-							<FileText className="w-5 h-5 text-white" />
+							<FileText size={20} weight="duotone" className="text-white" />
 						</div>
 						<div>
-							<h1 className="text-2xl font-bold text-gray-900">
+							<h1 className="text-2xl font-bold text-gray-900 dark:text-white">
 								Quote
 							</h1>
-							<p className="text-sm text-gray-500">
+							<p className="text-sm text-gray-500 dark:text-gray-400">
 								Review details and make payment
 							</p>
 						</div>
@@ -499,28 +499,28 @@ export const WhatsAppQuotePayment = () => {
 				</div>
 
 				{/* Quote Details */}
-				<div className="bg-white border border-gray-200 rounded-2xl mb-6">
-					<div className="border-b border-gray-100 px-8 py-5">
-						<h3 className="text-base font-semibold text-gray-900">
+				<div className="bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-2xl mb-6">
+					<div className="border-b border-gray-100 dark:border-gray-800 px-8 py-5">
+						<h3 className="text-base font-semibold text-gray-900 dark:text-white">
 							Quote Details
 						</h3>
 					</div>
 					<div className="px-8 py-6 space-y-5">
 						<div>
-							<label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">
+							<label className="block text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1.5">
 								Category
 							</label>
-							<p className="text-gray-900 font-medium">
+							<p className="text-gray-900 dark:text-white font-medium">
 								{quote.category}
 							</p>
 						</div>
 
 						{quote.description && (
 							<div>
-								<label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">
+								<label className="block text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1.5">
 									Description
 								</label>
-								<p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+								<p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
 									{quote.description}
 								</p>
 							</div>
@@ -528,10 +528,10 @@ export const WhatsAppQuotePayment = () => {
 
 						{quote.contactName && (
 							<div>
-								<label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">
+								<label className="block text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1.5">
 									Prepared for
 								</label>
-								<p className="text-gray-900 font-medium">
+								<p className="text-gray-900 dark:text-white font-medium">
 									{quote.contactName}
 								</p>
 							</div>
@@ -539,10 +539,10 @@ export const WhatsAppQuotePayment = () => {
 
 						{quote.expiresAt && (
 							<div>
-								<label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">
+								<label className="block text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1.5">
 									Valid until
 								</label>
-								<p className="text-gray-700">
+								<p className="text-gray-700 dark:text-gray-300">
 									{new Date(
 										quote.expiresAt
 									).toLocaleDateString("en-GB", {
@@ -554,7 +554,7 @@ export const WhatsAppQuotePayment = () => {
 							</div>
 						)}
 
-						<div className="text-xs text-gray-400">
+						<div className="text-xs text-gray-400 dark:text-gray-500">
 							Quote sent on{" "}
 							{new Date(quote.createdAt).toLocaleDateString(
 								"en-GB",
@@ -571,9 +571,9 @@ export const WhatsAppQuotePayment = () => {
 				</div>
 
 				{/* Amount */}
-				<div className="bg-white border border-gray-200 rounded-2xl mb-6">
+				<div className="bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-2xl mb-6">
 					<div className="px-8 py-6 flex items-center justify-between">
-						<span className="text-sm font-semibold text-gray-400 uppercase tracking-wider">
+						<span className="text-sm font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
 							Total Amount
 						</span>
 						<span className="text-3xl font-bold text-[#fbbf24]">
@@ -584,17 +584,17 @@ export const WhatsAppQuotePayment = () => {
 
 				{/* Auth Gate + Payment */}
 				{isPayable && (
-					<div className="bg-white border border-gray-200 rounded-2xl p-6 mb-6">
+					<div className="bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-2xl p-6 mb-6">
 						{!user ? (
 							/* ─── Not logged in — show auth prompt ────────── */
 							<div className="text-center py-4">
-								<div className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-									<User className="w-7 h-7 text-gray-400" />
+								<div className="w-14 h-14 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+									<User size={28} weight="duotone" className="text-gray-400 dark:text-gray-500" />
 								</div>
-								<h3 className="text-lg font-bold text-gray-900 mb-2">
+								<h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
 									Sign in to continue
 								</h3>
-								<p className="text-sm text-gray-500 mb-6 max-w-sm mx-auto">
+								<p className="text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-sm mx-auto">
 									Please log in or create an account to make
 									payment. This ensures your order is saved to
 									your account and you can track it.
@@ -610,7 +610,7 @@ export const WhatsAppQuotePayment = () => {
 										}
 										className="flex-1 py-3 px-6 bg-[#fbbf24] text-white rounded-lg font-semibold hover:bg-[#f59e0b] transition-colors flex items-center justify-center gap-2"
 									>
-										<LogIn className="w-4 h-4" />
+										<SignIn size={16} weight="bold" />
 										Log In
 									</button>
 									<button
@@ -621,7 +621,7 @@ export const WhatsAppQuotePayment = () => {
 												)}`
 											)
 										}
-										className="flex-1 py-3 px-6 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:border-gray-400 hover:bg-gray-50 transition-all flex items-center justify-center gap-2"
+										className="flex-1 py-3 px-6 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-semibold hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all flex items-center justify-center gap-2"
 									>
 										Create Account
 									</button>
@@ -629,7 +629,7 @@ export const WhatsAppQuotePayment = () => {
 								<button
 									onClick={handleDecline}
 									disabled={declining}
-									className="mt-4 text-sm text-gray-400 hover:text-gray-600 transition-colors"
+									className="mt-4 text-sm text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
 								>
 									{declining
 										? "Declining..."
@@ -642,7 +642,7 @@ export const WhatsAppQuotePayment = () => {
 								{/* Logged in as */}
 								<div className="flex items-center gap-3 p-3 rounded-lg bg-green-50 border border-green-200 mb-5">
 									<div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-										<CheckCircle className="w-4 h-4 text-green-600" />
+										<CheckCircle size={16} weight="duotone" className="text-green-600" />
 									</div>
 									<div className="flex-1 min-w-0">
 										<p className="text-sm font-medium text-green-800">
@@ -660,7 +660,7 @@ export const WhatsAppQuotePayment = () => {
 									<button
 										onClick={handleDecline}
 										disabled={declining || paying}
-										className="flex-1 py-3 px-6 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:border-gray-400 hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+										className="flex-1 py-3 px-6 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-semibold hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
 									>
 										{declining
 											? "Declining..."
@@ -678,7 +678,7 @@ export const WhatsAppQuotePayment = () => {
 											</>
 										) : (
 											<>
-												<CheckCircle className="w-5 h-5" />
+												<CheckCircle size={20} weight="bold" />
 												Pay{" "}
 												{formatCurrency(
 													quote.amount,
@@ -694,7 +694,7 @@ export const WhatsAppQuotePayment = () => {
 				)}
 
 				{/* Footer */}
-				<p className="text-center text-xs text-gray-400 mt-4">
+				<p className="text-center text-xs text-gray-400 dark:text-gray-500 mt-4">
 					Payments are processed securely via Paystack.
 					{quote.branchPhone && (
 						<>

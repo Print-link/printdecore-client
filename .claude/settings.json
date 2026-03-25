@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -L -o /dev/null -w \"%{http_code}\" https://icones.netlify.app/)",
+      "Bash(curl -s -L -o /dev/null -w \"%{http_code}\" https://icones.netlify.app/collection/ph)",
+      "Bash(curl -s -L -o /dev/null -w \"%{http_code}\" https://icones.netlify.app/collection/solar)",
+      "Bash(for icon:*)",
+      "Bash(do grep:*)",
+      "Bash(echo \"$icon: OK\")",
+      "Bash(echo \"$icon: MISSING\")",
+      "Bash(npm uninstall:*)",
+      "Bash(ls -la /Users/berthajones/Desktop/projects/printdecore/piper-client/*.config.*)",
+      "Bash(DIR=\"/Users/berthajones/Desktop/projects/printdecore/piper-client/src/pages\")",
+      "Bash(for file:*)",
+      "Bash(sed -i '' 's/? \"\"bg-green-50 text-green-800\"\"/? \"\"bg-green-50 dark:bg-green-900\\\\/20 text-green-800\"\"/' /Users/berthajones/Desktop/projects/printdecore/piper-client/src/components/StatusMessage.tsx)",
+      "Bash(sed -i '' 's/: \"\"bg-red-50 text-red-800\"\"/: \"\"bg-red-50 dark:bg-red-900\\\\/20 text-red-800\"\"/' /Users/berthajones/Desktop/projects/printdecore/piper-client/src/components/StatusMessage.tsx)",
+      "Bash(sed -i '' 's/border-b border-gray-200/border-b border-gray-200 dark:border-gray-700/g' src/components/Reviews.tsx)",
+      "Bash(sed -i '' 's/text-2xl font-bold text-gray-900/text-2xl font-bold text-gray-900 dark:text-white/g' src/components/Reviews.tsx)",
+      "Bash(sed -i '' 's/text-sm text-gray-600/text-sm text-gray-600 dark:text-gray-400/g' src/components/Reviews.tsx)",
+      "Bash(sed -i '' 's/text-sm text-gray-500 py-4/text-sm text-gray-500 dark:text-gray-400 py-4/g' src/components/Reviews.tsx)",
+      "Bash(sed -i '' 's/border-b border-gray-100/border-b border-gray-100 dark:border-gray-800/g' src/components/Reviews.tsx)",
+      "Bash(sed -i '' 's/text-sm font-semibold text-gray-900/text-sm font-semibold text-gray-900 dark:text-white/g' src/components/Reviews.tsx)",
+      "Bash(sed -i '' 's/text-xs text-gray-500/text-xs text-gray-500 dark:text-gray-400/g' src/components/Reviews.tsx)",
+      "Bash(sed -i '' 's/text-sm text-gray-700/text-sm text-gray-700 dark:text-gray-300/g' src/components/Reviews.tsx)",
+      "Bash(sed -i '' 's/bottom-0 left-0 right-0 bg-white rounded-t-3xl/bottom-0 left-0 right-0 bg-white dark:bg-[#1e1e1e] rounded-t-3xl/' src/components/Reviews.tsx)",
+      "Bash(sed -i '' 's/hover:bg-gray-100 rounded-full/hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full/' src/components/Reviews.tsx)",
+      "Bash(sed -i '' 's/border-b border-gray-200 dark:border-gray-700\"\">/border-b border-gray-200 dark:border-gray-700\"\">/' src/components/Reviews.tsx)",
+      "Bash(sed -i '' 's/dark:text-gray-400 dark:text-gray-400/dark:text-gray-400/g' src/components/Reviews.tsx)",
+      "Bash(sed -i '' '178s/text-gray-600/text-gray-600 dark:text-gray-400/' src/components/Reviews.tsx)",
+      "Bash(sed -i '' 's/text-2xl font-bold text-gray-900 mb-2/text-2xl font-bold text-gray-900 dark:text-white mb-2/' src/components/ratings/BranchRatingSection.tsx)",
+      "Bash(sed -i '' 's/text-sm text-gray-600/text-sm text-gray-600 dark:text-gray-400/g' src/components/ratings/BranchRatingSection.tsx)",
+      "Bash(sed -i '' 's/text-sm font-medium text-gray-700/text-sm font-medium text-gray-700 dark:text-gray-300/g' src/components/ratings/BranchRatingSection.tsx)",
+      "Bash(sed -i '' 's/bg-gray-200 rounded-full h-2/bg-gray-200 dark:bg-gray-700 rounded-full h-2/' src/components/ratings/BranchRatingSection.tsx)",
+      "Bash(sed -i '' 's/text-xl font-semibold text-gray-900 mb-4/text-xl font-semibold text-gray-900 dark:text-white mb-4/' src/components/ratings/BranchRatingSection.tsx)",
+      "Bash(sed -i '' 's/text-gray-300\"\"/text-gray-300 dark:text-gray-600\"\"/g' src/components/ratings/RatingDisplay.tsx)",
+      "Bash(sed -i '' 's/font-medium text-gray-700/font-medium text-gray-700 dark:text-gray-300/' src/components/ratings/RatingDisplay.tsx)",
+      "Bash(sed -i '' 's/text-gray-500 ml-1/text-gray-500 dark:text-gray-400 ml-1/' src/components/ratings/RatingDisplay.tsx)"
+    ]
+  }
+}

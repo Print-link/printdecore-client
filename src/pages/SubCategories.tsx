@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
-import { Loader2, AlertCircle, ArrowLeft, Tag, Search } from "lucide-react";
+import {
+	SpinnerGap,
+	WarningCircle,
+	ArrowLeft,
+	Tag,
+	MagnifyingGlass,
+	CaretRight,
+} from "@phosphor-icons/react";
 import { getSubCategories, type SubCategory } from "../services/orderApi";
 import { EmptyState } from "../components/EmptyState";
 
@@ -69,13 +76,11 @@ export const SubCategories = () => {
 		return matchesSearch && matchesPricingType;
 	});
 
-
-
 	if (loading) {
 		return (
-			<div className="w-full max-w-6xl mx-auto bg-white rounded-2xl p-8">
+			<div className="w-full max-w-6xl mx-auto bg-white dark:bg-[#1e1e1e] rounded-2xl p-8">
 				<div className="flex items-center justify-center py-12">
-					<Loader2 className="w-8 h-8 text-[#fbbf24] animate-spin" />
+					<SpinnerGap size={32} className="text-[#fbbf24] animate-spin" />
 				</div>
 			</div>
 		);
@@ -83,18 +88,18 @@ export const SubCategories = () => {
 
 	if (error) {
 		return (
-			<div className="w-full max-w-6xl mx-auto bg-white rounded-2xl p-8">
+			<div className="w-full max-w-6xl mx-auto bg-white dark:bg-[#1e1e1e] rounded-2xl p-8">
 				<div className="text-center py-12">
-					<AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-					<h2 className="text-xl font-semibold text-gray-900 mb-2">
+					<WarningCircle size={48} className="text-red-500 mx-auto mb-4" />
+					<h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
 						Error Loading SubCategories
 					</h2>
-					<p className="text-gray-600 mb-4">{error}</p>
+					<p className="text-gray-600 dark:text-gray-400 mb-4">{error}</p>
 					<button
 						onClick={handleBack}
 						className="inline-flex items-center px-4 py-2 text-sm font-medium text-[#fbbf24] hover:text-[#fbbf24]"
 					>
-						<ArrowLeft className="w-4 h-4 mr-2" />
+						<ArrowLeft size={16} className="mr-2" />
 						Go Back
 					</button>
 				</div>
@@ -104,86 +109,89 @@ export const SubCategories = () => {
 
 	return (
 		<div className="w-full max-w-7xl mx-auto">
-			{/* Back Button */}
-			<button
-				onClick={handleBack}
-				className="mb-4 inline-flex items-center text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
-			>
-				<ArrowLeft className="w-4 h-4 mr-2" />
-				Back
-			</button>
+			{/* Breadcrumb Navigation */}
+			<nav className="flex items-center gap-1.5 text-sm mb-4">
+				<button
+					onClick={handleBack}
+					className="text-gray-500 dark:text-gray-400 hover:text-[#fbbf24] transition-colors font-medium"
+				>
+					Categories
+				</button>
+				<CaretRight size={12} weight="bold" className="text-gray-300 dark:text-gray-600" />
+				<span className="text-gray-900 dark:text-white font-semibold">
+					Subcategories
+				</span>
+			</nav>
 
 			{/* Header */}
 			<div className="mb-4">
-				<h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-1">
-					Select a SubCategory
+				<h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-0.5">
+					Select a Subcategory
 				</h1>
-				<p className="text-sm text-gray-600">
-					Choose a subcategory to view available services
+				<p className="text-sm text-gray-500 dark:text-gray-400">
+					{subCategories.length} {subCategories.length === 1 ? "subcategory" : "subcategories"} available
 				</p>
 			</div>
 
-			{/* Filters */}
-			<div className="mb-4 space-y-3">
-				{/* Search */}
-				<div className="relative">
-					<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-					<input
-						type="text"
-						placeholder="Search subcategories..."
-						value={searchQuery}
-						onChange={(e) => setSearchQuery(e.target.value)}
-						className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#fbbf24] focus:outline-none transition-colors"
-					/>
+			{/* Search - only show if more than 4 items */}
+			{subCategories.length > 4 && (
+				<div className="mb-4">
+					<div className="relative">
+						<MagnifyingGlass
+							size={18}
+							className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500"
+						/>
+						<input
+							type="text"
+							placeholder="Search subcategories..."
+							value={searchQuery}
+							onChange={(e) => setSearchQuery(e.target.value)}
+							className="w-full pl-10 pr-4 py-3 bg-white dark:bg-[#1e1e1e] border border-gray-100 dark:border-gray-800 rounded-2xl focus:border-[#fbbf24] focus:outline-none transition-colors text-sm"
+						/>
+					</div>
 				</div>
-			</div>
+			)}
 
-			{/* SubCategories List/Grid */}
+			{/* SubCategories List */}
 			{subCategories.length === 0 ? (
 				<EmptyState type="no-results" />
 			) : filteredSubCategories.length === 0 ? (
 				<EmptyState type="no-results" onClearSearch={() => setSearchQuery("")} />
 			) : (
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+				<div className="space-y-2">
 					{filteredSubCategories.map((subCategory) => (
 						<button
 							key={subCategory.id}
 							onClick={() => handleSubCategoryClick(subCategory.id)}
-							className="w-full bg-white p-4 border-2 border-gray-200 rounded-lg text-left group hover:border-[#fbbf24] transition-all"
+							className="w-full group bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-100 dark:border-gray-800 p-4 text-left transition-all duration-200 hover:shadow-lg hover:shadow-gray-900/5 hover:border-gray-200 active:scale-[0.995]"
 						>
-							<div className="flex items-start gap-3 md:flex-col md:gap-4">
-								<div className="flex items-center gap-3 flex-1 min-w-0 md:flex-col md:items-start md:w-full">
-									{subCategory.imageUrl ? (
-										<img className="w-24 h-24" src={subCategory.imageUrl} alt={subCategory.name} />
-									) : (
-										<div className="w-12 h-12 bg-gray-50 rounded-lg flex items-center justify-center shrink-0 border-2 border-gray-200 group-hover:border-[#fbbf24] transition-colors">
-											<Tag className="w-6 h-6 text-[#fbbf24]" />
-										</div>
-									)}
-									<div className="flex-1 min-w-0 md:w-full">
-										<div className="flex items-start justify-between gap-2 mb-2">
-											<h3 className="text-base md:text-lg font-bold text-gray-900 group-hover:text-[#fbbf24] transition-colors">
-												{subCategory.name}
-											</h3>
-											{/* <span
-												className={`px-2 py-1 rounded text-xs font-semibold shrink-0 ${getPricingTypeBadgeColor(
-													subCategory.pricingType as PricingType
-												)}`}
-											>
-												{subCategory.pricingType.replace("_", " ")}
-											</span> */}
-										</div>
-										{subCategory.description && (
-											<p className="text-sm text-gray-600 line-clamp-2 mb-2">
-												{subCategory.description}
-											</p>
-										)}
-										<div className="flex items-center text-sm font-semibold text-[#fbbf24]">
-											<span>View Services</span>
-											<span className="ml-2 hidden md:inline">→</span>
-										</div>
+							<div className="flex items-center gap-4">
+								{subCategory.imageUrl ? (
+									<img
+										src={subCategory.imageUrl}
+										alt={subCategory.name}
+										className="w-12 h-12 object-cover rounded-xl shrink-0"
+									/>
+								) : (
+									<div className="w-12 h-12 bg-linear-to-br from-amber-50 to-yellow-100 dark:from-amber-900/20 dark:to-yellow-900/20 rounded-xl flex items-center justify-center shrink-0">
+										<Tag size={22} weight="duotone" className="text-[#fbbf24]" />
 									</div>
+								)}
+								<div className="flex-1 min-w-0">
+									<h3 className="text-sm font-bold text-gray-900 dark:text-white mb-0.5">
+										{subCategory.name}
+									</h3>
+									{subCategory.description && (
+										<p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">
+											{subCategory.description}
+										</p>
+									)}
 								</div>
+								<CaretRight
+									size={16}
+									weight="bold"
+									className="text-gray-300 dark:text-gray-600 group-hover:text-[#fbbf24] group-hover:translate-x-0.5 transition-all duration-300 shrink-0"
+								/>
 							</div>
 						</button>
 					))}
@@ -192,4 +200,3 @@ export const SubCategories = () => {
 		</div>
 	);
 };
-

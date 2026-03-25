@@ -1,4 +1,4 @@
-import { Printer, MapPin, Navigation, Star, Package } from "lucide-react";
+import { Printer, MapPin, Compass, Star, Package } from "@phosphor-icons/react";
 import type { PrintStation } from "../types/printStation";
 import { getDistanceColor, formatDistance } from "../utils/stationUtils";
 import { isStationOpen } from "../utils/workingHours";
@@ -30,14 +30,14 @@ export const PrintStationCard = ({
 
 	return (
 		<div
-			className={`relative bg-white rounded-lg border-2 transition-all overflow-hidden ${
+			className={`relative bg-white dark:bg-[#1e1e1e] rounded-lg border-2 transition-all overflow-hidden ${
 				isClickable
-					? "border-gray-200 group cursor-pointer hover:border-[#fbbf24]"
-					: "border-gray-200 opacity-75 cursor-not-allowed"
+					? "border-gray-200 dark:border-gray-700 group cursor-pointer hover:border-[#fbbf24]"
+					: "border-gray-200 dark:border-gray-700 opacity-75 cursor-not-allowed"
 			}`}
 		>
 			{!isClickable && (
-				<div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] z-10 rounded-xl" />
+				<div className="absolute inset-0 bg-white/60 dark:bg-black/30 backdrop-blur-[1px] z-10 rounded-xl" />
 			)}
 
 			<div className="flex flex-row md:flex-col">
@@ -54,7 +54,7 @@ export const PrintStationCard = ({
 								isOpen ? "group-hover:bg-slate-200" : ""
 							}`}
 						>
-							<Printer className="w-10 h-10 sm:w-12 sm:h-12 md:w-12 md:h-12 text-[#fbbf24]" />
+							<Printer size={48} weight="duotone" className="text-[#fbbf24]" />
 						</div>
 					)}
 					<div className="absolute top-2 right-2 z-20">
@@ -78,8 +78,8 @@ export const PrintStationCard = ({
 							<h3
 								className={`text-base md:text-lg font-bold line-clamp-1 transition-colors flex-1 ${
 									isClickable
-										? "text-gray-900 group-hover:text-[#fbbf24]"
-										: "text-gray-500"
+										? "text-gray-900 dark:text-white group-hover:text-[#fbbf24]"
+										: "text-gray-500 dark:text-gray-400"
 								}`}
 							>
 								{station?.businessName || station.name}
@@ -87,8 +87,8 @@ export const PrintStationCard = ({
 							{station.averageRating !== undefined &&
 								station.averageRating > 0 && (
 									<div className="flex items-center gap-1 shrink-0 ml-2">
-										<Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-										<span className="text-sm font-semibold text-gray-700">
+										<Star size={16} weight="fill" className="text-yellow-500" />
+										<span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
 											{station.averageRating?.toFixed(1)}
 										</span>
 									</div>
@@ -97,8 +97,8 @@ export const PrintStationCard = ({
 
 						<div className="space-y-1 md:space-y-2">
 							{station.location?.address && (
-								<div className="flex items-start text-xs md:text-sm text-gray-600">
-									<MapPin className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2 text-gray-400 mt-0.5 shrink-0" />
+								<div className="flex items-start text-xs md:text-sm text-gray-600 dark:text-gray-400">
+									<MapPin size={16} weight="regular" className="mr-1 md:mr-2 text-gray-400 dark:text-gray-500 mt-0.5 shrink-0" />
 									<span className="line-clamp-1 md:line-clamp-2">
 										{station.location.address}
 									</span>
@@ -110,7 +110,7 @@ export const PrintStationCard = ({
 										station.distance
 									)}`}
 								>
-									<Navigation className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
+									<Compass size={16} weight="regular" className="mr-1 md:mr-2" />
 									<span>{formatDistance(station.distance)}</span>
 								</div>
 							)}
@@ -123,10 +123,10 @@ export const PrintStationCard = ({
 
 							{/* Agent Services */}
 							{station.agentServices && station.agentServices.length > 0 && (
-								<div className="md:pt-2 md:mt-2 border-t border-gray-200">
+								<div className="md:pt-2 md:mt-2 border-t border-gray-200 dark:border-gray-700">
 									<div className="flex items-center gap-1.5 mb-1.5">
-										<Package className="w-3 h-3 md:w-4 md:h-4 text-[#fbbf24] shrink-0" />
-										<span className="text-xs md:text-sm font-bold text-gray-900">
+										<Package size={16} weight="duotone" className="text-[#fbbf24] shrink-0" />
+										<span className="text-xs md:text-sm font-bold text-gray-900 dark:text-white">
 											Services (
 											{station.totalServicesCount ||
 												station.agentServices.length}
@@ -144,7 +144,7 @@ export const PrintStationCard = ({
 										))}
 										{(station.totalServicesCount ||
 											station.agentServices.length) > 5 && (
-											<span className="px-2 py-0.5 text-xs font-semibold text-gray-600">
+											<span className="px-2 py-0.5 text-xs font-semibold text-gray-600 dark:text-gray-400">
 												+
 												{(station.totalServicesCount ||
 													station.agentServices.length) - 5}{" "}

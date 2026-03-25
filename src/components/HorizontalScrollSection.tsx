@@ -1,5 +1,5 @@
 import React from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { CaretLeft, CaretRight } from "@phosphor-icons/react";
 
 interface HorizontalScrollSectionProps {
   title: string;
@@ -64,7 +64,7 @@ export const HorizontalScrollSection: React.FC<HorizontalScrollSectionProps> = (
           onClick={() => scroll("left")}
           className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 bg-white dark:bg-[#1e1e1e] shadow-lg rounded-full flex items-center justify-center border border-gray-100 dark:border-gray-700 hover:border-[#fbbf24] hover:text-[#fbbf24] text-gray-500 transition-all opacity-0 group-hover:opacity-100 -translate-x-1/2"
         >
-          <ChevronLeft className="w-4 h-4" />
+          <CaretLeft size={16} weight="bold" />
         </button>
 
         <div
@@ -79,7 +79,7 @@ export const HorizontalScrollSection: React.FC<HorizontalScrollSectionProps> = (
           onClick={() => scroll("right")}
           className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 bg-white dark:bg-[#1e1e1e] shadow-lg rounded-full flex items-center justify-center border border-gray-100 dark:border-gray-700 hover:border-[#fbbf24] hover:text-[#fbbf24] text-gray-500 transition-all opacity-0 group-hover:opacity-100 translate-x-1/2"
         >
-          <ChevronRight className="w-4 h-4" />
+          <CaretRight size={16} weight="bold" />
         </button>
       </div>
     </div>

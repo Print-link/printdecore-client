@@ -1,11 +1,15 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import {
-	Loader2,
-	AlertCircle,
+	SpinnerGap,
+	WarningCircle,
 	ArrowLeft,
 	ShoppingCart,
-} from "lucide-react";
+	Check,
+	Minus,
+	Plus,
+	ChatText,
+} from "@phosphor-icons/react";
 import { toast } from "react-toastify";
 import { useAgentService } from "../hooks/useAgentService";
 import { usePdfPageCount } from "../hooks/usePdfPageCount";
@@ -28,7 +32,6 @@ import {
 } from "../utils/pricingUtils";
 import { getAgentServices, type AgentService } from "../services/orderApi";
 import { EmptyState } from "../components/EmptyState";
-import { Check } from "lucide-react";
 
 interface OrderFormData {
 	calculationBasis?: "INCH" | "FEET";
@@ -527,13 +530,17 @@ export const OrderForm = () => {
 		setSelectedFiles([]);
 	};
 
+	// Track step numbers dynamically
+	let stepCounter = 0;
+	const nextStep = () => ++stepCounter;
+
 	if (loadingVariants || (loading && !agentService)) {
 		return (
-			<div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-0">
-				<div className="bg-white rounded-lg sm:rounded-2xl p-6 sm:p-8">
+			<div className="w-full max-w-5xl mx-auto">
+				<div className="bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-100 dark:border-gray-800 p-6 sm:p-8">
 					<div className="flex flex-col items-center justify-center py-8 sm:py-12">
-						<Loader2 className="w-8 h-8 text-[#fbbf24] animate-spin mb-4" />
-						<p className="text-sm text-gray-500 animate-pulse font-medium">
+						<SpinnerGap size={32} className="text-[#fbbf24] animate-spin mb-4" />
+						<p className="text-sm text-gray-500 dark:text-gray-400 animate-pulse font-medium">
 							{loadingVariants
 								? "Loading variants..."
 								: "Loading configuration..."}
@@ -546,20 +553,20 @@ export const OrderForm = () => {
 
 	if (!loadingVariants && availableVariants.length === 0) {
 		return (
-			<div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-0">
+			<div className="w-full max-w-5xl mx-auto">
 				<button
 					onClick={handleBack}
-					className="mb-4 sm:mb-6 inline-flex items-center text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+					className="mb-4 sm:mb-6 inline-flex items-center text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
 				>
-					<ArrowLeft className="w-4 h-4 mr-2" />
+					<ArrowLeft size={16} className="mr-2" />
 					Back
 				</button>
-				<div className="bg-white rounded-2xl p-12 border-2 border-gray-100 flex flex-col items-center">
+				<div className="bg-white dark:bg-[#1e1e1e] rounded-2xl p-12 border border-gray-100 dark:border-gray-800 flex flex-col items-center">
 					<EmptyState type="no-results" />
-					<p className="text-gray-500 mt-4 text-center font-medium">
+					<p className="text-gray-500 dark:text-gray-400 mt-4 text-center font-medium">
 						No active services found for this subcategory.
 					</p>
-					<p className="text-xs text-gray-400 mt-2 text-center">
+					<p className="text-xs text-gray-400 dark:text-gray-500 mt-2 text-center">
 						The branch manager needs to configure pricing before this service
 						can be ordered.
 					</p>
@@ -570,21 +577,21 @@ export const OrderForm = () => {
 
 	if (error) {
 		return (
-			<div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-0">
-				<div className="bg-white rounded-lg sm:rounded-2xl p-6 sm:p-8">
+			<div className="w-full max-w-5xl mx-auto">
+				<div className="bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-100 dark:border-gray-800 p-6 sm:p-8">
 					<div className="text-center py-8 sm:py-12">
-						<AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-red-500 mx-auto mb-3 sm:mb-4" />
-						<h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
+						<WarningCircle size={48} className="text-red-500 mx-auto mb-3 sm:mb-4" />
+						<h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-2">
 							Configuration Error
 						</h2>
-						<p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6 px-4">
+						<p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-4 sm:mb-6 px-4">
 							{error}
 						</p>
 						<button
 							onClick={handleBack}
-							className="inline-flex items-center justify-center px-6 py-2 text-sm font-bold rounded-lg border-2 border-gray-200 text-gray-600 hover:bg-gray-50 transition-all"
+							className="inline-flex items-center justify-center px-6 py-2 text-sm font-bold rounded-xl border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
 						>
-							<ArrowLeft className="w-4 h-4 mr-2" />
+							<ArrowLeft size={16} className="mr-2" />
 							Go Back
 						</button>
 					</div>
@@ -594,320 +601,459 @@ export const OrderForm = () => {
 	}
 
 	return (
-		<div className="w-full max-w-4xl mx-auto px-4 lg:px-0">
-			{/* Back Button */}
-			<button
-				onClick={handleBack}
-				className="mb-4 sm:mb-6 inline-flex items-center text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
-			>
-				<ArrowLeft className="w-4 h-4 mr-2" />
-				Back
-			</button>
+		<div className="w-full max-w-5xl mx-auto pb-28 lg:pb-8">
+			{/* Breadcrumb Nav */}
+			<nav className="mb-4 sm:mb-6 flex items-center gap-2 text-sm">
+				<button
+					onClick={handleBack}
+					className="inline-flex items-center font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+				>
+					<ArrowLeft size={16} className="mr-1.5" />
+					Back
+				</button>
+				<span className="text-gray-300 dark:text-gray-600">/</span>
+				<span className="font-semibold text-gray-900 dark:text-white truncate">
+					{agentService?.serviceName || "Configure Order"}
+				</span>
+			</nav>
 
-			{/* Variant Selection (Compact) */}
-			<div className="mb-6 bg-white rounded-xl border-2 border-amber-100 p-4 shadow-sm overflow-hidden">
-				<h2 className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-3">
-					Select Service Variant
-				</h2>
-				<div className="flex overflow-x-auto whitespace-nowrap gap-2 pb-2 scrollbar-hide">
+			{/* Variant Selection - only show if more than 1 variant */}
+			{availableVariants.length > 1 && (
+				<div className="mb-6 flex overflow-x-auto whitespace-nowrap gap-2 pb-1 scrollbar-hide">
 					{availableVariants.map((variant) => (
 						<button
 							key={variant.id}
 							type="button"
 							onClick={() => handleVariantSelect(variant.id)}
-							className={`px-4 py-2 rounded-lg text-sm font-bold border-2 transition-all flex items-center gap-2 flex-shrink-0 ${
+							className={`px-4 py-2 rounded-full text-sm font-semibold transition-all flex items-center gap-2 flex-shrink-0 ${
 								selectedVariantId === variant.id
-									? "bg-amber-50 border-[#fbbf24] text-gray-900 shadow-sm"
-									: "bg-white border-gray-100 text-gray-500 hover:border-amber-200"
+									? "bg-gray-900 text-white dark:bg-white dark:text-gray-900"
+									: "bg-white border border-gray-200 dark:bg-[#1e1e1e] dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600"
 							}`}
 						>
 							{selectedVariantId === variant.id && (
-								<Check className="w-3.5 h-3.5 text-[#fbbf24] stroke-[3px]" />
+								<Check size={14} weight="bold" />
 							)}
 							{variant.serviceName || "Default Variant"}
 						</button>
 					))}
 				</div>
-			</div>
+			)}
 
-			{/* Header */}
-			<div className="mb-4 sm:mb-6">
-				<h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">
-					Configure {agentService?.serviceName || "Your Order"}
-				</h1>
-				<p className="text-xs sm:text-sm text-gray-600">
-					{isPageBased
-						? "Upload your PDF file and configure your order"
-						: "Fill in the details and upload your files"}
-				</p>
-			</div>
-
-			<form
-				onSubmit={handleAddToCart}
-				className="bg-white rounded-lg p-4 sm:p-5 lg:p-6 border-2 border-gray-200 space-y-4 sm:space-y-6"
-			>
-				{/* Step 1: Base Configuration (New Flexible Pricing) - Matches PricingConfigForm order */}
-				{usesFlexiblePricing && agentService?.pricingConfig && (
-					<div className="border-b border-gray-200 pb-4 sm:pb-6">
-						<BaseConfigurationSelector
-							pricingConfig={agentService.pricingConfig}
-							selectedBaseConfigId={formData.selectedBaseConfigId || null}
-							onSelect={(configId) =>
-								setFormData((prev) => ({
-									...prev,
-									selectedBaseConfigId: configId,
-								}))
-							}
-							showDimensions={!isPageBased}
-							width={formData.width}
-							height={formData.height}
-							measurementUnit={formData.measurementUnit}
-							onWidthChange={(width) =>
-								setFormData((prev) => ({ ...prev, width }))
-							}
-							onHeightChange={(height) =>
-								setFormData((prev) => ({ ...prev, height }))
-							}
-							onMeasurementUnitChange={(unit) =>
-								setFormData((prev) => ({ ...prev, measurementUnit: unit }))
-							}
-						/>
-					</div>
-				)}
-
-				{/* Step 2: Options (New Flexible Pricing or Legacy) - Matches PricingConfigForm order */}
-				{agentService && (
-					<div className="border-b border-gray-200 pb-4 sm:pb-6">
-						{usesFlexiblePricing ? (
-							<OrderOptions
-								agentService={agentService}
-								selectedOptions={formData.selectedOptions || []}
-								onSelectedOptionsChange={(options) =>
-									setFormData((prev) => ({ ...prev, selectedOptions: options }))
-								}
-								isPageBased={isPageBased}
-							/>
-						) : (
-							<OrderOptions
-								agentService={agentService}
-								options={formData.options}
-								onOptionChange={(option, value) =>
-									setFormData((prev) => ({
-										...prev,
-										options: {
-											...prev.options,
-											[option]: value,
-										},
-									}))
-								}
-								isPageBased={isPageBased}
-							/>
-						)}
-					</div>
-				)}
-
-				{/* Step 3: Custom Specifications (New Flexible Pricing) - Matches PricingConfigForm order */}
-				{usesFlexiblePricing && agentService?.pricingConfig && (
-					<div className="border-b border-gray-200 pb-4 sm:pb-6">
-						<CustomSpecificationsSelector
-							pricingConfig={agentService.pricingConfig}
-							selectedCustomSpecs={formData.selectedCustomSpecs || []}
-							onToggle={(specId) => {
-								setFormData((prev) => {
-									const current = prev.selectedCustomSpecs || [];
-									if (current.includes(specId)) {
-										return {
+			{/* Two-column layout */}
+			<form onSubmit={handleAddToCart}>
+				<div className="lg:flex lg:gap-6">
+					{/* Left Column - Form Sections */}
+					<div className="flex-1 min-w-0 space-y-4">
+						{/* Step: Base Configuration (New Flexible Pricing) */}
+						{usesFlexiblePricing && agentService?.pricingConfig && (
+							<div className="bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-100 dark:border-gray-800 p-5">
+								<div className="flex items-center gap-3 mb-4">
+									<div className="w-8 h-8 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-bold flex items-center justify-center">
+										{nextStep()}
+									</div>
+									<h3 className="text-base font-semibold text-gray-900 dark:text-white">
+										Configuration
+									</h3>
+								</div>
+								<BaseConfigurationSelector
+									pricingConfig={agentService.pricingConfig}
+									selectedBaseConfigId={formData.selectedBaseConfigId || null}
+									onSelect={(configId) =>
+										setFormData((prev) => ({
 											...prev,
-											selectedCustomSpecs: current.filter(
-												(id) => id !== specId
-											),
-										};
-									} else {
-										return {
-											...prev,
-											selectedCustomSpecs: [...current, specId],
-										};
+											selectedBaseConfigId: configId,
+										}))
 									}
-								});
-							}}
-						/>
-					</div>
-				)}
+									showDimensions={!isPageBased}
+									width={formData.width}
+									height={formData.height}
+									measurementUnit={formData.measurementUnit}
+									onWidthChange={(width) =>
+										setFormData((prev) => ({ ...prev, width }))
+									}
+									onHeightChange={(height) =>
+										setFormData((prev) => ({ ...prev, height }))
+									}
+									onMeasurementUnitChange={(unit) =>
+										setFormData((prev) => ({ ...prev, measurementUnit: unit }))
+									}
+								/>
+							</div>
+						)}
 
-				{/* Calculation Basis Selector and Dimensions for AREA_OR_UNIT, FEET, UNIT formula types */}
-				{shouldShowCalculationBasis && agentService && (
-					<div className="border-b border-gray-200 pb-4 sm:pb-6 space-y-4">
-						<CalculationBasisSelector
-							calculationBasis={formData.calculationBasis || "FEET"}
-							onCalculationBasisChange={(basis) =>
-								setFormData((prev) => ({
-									...prev,
-									calculationBasis: basis,
-									// Also update measurementUnit to match for consistency
-									measurementUnit: basis,
-								}))
-							}
-							disabled={calculatingPrice}
-						/>
+						{/* Step: Options */}
+						{agentService && (
+							<div className="bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-100 dark:border-gray-800 p-5">
+								<div className="flex items-center gap-3 mb-4">
+									<div className="w-8 h-8 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-bold flex items-center justify-center">
+										{nextStep()}
+									</div>
+									<h3 className="text-base font-semibold text-gray-900 dark:text-white">
+										Options
+									</h3>
+								</div>
+								{usesFlexiblePricing ? (
+									<OrderOptions
+										agentService={agentService}
+										selectedOptions={formData.selectedOptions || []}
+										onSelectedOptionsChange={(options) =>
+											setFormData((prev) => ({ ...prev, selectedOptions: options }))
+										}
+										isPageBased={isPageBased}
+									/>
+								) : (
+									<OrderOptions
+										agentService={agentService}
+										options={formData.options}
+										onOptionChange={(option, value) =>
+											setFormData((prev) => ({
+												...prev,
+												options: {
+													...prev.options,
+													[option]: value,
+												},
+											}))
+										}
+										isPageBased={isPageBased}
+									/>
+								)}
+							</div>
+						)}
 
-						<DimensionsInput
-							width={formData.width}
-							height={formData.height}
-							measurementUnit={formData.calculationBasis || "FEET"}
-							onWidthChange={(width) =>
-								setFormData((prev) => ({ ...prev, width }))
-							}
-							onHeightChange={(height) =>
-								setFormData((prev) => ({ ...prev, height }))
-							}
-							onMeasurementUnitChange={(unit) =>
-								setFormData((prev) => ({
-									...prev,
-									measurementUnit: unit,
-									calculationBasis: unit as "INCH" | "FEET",
-								}))
-							}
-							required={true}
-						/>
-					</div>
-				)}
+						{/* Step: Custom Specifications */}
+						{usesFlexiblePricing && agentService?.pricingConfig && (
+							<div className="bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-100 dark:border-gray-800 p-5">
+								<div className="flex items-center gap-3 mb-4">
+									<div className="w-8 h-8 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-bold flex items-center justify-center">
+										{nextStep()}
+									</div>
+									<h3 className="text-base font-semibold text-gray-900 dark:text-white">
+										Custom Specifications
+									</h3>
+								</div>
+								<CustomSpecificationsSelector
+									pricingConfig={agentService.pricingConfig}
+									selectedCustomSpecs={formData.selectedCustomSpecs || []}
+									onToggle={(specId) => {
+										setFormData((prev) => {
+											const current = prev.selectedCustomSpecs || [];
+											if (current.includes(specId)) {
+												return {
+													...prev,
+													selectedCustomSpecs: current.filter(
+														(id) => id !== specId
+													),
+												};
+											} else {
+												return {
+													...prev,
+													selectedCustomSpecs: [...current, specId],
+												};
+											}
+										});
+									}}
+								/>
+							</div>
+						)}
 
-				{/* Dimensions - Legacy format for other non-page-based services */}
-				{!usesFlexiblePricing &&
-					!isPageBased &&
-					!shouldShowCalculationBasis &&
-					agentService && (
-						<div className="border-b border-gray-200 pb-4 sm:pb-6">
-							<DimensionsInput
-								width={formData.width}
-								height={formData.height}
-								measurementUnit={formData.measurementUnit}
-								onWidthChange={(width) =>
-									setFormData((prev) => ({ ...prev, width }))
-								}
-								onHeightChange={(height) =>
-									setFormData((prev) => ({ ...prev, height }))
-								}
-								onMeasurementUnitChange={(unit) =>
-									setFormData((prev) => ({ ...prev, measurementUnit: unit }))
-								}
-								required={!isPageBased}
+						{/* Step: Calculation Basis & Dimensions */}
+						{shouldShowCalculationBasis && agentService && (
+							<div className="bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-100 dark:border-gray-800 p-5">
+								<div className="flex items-center gap-3 mb-4">
+									<div className="w-8 h-8 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-bold flex items-center justify-center">
+										{nextStep()}
+									</div>
+									<h3 className="text-base font-semibold text-gray-900 dark:text-white">
+										Dimensions
+									</h3>
+								</div>
+								<div className="space-y-4">
+									<CalculationBasisSelector
+										calculationBasis={formData.calculationBasis || "FEET"}
+										onCalculationBasisChange={(basis) =>
+											setFormData((prev) => ({
+												...prev,
+												calculationBasis: basis,
+												measurementUnit: basis,
+											}))
+										}
+										disabled={calculatingPrice}
+									/>
+									<DimensionsInput
+										width={formData.width}
+										height={formData.height}
+										measurementUnit={formData.calculationBasis || "FEET"}
+										onWidthChange={(width) =>
+											setFormData((prev) => ({ ...prev, width }))
+										}
+										onHeightChange={(height) =>
+											setFormData((prev) => ({ ...prev, height }))
+										}
+										onMeasurementUnitChange={(unit) =>
+											setFormData((prev) => ({
+												...prev,
+												measurementUnit: unit,
+												calculationBasis: unit as "INCH" | "FEET",
+											}))
+										}
+										required={true}
+									/>
+								</div>
+							</div>
+						)}
+
+						{/* Step: Dimensions - Legacy */}
+						{!usesFlexiblePricing &&
+							!isPageBased &&
+							!shouldShowCalculationBasis &&
+							agentService && (
+								<div className="bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-100 dark:border-gray-800 p-5">
+									<div className="flex items-center gap-3 mb-4">
+										<div className="w-8 h-8 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-bold flex items-center justify-center">
+											{nextStep()}
+										</div>
+										<h3 className="text-base font-semibold text-gray-900 dark:text-white">
+											Dimensions
+										</h3>
+									</div>
+									<DimensionsInput
+										width={formData.width}
+										height={formData.height}
+										measurementUnit={formData.measurementUnit}
+										onWidthChange={(width) =>
+											setFormData((prev) => ({ ...prev, width }))
+										}
+										onHeightChange={(height) =>
+											setFormData((prev) => ({ ...prev, height }))
+										}
+										onMeasurementUnitChange={(unit) =>
+											setFormData((prev) => ({ ...prev, measurementUnit: unit }))
+										}
+										required={!isPageBased}
+									/>
+								</div>
+							)}
+
+						{/* Step: Quantity */}
+						<div className="bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-100 dark:border-gray-800 p-5">
+							<div className="flex items-center gap-3 mb-4">
+								<div className="w-8 h-8 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-bold flex items-center justify-center">
+									{nextStep()}
+								</div>
+								<h3 className="text-base font-semibold text-gray-900 dark:text-white">
+									Quantity
+								</h3>
+							</div>
+							<div className="flex items-center gap-3">
+								<button
+									type="button"
+									onClick={() => {
+										const current = parseInt(quantityInput, 10);
+										if (!isNaN(current) && current > 1) {
+											const newVal = current - 1;
+											setQuantityInput(newVal.toString());
+											setFormData((prev) => ({ ...prev, quantity: newVal }));
+										}
+									}}
+									className="w-10 h-10 rounded-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+								>
+									<Minus size={18} />
+								</button>
+								<input
+									type="text"
+									inputMode="numeric"
+									value={quantityInput}
+									onChange={(e) => {
+										const value = e.target.value;
+										setQuantityInput(value);
+										const numValue = parseInt(value, 10);
+										if (!isNaN(numValue) && numValue >= 1) {
+											setFormData((prev) => ({
+												...prev,
+												quantity: numValue,
+											}));
+										}
+									}}
+									onBlur={(e) => {
+										const value = e.target.value;
+										const numValue = parseInt(value, 10);
+										if (value === "" || isNaN(numValue) || numValue < 1) {
+											setQuantityInput("1");
+											setFormData((prev) => ({
+												...prev,
+												quantity: 1,
+											}));
+										} else {
+											setQuantityInput(numValue.toString());
+										}
+									}}
+									required
+									className="w-20 text-center px-3 py-2 text-sm font-semibold border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-gray-900 dark:focus:ring-white focus:border-transparent transition-all bg-transparent text-gray-900 dark:text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+								/>
+								<button
+									type="button"
+									onClick={() => {
+										const current = parseInt(quantityInput, 10);
+										const newVal = isNaN(current) ? 1 : current + 1;
+										setQuantityInput(newVal.toString());
+										setFormData((prev) => ({ ...prev, quantity: newVal }));
+									}}
+									className="w-10 h-10 rounded-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+								>
+									<Plus size={18} />
+								</button>
+							</div>
+						</div>
+
+						{/* Step: File Upload */}
+						<div className="bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-100 dark:border-gray-800 p-5">
+							<div className="flex items-center gap-3 mb-4">
+								<div className="w-8 h-8 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-bold flex items-center justify-center">
+									{nextStep()}
+								</div>
+								<h3 className="text-base font-semibold text-gray-900 dark:text-white">
+									Upload Files
+								</h3>
+							</div>
+							<FileUploadSection
+								selectedFiles={selectedFiles}
+								onFileSelect={handleFileSelect}
+								onFileRemove={handleFileRemove}
+								isPageBased={isPageBased}
+								pdfPageCount={pdfPageCount}
+								countingPages={countingPages}
 							/>
 						</div>
-					)}
 
-				{/* Quantity */}
-				<div>
-					<label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
-						Quantity *
-					</label>
-					<input
-						type="number"
-						min="1"
-						value={quantityInput}
-						onChange={(e) => {
-							const value = e.target.value;
-							// Allow empty string and any numeric input
-							setQuantityInput(value);
-							const numValue = parseInt(value, 10);
-							// Update formData if it's a valid number >= 1, otherwise keep previous value
-							if (!isNaN(numValue) && numValue >= 1) {
-								setFormData((prev) => ({
-									...prev,
-									quantity: numValue,
-								}));
-							}
-						}}
-						onBlur={(e) => {
-							// Ensure minimum value of 1 when input loses focus
-							const value = e.target.value;
-							const numValue = parseInt(value, 10);
-							if (value === "" || isNaN(numValue) || numValue < 1) {
-								setQuantityInput("1");
-								setFormData((prev) => ({
-									...prev,
-									quantity: 1,
-								}));
-							} else {
-								// Sync input with formData value
-								setQuantityInput(numValue.toString());
-							}
-						}}
-						required
-						className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent transition-all"
-					/>
+						{/* Comment Section */}
+						<div className="bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-100 dark:border-gray-800 p-5">
+							<div className="flex items-center gap-3 mb-4">
+								<div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 flex items-center justify-center">
+									<ChatText size={18} />
+								</div>
+								<h3 className="text-base font-semibold text-gray-900 dark:text-white">
+									Comment <span className="text-sm font-normal text-gray-400">(Optional)</span>
+								</h3>
+							</div>
+							<textarea
+								value={formData.comment || ""}
+								onChange={(e) =>
+									setFormData((prev) => ({ ...prev, comment: e.target.value }))
+								}
+								placeholder="Add any special instructions or comments for this order..."
+								rows={3}
+								className="w-full px-4 py-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-gray-900 dark:focus:ring-white focus:border-transparent transition-all resize-y bg-transparent text-gray-900 dark:text-white placeholder-gray-400"
+							/>
+						</div>
+
+						{/* Mobile Price Preview (visible below lg) */}
+						{priceInfo && agentService && (
+							<div className="lg:hidden">
+								<PricePreview
+									priceInfo={priceInfo}
+									agentService={agentService}
+									isPageBased={isPageBased}
+									pdfPageCount={pdfPageCount}
+									quantity={formData.quantity}
+									options={formData.options}
+									calculatingPrice={calculatingPrice}
+									width={formData.width}
+									height={formData.height}
+									calculationBasis={formData.calculationBasis}
+								/>
+							</div>
+						)}
+					</div>
+
+					{/* Right Column - Sticky Price Summary + CTA (desktop only) */}
+					<div className="hidden lg:block w-80 xl:w-96 shrink-0">
+						<div className="sticky top-6 space-y-4">
+							{/* Price Summary Card */}
+							{priceInfo && agentService && (
+								<div className="bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-100 dark:border-gray-800 p-5">
+									<PricePreview
+										priceInfo={priceInfo}
+										agentService={agentService}
+										isPageBased={isPageBased}
+										pdfPageCount={pdfPageCount}
+										quantity={formData.quantity}
+										options={formData.options}
+										calculatingPrice={calculatingPrice}
+										width={formData.width}
+										height={formData.height}
+										calculationBasis={formData.calculationBasis}
+									/>
+								</div>
+							)}
+
+							{/* Desktop CTA */}
+							<button
+								type="submit"
+								disabled={calculatingPrice || !priceInfo}
+								className="w-full py-3.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl font-semibold text-sm hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all"
+							>
+								{calculatingPrice ? (
+									<>
+										<SpinnerGap size={20} className="animate-spin" />
+										<span>Calculating...</span>
+									</>
+								) : (
+									<>
+										<ShoppingCart size={20} />
+										<span>Add To Tray</span>
+										{priceInfo && (
+											<span className="ml-1 opacity-75">
+												- GHS {priceInfo.calculatedPrice.toFixed(2)}
+											</span>
+										)}
+									</>
+								)}
+							</button>
+
+							<button
+								type="button"
+								onClick={handleBack}
+								className="w-full py-3 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+							>
+								Cancel
+							</button>
+						</div>
+					</div>
 				</div>
+			</form>
 
-				{/* File Upload */}
-				<FileUploadSection
-					selectedFiles={selectedFiles}
-					onFileSelect={handleFileSelect}
-					onFileRemove={handleFileRemove}
-					isPageBased={isPageBased}
-					pdfPageCount={pdfPageCount}
-					countingPages={countingPages}
-				/>
-
-				{/* Comment Field */}
-				<div>
-					<label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
-						Comment (Optional)
-					</label>
-					<textarea
-						value={formData.comment || ""}
-						onChange={(e) =>
-							setFormData((prev) => ({ ...prev, comment: e.target.value }))
-						}
-						placeholder="Add any special instructions or comments for this order..."
-						rows={4}
-						className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent transition-all resize-y"
-					/>
-				</div>
-
-				{/* Price Preview */}
-				{priceInfo && agentService && (
-					<PricePreview
-						priceInfo={priceInfo}
-						agentService={agentService}
-						isPageBased={isPageBased}
-						pdfPageCount={pdfPageCount}
-						quantity={formData.quantity}
-						options={formData.options}
-						calculatingPrice={calculatingPrice}
-						width={formData.width}
-						height={formData.height}
-						calculationBasis={formData.calculationBasis}
-					/>
-				)}
-
-				{/* Submit Button */}
-				<div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2">
+			{/* Mobile Sticky Bottom CTA Bar */}
+			<div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-[#1e1e1e] border-t border-gray-200 dark:border-gray-800 z-40 lg:hidden">
+				<div className="flex items-center justify-between px-4 py-3">
+					<div className="flex flex-col">
+						<span className="text-xs text-gray-500 dark:text-gray-400">Total</span>
+						<span className="text-lg font-bold text-gray-900 dark:text-white">
+							{priceInfo
+								? `GHS ${priceInfo.calculatedPrice.toFixed(2)}`
+								: "---"}
+						</span>
+					</div>
 					<button
 						type="button"
-						onClick={handleBack}
-						className="w-full sm:flex-1 px-4 sm:px-6 py-3 sm:py-3.5 text-sm sm:text-base border-2 border-gray-300 rounded-lg text-gray-700 font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all"
-					>
-						Cancel
-					</button>
-					<button
-						type="submit"
+						onClick={handleAddToCart}
 						disabled={calculatingPrice || !priceInfo}
-						className="w-full sm:flex-1 px-4 sm:px-6 py-3 sm:py-3.5 text-sm sm:text-base bg-[#fbbf24] text-white rounded-lg font-semibold hover:bg-[#d97706] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-all"
+						className="px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl font-semibold text-sm hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-all"
 					>
 						{calculatingPrice ? (
 							<>
-								<Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" />
+								<SpinnerGap size={18} className="animate-spin" />
 								<span>Calculating...</span>
 							</>
 						) : (
 							<>
-								<ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+								<ShoppingCart size={18} />
 								<span>Add To Tray</span>
 							</>
 						)}
 					</button>
 				</div>
-			</form>
+			</div>
 
 			{/* Add to Cart Modal */}
 			{priceInfo && agentService && (
@@ -937,4 +1083,3 @@ export const OrderForm = () => {
 		</div>
 	);
 };
-

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { Loader2, CheckCircle, AlertCircle, ArrowLeft } from "lucide-react";
+import { SpinnerGap, CheckCircle, WarningCircle, ArrowLeft } from "@phosphor-icons/react";
 import { toast } from "react-toastify";
 import { useAuth } from "../hooks/useAuth";
 import { useCart } from "../contexts/CartContext";
@@ -294,17 +294,17 @@ export const Checkout = () => {
       <div className="w-full max-w-6xl mx-auto">
         <button
           onClick={() => navigate(-1)}
-          className="mb-4 inline-flex items-center text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+          className="mb-4 inline-flex items-center text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
         >
-          <ArrowLeft className="w-4 h-4 mr-2" />
+          <ArrowLeft size={16} weight="bold" className="mr-2" />
           Back
         </button>
-        <div className="bg-white rounded-xl p-8 text-center border border-gray-300">
-          <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+        <div className="bg-white dark:bg-[#1e1e1e] rounded-xl p-8 text-center border border-gray-300 dark:border-gray-600">
+          <WarningCircle size={48} weight="duotone" className="text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
             Cart is Empty
           </h2>
-          <p className="text-gray-600 mb-4">
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
             Add items to your cart before checkout
           </p>
           <button
@@ -323,25 +323,25 @@ export const Checkout = () => {
       <div className="mb-4">
         <button
           onClick={() => navigate(-1)}
-          className="mb-3 inline-flex items-center text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+          className="mb-3 inline-flex items-center text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
         >
-          <ArrowLeft className="w-4 h-4 mr-2" />
+          <ArrowLeft size={16} weight="bold" className="mr-2" />
           Back
         </button>
-        <h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-1">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-1">
           Checkout
         </h1>
-        <p className="text-sm text-gray-600">Review your order and place it</p>
+        <p className="text-sm text-gray-600 dark:text-gray-400">Review your order and place it</p>
       </div>
 
-      <div className="bg-white rounded-lg border-2 border-gray-200 p-4 mb-4">
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">
+      <div className="bg-white dark:bg-[#1e1e1e] rounded-lg border-2 border-gray-200 dark:border-gray-700 p-4 mb-4">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
           Order Summary
         </h2>
         <div className="space-y-2 mb-3">
           {cart.map((item) => (
             <div key={item.id} className="flex justify-between text-sm">
-              <span className="text-gray-600">
+              <span className="text-gray-600 dark:text-gray-400">
                 {item.quantity}x Service Item
                 {item.files.length > 0 &&
                   ` (${item.files.length} file${
@@ -354,23 +354,23 @@ export const Checkout = () => {
             </div>
           ))}
         </div>
-        <div className="pt-4 border-t border-gray-200 space-y-2">
+        <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
           <div className="flex justify-between items-center">
-            <span className="text-sm font-medium text-gray-700">Subtotal</span>
-            <span className="text-base font-semibold text-gray-900">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Subtotal</span>
+            <span className="text-base font-semibold text-gray-900 dark:text-white">
               GHS {getSubtotal().toFixed(2)}
             </span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Transaction Fee (1.5%)
             </span>
-            <span className="text-base font-semibold text-gray-900">
+            <span className="text-base font-semibold text-gray-900 dark:text-white">
               GHS {getTransactionFee().toFixed(2)}
             </span>
           </div>
-          <div className="pt-2 border-t border-gray-200 flex justify-between items-center">
-            <span className="text-lg font-semibold text-gray-900">Total</span>
+          <div className="pt-2 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
+            <span className="text-lg font-semibold text-gray-900 dark:text-white">Total</span>
             <span className="text-2xl font-bold text-[#fbbf24]">
               GHS {getTotalWithFee().toFixed(2)}
             </span>
@@ -381,7 +381,7 @@ export const Checkout = () => {
       {(isProcessing || isStagingFiles) && (
         <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4 mb-6">
           <div className="flex items-center gap-3">
-            <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
+            <SpinnerGap size={20} weight="bold" className="text-blue-600 animate-spin" />
             <span className="text-sm text-blue-900">{currentStep}</span>
           </div>
         </div>
@@ -391,7 +391,7 @@ export const Checkout = () => {
         <button
           onClick={() => navigate(-1)}
           disabled={isProcessing || showPaymentModal}
-          className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-700 font-semibold hover:bg-gray-50 hover:border-gray-400 disabled:opacity-50 transition-all"
+          className="flex-1 px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-500 disabled:opacity-50 transition-all"
         >
           Cancel
         </button>
@@ -408,12 +408,12 @@ export const Checkout = () => {
         >
           {isProcessing || isStagingFiles ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <SpinnerGap size={16} weight="bold" className="animate-spin" />
               {isStagingFiles ? "Preparing files..." : "Processing..."}
             </>
           ) : (
             <>
-              <CheckCircle className="w-4 h-4" />
+              <CheckCircle size={16} weight="bold" />
               Place Order
             </>
           )}

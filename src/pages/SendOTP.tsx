@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, AlertCircle, ArrowRight } from 'lucide-react';
+import { EnvelopeSimple, WarningCircle, ArrowRight } from '@phosphor-icons/react';
 import { apiService } from '../services/api';
 import { Logo } from '../components/Logo';
 
@@ -58,7 +58,7 @@ export const SendOTP = () => {
 
 				{error && (
 					<div className="mb-6 p-4 bg-red-50 text-red-800 rounded-lg flex items-center">
-						<AlertCircle className="w-5 h-5 mr-3 shrink-0" />
+						<WarningCircle size={20} weight="duotone" className="mr-3 shrink-0" />
 						<p className="text-sm font-medium">{error}</p>
 					</div>
 				)}
@@ -69,7 +69,7 @@ export const SendOTP = () => {
 							Email Address
 						</label>
 						<div className="relative">
-							<Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+							<EnvelopeSimple size={20} weight="regular" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
 							<input
 								type="email"
 								value={email}
@@ -99,7 +99,7 @@ export const SendOTP = () => {
 						) : (
 							<>
 								Send Verification Code
-								<ArrowRight className="w-5 h-5 ml-2" />
+								<ArrowRight size={20} weight="bold" className="ml-2" />
 							</>
 						)}
 					</button>

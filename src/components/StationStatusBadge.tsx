@@ -1,4 +1,4 @@
-import { Clock, CheckCircle, XCircle } from "lucide-react";
+import { Clock, CheckCircle, XCircle } from "@phosphor-icons/react";
 import { isStationOpen, formatWorkingHours, getNextOpenTime, type WorkingHour } from "../utils/workingHours";
 
 interface StationStatusBadgeProps {
@@ -29,16 +29,16 @@ export const StationStatusBadge = ({
 					isOpenStatus
 						? "bg-green-100 text-green-700"
 						: isClosedStatus
-						? "bg-gray-100 text-gray-600"
+						? "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
 						: "bg-amber-100 text-amber-700"
 				}`}
 			>
 				{isOpenStatus ? (
-					<CheckCircle className="w-3 h-3" />
+					<CheckCircle size={12} weight="regular" />
 				) : isClosedStatus ? (
-					<XCircle className="w-3 h-3" />
+					<XCircle size={12} weight="regular" />
 				) : (
-					<Clock className="w-3 h-3" />
+					<Clock size={12} weight="regular" />
 				)}
 				<span>
 					{isOpenStatus
@@ -58,16 +58,16 @@ export const StationStatusBadge = ({
 					isOpenStatus
 						? "bg-green-100 text-green-700"
 						: isClosedStatus
-						? "bg-gray-100 text-gray-600"
+						? "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
 						: "bg-amber-100 text-amber-700"
 				}`}
 			>
 				{isOpenStatus ? (
-					<CheckCircle className="w-3.5 h-3.5" />
+					<CheckCircle size={14} weight="regular" />
 				) : isClosedStatus ? (
-					<XCircle className="w-3.5 h-3.5" />
+					<XCircle size={14} weight="regular" />
 				) : (
-					<Clock className="w-3.5 h-3.5" />
+					<Clock size={14} weight="regular" />
 				)}
 				<span>
 					{isOpenStatus
@@ -77,8 +77,8 @@ export const StationStatusBadge = ({
 						: "Hours unavailable"}
 				</span>
 			</div>
-			<div className="flex items-center gap-1 text-xs text-gray-600">
-				<Clock className="w-3 h-3" />
+			<div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
+				<Clock size={12} weight="regular" />
 				<span className={isClosedStatus && nextOpenTime ? "font-bold" : ""}>
 					{isOpenStatus
 						? hoursText
