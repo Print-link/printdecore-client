@@ -24,36 +24,35 @@ export const PaymentCallback = () => {
 		hasProcessedRef.current = true;
 
 		const handlePaymentCallback = async () => {
+			const returnUrl = sessionStorage.getItem("payment_return_url");
+			const fallbackUrl = returnUrl || "/";
+
+			const redirectSameWindow = (url: string, delay = 1500) => {
+				sessionStorage.removeItem("payment_return_url");
+				setTimeout(() => navigate(url, { replace: true }), delay);
+			};
+
 			try {
 				// Verify payment
 				const response = await verifyPayment(paymentReference);
 
 				if (response.status && response.data?.status === "success") {
-					// Payment successful - send message to parent window if opened from modal
-					// Include amount to avoid re-verification
 					if (window.opener && !window.opener.closed) {
 						window.opener.postMessage(
 							{
 								type: "PAYSTACK_SUCCESS",
 								reference: paymentReference,
-								amount: response.data.amount || 0, // Include amount from verification
+								amount: response.data.amount || 0,
 							},
 							window.location.origin
 						);
-						// Close this window
 						setTimeout(() => {
-							if (!window.closed) {
-								window.close();
-							}
+							if (!window.closed) window.close();
 						}, 1500);
 					} else {
-						// Opened in same window, redirect to home
-						setTimeout(() => {
-							navigate("/", { replace: true });
-						}, 2000);
+						redirectSameWindow(fallbackUrl);
 					}
 				} else {
-					// Payment failed or pending
 					if (window.opener && !window.opener.closed) {
 						window.opener.postMessage(
 							{
@@ -64,14 +63,10 @@ export const PaymentCallback = () => {
 							window.location.origin
 						);
 						setTimeout(() => {
-							if (!window.closed) {
-								window.close();
-							}
+							if (!window.closed) window.close();
 						}, 2000);
 					} else {
-						setTimeout(() => {
-							navigate("/", { replace: true });
-						}, 2000);
+						redirectSameWindow(fallbackUrl, 2000);
 					}
 				}
 			} catch (error) {
@@ -85,14 +80,10 @@ export const PaymentCallback = () => {
 						window.location.origin
 					);
 					setTimeout(() => {
-						if (!window.closed) {
-							window.close();
-						}
+						if (!window.closed) window.close();
 					}, 2000);
 				} else {
-					setTimeout(() => {
-						navigate("/", { replace: true });
-					}, 2000);
+					redirectSameWindow(fallbackUrl, 2000);
 				}
 			} finally {
 				processingRef.current = false;

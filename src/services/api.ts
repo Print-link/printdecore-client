@@ -342,6 +342,13 @@ class ApiService {
 					totalServicesCount?: number;
 					averageRating?: number;
 					totalRatings?: number;
+					activeDiscount?: {
+						code: string;
+						name: string;
+						discountType: 'percentage' | 'fixed';
+						discountValue: number;
+						currency?: string;
+					};
 				}[]
 			>(`/branches/nearme?${params.toString()}`, {
 				method: "GET",
@@ -379,6 +386,8 @@ class ApiService {
 						totalServicesCount: branch.totalServicesCount || 0,
 						averageRating: branch.averageRating,
 						totalRatings: branch.totalRatings,
+						activeDiscount: branch.activeDiscount,
+						performanceTier: (branch as any).performanceTier,
 						createdAt: undefined,
 						updatedAt: undefined,
 					})),

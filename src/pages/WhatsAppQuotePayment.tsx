@@ -42,6 +42,8 @@ interface QuoteData {
 
 // ─── Helpers ───────────────────────────────────────────────────────────
 
+const TRANSACTION_FEE_RATE = 0.015; // 1.5%
+
 const formatCurrency = (amount: number, currency: string) => {
 	const symbols: Record<string, string> = {
 		GHS: "GH₵",
@@ -52,6 +54,10 @@ const formatCurrency = (amount: number, currency: string) => {
 	};
 	return `${symbols[currency] || currency}${amount.toFixed(2)}`;
 };
+
+const calcTransactionFee = (amount: number) =>
+	Math.round(amount * TRANSACTION_FEE_RATE * 100) / 100;
+
 
 const getToken = (): string | null => localStorage.getItem("token");
 
@@ -80,6 +86,8 @@ export const WhatsAppQuotePayment = () => {
 	const paymentWindowRef = useRef<Window | null>(null);
 	const messageHandlerRef = useRef<((e: MessageEvent) => void) | null>(null);
 	const windowCheckRef = useRef<ReturnType<typeof setInterval> | null>(null);
+	const paymentRefRef = useRef<string | null>(null);
+	const hasVerifiedRef = useRef(false);
 
 	// ─── Fetch quote details (public) ───────────────────────────────────
 
@@ -147,7 +155,7 @@ export const WhatsAppQuotePayment = () => {
 
 	// ─── Cleanup ────────────────────────────────────────────────────────
 
-	const cleanup = useCallback(() => {
+	const cleanupListeners = useCallback(() => {
 		if (messageHandlerRef.current) {
 			window.removeEventListener("message", messageHandlerRef.current);
 			messageHandlerRef.current = null;
@@ -158,16 +166,17 @@ export const WhatsAppQuotePayment = () => {
 		}
 	}, []);
 
-	useEffect(() => cleanup, [cleanup]);
+	useEffect(() => cleanupListeners, [cleanupListeners]);
 
 	// ─── Verify payment (authenticated) ─────────────────────────────────
 
 	const verifyPayment = useCallback(
 		async (reference: string) => {
-			if (!token) return;
+			if (!token || hasVerifiedRef.current) return;
+			hasVerifiedRef.current = true;
 
 			setVerifying(true);
-			cleanup();
+			cleanupListeners();
 
 			try {
 				const response = await axios.post(
@@ -180,18 +189,20 @@ export const WhatsAppQuotePayment = () => {
 					setPaymentSuccess(true);
 					toast.success("Payment confirmed! Your order has been recorded.");
 				} else {
+					hasVerifiedRef.current = false;
 					toast.error(
 						"Payment could not be verified. Please contact support."
 					);
 				}
 			} catch {
+				hasVerifiedRef.current = false;
 				toast.error("Payment verification failed. Please contact support.");
 			} finally {
 				setVerifying(false);
 				setPaying(false);
 			}
 		},
-		[token, cleanup]
+		[token, cleanupListeners]
 	);
 
 	// ─── Initialize payment ─────────────────────────────────────────────
@@ -200,6 +211,7 @@ export const WhatsAppQuotePayment = () => {
 		if (!token || !quote || !user) return;
 
 		setPaying(true);
+		hasVerifiedRef.current = false;
 
 		try {
 			const response = await axios.post(
@@ -211,6 +223,9 @@ export const WhatsAppQuotePayment = () => {
 				response.data.success &&
 				response.data.data?.authorization_url
 			) {
+				// Store the reference so we can verify even if postMessage fails
+				paymentRefRef.current = response.data.data.reference || null;
+
 				const windowName = `PaystackPayment_${Date.now()}`;
 				paymentWindowRef.current = window.open(
 					response.data.data.authorization_url,
@@ -222,6 +237,8 @@ export const WhatsAppQuotePayment = () => {
 					!paymentWindowRef.current ||
 					paymentWindowRef.current.closed
 				) {
+					// Store return URL so PaymentCallback can redirect back
+					sessionStorage.setItem("payment_return_url", `/quote/pay/${token}`);
 					window.location.href = response.data.data.authorization_url;
 					return;
 				}
@@ -232,13 +249,12 @@ export const WhatsAppQuotePayment = () => {
 					if (!ref) return;
 
 					if (event.data?.type === "PAYSTACK_SUCCESS") {
-						cleanup();
 						verifyPayment(ref);
 					} else if (
 						event.data?.type === "PAYSTACK_FAILED" ||
 						event.data?.type === "PAYSTACK_ERROR"
 					) {
-						cleanup();
+						cleanupListeners();
 						setPaying(false);
 						toast.error(
 							"Payment was cancelled or failed. Please try again."
@@ -249,10 +265,15 @@ export const WhatsAppQuotePayment = () => {
 				messageHandlerRef.current = handleMessage;
 				window.addEventListener("message", handleMessage);
 
+				// When popup closes, try to verify using the stored reference.
+				// The postMessage may have been missed due to timing.
 				windowCheckRef.current = setInterval(() => {
 					if (paymentWindowRef.current?.closed) {
-						cleanup();
-						setPaying(false);
+						cleanupListeners();
+						// If we haven't verified yet, try with the stored reference
+						if (!hasVerifiedRef.current && paymentRefRef.current) {
+							verifyPayment(paymentRefRef.current);
+						}
 					}
 				}, 1000);
 			} else {
@@ -272,7 +293,7 @@ export const WhatsAppQuotePayment = () => {
 			);
 			setPaying(false);
 		}
-	}, [token, quote, user, cleanup, verifyPayment]);
+	}, [token, quote, user, cleanupListeners, verifyPayment]);
 
 	// ─── Decline quote ──────────────────────────────────────────────────
 
@@ -360,7 +381,7 @@ export const WhatsAppQuotePayment = () => {
 					<p className="text-gray-600 dark:text-gray-400 mb-2">
 						Your payment of{" "}
 						<span className="font-bold text-gray-900 dark:text-white">
-							{formatCurrency(quote.amount, quote.currency)}
+							{formatCurrency(quote.amount + calcTransactionFee(quote.amount), quote.currency)}
 						</span>{" "}
 						has been received.
 					</p>
@@ -570,17 +591,41 @@ export const WhatsAppQuotePayment = () => {
 					</div>
 				</div>
 
-				{/* Amount */}
-				<div className="bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-2xl mb-6">
-					<div className="px-8 py-6 flex items-center justify-between">
-						<span className="text-sm font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-							Total Amount
-						</span>
-						<span className="text-3xl font-bold text-[#fbbf24]">
-							{formatCurrency(quote.amount, quote.currency)}
-						</span>
-					</div>
-				</div>
+				{/* Amount Breakdown */}
+				{(() => {
+					const transactionFee = calcTransactionFee(quote.amount);
+					const total = quote.amount + transactionFee;
+					return (
+						<div className="bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-2xl mb-6">
+							<div className="px-8 py-6 space-y-3">
+								<div className="flex items-center justify-between">
+									<span className="text-sm text-gray-600 dark:text-gray-400">
+										Service fee
+									</span>
+									<span className="text-sm font-medium text-gray-900 dark:text-white">
+										{formatCurrency(quote.amount, quote.currency)}
+									</span>
+								</div>
+								<div className="flex items-center justify-between">
+									<span className="text-sm text-gray-600 dark:text-gray-400">
+										Transaction fee (1.5%)
+									</span>
+									<span className="text-sm font-medium text-gray-900 dark:text-white">
+										{formatCurrency(transactionFee, quote.currency)}
+									</span>
+								</div>
+								<div className="border-t border-gray-100 dark:border-gray-800 pt-3 flex items-center justify-between">
+									<span className="text-sm font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+										Total
+									</span>
+									<span className="text-3xl font-bold text-[#fbbf24]">
+										{formatCurrency(total, quote.currency)}
+									</span>
+								</div>
+							</div>
+						</div>
+					);
+				})()}
 
 				{/* Auth Gate + Payment */}
 				{isPayable && (
@@ -681,7 +726,7 @@ export const WhatsAppQuotePayment = () => {
 												<CheckCircle size={20} weight="bold" />
 												Pay{" "}
 												{formatCurrency(
-													quote.amount,
+													quote.amount + calcTransactionFee(quote.amount),
 													quote.currency
 												)}
 											</>

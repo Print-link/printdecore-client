@@ -1,4 +1,4 @@
-import { Printer, MapPin, Compass, Star, Package } from "@phosphor-icons/react";
+import { Printer, MapPin, Compass, Star, Package, Tag } from "@phosphor-icons/react";
 import type { PrintStation } from "../types/printStation";
 import { getDistanceColor, formatDistance } from "../utils/stationUtils";
 import { isStationOpen } from "../utils/workingHours";
@@ -64,6 +64,16 @@ export const PrintStationCard = ({
 							compact={true}
 						/>
 					</div>
+					{station.activeDiscount && (
+						<div className="absolute top-2 left-2 z-20">
+							<div className="flex items-center gap-1 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg">
+								<Tag size={10} weight="fill" />
+								{station.activeDiscount.discountType === 'percentage'
+									? `${station.activeDiscount.discountValue}% OFF`
+									: `${station.activeDiscount.currency || 'GHS'} ${station.activeDiscount.discountValue} OFF`}
+							</div>
+						</div>
+					)}
 				</div>
 
 				<div className="flex-1 flex flex-col min-w-0 p-3 md:p-6">
@@ -84,15 +94,25 @@ export const PrintStationCard = ({
 							>
 								{station?.businessName || station.name}
 							</h3>
-							{station.averageRating !== undefined &&
-								station.averageRating > 0 && (
-									<div className="flex items-center gap-1 shrink-0 ml-2">
-										<Star size={16} weight="fill" className="text-yellow-500" />
-										<span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+							<div className="flex items-center gap-1.5 shrink-0 ml-2">
+								{station.performanceTier && (
+									<span className={`text-[9px] font-black px-1.5 py-0.5 rounded-full leading-none ${
+										station.performanceTier === 'diamond'
+											? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white'
+											: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+									}`}>
+										{station.performanceTier === 'diamond' ? '◆' : station.performanceTier}
+									</span>
+								)}
+								{station.averageRating !== undefined && station.averageRating > 0 && (
+									<div className="flex items-center gap-0.5">
+										<Star size={14} weight="fill" className="text-yellow-500" />
+										<span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
 											{station.averageRating?.toFixed(1)}
 										</span>
 									</div>
 								)}
+							</div>
 						</div>
 
 						<div className="space-y-1 md:space-y-2">

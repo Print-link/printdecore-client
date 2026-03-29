@@ -74,7 +74,7 @@ export const OrderForm = () => {
 	const [loadingVariants, setLoadingVariants] = useState(false);
 
 	// Custom hook
-	const { agentService, loading, error } = useAgentService(
+	const { agentService, commissionRate, loading, error } = useAgentService(
 		selectedVariantId,
 		branchId,
 		null // We use agentServiceId directly now
@@ -135,6 +135,7 @@ export const OrderForm = () => {
 			},
 			agentService,
 			pdfPageCount,
+			commissionRate,
 		});
 
 	// Sync quantity input with formData.quantity on initial load
@@ -371,7 +372,7 @@ export const OrderForm = () => {
 											},
 											files: selectedFiles,
 											calculatedPrice: priceInfo.calculatedPrice,
-											priceInfo,
+																		priceInfo,
 											agentService,
 										};
 										addToCart(retryCartItem);
@@ -474,7 +475,7 @@ export const OrderForm = () => {
 											},
 											files: selectedFiles,
 											calculatedPrice: priceInfo.calculatedPrice,
-											priceInfo,
+																		priceInfo,
 											agentService,
 										};
 										addToCart(retryCartItem);

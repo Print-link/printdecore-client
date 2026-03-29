@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { SpinnerGap, CheckCircle, WarningCircle, ArrowLeft } from "@phosphor-icons/react";
+import { SpinnerGap, CheckCircle, WarningCircle, ArrowLeft, Tag, X } from "@phosphor-icons/react";
 import { toast } from "react-toastify";
 import { useAuth } from "../hooks/useAuth";
 import { useCart } from "../contexts/CartContext";
@@ -9,12 +9,15 @@ import {
   createOrder,
   createOrderItem,
   uploadMultipleFiles,
+  validateDiscountCode,
+  getActiveBranchDiscounts,
+  type DiscountValidationResult,
+  type ActiveBranchDiscount,
 } from "../services/orderApi";
 import type { FileInfo } from "../services/orderApi";
 import { getBranchById } from "../services/branches.service";
 import { PaymentModal } from "../components/PaymentModal";
 import {
-  recoverPayments,
   clearPendingPayment,
   type StagedFileInfo,
 } from "../services/paystackService";
@@ -40,6 +43,13 @@ export const Checkout = () => {
     Map<number, StagedFileInfo[]>
   >(new Map());
 
+  // Discount / promo code state
+  const [promoCode, setPromoCode] = useState("");
+  const [promoError, setPromoError] = useState("");
+  const [isValidatingPromo, setIsValidatingPromo] = useState(false);
+  const [appliedDiscount, setAppliedDiscount] = useState<DiscountValidationResult | null>(null);
+  const [branchDiscounts, setBranchDiscounts] = useState<ActiveBranchDiscount[]>([]);
+
   useEffect(() => {
     const fetchBranch = async () => {
       if (!branchId) return;
@@ -59,44 +69,75 @@ export const Checkout = () => {
     fetchBranch();
   }, [branchId]);
 
-  // Check for payments completed while the app was closed
+  // Fetch active discounts for this branch and auto-apply the best one
   useEffect(() => {
-    if (!user?._id) return;
-
-    const checkRecovery = async () => {
-      try {
-        const recovered = await recoverPayments();
-        const completedOrder = recovered.find(
-          (r) => r.status === "recovered" && r.orderId,
-        );
-        if (completedOrder?.orderId) {
-          toast.success(
-            "Your previous payment was completed successfully! Redirecting to your order.",
-          );
-          clearCart();
-          setTimeout(() => {
-            navigate(`/home/order/${completedOrder.orderId}`);
-          }, 1500);
+    if (!branchId) return;
+    getActiveBranchDiscounts(branchId)
+      .then((discounts) => {
+        setBranchDiscounts(discounts);
+        // Auto-apply the first (best) discount
+        if (discounts.length > 0 && !appliedDiscount) {
+          const best = discounts[0];
+          setPromoCode(best.code);
+          validateDiscountCode(best.code, getCartTotal(), branchId)
+            .then((result) => {
+              if (result.success && result.data) {
+                setAppliedDiscount(result.data);
+              }
+            })
+            .catch(() => {});
         }
-      } catch {
-        // Non-blocking
+      })
+      .catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [branchId]);
+
+  const handleApplyPromo = async () => {
+    if (!promoCode.trim()) return;
+    setPromoError("");
+    setIsValidatingPromo(true);
+    try {
+      const result = await validateDiscountCode(promoCode.trim(), getCartTotal(), branchId);
+      if (result.success && result.data) {
+        setAppliedDiscount(result.data);
+        toast.success(`Discount applied: ${result.data.discountType === 'percentage' ? `${result.data.discountValue}%` : `GHS ${result.data.discountAmount}`} off`);
+      } else {
+        setPromoError(result.message || "Invalid promo code");
+        setAppliedDiscount(null);
       }
-    };
-    checkRecovery();
-  }, [user?._id, clearCart, navigate]);
+    } catch {
+      setPromoError("Failed to validate promo code");
+    } finally {
+      setIsValidatingPromo(false);
+    }
+  };
+
+  const handleRemovePromo = () => {
+    setAppliedDiscount(null);
+    setPromoCode("");
+    setPromoError("");
+  };
 
   const getSubtotal = () => {
     return getCartTotal();
   };
 
+  const getDiscountAmount = () => {
+    return appliedDiscount?.discountAmount || 0;
+  };
+
+  const getDiscountedSubtotal = () => {
+    return Math.max(0, getSubtotal() - getDiscountAmount());
+  };
+
   const getTransactionFee = () => {
-    return Math.round(getCartTotal() * 0.015 * 100) / 100;
+    return Math.round(getDiscountedSubtotal() * 0.015 * 100) / 100;
   };
 
   const getTotalWithFee = () => {
-    const subtotal = getCartTotal();
-    const fee = Math.round(subtotal * 0.015 * 100) / 100;
-    return Math.round((subtotal + fee) * 100) / 100;
+    const discounted = getDiscountedSubtotal();
+    const fee = Math.round(discounted * 0.015 * 100) / 100;
+    return Math.round((discounted + fee) * 100) / 100;
   };
 
   const handlePlaceOrder = async () => {
@@ -180,15 +221,15 @@ export const Checkout = () => {
 
     try {
       setCurrentStep("Creating order with verified payment...");
-      // Send base price (without transaction fee) to store in order
-      // Payment was made with totalWithFee, but order total excludes the transaction fee
-      const basePrice = getSubtotal();
+      // Send the original cart subtotal (before discount) — the backend
+      // re-validates the discount server-side and computes the final total itself.
       const orderResponse = await createOrder(
         user._id,
         branchId,
         paymentData.reference,
-        basePrice,
+        getSubtotal(),
         comment || undefined,
+        appliedDiscount?.code,
       );
 
       if (!orderResponse.success || !orderResponse.data) {
@@ -354,6 +395,62 @@ export const Checkout = () => {
             </div>
           ))}
         </div>
+        {/* Promo Code Section */}
+        <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
+          {appliedDiscount ? (
+            <div className="flex items-center justify-between bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg px-3 py-2">
+              <div className="flex items-center gap-2">
+                <Tag size={16} weight="fill" className="text-green-600" />
+                <span className="text-sm font-semibold text-green-700 dark:text-green-400">
+                  {appliedDiscount.code}
+                </span>
+                <span className="text-xs text-green-600 dark:text-green-500">
+                  {appliedDiscount.discountType === 'percentage'
+                    ? `${appliedDiscount.discountValue}% off`
+                    : `GHS ${appliedDiscount.discountAmount.toFixed(2)} off`}
+                </span>
+              </div>
+              <button onClick={handleRemovePromo} className="p-1 hover:bg-green-100 dark:hover:bg-green-800 rounded transition-colors">
+                <X size={14} weight="bold" className="text-green-600" />
+              </button>
+            </div>
+          ) : (
+            <div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={promoCode}
+                  onChange={(e) => { setPromoCode(e.target.value.toUpperCase()); setPromoError(""); }}
+                  placeholder="Enter promo code"
+                  className="flex-1 px-3 py-2 text-sm border-2 border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-[#2a2a2a] text-gray-900 dark:text-white placeholder-gray-400 focus:border-[#fbbf24] focus:outline-none"
+                />
+                <button
+                  onClick={handleApplyPromo}
+                  disabled={!promoCode.trim() || isValidatingPromo}
+                  className="px-4 py-2 text-sm font-semibold bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 transition-colors"
+                >
+                  {isValidatingPromo ? <SpinnerGap size={14} className="animate-spin" /> : "Apply"}
+                </button>
+              </div>
+              {promoError && <p className="text-xs text-red-500 mt-1">{promoError}</p>}
+              {branchDiscounts.length > 0 && !promoCode && (
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {branchDiscounts.slice(0, 3).map((d) => (
+                    <button
+                      key={d.id}
+                      onClick={() => { setPromoCode(d.code); }}
+                      className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-bold bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-full hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
+                    >
+                      <Tag size={10} weight="fill" />
+                      {d.code}: {d.discountType === 'percentage' ? `${d.discountValue}% off` : `${d.currency} ${d.discountValue} off`}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
         <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
           <div className="flex justify-between items-center">
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Subtotal</span>
@@ -361,6 +458,16 @@ export const Checkout = () => {
               GHS {getSubtotal().toFixed(2)}
             </span>
           </div>
+          {appliedDiscount && (
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium text-green-600 dark:text-green-400">
+                Discount ({appliedDiscount.code})
+              </span>
+              <span className="text-base font-semibold text-green-600 dark:text-green-400">
+                - GHS {getDiscountAmount().toFixed(2)}
+              </span>
+            </div>
+          )}
           <div className="flex justify-between items-center">
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Transaction Fee (1.5%)

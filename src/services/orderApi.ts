@@ -332,6 +332,66 @@ const handleApiError = (error: unknown, defaultMessage: string): never => {
 	throw error;
 };
 
+// ==================== Discount APIs ====================
+
+export interface DiscountValidationResult {
+	discountId: string;
+	code: string;
+	discountType: 'percentage' | 'fixed';
+	discountValue: number;
+	discountAmount: number;
+	subtotal: number;
+	finalTotal: number;
+}
+
+export interface ActiveBranchDiscount {
+	id: string;
+	code: string;
+	name: string;
+	description?: string;
+	discountType: 'percentage' | 'fixed';
+	discountValue: number;
+	currency: string;
+	targetType: string;
+	minOrderAmount?: number;
+	maxDiscountAmount?: number;
+	startsAt: string;
+	expiresAt?: string;
+}
+
+export const getActiveBranchDiscounts = async (
+	branchId: string
+): Promise<ActiveBranchDiscount[]> => {
+	try {
+		const response = await axios.get<ApiResponse<ActiveBranchDiscount[]>>(
+			`${BASE_URL}/discounts/branch/${branchId}/active`
+		);
+		return response.data.data || [];
+	} catch {
+		return [];
+	}
+};
+
+export const validateDiscountCode = async (
+	code: string,
+	orderTotal: number,
+	branchId?: string
+): Promise<ApiResponse<DiscountValidationResult>> => {
+	try {
+		const response = await axios.post<ApiResponse<DiscountValidationResult>>(
+			`${BASE_URL}/discounts/validate`,
+			{ code, orderTotal, branchId },
+			{ headers: getAuthHeaders() }
+		);
+		return response.data;
+	} catch (error) {
+		if (axios.isAxiosError(error) && error.response?.data) {
+			return error.response.data as ApiResponse<DiscountValidationResult>;
+		}
+		return { success: false, message: 'Failed to validate discount code' } as ApiResponse<DiscountValidationResult>;
+	}
+};
+
 // ==================== Order APIs ====================
 
 export const createOrder = async (
@@ -339,12 +399,13 @@ export const createOrder = async (
 	branchId: string,
 	paymentReference: string,
 	totalPrice: number,
-	comment?: string
+	comment?: string,
+	discountCode?: string,
 ): Promise<ApiResponse<Order>> => {
 	try {
 		const response = await axios.post<ApiResponse<Order>>(
 			`${BASE_URL}/orders`,
-			{ clientId, branchId, paymentReference, totalPrice, comment },
+			{ clientId, branchId, paymentReference, totalPrice, comment, discountCode },
 			{ headers: getAuthHeaders() }
 		);
 		return response.data;

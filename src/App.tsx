@@ -4,6 +4,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { useAuth } from "./hooks/useAuth";
+import { usePaymentRecovery } from "./hooks/usePaymentRecovery";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { ProtectedLayout } from "./components/ProtectedLayout";
 import { Login } from "./pages/Login";
@@ -38,6 +39,7 @@ const queryClient = new QueryClient({
 
 const AppRoutes = () => {
 	const { user, isLoading } = useAuth();
+	usePaymentRecovery();
 
 	if (isLoading) {
 		return (

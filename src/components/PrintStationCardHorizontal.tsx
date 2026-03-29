@@ -1,4 +1,4 @@
-import { Printer, MapPin, Star, Compass } from "@phosphor-icons/react";
+import { Printer, MapPin, Star, Compass, Tag } from "@phosphor-icons/react";
 import type { PrintStation } from "../types/printStation";
 import { formatDistance } from "../utils/stationUtils";
 import { isStationOpen } from "../utils/workingHours";
@@ -58,6 +58,16 @@ export const PrintStationCardHorizontal = ({
             compact={true}
           />
         </div>
+        {station.activeDiscount && (
+          <div className="absolute top-2.5 left-2.5 z-20">
+            <div className="flex items-center gap-0.5 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-lg">
+              <Tag size={9} weight="fill" />
+              {station.activeDiscount.discountType === 'percentage'
+                ? `${station.activeDiscount.discountValue}% OFF`
+                : `${station.activeDiscount.currency || 'GHS'} ${station.activeDiscount.discountValue} OFF`}
+            </div>
+          </div>
+        )}
         {/* Gradient overlay */}
         <div className="absolute inset-x-0 bottom-0 h-10 bg-linear-to-t from-black/20 to-transparent" />
       </div>
@@ -68,7 +78,16 @@ export const PrintStationCardHorizontal = ({
           {station?.businessName || station.name}
         </h3>
 
-        <div className="flex items-center gap-3 mb-2">
+        <div className="flex items-center gap-2 mb-2">
+          {station.performanceTier && (
+            <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-full leading-none ${
+              station.performanceTier === 'diamond'
+                ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white'
+                : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+            }`}>
+              {station.performanceTier === 'diamond' ? '◆' : station.performanceTier}
+            </span>
+          )}
           {station.averageRating !== undefined && station.averageRating > 0 && (
             <div className="flex items-center gap-1 bg-amber-50 dark:bg-amber-900/20 rounded-full px-2 py-0.5">
               <Star size={12} weight="fill" className="text-[#fbbf24]" />

@@ -7,6 +7,7 @@ export const useAgentService = (
 	serviceTemplateId: string | null
 ) => {
 	const [agentService, setAgentService] = useState<AgentService | null>(null);
+	const [commissionRate, setCommissionRate] = useState<number>(0);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
 
@@ -26,7 +27,7 @@ export const useAgentService = (
 				);
 				if (response.success && response.data) {
 					let service: AgentService | undefined;
-					
+
 					if (agentServiceId) {
 						service = response.data.find((s) => s.id === agentServiceId);
 					} else if (serviceTemplateId) {
@@ -37,6 +38,11 @@ export const useAgentService = (
 						setAgentService(service);
 					} else {
 						setError("Agent service not found");
+					}
+
+					// Extract commission rate from response
+					if ((response as any).commissionRate !== undefined) {
+						setCommissionRate(Number((response as any).commissionRate) || 0);
 					}
 				}
 			} catch (err: unknown) {
@@ -52,6 +58,6 @@ export const useAgentService = (
 		fetchAgentService();
 	}, [agentServiceId, branchId, serviceTemplateId]);
 
-	return { agentService, loading, error, setAgentService };
+	return { agentService, commissionRate, loading, error, setAgentService };
 };
 

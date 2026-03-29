@@ -37,6 +37,14 @@ export interface PrintStation {
 		hasFlexiblePricing?: boolean;
 	}>;
 	totalServicesCount?: number; // Total count of services (may be more than displayed)
+	activeDiscount?: {
+		code: string;
+		name: string;
+		discountType: 'percentage' | 'fixed';
+		discountValue: number;
+		currency?: string;
+	};
+	performanceTier?: '2x' | '3x' | '4x' | '5x' | 'diamond';
 }
 
 export interface UserLocation {
