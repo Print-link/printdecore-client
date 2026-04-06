@@ -25,6 +25,8 @@ import { SubCategories } from "./pages/SubCategories";
 import { OrderForm } from "./pages/OrderForm";
 import { Cart } from "./pages/Cart";
 import { Checkout } from "./pages/Checkout";
+import { ArtWorks } from "./pages/ArtWorks";
+import { ArtWorkDetail } from "./pages/ArtWorkDetail";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -80,6 +82,8 @@ const AppRoutes = () => {
 			<Route path="/home" element={<ProtectedLayout />}>
 				<Route index element={<Home />} />
 				<Route path="search" element={<Search />} />
+					<Route path="artworks" element={<ArtWorks />} />
+					<Route path="artworks/:id" element={<ArtWorkDetail />} />
 				<Route path="categories/:id" element={<Categories />} />
 				<Route path="print-station/:id" element={<PrintStationDetails />} />
 				

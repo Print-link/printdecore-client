@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Printer, WarningCircle, ArrowLeft } from "@phosphor-icons/react";
+import { Printer, WarningCircle, ArrowLeft, PaintBrush } from "@phosphor-icons/react";
 import { useAuth } from "../hooks/useAuth";
 import { useGeolocation } from "../hooks/useGeolocation";
 import { useFileHandling } from "../hooks/useFileHandling";
@@ -24,6 +24,7 @@ import { BranchRatingSection } from "../components/ratings/BranchRatingSection";
 import { AuthPrompt } from "../components/AuthPrompt";
 import type { PrintStation } from "../types/printStation";
 import { useQuery } from "@tanstack/react-query";
+import { BranchArtworksTab } from "../components/BranchArtworksTab";
 
 interface UploadStatus {
 	type: "success" | "error";
@@ -75,6 +76,7 @@ export const PrintStationDetails = () => {
 	);
 	const [showPaymentModal, setShowPaymentModal] = useState(false);
 	const [showAuthPrompt, setShowAuthPrompt] = useState(false);
+	const [activeTab, setActiveTab] = useState<"services" | "artworks">("services");
 
 	const categoryType = selectedCategory?.categoryType;
 	const isResultsChecker =
@@ -528,6 +530,47 @@ export const PrintStationDetails = () => {
 				onGetDirections={handleGetDirections}
 			/>
 
+			{/* Tabs: Services | Art Works */}
+			<div className="flex gap-1 p-1 mb-6 sm:mb-8 bg-gray-100 dark:bg-gray-800 rounded-xl">
+				<button
+					onClick={() => setActiveTab("services")}
+					className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+						activeTab === "services"
+							? "bg-white dark:bg-[#1e1e1e] text-gray-900 dark:text-white shadow-sm"
+							: "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+					}`}
+				>
+					<Printer size={16} weight={activeTab === "services" ? "fill" : "regular"} />
+					Services
+				</button>
+				<button
+					onClick={() => setActiveTab("artworks")}
+					className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+						activeTab === "artworks"
+							? "bg-white dark:bg-[#1e1e1e] text-gray-900 dark:text-white shadow-sm"
+							: "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+					}`}
+				>
+					<PaintBrush size={16} weight={activeTab === "artworks" ? "fill" : "regular"} />
+					Art Works
+				</button>
+			</div>
+
+			{activeTab === "artworks" && id ? (
+				<>
+					<BranchArtworksTab branchId={id} />
+
+					{/* Rating Section */}
+					<div className="mt-12 pt-12 border-t border-gray-200 dark:border-gray-700">
+						<BranchRatingSection
+							branchId={id}
+							averageRating={printStation?.averageRating}
+							totalRatings={printStation?.totalRatings}
+						/>
+					</div>
+				</>
+			) : (
+			<>
 			<div className="text-center mb-6 sm:mb-8">
 				<div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-slate-100 rounded-full mb-3 sm:mb-4">
 					<Printer size={32} weight="duotone" className="text-[#fbbf24]" />
@@ -685,6 +728,8 @@ export const PrintStationDetails = () => {
 						totalRatings={printStation?.totalRatings}
 					/>
 				</div>
+			)}
+			</>
 			)}
 		</div>
 	);

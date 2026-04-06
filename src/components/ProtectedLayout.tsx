@@ -17,6 +17,7 @@ import {
 	CaretDown,
 	CaretUp,
 	Sparkle,
+	PaintBrush,
 } from "@phosphor-icons/react";
 import { useAuth } from "../hooks/useAuth";
 import { useCart } from "../contexts/CartContext";
@@ -44,6 +45,7 @@ export const ProtectedLayout = () => {
 	const [activeTab, setActiveTab] = useState(() => {
 		if (location.pathname.includes("/history")) return "history";
 		if (location.pathname.includes("/search")) return "search";
+		if (location.pathname.includes("/artworks")) return "artworks";
 		if (location.pathname.includes("/order/cart")) return "cart";
 		return "home";
 	});
@@ -55,6 +57,8 @@ export const ProtectedLayout = () => {
 			setActiveTab("history");
 		} else if (location.pathname.includes("/search")) {
 			setActiveTab("search");
+		} else if (location.pathname.includes("/artworks")) {
+			setActiveTab("artworks");
 		} else if (location.pathname.includes("/order/cart")) {
 			setActiveTab("cart");
 		} else {
@@ -70,7 +74,7 @@ export const ProtectedLayout = () => {
 		navigate("/login");
 	};
 
-	const handleTabChange = (tab: "home" | "history" | "search" | "cart") => {
+	const handleTabChange = (tab: "home" | "history" | "search" | "cart" | "artworks") => {
 		if (!user && (tab === "history" || tab === "cart")) {
 			navigate("/login");
 			return;
@@ -82,6 +86,8 @@ export const ProtectedLayout = () => {
 			navigate("/home/history");
 		} else if (tab === "search") {
 			navigate("/home/search");
+		} else if (tab === "artworks") {
+			navigate("/home/artworks");
 		} else if (tab === "cart" && branchId) {
 			navigate(`/home/order/cart/${branchId}`);
 		}
@@ -100,7 +106,7 @@ export const ProtectedLayout = () => {
 	};
 
 	const navItem = (
-		tab: "home" | "history" | "search" | "cart",
+		tab: "home" | "history" | "search" | "cart" | "artworks",
 		icon: React.ReactNode,
 		label: string,
 		badge?: number,
@@ -182,6 +188,7 @@ export const ProtectedLayout = () => {
 					</p>
 					{navItem("home", <House size={20} weight="duotone" />, "Home")}
 					{navItem("search", <MagnifyingGlass size={20} weight="regular" />, "Search")}
+					{navItem("artworks", <PaintBrush size={20} weight="duotone" />, "Art Works")}
 
 					{/* My Account section */}
 					{user && (
@@ -395,12 +402,18 @@ export const ProtectedLayout = () => {
 											? "Print Agents"
 											: activeTab === "search"
 											? "Search Services"
+											: activeTab === "artworks"
+											? "Art Works"
 											: activeTab === "cart"
 											? "Printing Tray"
 											: "Print History"}
 									</h1>
 									<p className="text-[10px] font-bold text-[#fbbf24] uppercase tracking-widest leading-tight">
-										{activeTab === "home" ? "Find a branch near you" : "Printdecore"}
+										{activeTab === "home"
+											? "Find a branch near you"
+											: activeTab === "artworks"
+											? "Explore branch creations"
+											: "Printdecore"}
 									</p>
 								</div>
 							</div>
