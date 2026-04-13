@@ -9,8 +9,6 @@ import {
 	MapPin,
 	EnvelopeSimple,
 	Phone,
-	SignIn,
-	User,
 	ClockCounterClockwise,
 } from "@phosphor-icons/react";
 import { toast } from "react-toastify";
@@ -82,6 +80,7 @@ export const WhatsAppQuotePayment = () => {
 	const [declining, setDeclining] = useState(false);
 	const [logoError, setLogoError] = useState(false);
 	const [claimed, setClaimed] = useState(false);
+	const [guestEmail, setGuestEmail] = useState("");
 
 	const paymentWindowRef = useRef<Window | null>(null);
 	const messageHandlerRef = useRef<((e: MessageEvent) => void) | null>(null);
@@ -168,47 +167,86 @@ export const WhatsAppQuotePayment = () => {
 
 	useEffect(() => cleanupListeners, [cleanupListeners]);
 
-	// ─── Verify payment (authenticated) ─────────────────────────────────
+	// ─── Poll payment status (webhook-first approach) ───────────────────
+	// After the Paystack popup closes, we poll the backend status endpoint.
+	// The webhook processes the charge.success event server-side, so the
+	// quote flips to "paid" without the frontend needing to call /verify.
+	// If polling finds it paid, we're done. If not after ~30s, we call
+	// /verify as a fallback to trigger verification manually.
 
-	const verifyPayment = useCallback(
-		async (reference: string) => {
-			if (!token || hasVerifiedRef.current) return;
-			hasVerifiedRef.current = true;
+	const pollStatusRef = useRef<ReturnType<typeof setInterval> | null>(null);
+	const pollCountRef = useRef(0);
+	const MAX_POLLS = 15; // 15 × 2s = 30s
 
+	const stopPolling = useCallback(() => {
+		if (pollStatusRef.current) {
+			clearInterval(pollStatusRef.current);
+			pollStatusRef.current = null;
+		}
+		pollCountRef.current = 0;
+	}, []);
+
+	const startPolling = useCallback(
+		(reference: string) => {
+			if (!token) return;
 			setVerifying(true);
 			cleanupListeners();
+			pollCountRef.current = 0;
 
-			try {
-				const response = await axios.post(
-					`${BASE_URL}/whatsapp-quotes/pay/${token}/verify`,
-					{ reference },
-					{ headers: authHeaders() }
-				);
+			pollStatusRef.current = setInterval(async () => {
+				pollCountRef.current += 1;
 
-				if (response.data.success) {
-					setPaymentSuccess(true);
-					toast.success("Payment confirmed! Your order has been recorded.");
-				} else {
-					hasVerifiedRef.current = false;
-					toast.error(
-						"Payment could not be verified. Please contact support."
+				try {
+					const res = await axios.get(
+						`${BASE_URL}/whatsapp-quotes/pay/${token}/status`
 					);
+					if (res.data?.data?.paymentStatus === "paid") {
+						stopPolling();
+						setPaymentSuccess(true);
+						setVerifying(false);
+						setPaying(false);
+						toast.success("Payment confirmed! Your order has been recorded.");
+						return;
+					}
+				} catch {
+					// Network blip — keep polling
 				}
-			} catch {
-				hasVerifiedRef.current = false;
-				toast.error("Payment verification failed. Please contact support.");
-			} finally {
-				setVerifying(false);
-				setPaying(false);
-			}
+
+				// Fallback: if webhook hasn't processed after MAX_POLLS, call /verify directly
+				if (pollCountRef.current >= MAX_POLLS) {
+					stopPolling();
+					try {
+						const verifyRes = await axios.post(
+							`${BASE_URL}/whatsapp-quotes/pay/${token}/verify`,
+							{ reference },
+							{ headers: authHeaders() }
+						);
+						if (verifyRes.data.success) {
+							setPaymentSuccess(true);
+							toast.success("Payment confirmed! Your order has been recorded.");
+						} else {
+							toast.error("Payment could not be verified. Please contact the business.");
+						}
+					} catch {
+						toast.error("Payment verification timed out. If you were charged, the business will be notified automatically.");
+					} finally {
+						setVerifying(false);
+						setPaying(false);
+					}
+				}
+			}, 2000);
 		},
-		[token, cleanupListeners]
+		[token, cleanupListeners, stopPolling]
 	);
+
+	// Cleanup polling on unmount
+	useEffect(() => () => stopPolling(), [stopPolling]);
 
 	// ─── Initialize payment ─────────────────────────────────────────────
 
 	const handlePay = useCallback(async () => {
-		if (!token || !quote || !user) return;
+		if (!token || !quote) return;
+		const email = user?.email || guestEmail.trim() || undefined;
 
 		setPaying(true);
 		hasVerifiedRef.current = false;
@@ -216,14 +254,13 @@ export const WhatsAppQuotePayment = () => {
 		try {
 			const response = await axios.post(
 				`${BASE_URL}/whatsapp-quotes/pay/${token}/initialize`,
-				{ email: user.email }
+				email ? { email } : {}
 			);
 
 			if (
 				response.data.success &&
 				response.data.data?.authorization_url
 			) {
-				// Store the reference so we can verify even if postMessage fails
 				paymentRefRef.current = response.data.data.reference || null;
 
 				const windowName = `PaystackPayment_${Date.now()}`;
@@ -237,45 +274,45 @@ export const WhatsAppQuotePayment = () => {
 					!paymentWindowRef.current ||
 					paymentWindowRef.current.closed
 				) {
-					// Store return URL so PaymentCallback can redirect back
 					sessionStorage.setItem("payment_return_url", `/quote/pay/${token}`);
 					window.location.href = response.data.data.authorization_url;
 					return;
 				}
 
+				// When popup closes, start polling — the webhook will have
+				// already verified the payment server-side in most cases.
+				windowCheckRef.current = setInterval(() => {
+					if (paymentWindowRef.current?.closed) {
+						cleanupListeners();
+						if (!hasVerifiedRef.current && paymentRefRef.current) {
+							hasVerifiedRef.current = true;
+							startPolling(paymentRefRef.current);
+						}
+					}
+				}, 1000);
+
+				// Also listen for postMessage as a fast-path
 				const handleMessage = (event: MessageEvent) => {
 					if (event.origin !== window.location.origin) return;
 					const ref = event.data?.reference;
 					if (!ref) return;
 
 					if (event.data?.type === "PAYSTACK_SUCCESS") {
-						verifyPayment(ref);
+						hasVerifiedRef.current = true;
+						cleanupListeners();
+						startPolling(ref);
 					} else if (
 						event.data?.type === "PAYSTACK_FAILED" ||
 						event.data?.type === "PAYSTACK_ERROR"
 					) {
 						cleanupListeners();
 						setPaying(false);
-						toast.error(
-							"Payment was cancelled or failed. Please try again."
-						);
+						toast.error("Payment was cancelled or failed. Please try again.");
 					}
 				};
 
 				messageHandlerRef.current = handleMessage;
 				window.addEventListener("message", handleMessage);
-
-				// When popup closes, try to verify using the stored reference.
-				// The postMessage may have been missed due to timing.
-				windowCheckRef.current = setInterval(() => {
-					if (paymentWindowRef.current?.closed) {
-						cleanupListeners();
-						// If we haven't verified yet, try with the stored reference
-						if (!hasVerifiedRef.current && paymentRefRef.current) {
-							verifyPayment(paymentRefRef.current);
-						}
-					}
-				}, 1000);
 			} else {
 				throw new Error(
 					response.data.message || "Failed to initialize payment"
@@ -293,7 +330,7 @@ export const WhatsAppQuotePayment = () => {
 			);
 			setPaying(false);
 		}
-	}, [token, quote, user, cleanupListeners, verifyPayment]);
+	}, [token, quote, user, guestEmail, cleanupListeners, startPolling]);
 
 	// ─── Decline quote ──────────────────────────────────────────────────
 
@@ -386,10 +423,11 @@ export const WhatsAppQuotePayment = () => {
 						has been received.
 					</p>
 					<p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
-						This order is now in your order history. The business has
-						been notified and will process it.
+						{user
+							? "This order is now in your order history. The business has been notified and will process it."
+							: "The business has been notified and will process your order. A confirmation has been sent to your email."}
 					</p>
-					{user && (
+					{user ? (
 						<button
 							onClick={() => navigate("/home/history")}
 							className="inline-flex items-center gap-2 px-6 py-3 bg-[#fbbf24] text-white rounded-lg font-semibold hover:bg-[#f59e0b] transition-colors"
@@ -397,6 +435,16 @@ export const WhatsAppQuotePayment = () => {
 							<ClockCounterClockwise size={16} weight="bold" />
 							View Order History
 						</button>
+					) : (
+						<p className="text-xs text-gray-400 dark:text-gray-500">
+							{quote.contactName && (
+								<span className="font-medium text-gray-600 dark:text-gray-300">
+									{quote.contactName}
+								</span>
+							)}
+							{quote.contactName && " — "}
+							Payment reference saved to your WhatsApp chat.
+						</p>
 					)}
 				</div>
 			</div>
@@ -627,114 +675,84 @@ export const WhatsAppQuotePayment = () => {
 					);
 				})()}
 
-				{/* Auth Gate + Payment */}
+				{/* Payment */}
 				{isPayable && (
 					<div className="bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-2xl p-6 mb-6">
-						{!user ? (
-							/* ─── Not logged in — show auth prompt ────────── */
-							<div className="text-center py-4">
-								<div className="w-14 h-14 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-									<User size={28} weight="duotone" className="text-gray-400 dark:text-gray-500" />
+						{user ? (
+							/* ─── Logged in — show identity ────────────────── */
+							<div className="flex items-center gap-3 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/30 mb-5">
+								<div className="w-8 h-8 bg-green-100 dark:bg-green-800/40 rounded-full flex items-center justify-center flex-shrink-0">
+									<CheckCircle size={16} weight="duotone" className="text-green-600 dark:text-green-400" />
 								</div>
-								<h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-									Sign in to continue
-								</h3>
-								<p className="text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-sm mx-auto">
-									Please log in or create an account to make
-									payment. This ensures your order is saved to
-									your account and you can track it.
-								</p>
-								<div className="flex flex-col sm:flex-row gap-3 max-w-sm mx-auto">
-									<button
-										onClick={() =>
-											navigate(
-												`/login?returnUrl=${encodeURIComponent(
-													`/quote/pay/${token}`
-												)}`
-											)
-										}
-										className="flex-1 py-3 px-6 bg-[#fbbf24] text-white rounded-lg font-semibold hover:bg-[#f59e0b] transition-colors flex items-center justify-center gap-2"
-									>
-										<SignIn size={16} weight="bold" />
-										Log In
-									</button>
-									<button
-										onClick={() =>
-											navigate(
-												`/register?returnUrl=${encodeURIComponent(
-													`/quote/pay/${token}`
-												)}`
-											)
-										}
-										className="flex-1 py-3 px-6 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-semibold hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all flex items-center justify-center gap-2"
-									>
-										Create Account
-									</button>
+								<div className="flex-1 min-w-0">
+									<p className="text-sm font-medium text-green-800 dark:text-green-300">
+										Signed in as {user.firstName} {user.lastName}
+									</p>
+									<p className="text-xs text-green-600 dark:text-green-400 truncate">
+										{user.email}
+									</p>
 								</div>
-								<button
-									onClick={handleDecline}
-									disabled={declining}
-									className="mt-4 text-sm text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
-								>
-									{declining
-										? "Declining..."
-										: "Decline this quote"}
-								</button>
 							</div>
 						) : (
-							/* ─── Logged in — show payment actions ────────── */
-							<>
-								{/* Logged in as */}
-								<div className="flex items-center gap-3 p-3 rounded-lg bg-green-50 border border-green-200 mb-5">
-									<div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-										<CheckCircle size={16} weight="duotone" className="text-green-600" />
-									</div>
-									<div className="flex-1 min-w-0">
-										<p className="text-sm font-medium text-green-800">
-											Signed in as{" "}
-											{user.firstName} {user.lastName}
-										</p>
-										<p className="text-xs text-green-600 truncate">
-											{user.email}
-										</p>
-									</div>
+							/* ─── Guest — email input ──────────────────────── */
+							<div className="mb-5">
+								<label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+									Email for receipt <span className="text-gray-400 dark:text-gray-500 font-normal">(optional)</span>
+								</label>
+								<div className="relative">
+									<EnvelopeSimple
+										size={18}
+										weight="regular"
+										className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
+									/>
+									<input
+										type="email"
+										value={guestEmail}
+										onChange={(e) => setGuestEmail(e.target.value)}
+										placeholder="Enter your email address"
+										className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#fbbf24]/50 focus:border-[#fbbf24] transition-all"
+									/>
 								</div>
-
-								{/* Action Buttons */}
-								<div className="flex flex-col sm:flex-row gap-3">
-									<button
-										onClick={handleDecline}
-										disabled={declining || paying}
-										className="flex-1 py-3 px-6 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-semibold hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-									>
-										{declining
-											? "Declining..."
-											: "Decline"}
-									</button>
-									<button
-										onClick={handlePay}
-										disabled={paying}
-										className="flex-1 py-3 px-6 bg-[#fbbf24] text-white rounded-lg font-semibold hover:bg-[#f59e0b] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-									>
-										{paying ? (
-											<>
-												<div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-												Processing...
-											</>
-										) : (
-											<>
-												<CheckCircle size={20} weight="bold" />
-												Pay{" "}
-												{formatCurrency(
-													quote.amount + calcTransactionFee(quote.amount),
-													quote.currency
-												)}
-											</>
-										)}
-									</button>
-								</div>
-							</>
+								{quote.contactName && (
+									<p className="text-xs text-gray-400 dark:text-gray-500 mt-2 flex items-center gap-1.5">
+										<Phone size={12} />
+										Paying as {quote.contactName}
+									</p>
+								)}
+							</div>
 						)}
+
+						{/* Action Buttons */}
+						<div className="flex flex-col sm:flex-row gap-3">
+							<button
+								onClick={handleDecline}
+								disabled={declining || paying}
+								className="flex-1 py-3 px-6 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-semibold hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+							>
+								{declining ? "Declining..." : "Decline"}
+							</button>
+							<button
+								onClick={handlePay}
+								disabled={paying}
+								className="flex-1 py-3 px-6 bg-[#fbbf24] text-white rounded-lg font-semibold hover:bg-[#f59e0b] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+							>
+								{paying ? (
+									<>
+										<div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+										Processing...
+									</>
+								) : (
+									<>
+										<CheckCircle size={20} weight="bold" />
+										Pay{" "}
+										{formatCurrency(
+											quote.amount + calcTransactionFee(quote.amount),
+											quote.currency
+										)}
+									</>
+								)}
+							</button>
+						</div>
 					</div>
 				)}
 
