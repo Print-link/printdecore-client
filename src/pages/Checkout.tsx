@@ -131,12 +131,12 @@ export const Checkout = () => {
   };
 
   const getTransactionFee = () => {
-    return Math.round(getDiscountedSubtotal() * 0.015 * 100) / 100;
+    return Math.round(getDiscountedSubtotal() * 0.0195 * 100) / 100;
   };
 
   const getTotalWithFee = () => {
     const discounted = getDiscountedSubtotal();
-    const fee = Math.round(discounted * 0.015 * 100) / 100;
+    const fee = Math.round(discounted * 0.0195 * 100) / 100;
     return Math.round((discounted + fee) * 100) / 100;
   };
 
@@ -470,7 +470,7 @@ export const Checkout = () => {
           )}
           <div className="flex justify-between items-center">
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Transaction Fee (1.5%)
+              Transaction Fee (1.95%)
             </span>
             <span className="text-base font-semibold text-gray-900 dark:text-white">
               GHS {getTransactionFee().toFixed(2)}

@@ -186,7 +186,7 @@ export const Cart = () => {
 							Transaction Fee
 						</span>
 						<span className="text-lg font-semibold text-gray-900 dark:text-white">
-							GHS {(getCartTotal() * 0.015).toFixed(2)}
+							GHS {(getCartTotal() * 0.0195).toFixed(2)}
 						</span>
 					</div>
 					<div className="pt-3 border-t-2 border-gray-200 dark:border-gray-700 flex justify-between items-center">

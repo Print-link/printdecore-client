@@ -40,7 +40,7 @@ interface QuoteData {
 
 // ─── Helpers ───────────────────────────────────────────────────────────
 
-const TRANSACTION_FEE_RATE = 0.015; // 1.5%
+const TRANSACTION_FEE_RATE = 0.0195; // 1.95%
 
 const formatCurrency = (amount: number, currency: string) => {
 	const symbols: Record<string, string> = {
@@ -656,7 +656,7 @@ export const WhatsAppQuotePayment = () => {
 								</div>
 								<div className="flex items-center justify-between">
 									<span className="text-sm text-gray-600 dark:text-gray-400">
-										Transaction fee (1.5%)
+										Transaction fee (1.95%)
 									</span>
 									<span className="text-sm font-medium text-gray-900 dark:text-white">
 										{formatCurrency(transactionFee, quote.currency)}
