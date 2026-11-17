@@ -1,304 +1,92 @@
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChartLineUp, Star, Lightning, Sparkle, MagnifyingGlass, CaretDown, MapPin, Wrench } from "@phosphor-icons/react";
+import { ChatCircleDots, MagnifyingGlass, Storefront } from "@phosphor-icons/react";
 import { useGeolocation } from "../hooks/useGeolocation";
-import { usePrintStations } from "../hooks/usePrintStations";
 import { useCategories } from "../hooks/useCategories";
-import { filterStations, type SearchMode } from "../utils/stationUtils";
-import { LocationStatus } from "../components/LocationStatus";
-import { PrintStationCardHorizontal } from "../components/PrintStationCardHorizontal";
+import { useMarketplaceVendors } from "../hooks/useMarketplace";
 import { CategoryCardHorizontal } from "../components/CategoryCardHorizontal";
 import { HorizontalScrollSection } from "../components/HorizontalScrollSection";
-import { EmptyState } from "../components/EmptyState";
-import { LoadingState } from "../components/LoadingState";
-import { ErrorState } from "../components/ErrorState";
+import { VendorCard } from "../components/marketplace/VendorCard";
 
+/**
+ * Two ways to order: let Printdecore handle it (the catalogue, or the Print
+ * Assistant for anything unusual), or choose a shop and order at its prices.
+ */
 export const Home = () => {
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [searchMode, setSearchMode] = useState<SearchMode | undefined>(undefined);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
+	const navigate = useNavigate();
+	const [search, setSearch] = useState("");
+	const { userLocation } = useGeolocation();
+	const { data: categories = [], isLoading: categoriesLoading } = useCategories();
+	const { data: shops = [] } = useMarketplaceVendors(userLocation);
 
-  const { userLocation, locationError, locationPermission, requestLocation } =
-    useGeolocation();
+	return (
+		<div className="w-full max-w-5xl mx-auto">
+			<div className="mb-8 mt-1">
+				<p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Printdecore</p>
+				<h1 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white mb-5 leading-tight">What do you need printed?</h1>
+				<form
+					onSubmit={(e) => {
+						e.preventDefault();
+						if (search.trim()) navigate(`/home/search?q=${encodeURIComponent(search.trim())}`);
+					}}
+					className="relative"
+				>
+					<MagnifyingGlass size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+					<input
+						type="search"
+						value={search}
+						onChange={(e) => setSearch(e.target.value)}
+						placeholder="Business cards, banners, flyers…"
+						aria-label="Search products"
+						className="w-full pl-10 pr-4 py-3 text-sm bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-2xl text-gray-800 dark:text-gray-200 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#fbbf24]/50 focus:border-[#fbbf24]"
+					/>
+				</form>
+			</div>
 
-  const { printStations, loading, error } = usePrintStations(
-    userLocation,
-    locationPermission,
-  );
+			<div className="grid sm:grid-cols-2 gap-3 mb-8">
+				<button
+					type="button"
+					onClick={() => navigate("/home/print-assistant")}
+					className="flex items-start gap-3 p-4 text-left rounded-2xl bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 hover:border-[#fbbf24]"
+				>
+					<ChatCircleDots size={28} weight="duotone" className="text-[#d97706] shrink-0" />
+					<span>
+						<span className="block font-bold text-gray-900 dark:text-white">Print Assistant</span>
+						<span className="block text-sm text-gray-600 dark:text-gray-400">Tell us what you need. We price it, or send you a quote.</span>
+					</span>
+				</button>
+				<button
+					type="button"
+					onClick={() => navigate("/home/shops")}
+					className="flex items-start gap-3 p-4 text-left rounded-2xl bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-800 hover:border-[#fbbf24]"
+				>
+					<Storefront size={28} weight="duotone" className="text-[#d97706] shrink-0" />
+					<span>
+						<span className="block font-bold text-gray-900 dark:text-white">Choose a print shop</span>
+						<span className="block text-sm text-gray-600 dark:text-gray-400">Order from a shop near you at its prices, and pay now.</span>
+					</span>
+				</button>
+			</div>
 
-  const { data: categories = [], isLoading: categoriesLoading } =
-    useCategories();
+			{!categoriesLoading && categories.length > 0 && (
+				<HorizontalScrollSection title="Order through Printdecore" subtitle="We find a printer near you and handle it">
+					{categories.map((category) => (
+						<CategoryCardHorizontal
+							key={category.id}
+							category={category}
+							onCategoryClick={(id) => navigate(`/home/category/${id}?name=${encodeURIComponent(category.name)}`)}
+						/>
+					))}
+				</HorizontalScrollSection>
+			)}
 
-  const filteredStations = useMemo(
-    () => filterStations(printStations, searchQuery, searchMode),
-    [printStations, searchQuery, searchMode],
-  );
-
-  // Close dropdown on outside click
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const popularStations = useMemo(() => {
-    return [...printStations]
-      .sort((a, b) => (b.averageRating || 0) - (a.averageRating || 0))
-      .slice(0, 10);
-  }, [printStations]);
-
-  const topRatedStations = useMemo(() => {
-    return [...printStations]
-      .filter((station) => (station.averageRating || 0) >= 4.0)
-      .sort((a, b) => (b.averageRating || 0) - (a.averageRating || 0))
-      .slice(0, 10);
-  }, [printStations]);
-
-  const fastDeliveryStations = useMemo(() => {
-    return [...printStations]
-      .filter((station) => station.distance !== undefined)
-      .sort((a, b) => (a.distance || Infinity) - (b.distance || Infinity))
-      .slice(0, 10);
-  }, [printStations]);
-
-  const newStations = useMemo(() => {
-    return [...printStations].sort(() => Math.random() - 0.5).slice(0, 10);
-  }, [printStations]);
-
-  const handleStationClick = (stationId: string) => {
-    navigate(`/home/categories/${stationId}`);
-  };
-
-  const handleCategoryClick = (categoryId: string) => {
-    navigate(`/home/search?categoryId=${categoryId}`);
-  };
-
-  const clearSearch = () => setSearchQuery("");
-
-  if (loading) return <LoadingState />;
-  if (error) return <ErrorState error={error} />;
-
-  return (
-    <div className="w-full max-w-5xl mx-auto">
-      <LocationStatus
-        locationError={locationError}
-        locationPermission={locationPermission}
-        userLocation={userLocation}
-        onRequestLocation={requestLocation}
-      />
-
-      {/* Search area */}
-      <div className="mb-8 mt-1">
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
-          Printdecore
-        </p>
-        <h1 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white mb-5 leading-tight">
-          Find a print agent<br className="sm:hidden" /> near you
-        </h1>
-
-        {/* Branch filter with search mode dropdown */}
-        <div className="flex gap-2">
-          <div className="relative flex-1">
-            <MagnifyingGlass size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 pointer-events-none" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={
-                searchMode === "location"
-                  ? "Search by location…"
-                  : searchMode === "service"
-                  ? "Search by service…"
-                  : "Filter by branch name…"
-              }
-              className="w-full pl-10 pr-4 py-3 text-sm bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-2xl text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#fbbf24]/50 focus:border-[#fbbf24] transition-all"
-            />
-          </div>
-
-          {/* Search mode dropdown */}
-          <div className="relative" ref={dropdownRef}>
-            <button
-              onClick={() => setDropdownOpen((prev) => !prev)}
-              className="flex items-center gap-1.5 px-3.5 py-3 text-sm font-medium bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-2xl text-gray-700 dark:text-gray-300 shadow-sm hover:border-[#fbbf24]/60 focus:outline-none focus:ring-2 focus:ring-[#fbbf24]/50 transition-all whitespace-nowrap"
-            >
-              {searchMode === "location" ? (
-                <MapPin size={16} weight="regular" className="text-[#fbbf24]" />
-              ) : searchMode === "service" ? (
-                <Wrench size={16} weight="regular" className="text-[#fbbf24]" />
-              ) : (
-                <MagnifyingGlass size={16} weight="regular" className="text-gray-400" />
-              )}
-              <span className="hidden sm:inline">
-                {searchMode === "location"
-                  ? "Location"
-                  : searchMode === "service"
-                  ? "Service"
-                  : "Branch"}
-              </span>
-              <CaretDown size={14} weight="bold" className="text-gray-400" />
-            </button>
-
-            {dropdownOpen && (
-              <div className="absolute right-0 z-50 mt-2 w-44 bg-white dark:bg-[#1e1e1e] border border-gray-100 dark:border-gray-700 rounded-xl shadow-xl shadow-black/8 overflow-hidden">
-                <button
-                  onClick={() => { setSearchMode(undefined); setDropdownOpen(false); setSearchQuery(""); }}
-                  className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-800/60 transition-colors ${
-                    !searchMode ? "text-[#fbbf24] font-semibold bg-amber-50/50 dark:bg-amber-900/10" : "text-gray-700 dark:text-gray-300"
-                  }`}
-                >
-                  <MagnifyingGlass size={16} weight="regular" />
-                  Branch
-                </button>
-                <button
-                  onClick={() => { setSearchMode("location"); setDropdownOpen(false); setSearchQuery(""); }}
-                  className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-800/60 transition-colors ${
-                    searchMode === "location" ? "text-[#fbbf24] font-semibold bg-amber-50/50 dark:bg-amber-900/10" : "text-gray-700 dark:text-gray-300"
-                  }`}
-                >
-                  <MapPin size={16} weight="regular" />
-                  Location
-                </button>
-                <button
-                  onClick={() => { setSearchMode("service"); setDropdownOpen(false); setSearchQuery(""); }}
-                  className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-800/60 transition-colors ${
-                    searchMode === "service" ? "text-[#fbbf24] font-semibold bg-amber-50/50 dark:bg-amber-900/10" : "text-gray-700 dark:text-gray-300"
-                  }`}
-                >
-                  <Wrench size={16} weight="regular" />
-                  Service
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Branch search results */}
-      {searchQuery && (
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base font-bold text-gray-900 dark:text-white">
-              Results for "{searchQuery}"
-            </h2>
-            <button
-              onClick={clearSearch}
-              className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-            >
-              Clear
-            </button>
-          </div>
-          {filteredStations.length === 0 ? (
-            <EmptyState type="no-results" onClearSearch={clearSearch} />
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {filteredStations.map((station) => (
-                <PrintStationCardHorizontal
-                  key={station._id || station.id}
-                  station={station}
-                  onStationClick={handleStationClick}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Marketplace feed */}
-      {!searchQuery && (
-        <div className="space-y-1">
-          {popularStations.length > 0 && (
-            <HorizontalScrollSection
-              title="Popular"
-              subtitle="Most visited by customers"
-              icon={<ChartLineUp size={16} weight="duotone" className="text-[#fbbf24]" />}
-              showAllLink="/home/search?sort=popular"
-            >
-              {popularStations.map((station) => (
-                <PrintStationCardHorizontal
-                  key={station._id || station.id}
-                  station={station}
-                  onStationClick={handleStationClick}
-                />
-              ))}
-            </HorizontalScrollSection>
-          )}
-
-          {!categoriesLoading && categories.length > 0 && (
-            <HorizontalScrollSection
-              title="Categories"
-              subtitle="Browse by service type"
-              showAllLink="/home/categories"
-            >
-              {categories.map((category) => (
-                <CategoryCardHorizontal
-                  key={category.id}
-                  category={category}
-                  onCategoryClick={handleCategoryClick}
-                />
-              ))}
-            </HorizontalScrollSection>
-          )}
-
-          {topRatedStations.length > 0 && (
-            <HorizontalScrollSection
-              title="Top Rated"
-              subtitle="Highest rated by our users"
-              icon={<Star size={16} weight="fill" className="text-[#fbbf24]" />}
-              showAllLink="/home/search?sort=rating"
-            >
-              {topRatedStations.map((station) => (
-                <PrintStationCardHorizontal
-                  key={station._id || station.id}
-                  station={station}
-                  onStationClick={handleStationClick}
-                />
-              ))}
-            </HorizontalScrollSection>
-          )}
-
-          {fastDeliveryStations.length > 0 && (
-            <HorizontalScrollSection
-              title="Nearest to You"
-              subtitle="Closest agents in your area"
-              icon={<Lightning size={16} weight="duotone" className="text-[#fbbf24]" />}
-              showAllLink="/home/search?sort=distance"
-            >
-              {fastDeliveryStations.map((station) => (
-                <PrintStationCardHorizontal
-                  key={station._id || station.id}
-                  station={station}
-                  onStationClick={handleStationClick}
-                />
-              ))}
-            </HorizontalScrollSection>
-          )}
-
-          {newStations.length > 0 && (
-            <HorizontalScrollSection
-              title="New on Printdecore"
-              subtitle="Recently joined agents"
-              icon={<Sparkle size={16} weight="duotone" className="text-[#fbbf24]" />}
-              showAllLink="/home/search?sort=new"
-            >
-              {newStations.map((station) => (
-                <PrintStationCardHorizontal
-                  key={station._id || station.id}
-                  station={station}
-                  onStationClick={handleStationClick}
-                />
-              ))}
-            </HorizontalScrollSection>
-          )}
-
-          {printStations.length === 0 && <EmptyState type="no-stations" />}
-        </div>
-      )}
-    </div>
-  );
+			{shops.length > 0 && (
+				<HorizontalScrollSection title="Print shops near you" subtitle="Their prices, paid at checkout" showAllLink="/home/shops">
+					{shops.slice(0, 10).map((shop) => (
+						<VendorCard key={shop.id} vendor={shop} compact onClick={() => navigate(`/home/shops/${shop.id}`)} />
+					))}
+				</HorizontalScrollSection>
+			)}
+		</div>
+	);
 };

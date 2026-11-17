@@ -36,28 +36,3 @@ export const countPdfPages = async (file: File): Promise<number> => {
 	});
 };
 
-/**
- * Calculate the total price for regular format printing
- * @param pageCount - Number of pages in the PDF
- * @param regularFormatProperties - "front_only" or "front_and_back"
- * @param unitPrice - Price per unit (page or sheet)
- * @param numberOfCopies - Number of copies to print
- * @returns The total price to be paid
- */
-export const calculateRegularFormatPrice = (
-	pageCount: number,
-	regularFormatProperties: "front_only" | "front_and_back",
-	unitPrice: number,
-	numberOfCopies: number
-): number => {
-	if (regularFormatProperties === "front_only") {
-		// front_only: pages × unitPrice × copies
-		return pageCount * unitPrice * numberOfCopies;
-	} else {
-		// front_and_back: (pages / 2) × unitPrice × copies
-		// Round up to handle odd number of pages (e.g., 5 pages = 3 sheets)
-		const sheets = Math.ceil(pageCount / 2);
-		return sheets * unitPrice * numberOfCopies;
-	}
-};
-

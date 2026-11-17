@@ -63,6 +63,10 @@ export const OrderItemCard = ({ item, index }: OrderItemCardProps) => {
 				</div>
 			</div>
 
+			{item.quote?.summary && item.quote.summary.length > 0 && (
+				<p className="text-xs text-gray-600 dark:text-gray-400 mb-3">{item.quote.summary.join(" · ")}</p>
+			)}
+
 			{/* Details Grid */}
 			<div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 mb-3">
 				{item.width && item.height && (

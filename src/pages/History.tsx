@@ -38,6 +38,14 @@ const STATUS_CONFIG: Record<OrderStatus, { color: string; bg: string; border: st
 	RECEIVED: { color: "text-cyan-700", bg: "bg-cyan-50 dark:bg-cyan-900/20", border: "border-cyan-200 dark:border-cyan-800", dot: "bg-cyan-500", label: "Received" },
 	IN_PROGRESS: { color: "text-violet-700", bg: "bg-violet-50 dark:bg-violet-900/20", border: "border-violet-200 dark:border-violet-800", dot: "bg-violet-500", label: "In Progress" },
 	COMPLETED: { color: "text-emerald-700", bg: "bg-emerald-50 dark:bg-emerald-900/20", border: "border-emerald-200 dark:border-emerald-800", dot: "bg-emerald-500", label: "Completed" },
+	CONFIRMING_AVAILABILITY: { color: "text-amber-700", bg: "bg-amber-50 dark:bg-amber-900/20", border: "border-amber-200 dark:border-amber-800", dot: "bg-amber-500", label: "Confirming" },
+	AWAITING_PAYMENT: { color: "text-blue-700", bg: "bg-blue-50 dark:bg-blue-900/20", border: "border-blue-200 dark:border-blue-800", dot: "bg-blue-500", label: "Awaiting payment" },
+	PRINTING: { color: "text-violet-700", bg: "bg-violet-50 dark:bg-violet-900/20", border: "border-violet-200 dark:border-violet-800", dot: "bg-violet-500", label: "Printing" },
+	QUALITY_CHECK: { color: "text-violet-700", bg: "bg-violet-50 dark:bg-violet-900/20", border: "border-violet-200 dark:border-violet-800", dot: "bg-violet-500", label: "Quality check" },
+	READY_FOR_PICKUP: { color: "text-cyan-700", bg: "bg-cyan-50 dark:bg-cyan-900/20", border: "border-cyan-200 dark:border-cyan-800", dot: "bg-cyan-500", label: "Ready for pickup" },
+	OUT_FOR_DELIVERY: { color: "text-cyan-700", bg: "bg-cyan-50 dark:bg-cyan-900/20", border: "border-cyan-200 dark:border-cyan-800", dot: "bg-cyan-500", label: "Out for delivery" },
+	DELIVERED: { color: "text-emerald-700", bg: "bg-emerald-50 dark:bg-emerald-900/20", border: "border-emerald-200 dark:border-emerald-800", dot: "bg-emerald-500", label: "Delivered" },
+	CANCELLED: { color: "text-gray-600", bg: "bg-gray-50 dark:bg-gray-800/40", border: "border-gray-200 dark:border-gray-700", dot: "bg-gray-400", label: "Cancelled" },
 };
 
 const ORDER_STEPS: OrderStatus[] = ["PENDING", "QUOTED", "PAID", "RECEIVED", "IN_PROGRESS", "COMPLETED"];
