@@ -33,6 +33,10 @@ export interface AgentDraft {
 	fulfilment?: { type: "pickup" | "delivery"; address?: string; recipientPhone?: string };
 	/** null: priced by quotation */
 	price: { currency: string; total: number; lines: { label: string; detail?: string; amount: number }[] } | null;
+	/** The shop needs the customer's file; the card asks for it before sending */
+	fileRequired?: boolean;
+	/** What to attach, e.g. "Your 12-page document" */
+	fileNeeded?: string;
 	summary: string[];
 	savedAt: string;
 	/** Set once it was confirmed */
@@ -44,6 +48,8 @@ export type AgentConversationStatus = "active" | "needs_staff" | "submitted" | "
 export interface AgentConversation {
 	id: string;
 	status: AgentConversationStatus;
+	/** The shop the chat was started for (its page); null on the Printdecore-wide assistant */
+	branchId?: string | null;
 	draft: AgentDraft | null;
 	printRequestId: string | null;
 	messages: AgentMessage[];
@@ -62,9 +68,14 @@ type Coords = { latitude: number; longitude: number };
 
 const url = (path: string) => `${BASE_URL}/print-agent${path}`;
 
-export const startAgentConversation = async (coords?: Coords): Promise<AgentConversation> => {
+/** branchId: a chat started on that shop's page — its requests go to that shop for a quote */
+export const startAgentConversation = async (coords?: Coords, branchId?: string): Promise<AgentConversation> => {
 	try {
-		const response = await axios.post<ApiResponse<AgentConversation>>(url("/conversations"), { channel: "web", ...coords }, { headers: getAuthHeaders() });
+		const response = await axios.post<ApiResponse<AgentConversation>>(
+			url("/conversations"),
+			{ channel: "web", ...coords, ...(branchId && { branchId }) },
+			{ headers: getAuthHeaders() }
+		);
 		if (!response.data.data) throw new Error(response.data.message || "Couldn't start the assistant");
 		return response.data.data;
 	} catch (error) {
@@ -107,11 +118,16 @@ export interface ConfirmedDraft {
 	conversation: AgentConversation;
 }
 
-export const confirmAgentDraft = async (id: string, draftVersion: number, delivery: Delivery): Promise<ConfirmedDraft> => {
+export const confirmAgentDraft = async (id: string, draftVersion: number, delivery: Delivery, files: FileInfo[] = []): Promise<ConfirmedDraft> => {
 	try {
 		const response = await axios.post<ApiResponse<ConfirmedDraft>>(
 			url(`/conversations/${id}/confirm`),
-			{ draftVersion, ...deliveryFields(delivery) },
+			{
+				draftVersion,
+				...deliveryFields(delivery),
+				// Files attached on the card itself
+				...(files.length && { attachments: files.map((f) => ({ url: f.url, name: f.name, type: f.type, size: f.size })) }),
+			},
 			{ headers: getAuthHeaders() }
 		);
 		if (!response.data.data) throw new Error(response.data.message || "Couldn't send your order");
