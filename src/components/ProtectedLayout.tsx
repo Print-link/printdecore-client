@@ -18,6 +18,8 @@ import {
 	CaretUp,
 	Sparkle,
 	PaintBrush,
+	Storefront,
+	ChatCircleDots,
 } from "@phosphor-icons/react";
 import { useAuth } from "../hooks/useAuth";
 import { useCart } from "../contexts/CartContext";
@@ -27,9 +29,41 @@ import { LocationBanner } from "./banners/LocationBanner";
 import { LocationModal } from "./modals/LocationModal";
 import { Logo } from "./Logo";
 
+type Tab = "home" | "history" | "search" | "cart" | "artworks" | "shops" | "assistant";
+
+const TAB_PATHS: Record<Tab, string> = {
+	home: "/home",
+	search: "/home/search",
+	shops: "/home/shops",
+	assistant: "/home/print-assistant",
+	artworks: "/home/artworks",
+	history: "/home/history",
+	cart: "/home/tray",
+};
+
+const TAB_TITLES: Record<Tab, string> = {
+	home: "Home",
+	search: "Search",
+	shops: "Print Shops",
+	assistant: "Print Assistant",
+	artworks: "Art Works",
+	cart: "Printing Tray",
+	history: "Print History",
+};
+
+const tabFor = (path: string): Tab => {
+	if (path.includes("/history")) return "history";
+	if (path.includes("/search")) return "search";
+	if (path.includes("/artworks")) return "artworks";
+	if (path.includes("/shops")) return "shops";
+	if (path.includes("/print-assistant") || path.includes("/print-request")) return "assistant";
+	if (path.includes("/tray")) return "cart";
+	return "home";
+};
+
 export const ProtectedLayout = () => {
 	const { user, logout } = useAuth();
-	const { cart, removeFromCart, getCartTotal, branchId } = useCart();
+	const { cart, removeFromCart, getCartTotal, vendor } = useCart();
 	const {
 		hasLocation,
 		needsPermission,
@@ -42,28 +76,14 @@ export const ProtectedLayout = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 
-	const [activeTab, setActiveTab] = useState(() => {
-		if (location.pathname.includes("/history")) return "history";
-		if (location.pathname.includes("/search")) return "search";
-		if (location.pathname.includes("/artworks")) return "artworks";
-		if (location.pathname.includes("/order/cart")) return "cart";
-		return "home";
-	});
+	const [activeTab, setActiveTab] = useState<Tab>(() => tabFor(location.pathname));
 	const [drawerOpen, setDrawerOpen] = useState(false);
+	// Location is optional: once skipped, don't ask again this visit
+	const [locationSkipped, setLocationSkipped] = useState(() => sessionStorage.getItem("location_skipped") === "1");
 	const [cartExpanded, setCartExpanded] = useState(false);
 
 	useEffect(() => {
-		if (location.pathname.includes("/history")) {
-			setActiveTab("history");
-		} else if (location.pathname.includes("/search")) {
-			setActiveTab("search");
-		} else if (location.pathname.includes("/artworks")) {
-			setActiveTab("artworks");
-		} else if (location.pathname.includes("/order/cart")) {
-			setActiveTab("cart");
-		} else {
-			setActiveTab("home");
-		}
+		setActiveTab(tabFor(location.pathname));
 		if (window.innerWidth < 768) {
 			setDrawerOpen(false);
 		}
@@ -74,23 +94,13 @@ export const ProtectedLayout = () => {
 		navigate("/login");
 	};
 
-	const handleTabChange = (tab: "home" | "history" | "search" | "cart" | "artworks") => {
-		if (!user && (tab === "history" || tab === "cart")) {
+	const handleTabChange = (tab: Tab) => {
+		if (!user && tab === "history") {
 			navigate("/login");
 			return;
 		}
 		setActiveTab(tab);
-		if (tab === "home") {
-			navigate("/home");
-		} else if (tab === "history") {
-			navigate("/home/history");
-		} else if (tab === "search") {
-			navigate("/home/search");
-		} else if (tab === "artworks") {
-			navigate("/home/artworks");
-		} else if (tab === "cart" && branchId) {
-			navigate(`/home/order/cart/${branchId}`);
-		}
+		navigate(TAB_PATHS[tab]);
 		if (window.innerWidth < 768) {
 			setDrawerOpen(false);
 		}
@@ -106,7 +116,7 @@ export const ProtectedLayout = () => {
 	};
 
 	const navItem = (
-		tab: "home" | "history" | "search" | "cart" | "artworks",
+		tab: Tab,
 		icon: React.ReactNode,
 		label: string,
 		badge?: number,
@@ -151,11 +161,15 @@ export const ProtectedLayout = () => {
 				needsPermission={needsPermission}
 			/>
 			<LocationModal
-				isOpen={needsPermission}
+				isOpen={needsPermission && !locationSkipped}
 				permission={permission}
 				error={error}
 				isLoading={isLoading}
 				onRequestLocation={requestLocation}
+				onSkip={() => {
+					sessionStorage.setItem("location_skipped", "1");
+					setLocationSkipped(true);
+				}}
 			/>
 
 			{/* ─── Sidebar ─── */}
@@ -188,6 +202,8 @@ export const ProtectedLayout = () => {
 					</p>
 					{navItem("home", <House size={20} weight="duotone" />, "Home")}
 					{navItem("search", <MagnifyingGlass size={20} weight="regular" />, "Search")}
+					{navItem("shops", <Storefront size={20} weight="duotone" />, "Print Shops")}
+					{navItem("assistant", <ChatCircleDots size={20} weight="duotone" />, "Print Assistant")}
 					{navItem("artworks", <PaintBrush size={20} weight="duotone" />, "Art Works")}
 
 					{/* My Account section */}
@@ -197,13 +213,7 @@ export const ProtectedLayout = () => {
 								My Account
 							</p>
 							{navItem("history", <ClockCounterClockwise size={20} weight="duotone" />, "Print History")}
-							{navItem(
-								"cart",
-								<Printer size={20} weight="duotone" />,
-								"Printing Tray",
-								cart.length > 0 ? cart.length : undefined,
-								!branchId || cart.length === 0
-							)}
+							{navItem("cart", <Printer size={20} weight="duotone" />, "Printing Tray", cart.length > 0 ? cart.length : undefined)}
 						</>
 					)}
 
@@ -241,11 +251,7 @@ export const ProtectedLayout = () => {
 												className="flex items-center justify-between px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
 											>
 												<div className="flex-1 min-w-0 pr-2">
-													<p className="text-xs font-semibold text-gray-800 dark:text-gray-200 truncate">
-														{item.width && item.height
-															? `${item.width}×${item.height} ${item.measurementUnit}`
-															: "Service Item"}
-													</p>
+													<p className="text-xs font-semibold text-gray-800 dark:text-gray-200 truncate">{item.serviceName}</p>
 													<p className="text-[11px] text-gray-500 mt-0.5">
 														Qty: {item.quantity} · <span className="text-[#fbbf24] font-bold">GHS {item.calculatedPrice.toFixed(2)}</span>
 													</p>
@@ -260,11 +266,12 @@ export const ProtectedLayout = () => {
 											</div>
 										))}
 									</div>
-									{branchId && (
+									{cart.length > 0 && (
 										<div className="p-3 border-t border-gray-100 dark:border-gray-800">
+											{vendor && <p className="text-[11px] text-gray-500 mb-2">From {vendor.name}</p>}
 											<button
 												onClick={() => {
-													navigate(`/home/order/cart/${branchId}`);
+													navigate("/home/tray");
 													if (window.innerWidth < 768) setDrawerOpen(false);
 												}}
 												className="w-full py-2.5 bg-[#fbbf24] hover:bg-[#f59e0b] text-black text-sm font-bold rounded-lg transition-colors"
@@ -398,22 +405,10 @@ export const ProtectedLayout = () => {
 
 								<div className="hidden md:flex flex-col">
 									<h1 className="text-lg font-black text-gray-900 dark:text-white leading-tight">
-										{activeTab === "home"
-											? "Print Agents"
-											: activeTab === "search"
-											? "Search Services"
-											: activeTab === "artworks"
-											? "Art Works"
-											: activeTab === "cart"
-											? "Printing Tray"
-											: "Print History"}
+										{TAB_TITLES[activeTab]}
 									</h1>
 									<p className="text-[10px] font-bold text-[#fbbf24] uppercase tracking-widest leading-tight">
-										{activeTab === "home"
-											? "Find a branch near you"
-											: activeTab === "artworks"
-											? "Explore branch creations"
-											: "Printdecore"}
+										{activeTab === "home" ? "Print anything, near you" : "Printdecore"}
 									</p>
 								</div>
 							</div>

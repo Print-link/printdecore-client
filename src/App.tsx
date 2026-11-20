@@ -15,18 +15,21 @@ import { Home } from "./pages/Home";
 
 import { History } from "./pages/History";
 import { Search } from "./pages/Search";
-import { PrintStationDetails } from "./pages/PrintStationDetails";
-import { Categories } from "./pages/Categories";
 import { OrderDetails } from "./pages/OrderDetails";
 import { PaymentCallback } from "./pages/PaymentCallback";
 import { QuoteConfirmation } from "./pages/QuoteConfirmation";
 import { WhatsAppQuotePayment } from "./pages/WhatsAppQuotePayment";
-import { SubCategories } from "./pages/SubCategories";
-import { OrderForm } from "./pages/OrderForm";
-import { Cart } from "./pages/Cart";
-import { Checkout } from "./pages/Checkout";
 import { ArtWorks } from "./pages/ArtWorks";
 import { ArtWorkDetail } from "./pages/ArtWorkDetail";
+import { CatalogueCategory } from "./pages/CatalogueCategory";
+import { ConfigureProduct } from "./pages/ConfigureProduct";
+import { Shops } from "./pages/Shops";
+import { Shop } from "./pages/Shop";
+import { ShopProduct } from "./pages/ShopProduct";
+import { Tray } from "./pages/Tray";
+import { PrintAssistant } from "./pages/PrintAssistant";
+import { PrintAgent } from "./pages/PrintAgent";
+import { PrintRequestDetails } from "./pages/PrintRequestDetails";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -84,9 +87,16 @@ const AppRoutes = () => {
 				<Route path="search" element={<Search />} />
 					<Route path="artworks" element={<ArtWorks />} />
 					<Route path="artworks/:id" element={<ArtWorkDetail />} />
-				<Route path="categories/:id" element={<Categories />} />
-				<Route path="print-station/:id" element={<PrintStationDetails />} />
-				
+				{/* Ordering: guests can browse and price; sign-in is asked when it's needed */}
+				<Route path="category/:id" element={<CatalogueCategory />} />
+				<Route path="product/:serviceTemplateId" element={<ConfigureProduct />} />
+				<Route path="shops" element={<Shops />} />
+				<Route path="shops/:id" element={<Shop />} />
+				<Route path="shops/:id/products/:agentServiceId" element={<ShopProduct />} />
+				<Route path="tray" element={<Tray />} />
+				<Route path="print-assistant" element={<PrintAgent />} />
+				<Route path="print-assistant/form" element={<PrintAssistant />} />
+
 				{/* Protected Routes - Require authentication */}
 				<Route
 					path="history"
@@ -105,34 +115,10 @@ const AppRoutes = () => {
 					}
 				/>
 				<Route
-					path="order/sub-categories/:branchId"
+					path="print-request/:id"
 					element={
 						<ProtectedRoute>
-							<SubCategories />
-						</ProtectedRoute>
-					}
-				/>
-				<Route
-					path="order/configure/:branchId"
-					element={
-						<ProtectedRoute>
-							<OrderForm />
-						</ProtectedRoute>
-					}
-				/>
-				<Route
-					path="order/cart/:branchId"
-					element={
-						<ProtectedRoute>
-							<Cart />
-						</ProtectedRoute>
-					}
-				/>
-				<Route
-					path="order/checkout/:branchId"
-					element={
-						<ProtectedRoute>
-							<Checkout />
+							<PrintRequestDetails />
 						</ProtectedRoute>
 					}
 				/>

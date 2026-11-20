@@ -15,10 +15,10 @@ export const LocationBanner = ({
           <MapPin size={16} weight="regular" className="text-amber-600 mt-0.5 shrink-0" />
           <div className="flex-1 min-w-0">
             <p className="text-xs font-medium text-amber-900">
-              {needsPermission ? 'Location Required' : 'Getting location...'}
+              {needsPermission ? 'Location is off' : 'Getting location...'}
             </p>
             <p className="text-xs text-amber-700 mt-0.5">
-              Enable to find nearby stations
+              Turn it on to see print shops near you
             </p>
           </div>
         </div>

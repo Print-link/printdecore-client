@@ -18,6 +18,7 @@ import { ResultsCheckerInfo } from "../components/order/ResultsCheckerInfo";
 import { FileInfoSection } from "../components/order/FileInfoSection";
 import { PrintJobDetails } from "../components/order/PrintJobDetails";
 import { DeliveryNotice } from "../components/order/DeliveryNotice";
+import { OrderPaymentPanel } from "../components/order/OrderPaymentPanel";
 import { LoadingState } from "../components/order/LoadingState";
 import { ErrorState } from "../components/order/ErrorState";
 import { BranchRatingSection } from "../components/ratings/BranchRatingSection";
@@ -89,6 +90,10 @@ interface OrderDetailsData {
 		};
 	};
 	totalPrice?: number;
+	channel?: "managed" | "marketplace";
+	paymentStatus?: string;
+	declineReason?: string;
+	refundStatus?: string;
 }
 
 export const OrderDetails = () => {
@@ -107,8 +112,6 @@ export const OrderDetails = () => {
 		order?.id || id
 	);
 
-	console.log("order details data", orderData);
-	console.log("order items", orderItems);
 
 	// Derived data - get category/service info from order items (new flexible pricing) or order (legacy)
 	const firstOrderItem = orderItems.length > 0 ? orderItems[0] : null;
@@ -247,6 +250,8 @@ export const OrderDetails = () => {
 				onGetDirections={handleGetDirections}
 				onReportIssue={() => setIsReportModalOpen(true)}
 			/>
+
+			{(order.id || id) && <OrderPaymentPanel order={{ ...order, id: (order.id || id)! }} />}
 
 			{/* Main Content Grid */}
 			<div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-5">

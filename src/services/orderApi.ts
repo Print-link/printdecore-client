@@ -8,10 +8,18 @@ export const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 export type OrderStatus =
 	| "PENDING"
 	| "QUOTED"
+	| "AWAITING_PAYMENT"
 	| "PAID"
+	| "CONFIRMING_AVAILABILITY"
 	| "RECEIVED"
 	| "IN_PROGRESS"
-	| "COMPLETED";
+	| "PRINTING"
+	| "QUALITY_CHECK"
+	| "READY_FOR_PICKUP"
+	| "OUT_FOR_DELIVERY"
+	| "DELIVERED"
+	| "COMPLETED"
+	| "CANCELLED";
 
 export type MeasurementUnit = "FEET" | "INCH" | "UNIT";
 
@@ -21,6 +29,17 @@ export interface Order {
 	branchId: string;
 	status: OrderStatus;
 	totalPrice: number;
+	isProvisional?: boolean;
+	priceExpiresAt?: string;
+	paymentStatus?: string;
+	fulfilmentType?: "delivery" | "pickup";
+	deliveryAddress?: string;
+	recipientPhone?: string;
+	/** managed: Printdecore handles it. marketplace: the customer chose a shop. */
+	channel?: "managed" | "marketplace";
+	declineReason?: string;
+	refundStatus?: "pending" | "processed" | "failed";
+	estimatedCompletionTime?: string;
 	createdAt: string;
 	updatedAt: string;
 	items?: OrderItem[];
@@ -47,6 +66,8 @@ export interface OrderItem {
 		[key: string]: unknown;
 	};
 	calculatedPrice: number;
+	/** New pricing: the quote the item was priced with, and its options by name */
+	quote?: { pricingModel?: "legacy" | "v2"; currency?: string; summary?: string[] };
 	createdAt: string;
 	updatedAt: string;
 	agentService?: AgentService & {
@@ -236,74 +257,9 @@ export interface AgentService {
 	updatedAt: string;
 }
 
-export interface PriceCalculationRequest {
-	// New flexible pricing format
-	selectedBaseConfigId?: string; // ID of selected base configuration
-	selectedOptions?: string[]; // Array of selected option IDs
-	selectedCustomSpecs?: string[]; // Array of selected custom specification IDs
-
-	// Legacy format (still supported for backward compatibility)
-	width?: number;
-	height?: number;
-	measurementUnit?: MeasurementUnit; // Optional - not required for new flexible pricing
-	quantity: number;
-	options?: {
-		frontBack?: boolean;
-		color?: boolean;
-		printCut?: boolean;
-		frontOnly?: boolean;
-		filePages?: number; // Number of pages in PDF (for PAGE_BASED pricing)
-		numberOfPages?: number; // Alternative name for filePages
-		[key: string]: unknown;
-	};
-
-	// Common fields (used by both formats)
-	filePages?: number; // For PAGE_BASED formulas in new format
-	calculationBasis?: 'INCH' | 'FEET';
-}
-
-/**
- * Price breakdown item for detailed pricing display
- */
-export interface PriceBreakdownItem {
-	id: string;
-	name: string;
-	price: number;
-	type: "base" | "option" | "customSpec";
-}
-
-export interface PriceCalculationResponse {
-	calculatedPrice: number;
-	basePrice: number;
-	formulaType: string;
-	breakdown?: {
-		baseConfiguration?: {
-			id: string;
-			name: string;
-			price: number;
-		};
-		options?: Array<{
-			id: string;
-			name: string;
-			modifier: number;
-		}>;
-		customSpecs?: Array<{
-			id: string;
-			name: string;
-			modifier: number;
-		}>;
-	};
-	agentService: {
-		id: string;
-		pricePerUnit?: number;
-		constant?: number;
-		pricingConfig?: PricingConfig;
-	};
-}
-
 // ==================== Helper Functions ====================
 
-const getAuthHeaders = () => {
+export const getAuthHeaders = () => {
 	const token = localStorage.getItem("token");
 	return {
 		"Content-Type": "application/json",
@@ -311,7 +267,7 @@ const getAuthHeaders = () => {
 	};
 };
 
-const handleApiError = (error: unknown, defaultMessage: string): never => {
+export const handleApiError = (error: unknown, defaultMessage: string): never => {
 	console.error(`${defaultMessage}:`, error);
 
 	if (axios.isAxiosError(error)) {
@@ -332,87 +288,7 @@ const handleApiError = (error: unknown, defaultMessage: string): never => {
 	throw error;
 };
 
-// ==================== Discount APIs ====================
-
-export interface DiscountValidationResult {
-	discountId: string;
-	code: string;
-	discountType: 'percentage' | 'fixed';
-	discountValue: number;
-	discountAmount: number;
-	subtotal: number;
-	finalTotal: number;
-}
-
-export interface ActiveBranchDiscount {
-	id: string;
-	code: string;
-	name: string;
-	description?: string;
-	discountType: 'percentage' | 'fixed';
-	discountValue: number;
-	currency: string;
-	targetType: string;
-	minOrderAmount?: number;
-	maxDiscountAmount?: number;
-	startsAt: string;
-	expiresAt?: string;
-}
-
-export const getActiveBranchDiscounts = async (
-	branchId: string
-): Promise<ActiveBranchDiscount[]> => {
-	try {
-		const response = await axios.get<ApiResponse<ActiveBranchDiscount[]>>(
-			`${BASE_URL}/discounts/branch/${branchId}/active`
-		);
-		return response.data.data || [];
-	} catch {
-		return [];
-	}
-};
-
-export const validateDiscountCode = async (
-	code: string,
-	orderTotal: number,
-	branchId?: string
-): Promise<ApiResponse<DiscountValidationResult>> => {
-	try {
-		const response = await axios.post<ApiResponse<DiscountValidationResult>>(
-			`${BASE_URL}/discounts/validate`,
-			{ code, orderTotal, branchId },
-			{ headers: getAuthHeaders() }
-		);
-		return response.data;
-	} catch (error) {
-		if (axios.isAxiosError(error) && error.response?.data) {
-			return error.response.data as ApiResponse<DiscountValidationResult>;
-		}
-		return { success: false, message: 'Failed to validate discount code' } as ApiResponse<DiscountValidationResult>;
-	}
-};
-
 // ==================== Order APIs ====================
-
-export const createOrder = async (
-	clientId: string,
-	branchId: string,
-	paymentReference: string,
-	totalPrice: number,
-	comment?: string,
-	discountCode?: string,
-): Promise<ApiResponse<Order>> => {
-	try {
-		const response = await axios.post<ApiResponse<Order>>(
-			`${BASE_URL}/orders`,
-			{ clientId, branchId, paymentReference, totalPrice, comment, discountCode },
-			{ headers: getAuthHeaders() }
-		);
-		return response.data;
-	} catch (error) {
-		return handleApiError(error, "Failed to create order");
-	}
-};
 
 export const getClientOrders = async (
 	clientId?: string,
@@ -531,74 +407,6 @@ export const deleteOrder = async (
 	}
 };
 
-export const calculatePrice = async (
-	agentServiceId: string,
-	calculationData: PriceCalculationRequest
-): Promise<ApiResponse<PriceCalculationResponse>> => {
-	try {
-		// Clean up the request payload - remove undefined values
-		const cleanPayload: PriceCalculationRequest = {
-			quantity: calculationData.quantity,
-		};
-
-		// New flexible pricing format
-		if (calculationData.selectedBaseConfigId) {
-			cleanPayload.selectedBaseConfigId = calculationData.selectedBaseConfigId;
-		}
-		if (
-			calculationData.selectedOptions &&
-			calculationData.selectedOptions.length > 0
-		) {
-			cleanPayload.selectedOptions = calculationData.selectedOptions;
-		}
-		if (
-			calculationData.selectedCustomSpecs &&
-			calculationData.selectedCustomSpecs.length > 0
-		) {
-			cleanPayload.selectedCustomSpecs = calculationData.selectedCustomSpecs;
-		}
-		if (calculationData.filePages !== undefined) {
-			cleanPayload.filePages = calculationData.filePages;
-		}
-
-		// Legacy format (for backward compatibility)
-		if (calculationData.measurementUnit) {
-			cleanPayload.measurementUnit = calculationData.measurementUnit;
-		}
-		if (
-			calculationData.width !== undefined &&
-			calculationData.width !== null &&
-			calculationData.width > 0
-		) {
-			cleanPayload.width = calculationData.width;
-		}
-		if (
-			calculationData.height !== undefined &&
-			calculationData.height !== null &&
-			calculationData.height > 0
-		) {
-			cleanPayload.height = calculationData.height;
-		}
-
-		// Include legacy options if they exist and have content
-		if (
-			calculationData.options &&
-			Object.keys(calculationData.options).length > 0
-		) {
-			cleanPayload.options = calculationData.options;
-		}
-
-		const response = await axios.post<ApiResponse<PriceCalculationResponse>>(
-			`${BASE_URL}/orders/calculate-price?agentServiceId=${agentServiceId}`,
-			cleanPayload,
-			{ headers: getAuthHeaders() }
-		);
-		return response.data;
-	} catch (error) {
-		return handleApiError(error, "Failed to calculate price");
-	}
-};
-
 export const acceptQuote = async (
 	orderId: string,
 	quoteId: string
@@ -632,34 +440,6 @@ export const rejectQuote = async (
 };
 
 // ==================== Order Item APIs ====================
-
-export const createOrderItem = async (orderItemData: {
-	orderId: string;
-	agentServiceId: string;
-	// New flexible pricing fields
-	selectedBaseConfigId?: string;
-	selectedOptions?: string[];
-	selectedCustomSpecs?: string[];
-	// Legacy fields
-	width?: number;
-	height?: number;
-	measurementUnit: MeasurementUnit;
-	formulaType?: string;
-	quantity: number;
-	options?: OrderItem["options"];
-	calculatedPrice: number;
-}): Promise<ApiResponse<OrderItem>> => {
-	try {
-		const response = await axios.post<ApiResponse<OrderItem>>(
-			`${BASE_URL}/order-items`,
-			orderItemData,
-			{ headers: getAuthHeaders() }
-		);
-		return response.data;
-	} catch (error) {
-		return handleApiError(error, "Failed to create order item");
-	}
-};
 
 export const getOrderItems = async (
 	orderId?: string
@@ -887,176 +667,91 @@ export const deleteFile = async (
 	}
 };
 
-// ==================== Category Search APIs ====================
+// ==================== Ordering on the new pricing ====================
 
-export interface SearchFilters {
-	query?: string;
-	categoryId?: string;
-	subCategoryId?: string;
-	pricingType?: "AREA_BASED" | "UNIT_BASED" | "MIXED" | "CUSTOM_QUOTE";
-	minPrice?: number;
-	maxPrice?: number;
-	priceForQuantity?: number;
-	priceForWidth?: number;
-	priceForHeight?: number;
-	priceMeasurementUnit?: MeasurementUnit;
+export type FulfilmentType = "delivery" | "pickup";
+
+/** Delivery or pickup, and a phone to reach the customer on */
+export interface Delivery {
+	fulfilment: FulfilmentType;
+	address?: string;
 	latitude?: number;
 	longitude?: number;
-	radiusKm?: number;
-	branchId?: string;
-	supportsColor?: boolean;
-	supportsFrontBack?: boolean;
-	supportsFrontOnly?: boolean;
-	supportsPrintCut?: boolean;
-	allowsCustomSize?: boolean;
-	isActive?: boolean;
-	page?: number;
-	limit?: number;
-	sortBy?: "name" | "price" | "createdAt" | "popularity";
-	sortOrder?: "asc" | "desc";
+	recipientPhone?: string;
 }
 
-export interface SearchResult {
+/** Ready when there's a phone, plus a pinned address for delivery */
+export const deliveryReady = (d: Delivery | null | undefined) =>
+	!!d?.recipientPhone?.trim() &&
+	(d.fulfilment === "pickup" || (!!d.address && d.latitude != null && d.longitude != null));
+
+export const deliveryFields = (d: Delivery) => ({
+	fulfilmentType: d.fulfilment,
+	deliveryAddress: d.fulfilment === "delivery" ? d.address : undefined,
+	deliveryLatitude: d.fulfilment === "delivery" ? d.latitude : undefined,
+	deliveryLongitude: d.fulfilment === "delivery" ? d.longitude : undefined,
+	recipientPhone: d.recipientPhone,
+});
+
+/** One item, as the server prices it: choices, a custom size in mm, document pages */
+export interface PricedItemPayload {
+	measurementUnit: MeasurementUnit;
+	quantity: number;
+	choices: Record<string, string | string[]>;
+	size?: { widthMm: number; heightMm: number };
+	pages?: number;
+	options?: { filePages?: number; files?: FileInfo[] };
+}
+
+/** The service template's name and unit, for the configurator */
+export interface ServiceTemplateOrderDetails {
 	id: string;
-	type: "service";
-	category: {
-		id: string;
-		name: string;
-		imageUrl?: string;
-	};
-	subCategory: {
-		id: string;
-		name: string;
-		imageUrl?: string;
-		pricingType: "AREA_BASED" | "UNIT_BASED" | "MIXED" | "CUSTOM_QUOTE";
-	};
-	service: {
-		id: string;
-		name: string;
-		measurementUnit: MeasurementUnit;
-		allowsCustomSize: boolean;
-		supportsFrontBack: boolean;
-		supportsColor: boolean;
-		supportsPrintCut: boolean;
-		supportsFrontOnly: boolean;
-	};
-	branches?: Array<{
-		id: string;
-		branchId: string;
-		branchName: string;
-		pricePerUnit?: number;
-		constant?: number;
-		isActive: boolean;
-		location?: {
-			address: string;
-			latitude: number;
-			longitude: number;
-		};
-		distance?: number;
-	}>;
-	priceRange?: {
-		min: number;
-		max: number;
-		currency: string;
-	};
-	estimatedPrice?: number;
+	name: string;
+	measurementUnit: MeasurementUnit;
 }
 
-export interface SearchResponse {
-	results: SearchResult[];
-	pagination: {
-		page: number;
-		limit: number;
-		total: number;
-		totalPages: number;
-		hasNext: boolean;
-		hasPrev: boolean;
-	};
-	filters: SearchFilters;
-	aggregations: {
-		categories: Array<{
-			id: string;
-			name: string;
-			count: number;
-		}>;
-		pricingTypes: Array<{
-			type: string;
-			count: number;
-		}>;
-		priceRange: {
-			min: number;
-			max: number;
-		};
-	};
-}
-
-export interface SearchSuggestions {
-	categories: Array<{
-		id: string;
-		name: string;
-		imageUrl?: string;
-	}>;
-	subCategories: Array<{
-		id: string;
-		name: string;
-		imageUrl?: string;
-		categoryId: string;
-		categoryName: string;
-	}>;
-	services: Array<{
-		id: string;
-		name: string;
-		subCategoryId: string;
-		subCategoryName: string;
-		categoryName: string;
-	}>;
-}
-
-export const searchCategories = async (
-	filters: SearchFilters
-): Promise<ApiResponse<SearchResponse>> => {
+export const getServiceTemplateOrderDetails = async (
+	serviceTemplateId: string
+): Promise<ServiceTemplateOrderDetails> => {
 	try {
-		const params = new URLSearchParams();
-
-		Object.entries(filters).forEach(([key, value]) => {
-			if (value !== undefined && value !== null && value !== "") {
-				params.append(key, String(value));
-			}
-		});
-
-		const response = await axios.get<ApiResponse<SearchResponse>>(
-			`${BASE_URL}/category-search?${params.toString()}`,
+		const response = await axios.get<ApiResponse<ServiceTemplateOrderDetails>>(
+			`${BASE_URL}/service-templates/${serviceTemplateId}/order-details`,
 			{ headers: getAuthHeaders() }
 		);
-		return response.data;
+		if (!response.data.data) throw new Error(response.data.message || "Service not found");
+		return response.data.data;
 	} catch (error) {
-		return handleApiError(error, "Failed to search categories");
+		return handleApiError(error, "Couldn't load this service");
 	}
 };
 
-export const getSearchSuggestions = async (
-	query: string
-): Promise<ApiResponse<SearchSuggestions>> => {
+/**
+ * Order from Printdecore's catalogue. The server prices every item and picks
+ * the branch nearest the customer (or the delivery address); ops confirms,
+ * then sends a quotation to pay. Nothing is charged now.
+ */
+export const createProvisionalOrder = async (input: {
+	clientId: string;
+	items: Array<PricedItemPayload & { serviceTemplateId: string }>;
+	comment?: string;
+	coords?: { latitude: number; longitude: number };
+	delivery: Delivery;
+}): Promise<Order> => {
 	try {
-		if (query.length < 2) {
-			return {
-				success: true,
-				data: {
-					categories: [],
-					subCategories: [],
-					services: [],
-				},
-			};
-		}
-
-		const response = await axios.get<ApiResponse<SearchSuggestions>>(
-			`${BASE_URL}/category-search/suggestions?query=${encodeURIComponent(
-				query
-			)}`,
+		const response = await axios.post<ApiResponse<Order>>(
+			`${BASE_URL}/orders/provisional`,
+			{
+				clientId: input.clientId,
+				items: input.items,
+				comment: input.comment,
+				...deliveryFields(input.delivery),
+				...(input.coords ? { latitude: input.coords.latitude, longitude: input.coords.longitude } : {}),
+			},
 			{ headers: getAuthHeaders() }
 		);
-		return response.data;
+		if (!response.data.data) throw new Error(response.data.message || "Couldn't place the order");
+		return response.data.data;
 	} catch (error) {
-		return handleApiError(error, "Failed to get search suggestions");
+		return handleApiError(error, "Couldn't place the order");
 	}
 };

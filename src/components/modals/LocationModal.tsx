@@ -6,6 +6,8 @@ interface LocationModalProps {
   error: string;
   isLoading: boolean;
   onRequestLocation: () => void;
+  /** Carry on without it: shops show unsorted, and the customer types an address at checkout */
+  onSkip: () => void;
 }
 
 export const LocationModal = ({
@@ -13,7 +15,8 @@ export const LocationModal = ({
   permission,
   error,
   isLoading,
-  onRequestLocation
+  onRequestLocation,
+  onSkip
 }: LocationModalProps) => {
   if (!isOpen) return null;
 
@@ -35,11 +38,11 @@ export const LocationModal = ({
         </div>
         
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white text-center mb-2">
-          Location Access Required
+          Use your location?
         </h2>
         
         <p className="text-gray-600 dark:text-gray-400 text-center mb-6">
-          We need your location to show nearby print stations and provide accurate service.
+          We use it to show print shops near you and send your order to a printer nearby. You can also type an address when you order.
         </p>
 
         {error && (
@@ -75,6 +78,13 @@ export const LocationModal = ({
               Open Settings Guide
             </button>
           )}
+
+          <button
+            onClick={onSkip}
+            className="w-full px-6 py-3 text-gray-600 dark:text-gray-400 rounded-lg font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          >
+            Continue without location
+          </button>
         </div>
 
         <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
@@ -85,7 +95,7 @@ export const LocationModal = ({
               </svg>
             </div>
             <p className="flex-1">
-              Your location is only used to find nearby print stations. We respect your privacy and don't store your location data.
+              Your location is only used to find shops and printers near you.
             </p>
           </div>
         </div>

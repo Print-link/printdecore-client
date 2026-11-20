@@ -1,278 +1,91 @@
-import { useState, useEffect, useCallback } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { CaretRight, MagnifyingGlass, SpinnerGap } from "@phosphor-icons/react";
+import { VendorCard } from "../components/marketplace/VendorCard";
 import { useGeolocation } from "../hooks/useGeolocation";
-import { LocationStatus } from "../components/LocationStatus";
-import { SearchAutocomplete } from "../components/SearchAutocomplete";
-import { FilterSidebar } from "../components/FilterSidebar";
-import { ServiceCard } from "../components/ServiceCard";
-import { EmptyState } from "../components/EmptyState";
-import { LoadingState } from "../components/LoadingState";
-import { ErrorState } from "../components/ErrorState";
-import {
-	searchCategories,
-	type SearchFilters,
-	type SearchResponse,
-} from "../services/orderApi";
-import { SpinnerGap, SlidersHorizontal, CaretLeft, CaretRight } from "@phosphor-icons/react";
+import { useMarketplaceVendors } from "../hooks/useMarketplace";
+import { searchServices } from "../services/serviceSearchApi";
 
+/** Search Printdecore's products and the shops that print them */
 export const Search = () => {
-	const [urlSearchParams] = useSearchParams();
-	const { userLocation, locationError, locationPermission, requestLocation } =
-		useGeolocation();
+	const navigate = useNavigate();
+	const [params, setParams] = useSearchParams();
+	const q = params.get("q") ?? "";
+	const [text, setText] = useState(q);
+	const { userLocation } = useGeolocation();
+	useEffect(() => setText(q), [q]);
 
-	const [filters, setFilters] = useState<SearchFilters>(() => {
-		const initial: SearchFilters = {
-			page: 1,
-			limit: 20,
-			sortBy: "name",
-			sortOrder: "asc",
-		};
-		const categoryId = urlSearchParams.get("categoryId");
-		const subCategoryId = urlSearchParams.get("subCategoryId");
-		const query = urlSearchParams.get("query");
-		if (categoryId) initial.categoryId = categoryId;
-		if (subCategoryId) initial.subCategoryId = subCategoryId;
-		if (query) initial.query = query;
-		return initial;
+	const { data: products = [], isLoading } = useQuery({
+		queryKey: ["serviceSearch", q],
+		queryFn: () => searchServices(q ? { q, limit: 30 } : { limit: 30 }),
 	});
-	const [searchData, setSearchData] = useState<SearchResponse | null>(null);
-	const [loading, setLoading] = useState<boolean>(false);
-	const [error, setError] = useState<string | null>(null);
-	const [showFilters, setShowFilters] = useState<boolean>(false);
-
-	// Update filters with location when available
-	useEffect(() => {
-		if (userLocation) {
-			setFilters((prev) => ({
-				...prev,
-				latitude: userLocation.latitude,
-				longitude: userLocation.longitude,
-				radiusKm: prev.radiusKm || 10,
-			}));
-		}
-	}, [userLocation]);
-
-	// Perform search
-	const performSearch = useCallback(async (searchFilters: SearchFilters) => {
-		setLoading(true);
-		setError(null);
-
-		try {
-			const response = await searchCategories(searchFilters);
-			if (response.success && response.data) {
-				setSearchData(response.data);
-			} else {
-				setError("Failed to search services");
-				setSearchData(null);
-			}
-		} catch (err: unknown) {
-			console.error("Error searching:", err);
-			const errorMessage =
-				err instanceof Error ? err.message : "Failed to search services";
-			setError(errorMessage);
-			setSearchData(null);
-		} finally {
-			setLoading(false);
-		}
-	}, []);
-
-	// Search when filters change
-	useEffect(() => {
-		// Only search if we have location or user has explicitly searched
-		if (userLocation || filters.query || locationPermission === "denied") {
-			performSearch(filters);
-		}
-	}, [filters, userLocation, locationPermission, performSearch]);
-
-	const handleFilterChange = (newFilters: Partial<SearchFilters>) => {
-		setFilters((prev) => ({ ...prev, ...newFilters }));
-	};
-
-	const handlePageChange = (page: number) => {
-		setFilters((prev) => ({ ...prev, page }));
-	};
-
-	const handleSortChange = (sortBy: SearchFilters["sortBy"]) => {
-		setFilters((prev) => ({
-			...prev,
-			sortBy,
-			page: 1,
-		}));
-	};
-
-	if (loading && !userLocation && locationPermission !== "denied" && !filters.query) {
-		return <LoadingState />;
-	}
+	const { data: shops = [] } = useMarketplaceVendors(userLocation, q || undefined);
 
 	return (
-		<div className="w-full max-w-7xl mx-auto">
-			<LocationStatus
-				locationError={locationError}
-				locationPermission={locationPermission}
-				userLocation={userLocation}
-				onRequestLocation={requestLocation}
-			/>
-
-			{/* Search Header */}
-			<div className="mb-6">
-				<div className="flex flex-col md:flex-row gap-4 mb-4">
-					<div className="flex-1">
-						<SearchAutocomplete
-							onSelect={(type, id) => {
-								if (type === "category") {
-									handleFilterChange({ categoryId: id, page: 1 });
-								} else if (type === "subCategory") {
-									handleFilterChange({ subCategoryId: id, page: 1 });
-								}
-							}}
-							placeholder="Search services, categories..."
-						/>
-					</div>
-					<button
-						onClick={() => setShowFilters(!showFilters)}
-						className="md:hidden px-4 py-3 border border-gray-300 rounded-lg flex items-center gap-2 hover:bg-gray-50"
-					>
-						<SlidersHorizontal size={20} weight="regular" />
-						Filters
-					</button>
-				</div>
-
-				{/* Query Input */}
+		<div className="w-full max-w-5xl mx-auto">
+			<form
+				onSubmit={(e) => {
+					e.preventDefault();
+					setParams(text.trim() ? { q: text.trim() } : {});
+				}}
+				className="relative mb-6"
+			>
+				<MagnifyingGlass size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
 				<input
-					type="text"
-					value={filters.query || ""}
-					onChange={(e) =>
-						handleFilterChange({ query: e.target.value, page: 1 })
-					}
-					placeholder="Or type to search..."
-					className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
+					type="search"
+					autoFocus
+					value={text}
+					onChange={(e) => setText(e.target.value)}
+					placeholder="Business cards, banners, flyers…"
+					aria-label="Search"
+					className="w-full pl-10 pr-4 py-3 text-sm bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-2xl text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#fbbf24]/50"
 				/>
-			</div>
+			</form>
 
-			{/* Main Content */}
-			<div className="flex flex-col lg:flex-row gap-6">
-				{/* Filter Sidebar */}
-				<div
-					className={`${
-						showFilters ? "block" : "hidden"
-					} lg:block lg:w-64 shrink-0`}
-				>
-					<FilterSidebar
-						filters={filters}
-						onFilterChange={handleFilterChange}
-						aggregations={searchData?.aggregations}
-						onClose={() => setShowFilters(false)}
-					/>
+			<h2 className="text-base font-bold text-gray-900 dark:text-white mb-3">{q ? `Products matching "${q}"` : "Popular products"}</h2>
+			{isLoading ? (
+				<SpinnerGap size={20} className="animate-spin text-[#fbbf24]" />
+			) : products.length === 0 ? (
+				<p className="text-sm text-gray-500 mb-8">
+					Nothing matches yet.{" "}
+					<button type="button" onClick={() => navigate("/home/print-assistant")} className="text-[#d97706] font-semibold hover:underline">
+						Ask the Print Assistant
+					</button>{" "}
+					and we'll quote it.
+				</p>
+			) : (
+				<div className="rounded-xl border border-gray-200 dark:border-gray-800 divide-y divide-gray-100 dark:divide-gray-800 overflow-hidden bg-white dark:bg-[#1e1e1e] mb-8">
+					{products.map((p) => (
+						<button
+							key={p.serviceTemplateId}
+							type="button"
+							onClick={() => navigate(`/home/product/${p.serviceTemplateId}`)}
+							className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800/50"
+						>
+							<span className="flex-1 min-w-0">
+								<span className="block text-sm font-semibold text-gray-900 dark:text-white">{p.name}</span>
+								<span className="block text-xs text-gray-500">
+									{p.categoryName} · {p.subCategoryName}
+									{p.quoteOnRequest ? " · quote on request" : p.startingPrice !== undefined ? ` · from GHS ${p.startingPrice.toLocaleString()}` : ""}
+								</span>
+							</span>
+							<CaretRight size={14} className="text-gray-400" />
+						</button>
+					))}
 				</div>
+			)}
 
-				{/* Results */}
-				<div className="flex-1">
-					{loading && searchData === null ? (
-						<LoadingState />
-					) : error && !searchData ? (
-						<ErrorState error={error} />
-					) : searchData && searchData.results.length === 0 ? (
-						<EmptyState
-							type="no-results"
-							onClearSearch={() => handleFilterChange({ query: undefined, page: 1 })}
-						/>
-					) : (
-						<>
-							{/* Results Header */}
-							<div className="flex items-center justify-between mb-4">
-								<div>
-									<h2 className="text-lg font-semibold text-gray-900">
-										{searchData?.pagination.total || 0} results found
-									</h2>
-									{searchData?.pagination.total && searchData.pagination.total > 0 && (
-										<p className="text-sm text-gray-500 mt-1">
-											Showing {((searchData.pagination.page - 1) * searchData.pagination.limit) + 1} -{" "}
-											{Math.min(
-												searchData.pagination.page * searchData.pagination.limit,
-												searchData.pagination.total
-											)}{" "}
-											of {searchData.pagination.total}
-										</p>
-									)}
-								</div>
-								<div className="flex items-center gap-2">
-									<label className="text-sm text-gray-700">Sort by:</label>
-									<select
-										value={filters.sortBy || "name"}
-										onChange={(e) =>
-											handleSortChange(
-												e.target.value as SearchFilters["sortBy"]
-											)
-										}
-										className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
-									>
-										<option value="name">Name</option>
-										<option value="price">Price</option>
-										<option value="createdAt">Newest</option>
-										<option value="popularity">Popularity</option>
-									</select>
-									<select
-										value={filters.sortOrder || "asc"}
-										onChange={(e) =>
-											handleFilterChange({
-												sortOrder: e.target.value as "asc" | "desc",
-												page: 1,
-											})
-										}
-										className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
-									>
-										<option value="asc">Asc</option>
-										<option value="desc">Desc</option>
-									</select>
-								</div>
-							</div>
-
-							{/* Results Grid */}
-							{loading ? (
-								<div className="flex items-center justify-center py-12">
-									<SpinnerGap size={32} className="text-[#fbbf24] animate-spin" weight="bold" />
-								</div>
-							) : (
-								<div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6">
-									{searchData?.results.map((result) => (
-										<ServiceCard key={result.id} result={result} />
-									))}
-								</div>
-							)}
-
-							{/* Pagination */}
-							{searchData && searchData.pagination.totalPages > 1 && (
-								<div className="flex items-center justify-center gap-2">
-									<button
-										onClick={() =>
-											handlePageChange(searchData.pagination.page - 1)
-										}
-										disabled={!searchData.pagination.hasPrev}
-										className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 flex items-center gap-2"
-									>
-										<CaretLeft size={16} weight="bold" />
-										Previous
-									</button>
-									<span className="px-4 py-2 text-sm text-gray-700">
-										Page {searchData.pagination.page} of{" "}
-										{searchData.pagination.totalPages}
-									</span>
-									<button
-										onClick={() =>
-											handlePageChange(searchData.pagination.page + 1)
-										}
-										disabled={!searchData.pagination.hasNext}
-										className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 flex items-center gap-2"
-									>
-										Next
-										<CaretRight size={16} weight="bold" />
-									</button>
-								</div>
-							)}
-						</>
-					)}
-				</div>
-			</div>
+			{shops.length > 0 && (
+				<>
+					<h2 className="text-base font-bold text-gray-900 dark:text-white mb-3">{q ? "Shops that print it" : "Print shops near you"}</h2>
+					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+						{shops.map((s) => (
+							<VendorCard key={s.id} vendor={s} onClick={() => navigate(`/home/shops/${s.id}`)} />
+						))}
+					</div>
+				</>
+			)}
 		</div>
 	);
 };
