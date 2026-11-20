@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { CaretDown, CaretRight, Clock, MapPin, Phone, SpinnerGap, Star, Storefront } from "@phosphor-icons/react";
+import { CaretDown, CaretRight, Clock, MapPin, Phone, Sparkle, SpinnerGap, Star, Storefront } from "@phosphor-icons/react";
 import { PageHeader } from "../components/common/PageHeader";
 import { useMarketplaceVendor } from "../hooks/useMarketplace";
 import type { VendorService } from "../services/marketplaceApi";
@@ -132,6 +132,24 @@ export const Shop = () => {
 					</section>
 				))}
 			</div>
+
+			{/* Not in the list: describe it to the assistant, and the shop quotes it */}
+			<button
+				type="button"
+				onClick={() => navigate(`/home/shops/${shop.id}/assistant`)}
+				className="mt-6 w-full flex items-center gap-3 p-4 rounded-2xl border border-amber-200 dark:border-amber-900/40 bg-amber-50 dark:bg-amber-900/10 text-left hover:border-[#fbbf24]"
+			>
+				<span className="w-10 h-10 shrink-0 rounded-full bg-[#fbbf24] flex items-center justify-center" aria-hidden>
+					<Sparkle size={18} weight="fill" className="text-black" />
+				</span>
+				<span className="flex-1">
+					<span className="block font-bold text-gray-900 dark:text-white">{groups.length ? "Don't see what you need?" : "Tell them what you need"}</span>
+					<span className="block text-sm text-gray-600 dark:text-gray-400">
+						Describe it to our print assistant and {shop.name} will send you a price.
+					</span>
+				</span>
+				<CaretRight size={16} className="text-gray-400" />
+			</button>
 		</div>
 	);
 };

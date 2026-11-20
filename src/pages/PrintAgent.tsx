@@ -1,11 +1,12 @@
 import { Fragment, useEffect, useRef, useState, type ReactNode } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { ChatCircleText, CheckCircle, FileText, NotePencil, PaperPlaneRight, Paperclip, SpinnerGap, Sparkle, UserCircle, X } from "@phosphor-icons/react";
 import { toast } from "react-toastify";
 import { PageHeader } from "../components/common/PageHeader";
 import { DeliveryChoice } from "../components/order/DeliveryChoice";
 import { useAuth } from "../hooks/useAuth";
 import { useGeolocation } from "../hooks/useGeolocation";
+import { useMarketplaceVendor } from "../hooks/useMarketplace";
 import { deliveryReady, type Delivery, type FileInfo } from "../services/orderApi";
 import { money } from "../services/pricingApi";
 import {
@@ -22,25 +23,31 @@ import {
 	type AgentMessage,
 } from "../services/printAgentApi";
 
-// The conversation in progress, so a reload or a trip to sign in picks it up again
+// The conversation in progress, so a reload or a trip to sign in picks it up
+// again — one for the Printdecore-wide assistant, one per shop
 const STORAGE_KEY = "printdecore_agent_conversation";
-const readSaved = () => {
+const storageKey = (shopId?: string) => (shopId ? `${STORAGE_KEY}:shop:${shopId}` : STORAGE_KEY);
+const readSaved = (shopId?: string) => {
 	try {
-		return localStorage.getItem(STORAGE_KEY);
+		return localStorage.getItem(storageKey(shopId));
 	} catch {
 		return null;
 	}
 };
-const writeSaved = (id: string | null) => {
+const writeSaved = (shopId: string | undefined, id: string | null) => {
 	try {
-		if (id) localStorage.setItem(STORAGE_KEY, id);
-		else localStorage.removeItem(STORAGE_KEY);
+		if (id) localStorage.setItem(storageKey(shopId), id);
+		else localStorage.removeItem(storageKey(shopId));
 	} catch {
 		// Storage blocked: the chat still works for this visit
 	}
 };
 
 const STARTERS = ["Business cards for my shop", "Print my document", "A banner for an event", "Wedding invitations"];
+const SHOP_STARTERS = ["Branded bags or packaging", "Custom mugs or T-shirts", "A large banner or sign", "Something else I need printed"];
+
+/** The shop a chat works for: its requests go to it for a quote */
+type ChatShop = { id: string; name: string };
 const FORM_PATH = "/home/print-assistant/form";
 
 /**
@@ -49,32 +56,68 @@ const FORM_PATH = "/home/print-assistant/form";
  * prices it and puts the order together. Nothing is sent until the customer
  * taps Confirm on the order card.
  */
-export const PrintAgent = () => {
+export const PrintAgent = () => (
+	<AssistantPage title="Print Assistant" subtitle="Tell me what you need printed — I'll price it and put the order together" />
+);
+
+/**
+ * The assistant on a shop's page, for what the shop doesn't list: the
+ * customer describes it, the assistant puts the request together, and the
+ * shop sends a quote.
+ */
+export const ShopAssistant = () => {
+	const { id } = useParams<{ id: string }>();
+	const navigate = useNavigate();
+	const { data: shop, isLoading, error } = useMarketplaceVendor(id);
+
+	if (isLoading) return <SpinnerGap size={20} className="animate-spin text-[#fbbf24]" />;
+	if (error || !shop) {
+		return (
+			<div className="max-w-2xl mx-auto">
+				<PageHeader title="Ask a shop" />
+				<p className="font-semibold text-gray-900 dark:text-white">This shop isn't taking requests right now</p>
+				<button type="button" onClick={() => navigate("/home/shops")} className="mt-3 text-sm font-semibold text-[#d97706]">
+					See other shops
+				</button>
+			</div>
+		);
+	}
+	return <AssistantPage title={`Ask ${shop.name}`} subtitle={`Describe what you need — ${shop.name} will send you a price`} shop={{ id: shop.id, name: shop.name }} />;
+};
+
+const AssistantPage = ({ title, subtitle, shop }: { title: string; subtitle: string; shop?: ChatShop }) => {
 	const { user } = useAuth();
+	const { pathname } = useLocation();
 
 	return (
 		<div className="w-full max-w-2xl mx-auto flex flex-col">
-			<PageHeader title="Print Assistant" subtitle="Tell me what you need printed — I'll price it and put the order together" />
+			<PageHeader title={title} subtitle={subtitle} />
 			{user ? (
-				<AgentChat />
+				<AgentChat key={shop?.id ?? "printdecore"} shop={shop} />
 			) : (
 				<div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1e1e1e] p-6 text-center">
 					<ChatCircleText size={36} className="mx-auto text-[#fbbf24]" />
 					<p className="mt-3 font-bold text-gray-900 dark:text-white">Sign in to chat with the assistant</p>
-					<p className="mt-1 text-sm text-gray-500">It finds the right product, prices your job and puts the order together for you.</p>
+					<p className="mt-1 text-sm text-gray-500">
+						{shop
+							? `Describe what you need and it puts your request together for ${shop.name} to price.`
+							: "It finds the right product, prices your job and puts the order together for you."}
+					</p>
 					<Link
-						to={`/login?returnUrl=${encodeURIComponent("/home/print-assistant")}`}
+						to={`/login?returnUrl=${encodeURIComponent(pathname)}`}
 						className="mt-4 inline-block px-5 py-2.5 bg-[#fbbf24] hover:bg-[#f59e0b] text-black font-bold rounded-xl"
 					>
 						Sign in
 					</Link>
-					<p className="mt-4 text-sm text-gray-500">
-						Or{" "}
-						<Link to={FORM_PATH} className="text-[#d97706] font-semibold hover:underline">
-							fill in the request form
-						</Link>{" "}
-						without signing in first.
-					</p>
+					{!shop && (
+						<p className="mt-4 text-sm text-gray-500">
+							Or{" "}
+							<Link to={FORM_PATH} className="text-[#d97706] font-semibold hover:underline">
+								fill in the request form
+							</Link>{" "}
+							without signing in first.
+						</p>
+					)}
 				</div>
 			)}
 		</div>
@@ -83,12 +126,13 @@ export const PrintAgent = () => {
 
 type Pending = { text: string; attachments: AgentFile[] };
 
-const AgentChat = () => {
+const AgentChat = ({ shop }: { shop?: ChatShop }) => {
 	const navigate = useNavigate();
 	const { user } = useAuth();
 	const { userLocation } = useGeolocation();
+	const shopId = shop?.id;
 	const [conversation, setConversation] = useState<AgentConversation | null>(null);
-	const [loading, setLoading] = useState(() => !!readSaved());
+	const [loading, setLoading] = useState(() => !!readSaved(shopId));
 	const [pending, setPending] = useState<Pending | null>(null);
 	const [waitingForStaff, setWaitingForStaff] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -96,19 +140,20 @@ const AgentChat = () => {
 
 	// Pick up the conversation in progress, if there is one
 	useEffect(() => {
-		const saved = readSaved();
+		const saved = readSaved(shopId);
 		if (!saved) return;
 		getAgentConversation(saved)
 			.then((c) => {
-				if (c.status === "closed") writeSaved(null);
+				// Only this page's chat: the shop's own, or the Printdecore-wide one
+				if (c.status === "closed" || (c.branchId ?? undefined) !== shopId) writeSaved(shopId, null);
 				else {
 					setConversation(c);
 					setWaitingForStaff(c.status === "needs_staff");
 				}
 			})
-			.catch(() => writeSaved(null))
+			.catch(() => writeSaved(shopId, null))
 			.finally(() => setLoading(false));
-	}, []);
+	}, [shopId]);
 
 	useEffect(() => {
 		bottom.current?.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -120,10 +165,10 @@ const AgentChat = () => {
 		setPending({ text, attachments: files });
 		try {
 			const coords = userLocation ?? undefined;
-			const current = conversation ?? (await startAgentConversation(coords));
+			const current = conversation ?? (await startAgentConversation(coords, shopId));
 			if (!conversation) {
 				setConversation(current);
-				writeSaved(current.id);
+				writeSaved(shopId, current.id);
 			}
 			const result = await sendAgentMessage(current.id, { text, attachments: files, coords });
 			setConversation(result.conversation);
@@ -139,7 +184,7 @@ const AgentChat = () => {
 
 	const startOver = () => {
 		if (conversation?.messages.length && !window.confirm("Start a new conversation? This one stays in your history.")) return;
-		writeSaved(null);
+		writeSaved(shopId, null);
 		setConversation(null);
 		setWaitingForStaff(false);
 		setError(null);
@@ -166,10 +211,12 @@ const AgentChat = () => {
 							Hi{user?.firstName ? ` ${user.firstName}` : ""} — what would you like printed?
 						</p>
 						<p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-							Describe it in your own words, or attach your file. I'll find the right product, check your artwork and price it for you.
+							{shop
+								? `Didn't see it in ${shop.name}'s list? Describe it in your own words, or attach a design or photo. I'll put your request together and ${shop.name} will send you a price.`
+								: "Describe it in your own words, or attach your file. I'll find the right product, check your artwork and price it for you."}
 						</p>
 						<div className="mt-4 flex flex-wrap gap-2">
-							{STARTERS.map((s) => (
+							{(shop ? SHOP_STARTERS : STARTERS).map((s) => (
 								<button
 									key={s}
 									type="button"
@@ -201,12 +248,19 @@ const AgentChat = () => {
 						key={openDraft.version}
 						draft={openDraft}
 						phone={user?.phoneNumber}
-						onConfirm={async (delivery) => {
+						shopName={shop?.name}
+						onConfirm={async (delivery, files) => {
 							try {
-								const result = await confirmAgentDraft(conversation.id, openDraft.version, delivery);
+								const result = await confirmAgentDraft(conversation.id, openDraft.version, delivery, files);
 								setConversation(result.conversation);
-								writeSaved(null);
-								toast.success(result.instantPrice ? "Order sent — the shop is confirming it" : "Request sent — we're preparing your quote");
+								writeSaved(shopId, null);
+								toast.success(
+									result.instantPrice
+										? "Order sent — the shop is confirming it"
+										: shop
+											? `Request sent — ${shop.name} will send you a price`
+											: "Request sent — we're preparing your quote"
+								);
 								navigate(`/home/print-request/${result.printRequest.id}`);
 							} catch (err) {
 								toast.error(err instanceof Error ? err.message : "Couldn't send your order");
@@ -220,7 +274,7 @@ const AgentChat = () => {
 				{conversation?.printRequestId && !openDraft && (
 					<div className="flex items-center gap-3 rounded-xl bg-green-50 dark:bg-green-900/10 p-4 text-sm">
 						<CheckCircle size={20} weight="fill" className="text-green-600 shrink-0" />
-						<span className="flex-1 text-gray-800 dark:text-gray-200">Your order was sent.</span>
+						<span className="flex-1 text-gray-800 dark:text-gray-200">{shop ? `Your request was sent to ${shop.name}.` : "Your order was sent."}</span>
 						<Link to={`/home/print-request/${conversation.printRequestId}`} className="font-semibold text-[#d97706] hover:underline">
 							View it
 						</Link>
@@ -238,13 +292,28 @@ const AgentChat = () => {
 				<div ref={bottom} />
 			</div>
 
-			<Composer disabled={!!pending} onSend={send} />
+			{conversation?.status === "closed" ? (
+				<div className="rounded-xl bg-gray-100 dark:bg-[#1e1e1e] p-4 text-sm text-gray-700 dark:text-gray-300 flex items-center justify-between gap-3">
+					<span>This chat is closed.</span>
+					<button type="button" onClick={startOver} className="font-semibold text-[#d97706] hover:underline">
+						Start a new chat
+					</button>
+				</div>
+			) : (
+				<Composer disabled={!!pending} onSend={send} />
+			)}
 
 			<div className="mt-3 flex items-center justify-between text-xs text-gray-500">
-				<Link to={FORM_PATH} className="flex items-center gap-1 hover:text-[#d97706]">
-					<NotePencil size={14} />
-					Use the form instead
-				</Link>
+				{shop ? (
+					<Link to={`/home/shops/${shop.id}`} className="hover:text-[#d97706]">
+						Back to {shop.name}
+					</Link>
+				) : (
+					<Link to={FORM_PATH} className="flex items-center gap-1 hover:text-[#d97706]">
+						<NotePencil size={14} />
+						Use the form instead
+					</Link>
+				)}
 				{conversation && (
 					<button type="button" onClick={startOver} className="hover:text-[#d97706]">
 						Start a new chat
@@ -431,7 +500,18 @@ const Composer = ({ disabled, onSend }: { disabled: boolean; onSend: (text: stri
 };
 
 /** The order the assistant put together: review it, settle delivery, and send it */
-const DraftCard = ({ draft, phone, onConfirm }: { draft: AgentDraft; phone?: string; onConfirm: (delivery: Delivery) => Promise<void> }) => {
+const DraftCard = ({
+	draft,
+	phone,
+	shopName,
+	onConfirm,
+}: {
+	draft: AgentDraft;
+	phone?: string;
+	/** Set on a shop's page: the request goes to this shop */
+	shopName?: string;
+	onConfirm: (delivery: Delivery, files: FileInfo[]) => Promise<void>;
+}) => {
 	// The exact spot is picked on the map here; the assistant only has it in words
 	const [delivery, setDelivery] = useState<Delivery | null>(() => ({
 		fulfilment: draft.fulfilment?.type ?? "delivery",
@@ -439,11 +519,33 @@ const DraftCard = ({ draft, phone, onConfirm }: { draft: AgentDraft; phone?: str
 	}));
 	const spokenAddress = draft.fulfilment?.type === "delivery" ? draft.fulfilment.address : undefined;
 	const [sending, setSending] = useState(false);
-	const ready = deliveryReady(delivery);
+	// The file the shop needs, attached right here if it isn't in the chat yet
+	const [cardFiles, setCardFiles] = useState<FileInfo[]>([]);
+	const [uploading, setUploading] = useState(false);
+	const fileInput = useRef<HTMLInputElement>(null);
+	const needsFile = !!draft.fileRequired && draft.attachments.length === 0 && cardFiles.length === 0;
+	const ready = deliveryReady(delivery) && !needsFile;
+
+	const attach = async (list: FileList | null) => {
+		const picked = Array.from(list ?? []).filter((f) => f.size <= MAX_AGENT_FILE_BYTES).slice(0, MAX_AGENT_FILES - cardFiles.length);
+		if (list && picked.length < list.length) toast.error(`Files must be under 25MB, up to ${MAX_AGENT_FILES} at a time`);
+		if (!picked.length) return;
+		setUploading(true);
+		try {
+			const res = await uploadPrintFiles(picked);
+			if (!res.success || !res.data?.length) throw new Error(res.message || "Upload failed");
+			setCardFiles((f) => [...f, ...res.data!]);
+		} catch (err) {
+			toast.error(err instanceof Error ? err.message : "Couldn't upload your file");
+		} finally {
+			setUploading(false);
+			if (fileInput.current) fileInput.current.value = "";
+		}
+	};
 
 	return (
 		<section className="rounded-2xl border-2 border-[#fbbf24] bg-white dark:bg-[#1e1e1e] p-5" aria-label="Your order">
-			<p className="text-[11px] font-bold text-[#d97706] uppercase tracking-widest">{draft.custom ? "Custom request — ready to review" : "Your order — ready to review"}</p>
+			<p className="text-[11px] font-bold text-[#d97706] uppercase tracking-widest">{shopName ? `Request for ${shopName} — ready to review` : draft.custom ? "Custom request — ready to review" : "Your order — ready to review"}</p>
 			<h2 className="mt-1 font-bold text-gray-900 dark:text-white">
 				{draft.quantity.toLocaleString()} × {draft.serviceName}
 			</h2>
@@ -457,16 +559,45 @@ const DraftCard = ({ draft, phone, onConfirm }: { draft: AgentDraft; phone?: str
 					))}
 				</ul>
 			)}
-			{draft.attachments.length > 0 ? (
+			{draft.attachments.length + cardFiles.length > 0 && (
 				<p className="mt-2 text-xs text-gray-500">
-					{draft.attachments.length} file{draft.attachments.length === 1 ? "" : "s"} attached: {draft.attachments.map((a) => a.name).join(", ")}
+					Attached: {[...draft.attachments, ...cardFiles].map((a) => a.name).join(", ")}
 				</p>
-			) : (
-				<p className="mt-2 text-xs text-amber-700 dark:text-amber-400">
-					{draft.custom
-						? "No file attached — if you have a design, logo or reference picture, send it in the chat."
-						: "No file attached yet — send your document or artwork in the chat so the printer has it."}
-				</p>
+			)}
+			{draft.fileRequired && draft.attachments.length === 0 && (
+				<div className={`mt-3 rounded-xl border p-3 ${needsFile ? "border-red-200 bg-red-50 dark:border-red-900/40 dark:bg-red-900/10" : "border-green-200 bg-green-50 dark:border-green-900/40 dark:bg-green-900/10"}`}>
+					<p className="text-sm font-semibold text-gray-900 dark:text-white">
+						{needsFile ? "Required: " : "Attached: "}
+						{draft.fileNeeded ?? "your file"}
+					</p>
+					<p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">The shop needs it to make your order. Any format, up to 25MB each.</p>
+					{cardFiles.length > 0 && (
+						<div className="flex flex-wrap gap-1.5 mt-2">
+							{cardFiles.map((f) => (
+								<span key={f.url} className="flex items-center gap-1 pl-2 pr-1 py-1 rounded-lg bg-white dark:bg-[#111] text-xs max-w-[14rem]">
+									<FileText size={12} className="shrink-0 text-[#d97706]" />
+									<span className="truncate text-gray-800 dark:text-gray-200">{f.name}</span>
+									<button type="button" onClick={() => setCardFiles((all) => all.filter((x) => x.url !== f.url))} className="p-0.5 text-gray-400 hover:text-red-500" aria-label={`Remove ${f.name}`}>
+										<X size={12} />
+									</button>
+								</span>
+							))}
+						</div>
+					)}
+					<button
+						type="button"
+						onClick={() => fileInput.current?.click()}
+						disabled={uploading}
+						className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white dark:bg-[#111] border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-800 dark:text-gray-200 hover:border-[#fbbf24] disabled:opacity-50"
+					>
+						{uploading ? <SpinnerGap size={14} className="animate-spin" /> : <Paperclip size={14} />}
+						{cardFiles.length ? "Add more files" : "Attach file"}
+					</button>
+					<input ref={fileInput} type="file" multiple className="hidden" onChange={(e) => attach(e.target.files)} />
+				</div>
+			)}
+			{!draft.fileRequired && draft.attachments.length === 0 && (
+				<p className="mt-2 text-xs text-gray-500">No file needed — if you have a design, logo or reference, you can send it in the chat.</p>
 			)}
 
 			<div className="mt-4 rounded-xl bg-amber-50 dark:bg-amber-900/10 p-4">
@@ -475,8 +606,10 @@ const DraftCard = ({ draft, phone, onConfirm }: { draft: AgentDraft; phone?: str
 				<p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
 					{draft.price
 						? "The shop confirms the price and availability in about 10 minutes, then you pay from your order. Nothing is charged now."
-						: draft.custom
-							? "We don't list this yet, so our team reviews custom requests, finds a shop that can make it and sends you a price. Nothing is charged until you accept it."
+						: shopName
+							? `${shopName} reviews your request and sends you a price. Nothing is charged until you accept it.`
+							: draft.custom
+							? "Our team reviews your request, finds the right shop for it and sends you a price. Nothing is charged until you accept it."
 							: "We'll send you a price for this. Nothing is charged until you accept it."}
 				</p>
 			</div>
@@ -495,15 +628,21 @@ const DraftCard = ({ draft, phone, onConfirm }: { draft: AgentDraft; phone?: str
 				onClick={async () => {
 					if (!delivery) return;
 					setSending(true);
-					await onConfirm(delivery);
+					await onConfirm(delivery, cardFiles);
 					setSending(false);
 				}}
 				className="mt-4 w-full flex items-center justify-center gap-2 py-3 bg-[#fbbf24] hover:bg-[#f59e0b] text-black font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
 			>
 				{sending && <SpinnerGap size={16} className="animate-spin" />}
-				{draft.price ? "Confirm and send" : draft.custom ? "Send custom request" : "Confirm and ask for a quote"}
+				{draft.price ? "Confirm and send" : shopName ? `Send to ${shopName}` : draft.custom ? "Send custom request" : "Confirm and ask for a quote"}
 			</button>
-			{!ready && <p className="mt-2 text-xs text-center text-gray-500">Add a phone number{delivery?.fulfilment === "delivery" ? " and pick the delivery address" : ""} to send it.</p>}
+			{!ready && (
+				<p className="mt-2 text-xs text-center text-gray-500">
+					{needsFile
+						? `Attach ${(draft.fileNeeded ?? "your file").replace(/^Your /, "your ")} to send it.`
+						: `Add a phone number${delivery?.fulfilment === "delivery" ? " and pick the delivery address" : ""} to send it.`}
+				</p>
+			)}
 			<p className="mt-2 text-xs text-center text-gray-500">Want to change something? Just tell the assistant.</p>
 		</section>
 	);

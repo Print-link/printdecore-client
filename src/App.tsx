@@ -28,7 +28,7 @@ import { Shop } from "./pages/Shop";
 import { ShopProduct } from "./pages/ShopProduct";
 import { Tray } from "./pages/Tray";
 import { PrintAssistant } from "./pages/PrintAssistant";
-import { PrintAgent } from "./pages/PrintAgent";
+import { PrintAgent, ShopAssistant } from "./pages/PrintAgent";
 import { PrintRequestDetails } from "./pages/PrintRequestDetails";
 
 // Create a client
@@ -93,6 +93,7 @@ const AppRoutes = () => {
 				<Route path="shops" element={<Shops />} />
 				<Route path="shops/:id" element={<Shop />} />
 				<Route path="shops/:id/products/:agentServiceId" element={<ShopProduct />} />
+				<Route path="shops/:id/assistant" element={<ShopAssistant />} />
 				<Route path="tray" element={<Tray />} />
 				<Route path="print-assistant" element={<PrintAgent />} />
 				<Route path="print-assistant/form" element={<PrintAssistant />} />
