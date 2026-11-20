@@ -120,3 +120,24 @@ export const confirmAgentDraft = async (id: string, draftVersion: number, delive
 		return handleApiError(error, "Couldn't send your order");
 	}
 };
+
+/** Most files one message can carry, and the largest one the server takes */
+export const MAX_AGENT_FILES = 10;
+export const MAX_AGENT_FILE_BYTES = 25 * 1024 * 1024;
+
+/** Upload artwork or reference files in any format (not programs) for the chat */
+export const uploadPrintFiles = async (files: File[]): Promise<ApiResponse<FileInfo[]>> => {
+	try {
+		const formData = new FormData();
+		files.forEach((file) => formData.append("files", file));
+		// Only the token: the browser sets the multipart Content-Type (with its boundary) itself
+		const token = localStorage.getItem("token");
+		const response = await axios.post<ApiResponse<FileInfo[]>>(`${BASE_URL}/upload/print-files`, formData, {
+			headers: token ? { Authorization: `Bearer ${token}` } : {},
+			timeout: 300_000,
+		});
+		return response.data;
+	} catch (error) {
+		return handleApiError(error, "Couldn't upload your files");
+	}
+};

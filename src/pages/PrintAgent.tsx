@@ -6,13 +6,16 @@ import { PageHeader } from "../components/common/PageHeader";
 import { DeliveryChoice } from "../components/order/DeliveryChoice";
 import { useAuth } from "../hooks/useAuth";
 import { useGeolocation } from "../hooks/useGeolocation";
-import { deliveryReady, uploadMultipleFiles, type Delivery, type FileInfo } from "../services/orderApi";
+import { deliveryReady, type Delivery, type FileInfo } from "../services/orderApi";
 import { money } from "../services/pricingApi";
 import {
 	confirmAgentDraft,
 	getAgentConversation,
+	MAX_AGENT_FILE_BYTES,
+	MAX_AGENT_FILES,
 	sendAgentMessage,
 	startAgentConversation,
+	uploadPrintFiles,
 	type AgentConversation,
 	type AgentDraft,
 	type AgentFile,
@@ -37,7 +40,6 @@ const writeSaved = (id: string | null) => {
 	}
 };
 
-const MAX_FILES = 5;
 const STARTERS = ["Business cards for my shop", "Print my document", "A banner for an event", "Wedding invitations"];
 const FORM_PATH = "/home/print-assistant/form";
 
@@ -332,13 +334,23 @@ const Composer = ({ disabled, onSend }: { disabled: boolean; onSend: (text: stri
 	const fileInput = useRef<HTMLInputElement>(null);
 
 	const attach = async (list: FileList | null) => {
-		const picked = Array.from(list ?? []).slice(0, MAX_FILES - files.length);
-		if (!picked.length) return;
+		const all = Array.from(list ?? []);
+		const tooBig = all.filter((f) => f.size > MAX_AGENT_FILE_BYTES);
+		if (tooBig.length) toast.error(`${tooBig.map((f) => f.name).join(", ")} ${tooBig.length === 1 ? "is" : "are"} over 25MB — send a smaller copy or a ZIP`);
+		const room = MAX_AGENT_FILES - files.length;
+		const fitting = all.filter((f) => f.size <= MAX_AGENT_FILE_BYTES);
+		if (fitting.length > room) toast.info(`Up to ${MAX_AGENT_FILES} files per message — send the rest in your next message`);
+		const picked = fitting.slice(0, room);
+		if (!picked.length) {
+			if (fileInput.current) fileInput.current.value = "";
+			return;
+		}
 		setUploading(true);
 		try {
-			const res = await uploadMultipleFiles(picked, `orders/staging/${Date.now()}`);
+			const res = await uploadPrintFiles(picked);
 			if (!res.success || !res.data?.length) throw new Error(res.message || "Upload failed");
 			setFiles((f) => [...f, ...res.data!]);
+			if ((res as { failed?: string[] }).failed?.length) toast.warning(res.message);
 		} catch (err) {
 			toast.error(err instanceof Error ? err.message : "Couldn't upload your file");
 		} finally {
@@ -381,13 +393,14 @@ const Composer = ({ disabled, onSend }: { disabled: boolean; onSend: (text: stri
 				<button
 					type="button"
 					onClick={() => fileInput.current?.click()}
-					disabled={uploading || files.length >= MAX_FILES}
+					disabled={uploading || files.length >= MAX_AGENT_FILES}
 					className="p-2 rounded-xl text-gray-500 hover:text-[#d97706] hover:bg-amber-50 dark:hover:bg-amber-900/10 disabled:opacity-50"
-					aria-label="Attach a file"
+					aria-label="Attach files"
+					title="Attach files — any format, up to 10"
 				>
 					{uploading ? <SpinnerGap size={18} className="animate-spin" /> : <Paperclip size={18} />}
 				</button>
-				<input ref={fileInput} type="file" multiple accept="application/pdf,image/*" className="hidden" onChange={(e) => attach(e.target.files)} />
+				<input ref={fileInput} type="file" multiple className="hidden" onChange={(e) => attach(e.target.files)} />
 				<textarea
 					value={text}
 					onChange={(e) => setText(e.target.value)}
