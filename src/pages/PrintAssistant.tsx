@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowCounterClockwise, CaretRight, CheckCircle, FileText, MagnifyingGlass, SpinnerGap, Upload, X } from "@phosphor-icons/react";
+import { ArrowCounterClockwise, CaretRight, ChatCircleText, CheckCircle, FileText, MagnifyingGlass, SpinnerGap, Upload, X } from "@phosphor-icons/react";
 import { toast } from "react-toastify";
 import { PageHeader } from "../components/common/PageHeader";
 import { DeliveryChoice } from "../components/order/DeliveryChoice";
@@ -107,7 +107,7 @@ export const PrintAssistant = () => {
 	const submit = async () => {
 		if (!selection || !configured || !delivery || submitting) return;
 		if (!user) {
-			navigate(`/login?returnUrl=${encodeURIComponent("/home/print-assistant")}`);
+			navigate(`/login?returnUrl=${encodeURIComponent("/home/print-assistant/form")}`);
 			return;
 		}
 		setError(null);
@@ -161,6 +161,11 @@ export const PrintAssistant = () => {
 					) : undefined
 				}
 			/>
+
+			<Link to="/home/print-assistant" className="-mt-3 mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-[#d97706] hover:underline">
+				<ChatCircleText size={16} />
+				Prefer to just describe it? Chat with the assistant
+			</Link>
 
 			<div className="space-y-3">
 				<SheetSection
@@ -391,7 +396,7 @@ const ServicePicker = ({
 					</>
 				) : (
 					<p className="text-xs text-gray-500">
-						<Link to={`/login?returnUrl=${encodeURIComponent("/home/print-assistant")}`} className="text-[#d97706] font-semibold hover:underline">
+						<Link to={`/login?returnUrl=${encodeURIComponent("/home/print-assistant/form")}`} className="text-[#d97706] font-semibold hover:underline">
 							Sign in
 						</Link>{" "}
 						to start from your own file.
