@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "@phosphor-icons/react";
 import { toast } from "react-toastify";
 import { useOrder, useOrderItems } from "../hooks/useOrders";
@@ -17,6 +18,8 @@ import { CategoryInfo } from "../components/order/CategoryInfo";
 import { ResultsCheckerInfo } from "../components/order/ResultsCheckerInfo";
 import { FileInfoSection } from "../components/order/FileInfoSection";
 import { PrintJobDetails } from "../components/order/PrintJobDetails";
+import { PrintRequestSpec } from "../components/order/PrintRequestSpec";
+import { getPrintRequestByOrder } from "../services/printRequestApi";
 import { DeliveryNotice } from "../components/order/DeliveryNotice";
 import { OrderPaymentPanel } from "../components/order/OrderPaymentPanel";
 import { LoadingState } from "../components/order/LoadingState";
@@ -111,6 +114,14 @@ export const OrderDetails = () => {
 	const { data: orderItems = [], isLoading: loadingItems } = useOrderItems(
 		order?.id || id
 	);
+	// An order placed from a request (e.g. the Print Assistant) keeps its spec
+	// and files on the request, not on order items
+	const orderKey = order?.id || id;
+	const { data: printRequest } = useQuery({
+		queryKey: ["printRequestByOrder", orderKey],
+		queryFn: () => getPrintRequestByOrder(orderKey!),
+		enabled: !!orderKey,
+	});
 
 
 	// Derived data - get category/service info from order items (new flexible pricing) or order (legacy)
@@ -259,7 +270,9 @@ export const OrderDetails = () => {
 				<div className="lg:col-span-2 space-y-4">
 					<OrderItemsList items={orderItems} loading={loadingItems} />
 
-					<CategoryInfo category={category as Category} />
+					{printRequest && <PrintRequestSpec request={printRequest} />}
+
+					{!printRequest && <CategoryInfo category={category as Category} />}
 
 					{isResultsChecker && (
 						<ResultsCheckerInfo

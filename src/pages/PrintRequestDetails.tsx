@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { PaperPlaneRight, Paperclip, SpinnerGap } from "@phosphor-icons/react";
 import { toast } from "react-toastify";
 import { PageHeader } from "../components/common/PageHeader";
-import { getPrintRequest, getRequestMessages, sendRequestMessage } from "../services/printRequestApi";
+import { detailLines, getPrintRequest, getRequestMessages, sendRequestMessage } from "../services/printRequestApi";
 import { money } from "../services/pricingApi";
 
 const STATUS: Record<string, string> = {
@@ -93,13 +93,14 @@ export const PrintRequestDetails = () => {
 						<dt className="inline text-gray-500">{request.fulfilmentType === "pickup" ? "Pickup" : "Delivery"}: </dt>
 						<dd className="inline">{request.fulfilmentType === "pickup" ? "you'll collect it" : request.deliveryAddress}</dd>
 					</div>
-					{request.additionalDetails && (
-						<div>
-							<dt className="inline text-gray-500">Details: </dt>
-							<dd className="inline">{request.additionalDetails}</dd>
-						</div>
-					)}
 				</dl>
+				{detailLines(request.additionalDetails).length > 0 && (
+					<ul className="mt-3 space-y-1.5 text-sm text-gray-700 dark:text-gray-300 list-disc pl-5">
+						{detailLines(request.additionalDetails).map((line, i) => (
+							<li key={i}>{line}</li>
+						))}
+					</ul>
+				)}
 				{request.attachments.length > 0 && (
 					<ul className="mt-3 space-y-1">
 						{request.attachments.map((f, i) => (

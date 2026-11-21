@@ -83,6 +83,23 @@ export const getPrintRequest = async (id: string): Promise<PrintRequest> => {
 	}
 };
 
+/** The request behind an order, if the order came from the Print Assistant or a print request */
+export const getPrintRequestByOrder = async (orderId: string): Promise<PrintRequest | undefined> => {
+	try {
+		const response = await axios.get<ApiResponse<PrintRequest[]>>(`${BASE_URL}/print-requests`, {
+			headers: getAuthHeaders(),
+			params: { orderId },
+		});
+		return (response.data.data ?? []).find((r) => r.orderId === orderId);
+	} catch (error) {
+		return handleApiError(error, "Couldn't load this request");
+	}
+};
+
+/** The request's details as separate lines: the spec the customer confirmed, then any notes */
+export const detailLines = (details?: string): string[] =>
+	(details ?? "").split("\n").map((l) => l.trim()).filter(Boolean);
+
 export interface RequestMessage {
 	id: string;
 	senderType: string;
