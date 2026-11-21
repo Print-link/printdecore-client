@@ -1,42 +1,39 @@
 import { useState } from "react";
 import { Check, CircleNotch, DownloadSimple, Eye, Paperclip } from "@phosphor-icons/react";
-import { formatBytes, saveFile, type FileKind, type OrderFile } from "../../utils/files";
+import { formatBytes, KIND_ACCENT, previewUrl, saveFile, type OrderFile } from "../../utils/files";
+import { FileTypeIcon } from "./FileTypeIcon";
 
 interface FileListProps {
 	files: OrderFile[];
 	title?: string;
 }
 
-/** Badge colours per kind, so each file is recognisable at a glance */
-const KIND_STYLE: Record<FileKind, string> = {
-	pdf: "bg-red-50 text-red-700 ring-red-200 dark:bg-red-500/15 dark:text-red-300 dark:ring-red-500/30",
-	image: "bg-sky-50 text-sky-700 ring-sky-200 dark:bg-sky-500/15 dark:text-sky-300 dark:ring-sky-500/30",
-	doc: "bg-blue-50 text-blue-700 ring-blue-200 dark:bg-blue-500/15 dark:text-blue-300 dark:ring-blue-500/30",
-	sheet: "bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-300 dark:ring-emerald-500/30",
-	slides: "bg-orange-50 text-orange-700 ring-orange-200 dark:bg-orange-500/15 dark:text-orange-300 dark:ring-orange-500/30",
-	design: "bg-violet-50 text-violet-700 ring-violet-200 dark:bg-violet-500/15 dark:text-violet-300 dark:ring-violet-500/30",
-	archive: "bg-amber-50 text-amber-800 ring-amber-200 dark:bg-amber-500/15 dark:text-amber-300 dark:ring-amber-500/30",
-	other: "bg-gray-100 text-gray-600 ring-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:ring-gray-600",
-};
-
 type RowState = "idle" | "saving" | "saved";
 
+/**
+ * The file's picture: a real thumbnail where there is one (images, the first
+ * page of a PDF), otherwise an illustration of that kind of file.
+ */
 const FileTile = ({ file }: { file: OrderFile }) => {
 	const [broken, setBroken] = useState(false);
-	if (file.kind === "image" && !broken) {
+	const src = previewUrl(file);
+	if (src && !broken) {
 		return (
-			<img
-				src={file.url}
-				alt=""
-				loading="lazy"
-				onError={() => setBroken(true)}
-				className="h-10 w-10 shrink-0 rounded-lg object-cover ring-1 ring-gray-200 dark:ring-gray-700"
-			/>
+			<span className="relative h-12 w-10 shrink-0 overflow-hidden rounded-md ring-1 ring-gray-200 dark:ring-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+				<img src={src} alt="" loading="lazy" onError={() => setBroken(true)} className="h-full w-full object-cover" />
+				<span
+					className="absolute bottom-0.5 left-0.5 rounded-[3px] px-1 text-[8px] font-extrabold leading-[12px] tracking-wide text-white"
+					style={{ backgroundColor: KIND_ACCENT[file.kind] }}
+				>
+					{file.ext.slice(0, 4)}
+				</span>
+			</span>
 		);
 	}
 	return (
-		<span aria-hidden="true" className={`h-10 w-10 shrink-0 rounded-lg ring-1 flex items-center justify-center text-[10px] font-bold tracking-wide ${KIND_STYLE[file.kind]}`}>
-			{file.ext.slice(0, 4)}
+		<span className="shrink-0">
+			<FileTypeIcon kind={file.kind} ext={file.ext} className="dark:hidden" />
+			<FileTypeIcon kind={file.kind} ext={file.ext} dark className="hidden dark:block" />
 		</span>
 	);
 };
