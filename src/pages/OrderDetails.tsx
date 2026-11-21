@@ -40,6 +40,8 @@ interface OrderDetailsData {
 	id?: string;
 	createdAt?: string;
 	status?: string;
+	fulfilmentType?: "delivery" | "pickup";
+	estimatedCompletionTime?: string;
 	fileName?: string;
 	fileSize?: number;
 	originalName?: string;
@@ -255,6 +257,9 @@ export const OrderDetails = () => {
 			{/* Header Section */}
 			<OrderHeader
 				declineReason={order.declineReason}
+				fulfilmentType={order.fulfilmentType}
+				readyBy={order.estimatedCompletionTime}
+				shopName={order.channel === "marketplace" ? order.branch?.name : undefined}
 				status={order.status}
 				totalPrice={order.totalPrice}
 				createdAt={order.createdAt}

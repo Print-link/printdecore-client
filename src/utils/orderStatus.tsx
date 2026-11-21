@@ -4,7 +4,6 @@ import {
 	ClockCountdown,
 	CreditCard,
 	CurrencyCircleDollar,
-	MagnifyingGlass,
 	Package,
 	Printer,
 	Storefront,
@@ -42,10 +41,11 @@ export const ORDER_STATUS: Record<OrderStatus, StatusStyle> = {
 	QUOTED: { ...blue, label: "Quoted", icon: icon(CurrencyCircleDollar) },
 	AWAITING_PAYMENT: { ...blue, label: "Awaiting payment", icon: icon(CurrencyCircleDollar) },
 	PAID: { ...green, label: "Paid", icon: icon(CreditCard) },
-	RECEIVED: { ...violet, label: "In production", icon: icon(Printer) },
-	IN_PROGRESS: { ...violet, label: "In progress", icon: icon(Printer) },
-	PRINTING: { ...violet, label: "Printing", icon: icon(Printer) },
-	QUALITY_CHECK: { ...violet, label: "Quality check", icon: icon(MagnifyingGlass) },
+	// The shop's steps in between all read as one: it's being made
+	RECEIVED: { ...violet, label: "Being made", icon: icon(Printer) },
+	IN_PROGRESS: { ...violet, label: "Being made", icon: icon(Printer) },
+	PRINTING: { ...violet, label: "Being made", icon: icon(Printer) },
+	QUALITY_CHECK: { ...violet, label: "Being made", icon: icon(Printer) },
 	READY_FOR_PICKUP: { ...cyan, label: "Ready for pickup", icon: icon(Storefront) },
 	OUT_FOR_DELIVERY: { ...cyan, label: "Out for delivery", icon: icon(Truck) },
 	DELIVERED: { ...green, label: "Delivered", icon: icon(CheckCircle) },
@@ -80,10 +80,75 @@ export const ORDER_STEPS: OrderStep[] = [
 	{ key: "quoted", label: "Quoted", statuses: ["QUOTED", "AWAITING_PAYMENT"], icon: icon(CurrencyCircleDollar) },
 	{ key: "paid", label: "Paid", statuses: ["PAID"], icon: icon(CreditCard) },
 	// The shop accepting a paid order starts production; RECEIVED is from before that
-	{ key: "production", label: "In production", statuses: ["RECEIVED", "IN_PROGRESS", "PRINTING", "QUALITY_CHECK"], icon: icon(Printer) },
+	{ key: "production", label: "Being made", statuses: ["RECEIVED", "IN_PROGRESS", "PRINTING", "QUALITY_CHECK"], icon: icon(Printer) },
 	{ key: "ready", label: "Ready", statuses: ["READY_FOR_PICKUP", "OUT_FOR_DELIVERY"], icon: icon(Storefront) },
 	{ key: "completed", label: "Completed", statuses: ["DELIVERED", "COMPLETED"], icon: icon(CheckCircle) },
 ];
+
+/** A step's name for this order: "Ready" and "Completed" depend on how they get it */
+export const stepLabel = (step: OrderStep, fulfilmentType?: "delivery" | "pickup"): string => {
+	if (step.key === "ready") return fulfilmentType === "delivery" ? "On its way" : "Ready for pickup";
+	if (step.key === "completed") return fulfilmentType === "delivery" ? "Delivered" : "Collected";
+	return step.label;
+};
+
+/** "3:30 PM", "tomorrow, 9:00 AM" or "Tue 12 Nov, 9:00 AM" */
+const readyByText = (value?: string): string => {
+	if (!value) return "";
+	const d = new Date(value);
+	if (Number.isNaN(d.getTime())) return "";
+	const time = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+	const today = new Date();
+	const tomorrow = new Date(today.getTime() + 86400000);
+	if (d.toDateString() === today.toDateString()) return time;
+	if (d.toDateString() === tomorrow.toDateString()) return `tomorrow, ${time}`;
+	return `${d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}, ${time}`;
+};
+
+/**
+ * One line on where the order is and what happens next — the same words the
+ * customer gets in their notification when the shop moves it on.
+ */
+export const statusNote = (order: {
+	status?: string;
+	fulfilmentType?: "delivery" | "pickup";
+	readyBy?: string;
+	shopName?: string;
+}): { title: string; body: string } | null => {
+	const shop = order.shopName?.trim() || "The shop";
+	const at = readyByText(order.readyBy);
+	const late = order.readyBy ? new Date(order.readyBy).getTime() < Date.now() : false;
+	switch ((order.status || "").toUpperCase()) {
+		case "PAID":
+			return { title: "Waiting for the shop to accept", body: `${shop} has your order and payment. You'll be told when they start on it.` };
+		case "RECEIVED":
+		case "IN_PROGRESS":
+		case "PRINTING":
+		case "QUALITY_CHECK":
+			return {
+				title: "Your order is being made",
+				body: at
+					? late
+						? `${shop} is finishing it — it was due ${at}. You'll be told the moment it's ready.`
+						: `${shop} is working on it. Ready by ${at}.`
+					: `${shop} is working on it. You'll be told when it's ready.`,
+			};
+		case "READY_FOR_PICKUP":
+			return {
+				title: "Ready for pickup",
+				body: `Collect it from ${order.shopName?.trim() || "the shop"}. Bring your order number.`,
+			};
+		case "OUT_FOR_DELIVERY":
+			return { title: "On its way", body: "Your order has left the shop and is on its way to you." };
+		case "DELIVERED":
+		case "COMPLETED":
+			return order.fulfilmentType === "delivery"
+				? { title: "Delivered", body: "Your order has been delivered. Thanks for printing with Printdecore." }
+				: { title: "Collected", body: "Your order has been collected. Thanks for printing with Printdecore." };
+		default:
+			return null;
+	}
+};
 
 /** Where the order is on the steps; -1 when it was cancelled */
 export const stepIndex = (status?: string): number => {

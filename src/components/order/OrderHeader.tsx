@@ -1,12 +1,18 @@
 import { MapPin, ArrowSquareOut, ChatDots, CheckCircle } from "@phosphor-icons/react";
 import { formatDate } from "../../utils/orderUtils";
-import { ORDER_STEPS, orderStatusStyle, stepIndex } from "../../utils/orderStatus";
+import { ORDER_STEPS, orderStatusStyle, statusNote, stepIndex, stepLabel } from "../../utils/orderStatus";
 import type { OrderStatus } from "../../services/orderApi";
 
 interface OrderHeaderProps {
 	status?: string | OrderStatus;
 	/** Set when the shop declined the order — shown as "Declined by shop" */
 	declineReason?: string;
+	/** For step names and the note: collected vs delivered */
+	fulfilmentType?: "delivery" | "pickup";
+	/** The shop's ready-by time, once they've accepted */
+	readyBy?: string;
+	/** The shop making it, for an order placed with a shop */
+	shopName?: string;
 	totalPrice?: number;
 	createdAt?: string;
 	hasLocation: boolean;
@@ -17,6 +23,9 @@ interface OrderHeaderProps {
 export const OrderHeader = ({
 	status,
 	declineReason,
+	fulfilmentType,
+	readyBy,
+	shopName,
 	totalPrice,
 	createdAt,
 	hasLocation,
@@ -25,6 +34,7 @@ export const OrderHeader = ({
 }: OrderHeaderProps) => {
 	const config = orderStatusStyle({ status, declineReason });
 	const currentStepIndex = stepIndex(status);
+	const note = declineReason ? null : statusNote({ status, fulfilmentType, readyBy, shopName });
 
 	return (
 		<div className="mb-6">
@@ -106,7 +116,7 @@ export const OrderHeader = ({
 									<span className={`text-[10px] mt-1.5 font-medium hidden md:block whitespace-nowrap ${
 										isCurrent ? "text-gray-900 dark:text-white" : isCompleted ? "text-emerald-600" : "text-gray-400 dark:text-gray-500"
 									}`}>
-										{step.label}
+										{stepLabel(step, fulfilmentType)}
 									</span>
 								</div>
 								{!isLast && (
@@ -118,6 +128,16 @@ export const OrderHeader = ({
 						);
 					})}
 				</div>
+				{/* Where it is now, in words — the same as their notification said */}
+				{note && (
+					<div role="status" className={`mt-4 flex items-start gap-3 rounded-xl border px-4 py-3 ${config.bg} ${config.border}`}>
+						<span className={`mt-0.5 shrink-0 ${config.color}`}>{config.icon(18)}</span>
+						<div className="min-w-0">
+							<p className="text-sm font-bold text-gray-900 dark:text-white">{note.title}</p>
+							<p className="text-sm text-gray-700 dark:text-gray-300">{note.body}</p>
+						</div>
+					</div>
+				)}
 			</div>
 		</div>
 	);
