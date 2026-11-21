@@ -300,7 +300,7 @@ const AgentChat = ({ shop }: { shop?: ChatShop }) => {
 					</button>
 				</div>
 			) : (
-				<Composer disabled={!!pending} onSend={send} />
+				<Composer disabled={!!pending} onSend={send} aboveTabBar={!shop} />
 			)}
 
 			<div className="mt-3 flex items-center justify-between text-xs text-gray-500">
@@ -396,7 +396,7 @@ const FormattedText = ({ text }: { text: string }) => {
 	return <div className="space-y-1.5">{blocks}</div>;
 };
 
-const Composer = ({ disabled, onSend }: { disabled: boolean; onSend: (text: string, files: FileInfo[]) => Promise<boolean | undefined> }) => {
+const Composer = ({ disabled, onSend, aboveTabBar }: { disabled: boolean; onSend: (text: string, files: FileInfo[]) => Promise<boolean | undefined>; aboveTabBar: boolean }) => {
 	const [text, setText] = useState("");
 	const [files, setFiles] = useState<FileInfo[]>([]);
 	const [uploading, setUploading] = useState(false);
@@ -444,7 +444,10 @@ const Composer = ({ disabled, onSend }: { disabled: boolean; onSend: (text: stri
 	};
 
 	return (
-		<div className="sticky bottom-0 bg-gray-50 dark:bg-[#111111] pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+		<div className={`sticky md:bottom-0 bg-gray-50 dark:bg-[#111111] pt-2 md:pb-[max(0.5rem,env(safe-area-inset-bottom))] ${
+				// On phones the main Assistant sits above the tab bar; a shop's chat has none
+				aboveTabBar ? "bottom-[calc(4rem+env(safe-area-inset-bottom))] pb-2" : "bottom-0 pb-[max(0.5rem,env(safe-area-inset-bottom))]"
+			}`}>
 			{files.length > 0 && (
 				<div className="flex flex-wrap gap-1.5 mb-2">
 					{files.map((f) => (

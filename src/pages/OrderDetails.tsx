@@ -248,7 +248,7 @@ export const OrderDetails = () => {
 			{/* Back Button */}
 			<button
 				onClick={() => navigate("/home/history")}
-				className="mb-4 flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+				className="mb-4 hidden md:flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
 			>
 				<ArrowLeft size={16} weight="bold" className="mr-2" />
 				Back to History

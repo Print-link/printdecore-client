@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* dark: follows the app's theme switch (ThemeContext puts .dark on <html>), not the device setting —
+   otherwise a phone in light mode with the app in dark mode shows half of each */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* CSS Custom Properties - Enhanced Bolt-Inspired Theme */
 :root {
 	/* Light mode - Enhanced Yellow & Black Professional Theme */
@@ -493,9 +497,11 @@ button {
 	transition: all 0.2s ease;
 }
 
-button:not(:disabled):hover {
-	opacity: 0.85;
-	transform: translateY(-1px);
+@media (hover: hover) {
+	button:not(:disabled):hover {
+		opacity: 0.85;
+		transform: translateY(-1px);
+	}
 }
 
 button:not(:disabled):active {
@@ -533,103 +539,82 @@ textarea:focus {
 	color: var(--black-primary);
 }
 
-/* Dark mode overrides for Tailwind classes */
-[data-theme='dark'] {
-	/* Background colors */
-	--tw-bg-opacity: 1;
+/*
+ * Dark mode fallbacks for older screens that only set light colours.
+ * Each applies ONLY when the element has no dark: style of its own, so
+ * screens that set their dark colours keep them (these used to be
+ * !important and overrode them, which is why sections didn't match).
+ */
+.dark .bg-white:not([class*="dark:bg-"]) { background-color: var(--bg-card); }
+.dark .bg-gray-50:not([class*="dark:bg-"]) { background-color: var(--bg-secondary); }
+.dark .bg-gray-100:not([class*="dark:bg-"]) { background-color: var(--bg-tertiary); }
+.dark .bg-gray-200:not([class*="dark:bg-"]) { background-color: var(--border-color); }
+
+.dark :is(.text-gray-900, .text-gray-800):not([class*="dark:text-"]) { color: var(--text-primary); }
+.dark :is(.text-gray-700, .text-gray-600, .text-gray-500):not([class*="dark:text-"]) { color: var(--text-secondary); }
+.dark .text-gray-400:not([class*="dark:text-"]) { color: var(--text-muted); }
+/* Black text stays black on yellow and white surfaces (buttons, badges) */
+.dark .text-black:not([class*="dark:text-"]):not([class*="bg-[#fbbf24]"]):not([class*="bg-[#f59e0b]"]):not([class*="bg-amber"]):not([class*="bg-yellow"]):not([class*="bg-primary"]):not(.bg-white) {
+	color: var(--text-primary);
 }
 
-/* Background colors - Higher specificity */
-html[data-theme='dark'] .bg-white,
-[data-theme='dark'] .bg-white {
-	background-color: var(--bg-primary) !important;
-}
+.dark :is(.border-gray-100, .border-gray-200, .border-gray-300, .border-gray-400):not([class*="dark:border-"]) { border-color: var(--border-color); }
 
-html[data-theme='dark'] .bg-gray-50,
-[data-theme='dark'] .bg-gray-50 {
-	background-color: var(--bg-secondary) !important;
+.dark :is(input, textarea, select):not([class*="dark:bg-"]):not([class*="bg-transparent"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]) {
+	background-color: var(--bg-secondary);
+	color: var(--text-primary);
+	border-color: var(--border-color);
 }
+.dark :is(input, textarea)::placeholder { color: var(--text-muted); }
 
-html[data-theme='dark'] .bg-gray-100,
-[data-theme='dark'] .bg-gray-100 {
-	background-color: var(--bg-tertiary) !important;
+/* The page behind everything matches the app's dark background (no lighter strip on overscroll) */
+.dark body { background: #111111; }
+
+/* ─── Feels like an app on phones ─── */
+html {
+	-webkit-tap-highlight-color: transparent;
+	-webkit-text-size-adjust: 100%;
 }
-
-html[data-theme='dark'] .bg-gray-200,
-[data-theme='dark'] .bg-gray-200 {
-	background-color: var(--border-color) !important;
+body {
+	overscroll-behavior-y: none;
 }
-
-/* Text colors */
-html[data-theme='dark'] .text-gray-900,
-[data-theme='dark'] .text-gray-900 {
-	color: var(--text-primary) !important;
+button, a, [role="button"] {
+	touch-action: manipulation;
 }
-
-html[data-theme='dark'] .text-gray-800,
-[data-theme='dark'] .text-gray-800 {
-	color: var(--text-primary) !important;
+/* iPhone zooms into any input under 16px; keep them at 16px on phones */
+@media (max-width: 767px) {
+	input:not([type="checkbox"]):not([type="radio"]), select, textarea {
+		font-size: 16px !important;
+	}
 }
-
-html[data-theme='dark'] .text-gray-700,
-[data-theme='dark'] .text-gray-700 {
-	color: var(--text-secondary) !important;
+/* Press feedback instead of hover lifts on touch screens */
+@media (hover: none) {
+	button:not(:disabled):hover {
+		opacity: 1;
+		transform: none;
+	}
+	button:not(:disabled):active, a:active, .tap:active {
+		transform: scale(0.97);
+		opacity: 0.85;
+	}
 }
+.pt-safe { padding-top: env(safe-area-inset-top); }
+.pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+.h-tabbar { height: calc(4rem + env(safe-area-inset-bottom)); }
+.pb-tabbar { padding-bottom: calc(5.5rem + env(safe-area-inset-bottom)); }
 
-html[data-theme='dark'] .text-gray-600,
-[data-theme='dark'] .text-gray-600 {
-	color: var(--text-secondary) !important;
+/* Screens slide in gently, like an app */
+@keyframes screen-in {
+	from { opacity: 0; transform: translateY(6px); }
+	to { opacity: 1; transform: none; }
 }
-
-html[data-theme='dark'] .text-gray-500,
-[data-theme='dark'] .text-gray-500 {
-	color: var(--text-secondary) !important;
+.screen-in { animation: screen-in 0.22s ease-out; }
+@keyframes sheet-up {
+	from { transform: translateY(100%); }
+	to { transform: none; }
 }
-
-html[data-theme='dark'] .text-gray-400,
-[data-theme='dark'] .text-gray-400 {
-	color: var(--text-secondary) !important;
-	opacity: 0.7;
-}
-
-html[data-theme='dark'] .text-black,
-[data-theme='dark'] .text-black {
-	color: var(--text-primary) !important;
-}
-
-/* Border colors */
-html[data-theme='dark'] .border-gray-200,
-[data-theme='dark'] .border-gray-200 {
-	border-color: var(--border-color) !important;
-}
-
-html[data-theme='dark'] .border-gray-300,
-[data-theme='dark'] .border-gray-300 {
-	border-color: var(--border-color) !important;
-}
-
-html[data-theme='dark'] .border-gray-400,
-[data-theme='dark'] .border-gray-400 {
-	border-color: var(--border-color) !important;
-}
-
-/* Input and form elements */
-html[data-theme='dark'] input,
-html[data-theme='dark'] textarea,
-html[data-theme='dark'] select,
-[data-theme='dark'] input,
-[data-theme='dark'] textarea,
-[data-theme='dark'] select {
-	background-color: var(--bg-secondary) !important;
-	color: var(--text-primary) !important;
-	border-color: var(--border-color) !important;
-}
-
-html[data-theme='dark'] input::placeholder,
-html[data-theme='dark'] textarea::placeholder,
-[data-theme='dark'] input::placeholder,
-[data-theme='dark'] textarea::placeholder {
-	color: var(--text-secondary) !important;
-	opacity: 0.6;
+.sheet-up { animation: sheet-up 0.25s cubic-bezier(0.2, 0.8, 0.2, 1); }
+@media (prefers-reduced-motion: reduce) {
+	.screen-in, .sheet-up { animation: none; }
 }
 

@@ -16,7 +16,12 @@ const THEME_STORAGE_KEY = "piper_theme";
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 	const [theme, setThemeState] = useState<Theme>(() => {
 		// Check localStorage first
-		const stored = localStorage.getItem(THEME_STORAGE_KEY) as Theme | null;
+		let stored: Theme | null = null;
+		try {
+			stored = localStorage.getItem(THEME_STORAGE_KEY) as Theme | null;
+		} catch {
+			// Storage blocked: fall back to the device setting
+		}
 		if (stored === "light" || stored === "dark") {
 			return stored;
 		}
@@ -37,10 +42,14 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 			root.removeAttribute("data-theme");
 			root.classList.remove("dark");
 		}
-		// Save to localStorage
-		localStorage.setItem(THEME_STORAGE_KEY, theme);
-		// Debug log
-		console.log("Theme changed to:", theme, "data-theme:", root.getAttribute("data-theme"));
+		root.style.colorScheme = theme;
+		// The phone's status bar and browser bar blend into the app's header
+		document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "dark" ? "#1a1a1a" : "#ffffff");
+		try {
+			localStorage.setItem(THEME_STORAGE_KEY, theme);
+		} catch {
+			// Private mode: the theme just isn't remembered
+		}
 	}, [theme]);
 
 	const toggleTheme = () => {

@@ -93,7 +93,7 @@ export const ArtWorkDetail = () => {
 			{/* Back button */}
 			<button
 				onClick={() => navigate("/home/artworks")}
-				className="flex items-center gap-2 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-[#fbbf24] transition-colors"
+				className="hidden md:flex items-center gap-2 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-[#fbbf24] transition-colors"
 			>
 				<ArrowLeft size={18} weight="bold" />
 				<span className="hidden sm:inline">Back to Art Works</span>

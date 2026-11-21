@@ -20,6 +20,9 @@ import {
 	PaintBrush,
 	Storefront,
 	ChatCircleDots,
+	CaretLeft,
+	CaretRight,
+	UserCircle,
 } from "@phosphor-icons/react";
 import { useAuth } from "../hooks/useAuth";
 import { useCart } from "../contexts/CartContext";
@@ -49,7 +52,7 @@ const TAB_TITLES: Record<Tab, string> = {
 	assistant: "Print Assistant",
 	artworks: "Art Works",
 	cart: "Printing Tray",
-	history: "Print History",
+	history: "My orders",
 };
 
 const tabFor = (path: string): Tab => {
@@ -60,6 +63,27 @@ const tabFor = (path: string): Tab => {
 	if (path.includes("/print-assistant") || path.includes("/print-request")) return "assistant";
 	if (path.includes("/tray")) return "cart";
 	return "home";
+};
+
+/** Top-level screens (tabs). Anything deeper gets a back button on phones */
+const isTopLevel = (path: string) => Object.values(TAB_PATHS).includes(path.replace(/\/$/, ""));
+
+/** A shop's chat keeps its message box at the bottom and has a back button, so the tab bar steps aside */
+const isChat = (path: string) => /\/home\/shops\/[^/]+\/assistant/.test(path);
+
+/** The phone header's title for a screen */
+const screenTitle = (path: string, tab: Tab): string => {
+	if (/\/order\//.test(path)) return "Order";
+	if (/\/print-request\//.test(path)) return "Your request";
+	if (/\/quote\/confirm/.test(path)) return "Confirm price";
+	if (/\/shops\/[^/]+\/products\//.test(path)) return "Product";
+	if (/\/shops\/[^/]+\/assistant/.test(path)) return "Ask the shop";
+	if (/\/shops\/[^/]+/.test(path)) return "Print shop";
+	if (/\/product\//.test(path)) return "Product";
+	if (/\/category\//.test(path)) return "Category";
+	if (/\/artworks\/[^/]+/.test(path)) return "Art work";
+	if (/\/print-assistant\/form/.test(path)) return "Print Assistant";
+	return TAB_TITLES[tab];
 };
 
 export const ProtectedLayout = () => {
@@ -79,12 +103,17 @@ export const ProtectedLayout = () => {
 
 	const [activeTab, setActiveTab] = useState<Tab>(() => tabFor(location.pathname));
 	const [drawerOpen, setDrawerOpen] = useState(false);
+	const [meOpen, setMeOpen] = useState(false);
+	const topLevel = isTopLevel(location.pathname);
+	const chat = isChat(location.pathname);
+	const goBack = () => (window.history.length > 1 ? navigate(-1) : navigate(TAB_PATHS[activeTab]));
 	// Location is optional: once skipped, don't ask again this visit
 	const [locationSkipped, setLocationSkipped] = useState(() => sessionStorage.getItem("location_skipped") === "1");
 	const [cartExpanded, setCartExpanded] = useState(false);
 
 	useEffect(() => {
 		setActiveTab(tabFor(location.pathname));
+		setMeOpen(false);
 		if (window.innerWidth < 768) {
 			setDrawerOpen(false);
 		}
@@ -155,12 +184,38 @@ export const ProtectedLayout = () => {
 		);
 	};
 
+	const tabButton = (tab: Tab, Icon: typeof House, label: string, badge?: number) => {
+		const active = activeTab === tab;
+		return (
+			<button
+				onClick={() => handleTabChange(tab)}
+				className="tap relative flex flex-col items-center justify-center gap-0.5"
+				aria-label={label}
+				aria-current={active ? "page" : undefined}
+			>
+				<span className="relative">
+					<Icon size={24} weight={active ? "fill" : "regular"} className={active ? "text-[#f59e0b]" : "text-gray-500 dark:text-gray-400"} />
+					{badge !== undefined && badge > 0 && (
+						<span className="absolute -top-1.5 -right-2.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white dark:ring-[#1a1a1a]">
+							{badge > 9 ? "9+" : badge}
+						</span>
+					)}
+				</span>
+				<span className={`text-[10px] font-semibold ${active ? "text-gray-900 dark:text-white" : "text-gray-500 dark:text-gray-400"}`}>{label}</span>
+			</button>
+		);
+	};
+
+	const sheetRow = (icon: React.ReactNode, label: string, onClick: () => void, chevron = true) => (
+		<button onClick={onClick} className="tap w-full flex items-center gap-3 px-4 py-3.5 text-left text-gray-800 dark:text-gray-100">
+			<span className="text-gray-500 dark:text-gray-400">{icon}</span>
+			<span className="flex-1 text-sm font-semibold">{label}</span>
+			{chevron && <CaretRight size={16} className="text-gray-400" />}
+		</button>
+	);
+
 	return (
-		<div className="min-h-screen bg-gray-50 dark:bg-[#111111] flex">
-			<LocationBanner
-				hasLocation={hasLocation}
-				needsPermission={needsPermission}
-			/>
+		<div className="min-h-dvh bg-gray-50 dark:bg-[#111111] flex">
 			<LocationModal
 				isOpen={needsPermission && !locationSkipped}
 				permission={permission}
@@ -175,9 +230,7 @@ export const ProtectedLayout = () => {
 
 			{/* ─── Sidebar ─── */}
 			<div
-				className={`fixed md:sticky top-0 left-0 h-screen w-72 bg-white dark:bg-black-secondary border-r border-gray-100 dark:border-gray-800 z-50 transform transition-transform duration-300 ease-in-out shrink-0 flex flex-col shadow-xl shadow-black/5 ${
-					drawerOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-				}`}
+				className="hidden md:flex sticky top-0 left-0 h-dvh w-72 bg-white dark:bg-[#1a1a1a] border-r border-gray-100 dark:border-gray-800 z-50 shrink-0 flex-col shadow-xl shadow-black/5"
 			>
 				{/* Logo header — must match header h-16 */}
 				<div className="flex items-center justify-between px-6 h-16 shrink-0 border-b border-gray-100 dark:border-gray-800">
@@ -377,18 +430,41 @@ export const ProtectedLayout = () => {
 				</div>
 			</div>
 
-			{/* Mobile overlay */}
-			{drawerOpen && (
-				<div
-					className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
-					onClick={toggleDrawer}
-				/>
-			)}
 
 			{/* Main content */}
 			<div className="flex-1 flex flex-col min-w-0">
-				{/* Top header */}
-				<header className="bg-white dark:bg-[#1a1a1a] border-b border-gray-100 dark:border-gray-800 sticky top-0 z-30 h-16 shadow-sm">
+				{/* ─── Phone header: title, and a back button on inner screens ─── */}
+				<header className="md:hidden sticky top-0 z-30 pt-safe bg-white/90 dark:bg-[#1a1a1a]/90 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800">
+					<div className="h-14 px-2 flex items-center gap-1">
+						{topLevel ? (
+							activeTab === "home" ? (
+								<div className="pl-2"><Logo size="md" onClick={() => navigate("/home")} className="cursor-pointer" /></div>
+							) : (
+								<h1 className="pl-2 text-lg font-black text-gray-900 dark:text-white truncate">{TAB_TITLES[activeTab]}</h1>
+							)
+						) : (
+							<>
+								<button onClick={goBack} className="tap p-2 -ml-0.5 text-gray-900 dark:text-white rounded-full" aria-label="Back">
+									<CaretLeft size={22} weight="bold" />
+								</button>
+								<h1 className="text-base font-bold text-gray-900 dark:text-white truncate">{screenTitle(location.pathname, activeTab)}</h1>
+							</>
+						)}
+						<div className="ml-auto flex items-center">
+							{activeTab !== "search" && (
+								<button onClick={() => navigate("/home/search")} className="tap p-2.5 text-gray-700 dark:text-gray-300 rounded-full" aria-label="Search">
+									<MagnifyingGlass size={22} weight="regular" />
+								</button>
+							)}
+							<button onClick={toggleTheme} className="tap p-2.5 text-gray-700 dark:text-gray-300 rounded-full" aria-label={theme === "light" ? "Dark mode" : "Light mode"}>
+								{theme === "light" ? <Moon size={22} weight="duotone" /> : <Sun size={22} weight="duotone" className="text-[#fbbf24]" />}
+							</button>
+						</div>
+					</div>
+				</header>
+
+				{/* Top header (tablet and up) */}
+				<header className="hidden md:block bg-white dark:bg-[#1a1a1a] border-b border-gray-100 dark:border-gray-800 sticky top-0 z-30 h-16 shadow-sm">
 					<div className="px-4 sm:px-6 lg:px-8 h-full mx-auto w-full">
 						<div className="flex items-center justify-between h-full gap-4">
 							<div className="flex items-center gap-3 min-w-0">
@@ -490,9 +566,11 @@ export const ProtectedLayout = () => {
 					</div>
 				</header>
 
+				<LocationBanner hasLocation={hasLocation} needsPermission={needsPermission} />
+
 				{/* Page content */}
-				<main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-[#111111]">
-					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+				<main className={`flex-1 bg-gray-50 dark:bg-[#111111] ${chat ? "" : "pb-tabbar md:pb-0"}`}>
+					<div key={location.pathname} className="screen-in max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6">
 						{/* A crashed page keeps the menu around it, and clears when you navigate */}
 						<ErrorBoundary inline resetKey={location.pathname}>
 							<Suspense
@@ -508,6 +586,96 @@ export const ProtectedLayout = () => {
 					</div>
 				</main>
 			</div>
+
+			{/* ─── Phone tab bar ─── */}
+			{!chat && (
+				<nav
+					className="md:hidden fixed bottom-0 inset-x-0 z-40 h-tabbar pb-safe bg-white/95 dark:bg-[#1a1a1a]/95 backdrop-blur-xl border-t border-gray-100 dark:border-gray-800"
+					aria-label="Main"
+				>
+					<div className="h-16 grid grid-cols-5">
+						{tabButton("home", House, "Home")}
+						{tabButton("shops", Storefront, "Shops")}
+						<button
+							onClick={() => handleTabChange("assistant")}
+							className="tap flex flex-col items-center justify-center gap-0.5"
+							aria-label="Print Assistant"
+							aria-current={activeTab === "assistant" ? "page" : undefined}
+						>
+							<span className={`-mt-5 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg ${activeTab === "assistant" ? "bg-[#f59e0b] shadow-amber-500/40" : "bg-[#fbbf24] shadow-amber-400/30"} text-black ring-4 ring-gray-50 dark:ring-[#111111]`}>
+								<ChatCircleDots size={24} weight="fill" />
+							</span>
+							<span className={`text-[10px] font-semibold ${activeTab === "assistant" ? "text-gray-900 dark:text-white" : "text-gray-500 dark:text-gray-400"}`}>Assistant</span>
+						</button>
+						{tabButton("cart", Printer, "Tray", cart.length)}
+						<button
+							onClick={() => setMeOpen(true)}
+							className="tap flex flex-col items-center justify-center gap-0.5"
+							aria-label="Me"
+							aria-current={["history", "artworks"].includes(activeTab) ? "page" : undefined}
+						>
+							{user ? (
+								<span className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-black uppercase ${["history", "artworks"].includes(activeTab) ? "bg-[#fbbf24] text-black" : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200"}`}>
+									{user.firstName?.[0] || "U"}
+								</span>
+							) : (
+								<UserCircle size={24} weight={["history", "artworks"].includes(activeTab) ? "fill" : "regular"} className={["history", "artworks"].includes(activeTab) ? "text-[#f59e0b]" : "text-gray-500 dark:text-gray-400"} />
+							)}
+							<span className={`text-[10px] font-semibold ${["history", "artworks"].includes(activeTab) ? "text-gray-900 dark:text-white" : "text-gray-500 dark:text-gray-400"}`}>Me</span>
+						</button>
+					</div>
+				</nav>
+			)}
+
+			{/* ─── "Me" sheet ─── */}
+			{meOpen && (
+				<div className="md:hidden fixed inset-0 z-50" role="dialog" aria-label="Me">
+					<div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" onClick={() => setMeOpen(false)} />
+					<div className="sheet-up absolute bottom-0 inset-x-0 rounded-t-3xl bg-white dark:bg-[#1a1a1a] pb-safe shadow-2xl">
+						<div className="flex justify-center pt-2.5 pb-1"><span className="w-10 h-1 rounded-full bg-gray-300 dark:bg-gray-700" /></div>
+						<div className="px-5 pt-2 pb-4">
+							{user ? (
+								<div className="flex items-center gap-3 py-2">
+									<div className="w-12 h-12 rounded-full bg-linear-to-br from-[#fbbf24] to-[#f59e0b] flex items-center justify-center shrink-0">
+										<span className="text-lg font-black text-black uppercase">{user.firstName?.[0] || "U"}</span>
+									</div>
+									<div className="min-w-0">
+										<p className="text-base font-bold text-gray-900 dark:text-white truncate">{user.firstName} {user.lastName}</p>
+										<p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
+									</div>
+								</div>
+							) : (
+								<div className="py-2">
+									<p className="text-base font-bold text-gray-900 dark:text-white">Welcome to Printdecore</p>
+									<p className="text-xs text-gray-500 dark:text-gray-400">Sign in to order, pay and track your prints.</p>
+									<div className="grid grid-cols-2 gap-2 mt-3">
+										<button onClick={() => navigate("/login")} className="tap py-3 rounded-xl bg-[#fbbf24] text-black text-sm font-bold">Sign in</button>
+										<button onClick={() => navigate("/register")} className="tap py-3 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white text-sm font-bold">Create account</button>
+									</div>
+								</div>
+							)}
+						</div>
+						<div className="mx-4 mb-3 rounded-2xl bg-gray-50 dark:bg-[#222222] divide-y divide-gray-100 dark:divide-gray-800 overflow-hidden">
+							{user && sheetRow(<ClockCounterClockwise size={20} weight="duotone" />, "My orders", () => handleTabChange("history"))}
+							{sheetRow(<PaintBrush size={20} weight="duotone" />, "Art Works", () => handleTabChange("artworks"))}
+							{sheetRow(<MagnifyingGlass size={20} />, "Search", () => handleTabChange("search"))}
+							{sheetRow(
+								theme === "light" ? <Moon size={20} weight="duotone" /> : <Sun size={20} weight="duotone" className="text-[#fbbf24]" />,
+								theme === "light" ? "Dark mode" : "Light mode",
+								toggleTheme,
+								false,
+							)}
+						</div>
+						{user && (
+							<div className="mx-4 mb-4 rounded-2xl bg-gray-50 dark:bg-[#222222] overflow-hidden">
+								<button onClick={handleLogout} className="tap w-full flex items-center gap-3 px-4 py-3.5 text-left text-red-500 text-sm font-semibold">
+									<SignOut size={20} weight="bold" /> Sign out
+								</button>
+							</div>
+						)}
+					</div>
+				</div>
+			)}
 		</div>
 	);
 };
