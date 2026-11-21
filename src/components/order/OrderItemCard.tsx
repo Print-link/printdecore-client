@@ -1,13 +1,12 @@
 import {
-	FileText,
 	Tag,
 	StackSimple,
 	Ruler,
 	HashStraight,
-	Paperclip,
 } from "@phosphor-icons/react";
-import type { OrderItem, FileInfo } from "../../services/orderApi";
-import { formatFileSize } from "../../utils/orderUtils";
+import type { OrderItem } from "../../services/orderApi";
+import { toOrderFiles } from "../../utils/files";
+import { FileList } from "./FileList";
 
 interface OrderItemCardProps {
 	item: OrderItem;
@@ -166,36 +165,7 @@ export const OrderItemCard = ({ item, index }: OrderItemCardProps) => {
 			{/* Files */}
 			{item.options?.files && item.options.files.length > 0 && (
 				<div className="mt-3 pt-3 border-t border-gray-200/60 dark:border-gray-700/60">
-					<div className="flex items-center gap-2 mb-2">
-						<Paperclip size={14} weight="duotone" className="text-gray-400 dark:text-gray-500" />
-						<span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
-							Attachments ({item.options.files.length})
-						</span>
-					</div>
-					<div className="space-y-1.5">
-						{item.options.files.map((file, fileIndex) => {
-							const fileInfo = file as FileInfo;
-							return (
-								<a
-									key={fileIndex}
-									href={fileInfo.url}
-									target="_blank"
-									rel="noopener noreferrer"
-									className="flex items-center gap-2.5 text-xs bg-white dark:bg-[#1e1e1e] rounded-lg px-3 py-2 border border-gray-100 dark:border-gray-800 hover:border-gray-200 hover:bg-gray-50 transition-colors group"
-								>
-									<FileText size={14} weight="duotone" className="text-gray-400 group-hover:text-[#d97706] transition-colors shrink-0" />
-									<span className="text-gray-700 dark:text-gray-300 group-hover:text-gray-900 truncate font-medium">
-										{fileInfo.name || `File ${fileIndex + 1}`}
-									</span>
-									{fileInfo.bytes && (
-										<span className="text-gray-400 dark:text-gray-500 shrink-0">
-											{formatFileSize(fileInfo.bytes)}
-										</span>
-									)}
-								</a>
-							);
-						})}
-					</div>
+					<FileList files={toOrderFiles(item.options.files)} title="Your files" />
 				</div>
 			)}
 		</div>

@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
-import { ClipboardText, Paperclip } from "@phosphor-icons/react";
+import { ClipboardText } from "@phosphor-icons/react";
+import { toOrderFiles } from "../../utils/files";
+import { FileList } from "./FileList";
 import { detailLines, type PrintRequest } from "../../services/printRequestApi";
 
 interface PrintRequestSpecProps {
@@ -57,22 +59,7 @@ export const PrintRequestSpec = ({ request }: PrintRequestSpecProps) => {
 
 			{request.attachments.length > 0 && (
 				<div className="mt-4">
-					<p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">Your files</p>
-					<ul className="space-y-1.5">
-						{request.attachments.map((f, i) => (
-							<li key={f.publicId || f.url || i}>
-								<a
-									href={f.url}
-									target="_blank"
-									rel="noreferrer"
-									className="inline-flex items-center gap-2 max-w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 text-sm text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800"
-								>
-									<Paperclip size={14} className="shrink-0" />
-									<span className="truncate">{f.name || "File"}</span>
-								</a>
-							</li>
-						))}
-					</ul>
+					<FileList files={toOrderFiles(request.attachments)} title="Your files" />
 				</div>
 			)}
 		</div>
