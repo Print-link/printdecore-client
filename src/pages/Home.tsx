@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MagnifyingGlass, Storefront } from "@phosphor-icons/react";
 import { AssistantSpotlight } from "../components/assistant/AssistantSpotlight";
+import { ActiveOrdersStrip } from "../components/order/ActiveOrdersStrip";
 import { useGeolocation } from "../hooks/useGeolocation";
 import { useCategories } from "../hooks/useCategories";
 import { useMarketplaceVendors } from "../hooks/useMarketplace";
@@ -22,6 +23,7 @@ export const Home = () => {
 
 	return (
 		<div className="w-full max-w-5xl mx-auto">
+			<ActiveOrdersStrip />
 			<div className="mb-8 mt-1">
 				<p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Printdecore</p>
 				<h1 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white mb-5 leading-tight">What do you need printed?</h1>
