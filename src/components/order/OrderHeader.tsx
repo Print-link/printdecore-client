@@ -1,15 +1,6 @@
-import {
-	MapPin,
-	ArrowSquareOut,
-	ChatDots,
-	CheckCircle,
-	CreditCard,
-	Package,
-	Printer,
-	ClockCountdown,
-	CurrencyCircleDollar,
-} from "@phosphor-icons/react";
+import { MapPin, ArrowSquareOut, ChatDots, CheckCircle } from "@phosphor-icons/react";
 import { formatDate } from "../../utils/orderUtils";
+import { ORDER_STEPS, statusStyle, stepIndex } from "../../utils/orderStatus";
 import type { OrderStatus } from "../../services/orderApi";
 
 interface OrderHeaderProps {
@@ -21,24 +12,6 @@ interface OrderHeaderProps {
 	onReportIssue: () => void;
 }
 
-const STATUS_CONFIG: Record<string, { color: string; bg: string; border: string; dot: string; label: string; icon: React.ReactNode }> = {
-	PENDING: { color: "text-amber-700", bg: "bg-amber-50", border: "border-amber-200", dot: "bg-amber-500", label: "Pending", icon: <ClockCountdown size={16} weight="duotone" /> },
-	QUOTED: { color: "text-blue-700", bg: "bg-blue-50", border: "border-blue-200", dot: "bg-blue-500", label: "Quoted", icon: <CurrencyCircleDollar size={16} weight="duotone" /> },
-	PAID: { color: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-200", dot: "bg-emerald-500", label: "Paid", icon: <CreditCard size={16} weight="duotone" /> },
-	RECEIVED: { color: "text-cyan-700", bg: "bg-cyan-50", border: "border-cyan-200", dot: "bg-cyan-500", label: "Received", icon: <Package size={16} weight="duotone" /> },
-	IN_PROGRESS: { color: "text-violet-700", bg: "bg-violet-50", border: "border-violet-200", dot: "bg-violet-500", label: "In Progress", icon: <Printer size={16} weight="duotone" /> },
-	COMPLETED: { color: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-200", dot: "bg-emerald-500", label: "Completed", icon: <CheckCircle size={16} weight="duotone" /> },
-};
-
-const ORDER_STEPS: { key: string; label: string }[] = [
-	{ key: "PENDING", label: "Pending" },
-	{ key: "QUOTED", label: "Quoted" },
-	{ key: "PAID", label: "Paid" },
-	{ key: "RECEIVED", label: "Received" },
-	{ key: "IN_PROGRESS", label: "In Progress" },
-	{ key: "COMPLETED", label: "Completed" },
-];
-
 export const OrderHeader = ({
 	status,
 	totalPrice,
@@ -47,9 +20,8 @@ export const OrderHeader = ({
 	onGetDirections,
 	onReportIssue,
 }: OrderHeaderProps) => {
-	const normalizedStatus = (status || "PENDING").toUpperCase();
-	const config = STATUS_CONFIG[normalizedStatus] || STATUS_CONFIG.PENDING;
-	const currentStepIndex = ORDER_STEPS.findIndex((s) => s.key === normalizedStatus);
+	const config = statusStyle(status);
+	const currentStepIndex = stepIndex(status);
 
 	return (
 		<div className="mb-6">
@@ -103,19 +75,18 @@ export const OrderHeader = ({
 			</div>
 
 			{/* Progress Stepper */}
-			<div className="bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-100 dark:border-gray-800 px-6 py-4">
+			<div className="bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-100 dark:border-gray-800 px-3 sm:px-6 py-4">
 				<div className="flex items-center justify-between">
 					{ORDER_STEPS.map((step, index) => {
 						const isCompleted = index <= currentStepIndex;
 						const isCurrent = index === currentStepIndex;
 						const isLast = index === ORDER_STEPS.length - 1;
-						const stepConfig = STATUS_CONFIG[step.key];
 
 						return (
-							<div key={step.key} className="flex items-center flex-1 last:flex-none">
+							<div key={step.key} className="flex items-center flex-1 min-w-0 last:flex-none">
 								<div className="flex flex-col items-center">
 									<div
-										className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
+										className={`w-7 h-7 sm:w-8 sm:h-8 shrink-0 rounded-full flex items-center justify-center transition-all duration-300 ${
 											isCurrent
 												? `${config.bg} ${config.color} ${config.border} border-2 shadow-sm`
 												: isCompleted
@@ -124,19 +95,19 @@ export const OrderHeader = ({
 										}`}
 									>
 										{isCompleted && !isCurrent ? (
-											<CheckCircle size={16} weight="fill" />
+											<CheckCircle size={14} weight="fill" />
 										) : (
-											<span className="text-xs font-bold">{stepConfig?.icon || (index + 1)}</span>
+											<span className="text-xs font-bold">{step.icon(14)}</span>
 										)}
 									</div>
-									<span className={`text-[10px] mt-1.5 font-medium hidden sm:block ${
+									<span className={`text-[10px] mt-1.5 font-medium hidden md:block whitespace-nowrap ${
 										isCurrent ? "text-gray-900 dark:text-white" : isCompleted ? "text-emerald-600" : "text-gray-400 dark:text-gray-500"
 									}`}>
 										{step.label}
 									</span>
 								</div>
 								{!isLast && (
-									<div className={`flex-1 h-0.5 mx-2 rounded-full transition-all duration-300 ${
+									<div className={`flex-1 min-w-[6px] h-0.5 mx-1 sm:mx-2 rounded-full transition-all duration-300 ${
 										index < currentStepIndex ? "bg-emerald-400" : "bg-gray-100 dark:bg-gray-800"
 									}`} />
 								)}
