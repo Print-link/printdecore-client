@@ -48,7 +48,7 @@ export const ReportIssueModal = ({
 	};
 
 	return (
-		<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+		<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
 			<div className="bg-white dark:bg-[#1e1e1e] rounded-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
 				{/* Header */}
 				<div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
