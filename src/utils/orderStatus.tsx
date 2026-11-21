@@ -42,7 +42,7 @@ export const ORDER_STATUS: Record<OrderStatus, StatusStyle> = {
 	QUOTED: { ...blue, label: "Quoted", icon: icon(CurrencyCircleDollar) },
 	AWAITING_PAYMENT: { ...blue, label: "Awaiting payment", icon: icon(CurrencyCircleDollar) },
 	PAID: { ...green, label: "Paid", icon: icon(CreditCard) },
-	RECEIVED: { ...cyan, label: "Received", icon: icon(Package) },
+	RECEIVED: { ...violet, label: "In production", icon: icon(Printer) },
 	IN_PROGRESS: { ...violet, label: "In progress", icon: icon(Printer) },
 	PRINTING: { ...violet, label: "Printing", icon: icon(Printer) },
 	QUALITY_CHECK: { ...violet, label: "Quality check", icon: icon(MagnifyingGlass) },
@@ -68,8 +68,8 @@ export const ORDER_STEPS: OrderStep[] = [
 	{ key: "placed", label: "Placed", statuses: ["PENDING", "CONFIRMING_AVAILABILITY"], icon: icon(ClockCountdown) },
 	{ key: "quoted", label: "Quoted", statuses: ["QUOTED", "AWAITING_PAYMENT"], icon: icon(CurrencyCircleDollar) },
 	{ key: "paid", label: "Paid", statuses: ["PAID"], icon: icon(CreditCard) },
-	{ key: "received", label: "Received", statuses: ["RECEIVED"], icon: icon(Package) },
-	{ key: "production", label: "In production", statuses: ["IN_PROGRESS", "PRINTING", "QUALITY_CHECK"], icon: icon(Printer) },
+	// The shop accepting a paid order starts production; RECEIVED is from before that
+	{ key: "production", label: "In production", statuses: ["RECEIVED", "IN_PROGRESS", "PRINTING", "QUALITY_CHECK"], icon: icon(Printer) },
 	{ key: "ready", label: "Ready", statuses: ["READY_FOR_PICKUP", "OUT_FOR_DELIVERY"], icon: icon(Storefront) },
 	{ key: "completed", label: "Completed", statuses: ["DELIVERED", "COMPLETED"], icon: icon(CheckCircle) },
 ];
