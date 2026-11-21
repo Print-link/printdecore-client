@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
 	SignOut,
@@ -28,6 +28,7 @@ import { useLocationAccess } from "../hooks/useLocationAccess";
 import { LocationBanner } from "./banners/LocationBanner";
 import { LocationModal } from "./modals/LocationModal";
 import { Logo } from "./Logo";
+import { ErrorBoundary } from "./ErrorBoundary";
 
 type Tab = "home" | "history" | "search" | "cart" | "artworks" | "shops" | "assistant";
 
@@ -492,7 +493,18 @@ export const ProtectedLayout = () => {
 				{/* Page content */}
 				<main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-[#111111]">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-						<Outlet />
+						{/* A crashed page keeps the menu around it, and clears when you navigate */}
+						<ErrorBoundary inline resetKey={location.pathname}>
+							<Suspense
+								fallback={
+									<div className="min-h-[50vh] flex items-center justify-center" role="status" aria-label="Loading">
+										<div className="w-8 h-8 border-4 border-[#fbbf24] border-t-transparent rounded-full animate-spin"></div>
+									</div>
+								}
+							>
+								<Outlet />
+							</Suspense>
+						</ErrorBoundary>
 					</div>
 				</main>
 			</div>

@@ -1,4 +1,6 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { lazy, Suspense, type ComponentType } from "react";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
@@ -13,23 +15,35 @@ import { SendOTP } from "./pages/SendOTP";
 import { VerifyOTP } from "./pages/VerifyOTP";
 import { Home } from "./pages/Home";
 
-import { History } from "./pages/History";
-import { Search } from "./pages/Search";
-import { OrderDetails } from "./pages/OrderDetails";
-import { PaymentCallback } from "./pages/PaymentCallback";
-import { QuoteConfirmation } from "./pages/QuoteConfirmation";
-import { WhatsAppQuotePayment } from "./pages/WhatsAppQuotePayment";
-import { ArtWorks } from "./pages/ArtWorks";
-import { ArtWorkDetail } from "./pages/ArtWorkDetail";
-import { CatalogueCategory } from "./pages/CatalogueCategory";
-import { ConfigureProduct } from "./pages/ConfigureProduct";
-import { Shops } from "./pages/Shops";
-import { Shop } from "./pages/Shop";
-import { ShopProduct } from "./pages/ShopProduct";
-import { Tray } from "./pages/Tray";
-import { PrintAssistant } from "./pages/PrintAssistant";
-import { PrintAgent, ShopAssistant } from "./pages/PrintAgent";
-import { PrintRequestDetails } from "./pages/PrintRequestDetails";
+
+// Pages load when they're first opened, so the app starts fast on mobile data
+const page = <K extends string>(load: () => Promise<Record<K, ComponentType>>, name: K) =>
+	lazy(() => load().then((m) => ({ default: m[name] })));
+const History = page(() => import("./pages/History"), "History");
+const Search = page(() => import("./pages/Search"), "Search");
+const OrderDetails = page(() => import("./pages/OrderDetails"), "OrderDetails");
+const PaymentCallback = page(() => import("./pages/PaymentCallback"), "PaymentCallback");
+const QuoteConfirmation = page(() => import("./pages/QuoteConfirmation"), "QuoteConfirmation");
+const WhatsAppQuotePayment = page(() => import("./pages/WhatsAppQuotePayment"), "WhatsAppQuotePayment");
+const ArtWorks = page(() => import("./pages/ArtWorks"), "ArtWorks");
+const ArtWorkDetail = page(() => import("./pages/ArtWorkDetail"), "ArtWorkDetail");
+const CatalogueCategory = page(() => import("./pages/CatalogueCategory"), "CatalogueCategory");
+const ConfigureProduct = page(() => import("./pages/ConfigureProduct"), "ConfigureProduct");
+const Shops = page(() => import("./pages/Shops"), "Shops");
+const Shop = page(() => import("./pages/Shop"), "Shop");
+const ShopProduct = page(() => import("./pages/ShopProduct"), "ShopProduct");
+const Tray = page(() => import("./pages/Tray"), "Tray");
+const PrintAssistant = page(() => import("./pages/PrintAssistant"), "PrintAssistant");
+const PrintRequestDetails = page(() => import("./pages/PrintRequestDetails"), "PrintRequestDetails");
+const PrintAgent = page(() => import("./pages/PrintAgent"), "PrintAgent");
+const ShopAssistant = page(() => import("./pages/PrintAgent"), "ShopAssistant");
+
+/** While a page's code downloads */
+const PageLoading = () => (
+	<div className="min-h-[50vh] flex items-center justify-center" role="status" aria-label="Loading">
+		<div className="w-8 h-8 border-4 border-[#fbbf24] border-t-transparent rounded-full animate-spin"></div>
+	</div>
+);
 
 // Create a client
 const queryClient = new QueryClient({
@@ -44,6 +58,7 @@ const queryClient = new QueryClient({
 
 const AppRoutes = () => {
 	const { user, isLoading } = useAuth();
+	const location = useLocation();
 	usePaymentRecovery();
 
 	if (isLoading) {
@@ -55,6 +70,8 @@ const AppRoutes = () => {
 	}
 
 	return (
+		<ErrorBoundary resetKey={location.pathname}>
+		<Suspense fallback={<PageLoading />}>
 		<Routes>
 			{/* Root route - redirect to home (now accessible without auth) */}
 			<Route path="/" element={<Navigate to="/home" replace />} />
@@ -135,6 +152,8 @@ const AppRoutes = () => {
 			
 			<Route path="*" element={<Navigate to="/home" replace />} />
 		</Routes>
+		</Suspense>
+		</ErrorBoundary>
 	);
 };
 

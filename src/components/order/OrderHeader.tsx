@@ -1,10 +1,12 @@
 import { MapPin, ArrowSquareOut, ChatDots, CheckCircle } from "@phosphor-icons/react";
 import { formatDate } from "../../utils/orderUtils";
-import { ORDER_STEPS, statusStyle, stepIndex } from "../../utils/orderStatus";
+import { ORDER_STEPS, orderStatusStyle, stepIndex } from "../../utils/orderStatus";
 import type { OrderStatus } from "../../services/orderApi";
 
 interface OrderHeaderProps {
 	status?: string | OrderStatus;
+	/** Set when the shop declined the order — shown as "Declined by shop" */
+	declineReason?: string;
 	totalPrice?: number;
 	createdAt?: string;
 	hasLocation: boolean;
@@ -14,13 +16,14 @@ interface OrderHeaderProps {
 
 export const OrderHeader = ({
 	status,
+	declineReason,
 	totalPrice,
 	createdAt,
 	hasLocation,
 	onGetDirections,
 	onReportIssue,
 }: OrderHeaderProps) => {
-	const config = statusStyle(status);
+	const config = orderStatusStyle({ status, declineReason });
 	const currentStepIndex = stepIndex(status);
 
 	return (

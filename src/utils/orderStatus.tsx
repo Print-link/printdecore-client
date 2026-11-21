@@ -56,6 +56,17 @@ export const ORDER_STATUS: Record<OrderStatus, StatusStyle> = {
 export const statusStyle = (status?: string): StatusStyle =>
 	ORDER_STATUS[(status || "PENDING").toUpperCase() as OrderStatus] ?? ORDER_STATUS.PENDING;
 
+const red = { color: "text-red-700 dark:text-red-300", bg: "bg-red-50 dark:bg-red-900/20", border: "border-red-200 dark:border-red-800", dot: "bg-red-500" };
+
+/**
+ * How to show an order's status: like statusStyle, except an order the shop
+ * turned down reads "Declined", not "Cancelled", so the customer knows why.
+ */
+export const orderStatusStyle = (order: { status?: string; declineReason?: string }): StatusStyle =>
+	order.status?.toUpperCase() === "CANCELLED" && order.declineReason
+		? { ...red, label: "Declined by shop", icon: ORDER_STATUS.CANCELLED.icon }
+		: statusStyle(order.status);
+
 /** The customer's progress: each step covers the statuses the shop may use within it */
 export interface OrderStep {
 	key: string;

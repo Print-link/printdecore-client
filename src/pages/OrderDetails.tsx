@@ -254,6 +254,7 @@ export const OrderDetails = () => {
 
 			{/* Header Section */}
 			<OrderHeader
+				declineReason={order.declineReason}
 				status={order.status}
 				totalPrice={order.totalPrice}
 				createdAt={order.createdAt}
