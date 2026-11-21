@@ -26,7 +26,10 @@ export const useOrders = (
 			return [];
 		},
 		enabled: !!clientId,
-		staleTime: 1000 * 60 * 2, // 2 minutes
+		// The shop moves orders on from the vendor app — keep the list current
+		staleTime: 1000 * 15,
+		refetchInterval: 1000 * 30,
+		refetchOnWindowFocus: true,
 	});
 };
 
@@ -45,7 +48,10 @@ export const useOrder = (orderId: string | undefined) => {
 			return null;
 		},
 		enabled: !!orderId,
-		staleTime: 1000 * 60 * 2, // 2 minutes
+		// Status changes come from the shop: refresh while the page is open
+		staleTime: 1000 * 10,
+		refetchInterval: 1000 * 20,
+		refetchOnWindowFocus: true,
 	});
 };
 
