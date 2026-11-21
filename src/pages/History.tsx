@@ -14,7 +14,7 @@ import {
 import { useAuth } from "../hooks/useAuth";
 import { useOrders } from "../hooks/useOrders";
 import type { Order, OrderStatus } from "../services/orderApi";
-import { ORDER_STEPS, statusStyle, stepIndex } from "../utils/orderStatus";
+import { ORDER_STEPS, orderStatusStyle, statusStyle, stepIndex } from "../utils/orderStatus";
 
 /** Filters follow the customer's steps, so "In production" also finds Printing and Quality check */
 const STATUS_FILTERS: { key: string; label: string; statuses?: OrderStatus[] }[] = [
@@ -167,7 +167,7 @@ export const History = () => {
 				/* Order Cards */
 				<div className="space-y-3">
 					{filteredOrders.map((order: Order) => {
-						const config = statusStyle(order.status);
+						const config = orderStatusStyle(order);
 						const currentStep = stepIndex(order.status);
 						const progress = currentStep < 0 ? 0 : ((currentStep + 1) / ORDER_STEPS.length) * 100;
 

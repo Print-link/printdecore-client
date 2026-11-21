@@ -13,6 +13,7 @@ export interface Quotation {
 	status: QuotationStatus;
 	sentAt?: string;
 	createdAt: string;
+	updatedAt?: string;
 }
 
 export const getQuotationsForOrder = async (orderId: string): Promise<Quotation[]> => {
@@ -27,11 +28,12 @@ export const getQuotationsForOrder = async (orderId: string): Promise<Quotation[
 	}
 };
 
-export const respondToQuotation = async (quotationId: string, accepted: boolean): Promise<Quotation | undefined> => {
+/** Accept a price, or decline it — with an optional reason the shop sees */
+export const respondToQuotation = async (quotationId: string, accepted: boolean, reason?: string): Promise<Quotation | undefined> => {
 	try {
 		const response = await axios.patch<ApiResponse<Quotation>>(
 			`${BASE_URL}/quotations/${quotationId}/respond`,
-			{ accepted },
+			{ accepted, ...(reason?.trim() && { reason: reason.trim() }) },
 			{ headers: getAuthHeaders() }
 		);
 		return response.data.data;
