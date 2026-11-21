@@ -26,6 +26,7 @@ import {
 } from "@phosphor-icons/react";
 import { useAuth } from "../hooks/useAuth";
 import { useCart } from "../contexts/CartContext";
+import { useActiveOrders } from "../hooks/useActiveOrders";
 import { useTheme } from "../contexts/ThemeContext";
 import { useLocationAccess } from "../hooks/useLocationAccess";
 import { LocationBanner } from "./banners/LocationBanner";
@@ -89,6 +90,9 @@ const screenTitle = (path: string, tab: Tab): string => {
 export const ProtectedLayout = () => {
 	const { user, logout } = useAuth();
 	const { cart, removeFromCart, getCartTotal, vendor } = useCart();
+	// Orders still going: shown on Me, My orders and Print History so they're never out of sight
+	const activeOrders = useActiveOrders();
+	const orderBadgeUrgent = activeOrders.toPay > 0;
 	const {
 		hasLocation,
 		needsPermission,
@@ -150,7 +154,8 @@ export const ProtectedLayout = () => {
 		icon: React.ReactNode,
 		label: string,
 		badge?: number,
-		disabled?: boolean
+		disabled?: boolean,
+		urgent?: boolean
 	) => {
 		const isActive = activeTab === tab;
 		return (
@@ -175,8 +180,8 @@ export const ProtectedLayout = () => {
 				<span className="flex-1 text-left font-semibold">{label}</span>
 				{badge !== undefined && badge > 0 && (
 					<span className={`text-xs font-bold px-2 py-0.5 rounded-full min-w-5 text-center ${
-						isActive ? "bg-black/15 text-black" : "bg-[#fbbf24] text-black"
-					}`}>
+						isActive ? "bg-black/15 text-black" : urgent ? "bg-red-500 text-white" : "bg-[#fbbf24] text-black"
+					}`} title={urgent ? "An order needs you" : "Orders in progress"}>
 						{badge}
 					</span>
 				)}
@@ -206,10 +211,14 @@ export const ProtectedLayout = () => {
 		);
 	};
 
-	const sheetRow = (icon: React.ReactNode, label: string, onClick: () => void, chevron = true) => (
+	const sheetRow = (icon: React.ReactNode, label: string, onClick: () => void, chevron = true, sub?: string, extra?: React.ReactNode) => (
 		<button onClick={onClick} className="tap w-full flex items-center gap-3 px-4 py-3.5 text-left text-gray-800 dark:text-gray-100">
 			<span className="text-gray-500 dark:text-gray-400">{icon}</span>
-			<span className="flex-1 text-sm font-semibold">{label}</span>
+			<span className="flex-1 min-w-0">
+				<span className="block text-sm font-semibold">{label}</span>
+				{sub && <span className="block truncate text-xs text-gray-500 dark:text-gray-400">{sub}</span>}
+			</span>
+			{extra}
 			{chevron && <CaretRight size={16} className="text-gray-400" />}
 		</button>
 	);
@@ -266,7 +275,7 @@ export const ProtectedLayout = () => {
 							<p className="px-4 pt-4 mb-2 text-[10px] font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest">
 								My Account
 							</p>
-							{navItem("history", <ClockCounterClockwise size={20} weight="duotone" />, "Print History")}
+							{navItem("history", <ClockCounterClockwise size={20} weight="duotone" />, "Print History", user ? activeOrders.count : undefined, false, orderBadgeUrgent)}
 							{navItem("cart", <Printer size={20} weight="duotone" />, "Printing Tray", cart.length > 0 ? cart.length : undefined)}
 						</>
 					)}
@@ -614,6 +623,18 @@ export const ProtectedLayout = () => {
 							aria-label="Me"
 							aria-current={["history", "artworks"].includes(activeTab) ? "page" : undefined}
 						>
+							<span className="relative">
+							{user && activeOrders.count > 0 && (
+								<span
+									className={`absolute -top-1.5 -right-2.5 z-[1] min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold flex items-center justify-center ring-2 ring-white dark:ring-[#1a1a1a] ${
+										orderBadgeUrgent ? "bg-red-500 text-white" : "bg-[#fbbf24] text-black"
+									}`}
+									aria-label={orderBadgeUrgent ? `${activeOrders.toPay} order to pay` : `${activeOrders.count} active order${activeOrders.count === 1 ? "" : "s"}`}
+								>
+									{!orderBadgeUrgent && <span className="absolute inset-0 rounded-full bg-[#fbbf24] animate-ping opacity-40" />}
+									<span className="relative">{(orderBadgeUrgent ? activeOrders.toPay : activeOrders.count) > 9 ? "9+" : orderBadgeUrgent ? activeOrders.toPay : activeOrders.count}</span>
+								</span>
+							)}
 							{user ? (
 								<span className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-black uppercase ${["history", "artworks"].includes(activeTab) ? "bg-[#fbbf24] text-black" : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200"}`}>
 									{user.firstName?.[0] || "U"}
@@ -621,6 +642,7 @@ export const ProtectedLayout = () => {
 							) : (
 								<UserCircle size={24} weight={["history", "artworks"].includes(activeTab) ? "fill" : "regular"} className={["history", "artworks"].includes(activeTab) ? "text-[#f59e0b]" : "text-gray-500 dark:text-gray-400"} />
 							)}
+							</span>
 							<span className={`text-[10px] font-semibold ${["history", "artworks"].includes(activeTab) ? "text-gray-900 dark:text-white" : "text-gray-500 dark:text-gray-400"}`}>Me</span>
 						</button>
 					</div>
@@ -656,7 +678,23 @@ export const ProtectedLayout = () => {
 							)}
 						</div>
 						<div className="mx-4 mb-3 rounded-2xl bg-gray-50 dark:bg-[#222222] divide-y divide-gray-100 dark:divide-gray-800 overflow-hidden">
-							{user && sheetRow(<ClockCounterClockwise size={20} weight="duotone" />, "My orders", () => handleTabChange("history"))}
+							{user &&
+								sheetRow(
+									<ClockCounterClockwise size={20} weight="duotone" />,
+									"My orders",
+									() => handleTabChange("history"),
+									true,
+									activeOrders.active[0]?.line,
+									activeOrders.count > 0 && (
+										<span
+											className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold ${
+												orderBadgeUrgent ? "bg-red-500 text-white" : "bg-amber-100 text-[#b45309] dark:bg-amber-400/15 dark:text-amber-300"
+											}`}
+										>
+											{orderBadgeUrgent ? `${activeOrders.toPay} to pay` : `${activeOrders.count} active`}
+										</span>
+									)
+								)}
 							{sheetRow(<PaintBrush size={20} weight="duotone" />, "Art Works", () => handleTabChange("artworks"))}
 							{sheetRow(<MagnifyingGlass size={20} />, "Search", () => handleTabChange("search"))}
 							{sheetRow(
