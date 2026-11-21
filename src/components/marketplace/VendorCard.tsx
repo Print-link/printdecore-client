@@ -2,9 +2,14 @@ import { Star, Storefront } from "@phosphor-icons/react";
 import type { MarketplaceVendor } from "../../services/marketplaceApi";
 import { openLabel } from "../../utils/storeHours";
 
-/** A shop in a list: picture, open now, rating, distance and what it's known for */
+/**
+ * A shop in a list: picture, open now, rating, distance and what it's known for.
+ * A closed shop's card is greyed out and can't be opened until it opens again.
+ */
 export const VendorCard = ({ vendor, onClick, compact }: { vendor: MarketplaceVendor; onClick: () => void; compact?: boolean }) => {
 	const open = openLabel(vendor.operatingHours, vendor.isOpenNow);
+	// Unknown hours (null) stay clickable; only a shop we know is closed is disabled
+	const closed = vendor.isOpenNow === false;
 	const facts = [
 		vendor.distanceKm !== undefined ? `${vendor.distanceKm} km` : null,
 		vendor.startingPrice !== undefined ? `from GHS ${vendor.startingPrice.toLocaleString()}` : null,
@@ -13,15 +18,17 @@ export const VendorCard = ({ vendor, onClick, compact }: { vendor: MarketplaceVe
 		<button
 			type="button"
 			onClick={onClick}
-			className={`text-left bg-white dark:bg-[#1e1e1e] rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-lg hover:border-[#fbbf24]/40 transition-all ${
-				compact ? "min-w-[230px] max-w-[230px]" : "w-full"
-			}`}
+			disabled={closed}
+			aria-label={closed ? `${vendor.name}, ${open ?? "closed"}` : undefined}
+			className={`text-left bg-white dark:bg-[#1e1e1e] rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm transition-all ${
+				closed ? "opacity-60 cursor-not-allowed" : "hover:shadow-lg hover:border-[#fbbf24]/40"
+			} ${compact ? "min-w-[230px] max-w-[230px]" : "w-full"}`}
 		>
 			<div className="relative h-28 bg-amber-50 dark:bg-gray-800 flex items-center justify-center">
 				{vendor.coverImage ? (
-					<img src={vendor.coverImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
+					<img src={vendor.coverImage} alt="" className={`absolute inset-0 w-full h-full object-cover ${closed ? "grayscale" : ""}`} />
 				) : (
-					<Storefront size={32} className="text-[#fbbf24]" />
+					<Storefront size={32} className={closed ? "text-gray-400" : "text-[#fbbf24]"} />
 				)}
 				{open && (
 					<span
