@@ -618,3 +618,34 @@ button, a, [role="button"] {
 	.screen-in, .sheet-up { animation: none; }
 }
 
+
+
+/* ─── Printy, the Print Assistant mascot ─── */
+.printy-float { animation: printy-float 4s ease-in-out infinite; transform-origin: 110px 120px; }
+@keyframes printy-float { 0%, 100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-8px) rotate(1.5deg); } }
+.printy-shadow { animation: printy-shadow 4s ease-in-out infinite; transform-origin: 110px 200px; }
+@keyframes printy-shadow { 0%, 100% { transform: scaleX(1); opacity: 1; } 50% { transform: scaleX(0.82); opacity: 0.65; } }
+.printy-blink { animation: printy-blink 4.5s infinite; transform-origin: 110px 110px; }
+@keyframes printy-blink { 0%, 44%, 48%, 100% { transform: scaleY(1); } 46% { transform: scaleY(0.1); } }
+.printy-look { animation: printy-look 7s ease-in-out infinite; }
+@keyframes printy-look { 0%, 30%, 100% { transform: translateX(0); } 38%, 50% { transform: translateX(5px); } 60%, 72% { transform: translateX(-5px); } }
+.printy-wave { animation: printy-wave 2.4s ease-in-out infinite; transform-origin: 172px 118px; }
+@keyframes printy-wave { 0%, 60%, 100% { transform: rotate(0deg); } 70% { transform: rotate(-18deg); } 80% { transform: rotate(8deg); } 90% { transform: rotate(-12deg); } }
+.printy-print { animation: printy-print 3.6s ease-in-out infinite; }
+@keyframes printy-print { 0% { transform: translateY(-34px); opacity: 0; } 15% { opacity: 1; } 55%, 85% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(6px); opacity: 0; } }
+.printy-led { animation: printy-led 1.2s ease-in-out infinite; }
+@keyframes printy-led { 50% { opacity: 0.3; } }
+.printy-sparkle { animation: printy-sparkle 3s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes printy-sparkle { 0%, 100% { opacity: 0; transform: scale(0.4) rotate(0deg); } 40%, 60% { opacity: 1; transform: scale(1) rotate(45deg); } }
+.printy-glow { animation: printy-glow 6s ease-in-out infinite; }
+@keyframes printy-glow { 0%, 100% { transform: translate(0, 0); opacity: 0.8; } 50% { transform: translate(-30px, 20px); opacity: 1; } }
+.printy-bubble { animation: printy-bubble 0.35s cubic-bezier(0.2, 1.4, 0.4, 1); transform-origin: bottom right; }
+@keyframes printy-bubble { from { opacity: 0; transform: scale(0.6) translateY(6px); } to { opacity: 1; transform: none; } }
+.printy-twinkle { animation: printy-led 1.6s ease-in-out infinite; }
+.printy-nudge { animation: printy-nudge 1.6s ease-in-out infinite; }
+@keyframes printy-nudge { 50% { transform: translateX(3px); } }
+@media (prefers-reduced-motion: reduce) {
+	.printy-float, .printy-shadow, .printy-blink, .printy-look, .printy-wave, .printy-print, .printy-led,
+	.printy-sparkle, .printy-glow, .printy-bubble, .printy-twinkle, .printy-nudge { animation: none; }
+	.printy-sparkle { opacity: 1; }
+}
