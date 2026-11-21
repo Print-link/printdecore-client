@@ -397,7 +397,9 @@ const FormattedText = ({ text }: { text: string }) => {
 };
 
 const Composer = ({ disabled, onSend, aboveTabBar }: { disabled: boolean; onSend: (text: string, files: FileInfo[]) => Promise<boolean | undefined>; aboveTabBar: boolean }) => {
-	const [text, setText] = useState("");
+	// A quick start from Home ("I need business cards") arrives ready to finish and send
+	const prefill = (useLocation().state as { prefill?: string } | null)?.prefill ?? "";
+	const [text, setText] = useState(prefill);
 	const [files, setFiles] = useState<FileInfo[]>([]);
 	const [uploading, setUploading] = useState(false);
 	const fileInput = useRef<HTMLInputElement>(null);
@@ -475,6 +477,8 @@ const Composer = ({ disabled, onSend, aboveTabBar }: { disabled: boolean; onSend
 				<input ref={fileInput} type="file" multiple className="hidden" onChange={(e) => attach(e.target.files)} />
 				<textarea
 					value={text}
+					autoFocus={!!prefill}
+					onFocus={(e) => prefill && e.currentTarget.setSelectionRange(e.currentTarget.value.length, e.currentTarget.value.length)}
 					onChange={(e) => setText(e.target.value)}
 					onKeyDown={(e) => {
 						if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {

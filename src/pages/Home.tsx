@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChatCircleDots, MagnifyingGlass, Storefront } from "@phosphor-icons/react";
+import { MagnifyingGlass, Storefront } from "@phosphor-icons/react";
+import { AssistantSpotlight } from "../components/assistant/AssistantSpotlight";
 import { useGeolocation } from "../hooks/useGeolocation";
 import { useCategories } from "../hooks/useCategories";
 import { useMarketplaceVendors } from "../hooks/useMarketplace";
@@ -43,30 +44,18 @@ export const Home = () => {
 				</form>
 			</div>
 
-			<div className="grid sm:grid-cols-2 gap-3 mb-8">
-				<button
-					type="button"
-					onClick={() => navigate("/home/print-assistant")}
-					className="flex items-start gap-3 p-4 text-left rounded-2xl bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 hover:border-[#fbbf24]"
-				>
-					<ChatCircleDots size={28} weight="duotone" className="text-[#d97706] shrink-0" />
-					<span>
-						<span className="block font-bold text-gray-900 dark:text-white">Print Assistant</span>
-						<span className="block text-sm text-gray-600 dark:text-gray-400">Tell us what you need. We price it, or send you a quote.</span>
-					</span>
-				</button>
-				<button
-					type="button"
-					onClick={() => navigate("/home/shops")}
-					className="flex items-start gap-3 p-4 text-left rounded-2xl bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-800 hover:border-[#fbbf24]"
-				>
-					<Storefront size={28} weight="duotone" className="text-[#d97706] shrink-0" />
-					<span>
-						<span className="block font-bold text-gray-900 dark:text-white">Choose a print shop</span>
-						<span className="block text-sm text-gray-600 dark:text-gray-400">Order from a shop near you at its prices, and pay now.</span>
-					</span>
-				</button>
-			</div>
+			<AssistantSpotlight />
+			<button
+				type="button"
+				onClick={() => navigate("/home/shops")}
+				className="tap w-full mb-8 flex items-center gap-3 p-4 text-left rounded-2xl bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-800 hover:border-[#fbbf24]"
+			>
+				<Storefront size={28} weight="duotone" className="text-[#d97706] shrink-0" />
+				<span className="flex-1 min-w-0">
+					<span className="block font-bold text-gray-900 dark:text-white">Choose a print shop</span>
+					<span className="block text-sm text-gray-600 dark:text-gray-400">Order from a shop near you at its prices, and pay now.</span>
+				</span>
+			</button>
 
 			{!categoriesLoading && categories.length > 0 && (
 				<HorizontalScrollSection title="Order through Printdecore" subtitle="We find a printer near you and handle it">
