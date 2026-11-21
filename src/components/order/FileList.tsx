@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Check, CircleNotch, DownloadSimple, Eye, Paperclip } from "@phosphor-icons/react";
-import { formatBytes, KIND_ACCENT, previewUrl, saveFile, type OrderFile } from "../../utils/files";
+import { formatBytes, saveFile, type OrderFile } from "../../utils/files";
 import { FileTypeIcon } from "./FileTypeIcon";
 
 interface FileListProps {
@@ -10,33 +10,13 @@ interface FileListProps {
 
 type RowState = "idle" | "saving" | "saved";
 
-/**
- * The file's picture: a real thumbnail where there is one (images, the first
- * page of a PDF), otherwise an illustration of that kind of file.
- */
-const FileTile = ({ file }: { file: OrderFile }) => {
-	const [broken, setBroken] = useState(false);
-	const src = previewUrl(file);
-	if (src && !broken) {
-		return (
-			<span className="relative h-12 w-10 shrink-0 overflow-hidden rounded-md ring-1 ring-gray-200 dark:ring-gray-700 bg-white dark:bg-gray-800 shadow-sm">
-				<img src={src} alt="" loading="lazy" onError={() => setBroken(true)} className="h-full w-full object-cover" />
-				<span
-					className="absolute bottom-0.5 left-0.5 rounded-[3px] px-1 text-[8px] font-extrabold leading-[12px] tracking-wide text-white"
-					style={{ backgroundColor: KIND_ACCENT[file.kind] }}
-				>
-					{file.ext.slice(0, 4)}
-				</span>
-			</span>
-		);
-	}
-	return (
-		<span className="shrink-0">
-			<FileTypeIcon kind={file.kind} ext={file.ext} className="dark:hidden" />
-			<FileTypeIcon kind={file.kind} ext={file.ext} dark className="hidden dark:block" />
-		</span>
-	);
-};
+/** An illustration of the kind of file it is (follows light/dark) */
+const FileTile = ({ file }: { file: OrderFile }) => (
+	<span className="shrink-0">
+		<FileTypeIcon kind={file.kind} ext={file.ext} className="dark:hidden" />
+		<FileTypeIcon kind={file.kind} ext={file.ext} dark className="hidden dark:block" />
+	</span>
+);
 
 const iconBtn =
 	"inline-flex h-9 w-9 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d97706]";
