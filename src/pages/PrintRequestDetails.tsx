@@ -1,11 +1,17 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { PaperPlaneRight, Paperclip, SpinnerGap } from "@phosphor-icons/react";
 import { toast } from "react-toastify";
 import { PageHeader } from "../components/common/PageHeader";
+import { ArrivedBanner, QuoteTracker } from "../components/request/QuoteTracker";
+import { useArrivalAlert } from "../hooks/useArrivalAlert";
+import { useOrder } from "../hooks/useOrders";
 import { detailLines, getPrintRequest, getRequestMessages, sendRequestMessage } from "../services/printRequestApi";
 import { money } from "../services/pricingApi";
+
+/** Waiting on someone else: a price, or the shop's confirmation */
+const WAITING = ["PENDING", "CONFIRMING_AVAILABILITY"];
 
 const STATUS: Record<string, string> = {
 	PENDING: "Waiting for a quote",
@@ -29,12 +35,28 @@ export const PrintRequestDetails = () => {
 	const queryClient = useQueryClient();
 	const [message, setMessage] = useState("");
 	const [sending, setSending] = useState(false);
+	const messageInput = useRef<HTMLInputElement>(null);
 
-	const { data: request, isLoading, isError } = useQuery({
+	const { data: request, isLoading, isError, dataUpdatedAt } = useQuery({
 		queryKey: ["printRequest", id],
 		queryFn: () => getPrintRequest(id!),
 		enabled: !!id,
+		// While it waits for a price, check often so the news lands the moment it's in
+		refetchInterval: (q) => (WAITING.includes(q.state.data?.orderStatus ?? "") ? 10_000 : false),
+		refetchOnWindowFocus: true,
 	});
+	// The shop on it, for an order placed with a shop
+	const { data: order } = useOrder(request?.orderId);
+	const branch = order as { channel?: string; branch?: { name?: string } } | null | undefined;
+	const shopName = branch?.channel === "marketplace" ? branch.branch?.name : undefined;
+
+	const waiting = WAITING.includes(request?.orderStatus ?? "");
+	const cancelled = request?.orderStatus === "CANCELLED";
+	const arrived = useArrivalAlert(
+		// A cancellation isn't news to celebrate
+		request ? (waiting ? true : cancelled ? undefined : false) : undefined,
+		request?.orderStatus === "QUOTED" ? "Your price is ready — review it and pay" : "Your order is confirmed"
+	);
 	const { data: messages = [] } = useQuery({
 		queryKey: ["printRequestMessages", id],
 		queryFn: () => getRequestMessages(id!),
@@ -73,9 +95,39 @@ export const PrintRequestDetails = () => {
 		<div className="w-full max-w-2xl mx-auto">
 			<PageHeader title={request.serviceName ?? "Your request"} subtitle={`Request ${request.requestNumber}`} />
 
+			{waiting && (
+				<QuoteTracker
+					kind={request.orderStatus === "CONFIRMING_AVAILABILITY" ? "confirm" : "quote"}
+					createdAt={request.createdAt}
+					shopName={shopName}
+					lastChecked={dataUpdatedAt}
+					onAddDetails={() => {
+						messageInput.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+						messageInput.current?.focus({ preventScroll: true });
+					}}
+				/>
+			)}
+			{arrived && !waiting && (
+				<ArrivedBanner
+					title={request.orderStatus === "QUOTED" ? "Your price is ready" : "Your order is confirmed"}
+					text={
+						request.orderStatus === "QUOTED"
+							? `${price ? money(price) : "Your price"} — review it and pay to start printing.`
+							: `${shopName ?? "The shop"} has confirmed it and set a ready-by time.`
+					}
+					action={
+						request.orderId && (
+							<Link to={`/home/order/${request.orderId}`} className="inline-flex px-4 py-2.5 rounded-xl bg-[#fbbf24] text-black text-sm font-black">
+								{request.orderStatus === "QUOTED" ? "Review price and pay" : "View order"}
+							</Link>
+						)
+					}
+				/>
+			)}
+
 			<div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1e1e1e] p-5 mb-5">
-				{status && <p className="text-sm font-semibold text-[#d97706]">{status}</p>}
-				<p className="text-2xl font-black text-gray-900 dark:text-white mt-1">{price ? money(price) : "Quote on request"}</p>
+				{status && !waiting && <p className="text-sm font-semibold text-[#d97706]">{status}</p>}
+				<p className="text-2xl font-black text-gray-900 dark:text-white mt-1">{price ? money(price) : waiting ? "Price on its way" : "Quote on request"}</p>
 				<dl className="mt-3 space-y-1 text-sm text-gray-700 dark:text-gray-300">
 					{request.quantity !== undefined && (
 						<div>
@@ -112,7 +164,7 @@ export const PrintRequestDetails = () => {
 						))}
 					</ul>
 				)}
-				{request.orderId && (
+				{request.orderId && !(arrived && !waiting) && (
 					<Link
 						to={`/home/order/${request.orderId}`}
 						className="mt-4 inline-block px-4 py-2.5 bg-[#fbbf24] hover:bg-[#f59e0b] text-black text-sm font-bold rounded-xl"
@@ -151,6 +203,7 @@ export const PrintRequestDetails = () => {
 				}}
 			>
 				<input
+					ref={messageInput}
 					value={message}
 					onChange={(e) => setMessage(e.target.value)}
 					placeholder="Write a message"

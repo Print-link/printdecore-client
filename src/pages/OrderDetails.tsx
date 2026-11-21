@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { ArrivedBanner, QuoteTracker } from "../components/request/QuoteTracker";
+import { useArrivalAlert } from "../hooks/useArrivalAlert";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "@phosphor-icons/react";
@@ -111,8 +113,15 @@ export const OrderDetails = () => {
 	const [submittingReport, setSubmittingReport] = useState(false);
 
 	// TanStack Query hooks
-	const { data: orderData, isLoading, error } = useOrder(id);
+	const { data: orderData, isLoading, error, dataUpdatedAt } = useOrder(id);
 	const order = orderData as OrderDetailsData | null;
+	// Waiting on the shop (or the team): show it moving, and celebrate when it lands
+	// PAID: a shop order, paid up front, waiting for the shop to accept it
+	const waiting = order?.status === "PENDING" || order?.status === "CONFIRMING_AVAILABILITY" || (order?.status === "PAID" && order?.channel === "marketplace");
+	const arrived = useArrivalAlert(
+		order ? (waiting ? true : order.status === "CANCELLED" ? undefined : false) : undefined,
+		order?.status === "QUOTED" ? "Your price is ready — review it and pay" : order?.status === "AWAITING_PAYMENT" ? "Your order is confirmed — pay to start" : "Your order is accepted"
+	);
 	const { data: orderItems = [], isLoading: loadingItems } = useOrderItems(
 		order?.id || id
 	);
@@ -267,6 +276,25 @@ export const OrderDetails = () => {
 				onGetDirections={handleGetDirections}
 				onReportIssue={() => setIsReportModalOpen(true)}
 			/>
+
+			{waiting && (
+				<QuoteTracker
+					kind={order.status === "CONFIRMING_AVAILABILITY" ? "confirm" : order.status === "PAID" ? "accept" : "quote"}
+					createdAt={order.createdAt}
+					shopName={order.channel === "marketplace" ? order.branch?.name : undefined}
+					lastChecked={dataUpdatedAt}
+				/>
+			)}
+			{arrived && !waiting && (
+				<ArrivedBanner
+					title={order.status === "QUOTED" ? "Your price is ready" : order.status === "AWAITING_PAYMENT" ? "Your order is confirmed" : "Your order is accepted"}
+					text={
+						order.status === "QUOTED" || order.status === "AWAITING_PAYMENT"
+							? "Review it below and pay to start printing."
+							: `${order.branch?.name ?? "The shop"} has accepted it${order.estimatedCompletionTime ? " and set a ready-by time" : ""}.`
+					}
+				/>
+			)}
 
 			{(order.id || id) && <OrderPaymentPanel order={{ ...order, id: (order.id || id)! }} />}
 

@@ -649,3 +649,43 @@ button, a, [role="button"] {
 	.printy-sparkle, .printy-glow, .printy-bubble, .printy-twinkle, .printy-nudge { animation: none; }
 	.printy-sparkle { opacity: 1; }
 }
+
+/* Printy in small places, and the chat */
+.printy-look-sm { animation: printy-look-sm 7s ease-in-out infinite; }
+@keyframes printy-look-sm { 0%, 30%, 100% { transform: translateX(0); } 38%, 50% { transform: translateX(1.5px); } 60%, 72% { transform: translateX(-1.5px); } }
+.printy-blink-sm { animation: printy-blink 5s infinite; transform-box: fill-box; transform-origin: center; }
+.printy-scan { animation: printy-scan 1.1s ease-in-out infinite; }
+@keyframes printy-scan { 0%, 100% { transform: translateX(-2px); } 50% { transform: translateX(2px); } }
+.printy-led-fast { animation: printy-led 0.5s ease-in-out infinite; }
+.printy-spin { animation: printy-spin 5s linear infinite; }
+@keyframes printy-spin { to { transform: rotate(360deg); } }
+.printy-handoff { animation: printy-handoff 2.6s ease-in-out infinite; }
+@keyframes printy-handoff { 0% { transform: translateX(-4px); opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateX(calc(100% + 0.75rem)); opacity: 0; } }
+.chat-dot { animation: chat-dot 1.2s ease-in-out infinite; }
+@keyframes chat-dot { 0%, 60%, 100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-4px); opacity: 1; } }
+.chat-in { animation: chat-in 0.25s ease-out; }
+@keyframes chat-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+	.printy-look-sm, .printy-blink-sm, .printy-scan, .printy-led-fast, .printy-spin, .printy-handoff, .chat-dot, .chat-in { animation: none; }
+}
+
+/* The chat box shows focus on its frame, not the text area */
+textarea.chat-input:focus { outline: none; }
+
+/* Waiting for a price: it's moving */
+.wait-ring { animation: wait-ring 2.4s ease-out infinite; }
+@keyframes wait-ring { from { transform: scale(0.85); opacity: 0.9; } to { transform: scale(1.45); opacity: 0; } }
+.wait-bar::after {
+	content: ""; position: absolute; inset: 0;
+	background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent);
+	animation: wait-shimmer 1.8s ease-in-out infinite;
+}
+@keyframes wait-shimmer { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+.arrive-pop { animation: arrive-pop 0.5s cubic-bezier(0.2, 1.6, 0.4, 1); }
+@keyframes arrive-pop { from { transform: scale(0); } to { transform: scale(1); } }
+.arrive-spark { animation: arrive-spark 1.2s ease-out both; }
+@keyframes arrive-spark { 0% { transform: translateY(40px) scale(0.4); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateY(-10px) scale(1); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+	.wait-ring, .wait-bar::after, .arrive-pop, .arrive-spark { animation: none; }
+	.wait-ring { opacity: 0; }
+}
