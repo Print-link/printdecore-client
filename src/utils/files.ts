@@ -22,6 +22,18 @@ export interface FileLike {
 
 export type FileKind = 'image' | 'pdf' | 'doc' | 'sheet' | 'slides' | 'design' | 'archive' | 'other';
 
+/** Each kind's accent, used for the label band and the drawing on the page */
+export const KIND_ACCENT: Record<FileKind, string> = {
+	pdf: '#DC2626',
+	image: '#0284C7',
+	doc: '#2563EB',
+	sheet: '#16A34A',
+	slides: '#EA580C',
+	design: '#7C3AED',
+	archive: '#CA8A04',
+	other: '#64748B',
+};
+
 export interface OrderFile {
 	url: string;
 	name: string;
@@ -124,4 +136,16 @@ export async function saveFile(file: Pick<OrderFile, 'url' | 'name'>): Promise<v
 		a.click();
 		a.remove();
 	}
+}
+
+/**
+ * A small picture of the file: images as themselves, and PDFs stored on
+ * Cloudinary as their first page. Null when there's nothing to show.
+ */
+export function previewUrl(file: Pick<OrderFile, 'url' | 'kind'>): string | null {
+	if (file.kind === 'image') return file.url;
+	if (file.kind === 'pdf' && /res\.cloudinary\.com\/[^/]+\/image\/upload\//.test(file.url)) {
+		return file.url.replace('/image/upload/', '/image/upload/pg_1,w_120,h_144,c_fill,g_north,f_jpg/').replace(/\.pdf(?=$|[?#])/i, '.jpg');
+	}
+	return null;
 }
