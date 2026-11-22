@@ -1,4 +1,4 @@
-import { lazy, Suspense, type ComponentType } from "react";
+import { lazy, Suspense, useEffect, type ComponentType } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -14,6 +14,7 @@ import { Register } from "./pages/Register";
 import { SendOTP } from "./pages/SendOTP";
 import { VerifyOTP } from "./pages/VerifyOTP";
 import { Home } from "./pages/Home";
+import { splashReady } from "./pwa/splash";
 
 
 // Pages load when they're first opened, so the app starts fast on mobile data
@@ -60,6 +61,11 @@ const AppRoutes = () => {
 	const { user, isLoading } = useAuth();
 	const location = useLocation();
 	usePaymentRecovery();
+
+	// Sign-in checked and the first screen can render: let the launch splash go
+	useEffect(() => {
+		if (!isLoading) splashReady();
+	}, [isLoading]);
 
 	if (isLoading) {
 		return (
