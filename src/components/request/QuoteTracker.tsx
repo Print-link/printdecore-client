@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { Check, ChatCircleText, ShieldCheck, SignOut } from "@phosphor-icons/react";
+import { Check, ChatCircleText } from "@phosphor-icons/react";
 import { PrintyMascot } from "../assistant/PrintyMascot";
 import { AlertsButton } from "../pwa/AlertsButton";
 
@@ -128,13 +128,12 @@ export const QuoteTracker = ({
 							<span className={`absolute left-[11px] top-6 bottom-0 w-0.5 ${s.state === "done" ? "bg-emerald-400" : "bg-gray-200 dark:bg-gray-800"}`} aria-hidden />
 						)}
 						<span
-							className={`relative z-[1] w-6 h-6 shrink-0 rounded-full flex items-center justify-center ${
-								s.state === "done"
-									? "bg-emerald-500 text-white"
-									: s.state === "active"
-										? "bg-[#fbbf24] text-black ring-4 ring-amber-300/30"
-										: "bg-white dark:bg-[#222] border-2 border-gray-200 dark:border-gray-700"
-							}`}
+							className={`relative z-[1] w-6 h-6 shrink-0 rounded-full flex items-center justify-center ${s.state === "done"
+								? "bg-emerald-500 text-white"
+								: s.state === "active"
+									? "bg-[#fbbf24] text-black ring-4 ring-amber-300/30"
+									: "bg-white dark:bg-[#222] border-2 border-gray-200 dark:border-gray-700"
+								}`}
 						>
 							{s.state === "done" ? (
 								<Check size={13} weight="bold" />
@@ -148,9 +147,8 @@ export const QuoteTracker = ({
 						</span>
 						<span className="flex-1 min-w-0 flex items-baseline justify-between gap-3 pt-0.5">
 							<span
-								className={`text-sm ${
-									s.state === "active" ? "font-bold text-gray-900 dark:text-white" : s.state === "done" ? "font-semibold text-gray-700 dark:text-gray-300" : "text-gray-500"
-								}`}
+								className={`text-sm ${s.state === "active" ? "font-bold text-gray-900 dark:text-white" : s.state === "done" ? "font-semibold text-gray-700 dark:text-gray-300" : "text-gray-500"
+									}`}
 							>
 								{s.label}
 							</span>
@@ -161,16 +159,6 @@ export const QuoteTracker = ({
 					</li>
 				))}
 			</ol>
-
-			<div className="relative mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
-				<p className="flex items-center gap-2 rounded-xl bg-white/70 dark:bg-white/[0.03] border border-gray-100 dark:border-gray-800 px-3 py-2 text-xs text-gray-600 dark:text-gray-400">
-					<SignOut size={15} className="shrink-0 text-[#d97706]" /> You can leave — it's saved in My orders
-				</p>
-				<p className="flex items-center gap-2 rounded-xl bg-white/70 dark:bg-white/[0.03] border border-gray-100 dark:border-gray-800 px-3 py-2 text-xs text-gray-600 dark:text-gray-400">
-					<ShieldCheck size={15} className="shrink-0 text-emerald-500" /> {kind === "quote" ? "Nothing is charged until you accept" : kind === "confirm" ? "You only pay once it's confirmed" : "Paid — the ready-by time shows here"}
-				</p>
-			</div>
-
 			<div className="relative mt-3 flex flex-wrap gap-2">
 				<AlertsButton />
 				{onAddDetails && (
