@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { BellRinging, Check, CheckCircle, ChatCircleText, ShieldCheck, SignOut } from "@phosphor-icons/react";
+import { Check, ChatCircleText, ShieldCheck, SignOut } from "@phosphor-icons/react";
 import { PrintyMascot } from "../assistant/PrintyMascot";
+import { AlertsButton } from "../pwa/AlertsButton";
 
 /**
  * How long a reply usually takes, in minutes. The copy promises these, so
@@ -172,7 +173,7 @@ export const QuoteTracker = ({
 			</div>
 
 			<div className="relative mt-3 flex flex-wrap gap-2">
-				<AlertButton />
+				<AlertsButton />
 				{onAddDetails && (
 					<button
 						type="button"
@@ -184,35 +185,6 @@ export const QuoteTracker = ({
 				)}
 			</div>
 		</section>
-	);
-};
-
-/** Ask for a system alert when the news arrives (works while Printdecore is open) */
-const AlertButton = () => {
-	const supported = typeof window !== "undefined" && "Notification" in window;
-	const [permission, setPermission] = useState(() => (supported ? Notification.permission : "denied"));
-	if (!supported || permission === "denied") return null;
-	if (permission === "granted") {
-		return (
-			<span className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
-				<CheckCircle size={15} weight="fill" /> You'll get an alert here when it's ready
-			</span>
-		);
-	}
-	return (
-		<button
-			type="button"
-			onClick={async () => {
-				try {
-					setPermission(await Notification.requestPermission());
-				} catch {
-					setPermission("denied");
-				}
-			}}
-			className="inline-flex items-center gap-1.5 rounded-xl bg-gray-900 dark:bg-[#fbbf24] px-3 py-2 text-xs font-bold text-white dark:text-black"
-		>
-			<BellRinging size={15} weight="fill" /> Alert me when it's ready
-		</button>
 	);
 };
 
