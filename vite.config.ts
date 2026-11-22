@@ -13,6 +13,8 @@ export default defineConfig({
       filename: 'sw.ts',
       injectManifest: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff,woff2}'],
+        // iPhone launch images: iOS reads its one when the app is added; no need to cache all of them
+        globIgnores: ['splash/**'],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
       },
       includeAssets: ['favicon.svg', 'logoIcon.png', 'logoIcon-192.png', 'logoIcon-maskable.png'],
