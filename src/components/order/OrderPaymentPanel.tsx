@@ -86,18 +86,7 @@ export const OrderPaymentPanel = ({ order }: OrderPaymentPanelProps) => {
 		}
 	};
 
-	if (order.status === "CONFIRMING_AVAILABILITY") {
-		return (
-			<div className={`${card} border-amber-200 bg-amber-50 dark:border-amber-900/40 dark:bg-amber-900/10`}>
-				<p className="flex items-center gap-2 font-bold text-gray-900 dark:text-white">
-					<SpinnerGap size={18} className="animate-spin text-[#d97706]" /> Confirming your order
-				</p>
-				<p className="text-sm text-gray-700 dark:text-gray-300 mt-1">
-					We're confirming the price and availability. You'll be able to pay here as soon as it's ready — nothing is charged before then.
-				</p>
-			</div>
-		);
-	}
+	// CONFIRMING_AVAILABILITY: the live tracker on the page already says it is being confirmed
 
 	if (order.status === "QUOTED" && pending?.amount) {
 		return (
@@ -198,12 +187,12 @@ export const OrderPaymentPanel = ({ order }: OrderPaymentPanelProps) => {
 				<p className="flex items-center gap-2 text-sm text-gray-500">
 					<Clock size={15} /> Waiting for payment{order.branch?.name ? ` to ${order.branch.name}` : ""}
 				</p>
-				<p className="text-3xl font-black text-gray-900 dark:text-white">{money(order.totalPrice)}</p>
+				{/* The amount is the order header's Total Amount, right above */}
 				<button
 					type="button"
 					onClick={() => pay(order.totalPrice!)}
 					disabled={busy}
-					className="mt-4 w-full flex items-center justify-center gap-2 py-3 bg-[#fbbf24] hover:bg-[#f59e0b] text-black font-bold rounded-xl disabled:opacity-50"
+					className="mt-3 w-full flex items-center justify-center gap-2 py-3 bg-[#fbbf24] hover:bg-[#f59e0b] text-black font-bold rounded-xl disabled:opacity-50"
 				>
 					{busy ? <SpinnerGap size={16} className="animate-spin" /> : <CreditCard size={16} />} Pay now
 				</button>

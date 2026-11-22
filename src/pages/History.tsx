@@ -9,7 +9,6 @@ import {
 	Tray,
 	Funnel,
 	HashStraight,
-	Bag,
 } from "@phosphor-icons/react";
 import { useAuth } from "../hooks/useAuth";
 import { useOrders } from "../hooks/useOrders";
@@ -64,23 +63,6 @@ export const History = () => {
 
 	return (
 		<div className="w-full max-w-6xl mx-auto">
-			{/* Page Header */}
-			<div className="mb-6">
-				<div className="flex items-center gap-3 mb-1">
-					<div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#fbbf24] to-[#d97706] flex items-center justify-center shadow-lg shadow-amber-200/50 dark:shadow-amber-900/30">
-						<Bag size={20} weight="duotone" className="text-white" />
-					</div>
-					<div>
-						<h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
-							Order History
-						</h1>
-						<p className="text-sm text-gray-500 dark:text-gray-400">
-							{orders.length} total order{orders.length !== 1 ? "s" : ""}
-						</p>
-					</div>
-				</div>
-			</div>
-
 			{/* Filter Pills */}
 			<div className="mb-6">
 				<div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">

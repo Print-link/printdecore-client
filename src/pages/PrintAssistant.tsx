@@ -152,6 +152,7 @@ export const PrintAssistant = () => {
 		<div className="w-full max-w-2xl mx-auto">
 			<PageHeader
 				title="Print Assistant"
+				appTitle
 				subtitle="Tell us what you need — we'll price it or send you a quote"
 				right={
 					selection ? (

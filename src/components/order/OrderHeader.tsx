@@ -18,6 +18,8 @@ interface OrderHeaderProps {
 	hasLocation: boolean;
 	onGetDirections: () => void;
 	onReportIssue: () => void;
+	/** The live tracker below already says where it is */
+	hideNote?: boolean;
 }
 
 export const OrderHeader = ({
@@ -31,10 +33,11 @@ export const OrderHeader = ({
 	hasLocation,
 	onGetDirections,
 	onReportIssue,
+	hideNote,
 }: OrderHeaderProps) => {
 	const config = orderStatusStyle({ status, declineReason });
 	const currentStepIndex = stepIndex(status);
-	const note = declineReason ? null : statusNote({ status, fulfilmentType, readyBy, shopName });
+	const note = declineReason || hideNote ? null : statusNote({ status, fulfilmentType, readyBy, shopName });
 
 	return (
 		<div className="mb-6">

@@ -1,26 +1,13 @@
-import {
-	CalendarBlank,
-	UserCircle,
-	Cpu,
-} from "@phosphor-icons/react";
-import { formatDate } from "../../utils/orderUtils";
-import { statusStyle } from "../../utils/orderStatus";
-import type { OrderStatus } from "../../services/orderApi";
+import { UserCircle, Cpu } from "@phosphor-icons/react";
 
+/** Status and date are in the order header at the top, so they aren't repeated here */
 interface OrderSummaryProps {
-	status?: string | OrderStatus;
-	createdAt?: string;
 	submittedBy?: string;
 	executedByModel?: string;
 }
 
-export const OrderSummary = ({
-	status,
-	createdAt,
-	submittedBy,
-	executedByModel,
-}: OrderSummaryProps) => {
-	const config = statusStyle(status);
+export const OrderSummary = ({ submittedBy, executedByModel }: OrderSummaryProps) => {
+	if (!submittedBy && !executedByModel) return null;
 
 	return (
 		<div className="bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-100 dark:border-gray-800 p-5">
@@ -28,28 +15,6 @@ export const OrderSummary = ({
 				Order Summary
 			</h3>
 			<div className="space-y-4">
-				{status && (
-					<div className="flex items-center justify-between">
-						<span className="text-xs text-gray-400 dark:text-gray-500 font-medium">Status</span>
-						<span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${config.bg} ${config.color} ${config.border} border`}>
-							<span className={`w-1.5 h-1.5 rounded-full ${config.dot}`} />
-							{config.label}
-						</span>
-					</div>
-				)}
-
-				{createdAt && (
-					<div className="flex items-center justify-between">
-						<span className="text-xs text-gray-400 dark:text-gray-500 font-medium flex items-center gap-1.5">
-							<CalendarBlank size={14} weight="duotone" />
-							Created
-						</span>
-						<span className="text-sm font-semibold text-gray-900 dark:text-white">
-							{formatDate(createdAt)}
-						</span>
-					</div>
-				)}
-
 				{submittedBy && (
 					<div className="flex items-center justify-between">
 						<span className="text-xs text-gray-400 dark:text-gray-500 font-medium flex items-center gap-1.5">

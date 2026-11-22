@@ -21,8 +21,6 @@ const ago = (ms: number) => {
 	return h < 24 ? `${h} h ${m % 60} min ago` : `${Math.floor(h / 24)} day${h >= 48 ? "s" : ""} ago`;
 };
 
-const clock = (at: number) => new Date(at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-
 /**
  * While a customer waits for a price (or for a shop to confirm), this shows
  * the job moving: it's received, someone is on it right now, the price is
@@ -77,7 +75,8 @@ export const QuoteTracker = ({
 	};
 	const [received, active, next, later] = STEPS[kind];
 	const steps = [
-		{ label: received, note: clock(sentAt), state: "done" as const },
+		// When it was sent is in "Sent … ago" above, so no time here
+		{ label: received, note: "", state: "done" as const },
 		{ label: active, note: "Now", state: "active" as const },
 		{ label: next, note: "Next — we'll alert you", state: "next" as const },
 		{ label: later, note: "", state: "later" as const },

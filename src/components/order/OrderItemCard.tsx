@@ -45,16 +45,9 @@ export const OrderItemCard = ({ item, index }: OrderItemCardProps) => {
 		<div className="rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 p-4 hover:bg-gray-50 transition-colors duration-200">
 			{/* Header Row */}
 			<div className="flex items-start justify-between mb-3">
-				<div className="flex items-center gap-2.5">
-					<div className="w-7 h-7 rounded-lg bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 flex items-center justify-center">
-						<span className="text-xs font-bold text-gray-500 dark:text-gray-400">{index + 1}</span>
-					</div>
-					<div>
-						<h4 className="text-sm font-semibold text-gray-900 dark:text-white">
-							Item {index + 1}
-						</h4>
-					</div>
-				</div>
+				<h4 className="text-sm font-semibold text-gray-900 dark:text-white">
+					Item {index + 1}
+				</h4>
 				<div className="text-right">
 					<p className="text-base font-bold text-gray-900 dark:text-white">
 						GHS {item.calculatedPrice.toFixed(2)}

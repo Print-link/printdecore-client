@@ -24,9 +24,9 @@ export const Home = () => {
 
 	return (
 		<div className="w-full max-w-5xl mx-auto">
-			<ActiveOrdersStrip />
-			<InstallBanner />
-			<div className="mb-8 mt-1">
+			{/* Search comes first and stays on screen: it sticks under the app header
+			    (which itself clears the iPhone notch) while the page scrolls under it */}
+			<div className="sticky top-under-header z-20 -mx-4 sm:-mx-6 lg:-mx-8 -mt-4 md:-mt-6 mb-5 px-4 sm:px-6 lg:px-8 pt-3 pb-3 bg-gray-50 dark:bg-[#111111]">
 				<form
 					onSubmit={(e) => {
 						e.preventDefault();
@@ -46,6 +46,8 @@ export const Home = () => {
 				</form>
 			</div>
 
+			<ActiveOrdersStrip />
+			<InstallBanner />
 			<AssistantSpotlight />
 			<button
 				type="button"
@@ -72,7 +74,7 @@ export const Home = () => {
 			)}
 
 			{shops.length > 0 && (
-				<HorizontalScrollSection title="Print shops near you" subtitle="Their prices, paid at checkout" showAllLink="/home/shops">
+				<HorizontalScrollSection title="Print shops near you" showAllLink="/home/shops">
 					{shops.slice(0, 10).map((shop) => (
 						<VendorCard key={shop.id} vendor={shop} compact onClick={() => navigate(`/home/shops/${shop.id}`)} />
 					))}

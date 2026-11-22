@@ -116,7 +116,7 @@ export const Tray = () => {
 			) : (
 				<div className="flex items-center gap-2 mb-4 px-4 py-3 rounded-xl bg-amber-50 dark:bg-amber-900/10 text-sm text-gray-800 dark:text-gray-200">
 					<Info size={18} className="text-[#d97706]" />
-					<span className="flex-1">Printdecore finds a printer near you and confirms your order before you pay.</span>
+					<span className="flex-1">Printdecore finds a printer near you.</span>
 					<Link to="/home" className="flex items-center gap-1 font-semibold text-[#d97706] hover:underline">
 						<Plus size={14} /> Add more
 					</Link>
