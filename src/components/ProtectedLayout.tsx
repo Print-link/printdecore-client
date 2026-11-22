@@ -23,10 +23,19 @@ import {
 	CaretLeft,
 	CaretRight,
 	UserCircle,
+	BellRinging,
+	BellSimple,
+	DownloadSimple,
 } from "@phosphor-icons/react";
+import { toast } from "react-toastify";
 import { useAuth } from "../hooks/useAuth";
 import { useCart } from "../contexts/CartContext";
 import { useActiveOrders } from "../hooks/useActiveOrders";
+import { useInstall, usePushState } from "../hooks/usePwa";
+import { detachPushOnSignOut, disablePush, enablePush, sendTestPush, type PushState } from "../pwa/push";
+import { openInstallGuide } from "../pwa/install";
+import { PushBridge } from "./pwa/PushBridge";
+import { InstallGuide } from "./pwa/InstallGuide";
 import { useTheme } from "../contexts/ThemeContext";
 import { useLocationAccess } from "../hooks/useLocationAccess";
 import { LocationBanner } from "./banners/LocationBanner";
@@ -123,9 +132,43 @@ export const ProtectedLayout = () => {
 		}
 	}, [location.pathname]);
 
-	const handleLogout = () => {
+	const handleLogout = async () => {
+		// This browser stops getting this account's order alerts
+		await detachPushOnSignOut();
 		logout();
 		navigate("/login");
+	};
+
+	// Order alerts on this device: one tap turns them on (or shows the iPhone install steps)
+	const pushState = usePushState();
+	const { installed } = useInstall();
+	const ALERT_TEXT: Record<PushState, string> = {
+		loading: "Checking…",
+		unsupported: "Not available in this browser",
+		"needs-install": "Add the app to your Home Screen first",
+		denied: "Blocked in your browser settings",
+		off: "Get notified when your price is ready",
+		on: "On — even when the app is closed",
+		unavailable: "Not available yet",
+	};
+	const toggleAlerts = async () => {
+		if (pushState === "needs-install") return openInstallGuide();
+		if (pushState === "denied") return toast.info("Notifications are blocked. Allow them for this site in your browser settings, then try again.");
+		if (pushState === "unsupported" || pushState === "unavailable" || pushState === "loading") return;
+		if (pushState === "on") {
+			if (!window.confirm("Turn off order alerts on this device?")) return;
+			await disablePush();
+			return toast.info("Order alerts are off on this device");
+		}
+		try {
+			const result = await enablePush();
+			if (result === "on") {
+				toast.success("Order alerts are on");
+				sendTestPush().catch(() => {});
+			} else if (result === "denied") toast.info("Notifications were blocked. You can allow them in your browser settings.");
+		} catch {
+			toast.error("Couldn't turn on alerts. Please try again.");
+		}
 	};
 
 	const handleTabChange = (tab: Tab) => {
@@ -277,6 +320,19 @@ export const ProtectedLayout = () => {
 							</p>
 							{navItem("history", <ClockCounterClockwise size={20} weight="duotone" />, "Print History", user ? activeOrders.count : undefined, false, orderBadgeUrgent)}
 							{navItem("cart", <Printer size={20} weight="duotone" />, "Printing Tray", cart.length > 0 ? cart.length : undefined)}
+							{pushState !== "unsupported" && pushState !== "loading" && (
+								<button
+									onClick={toggleAlerts}
+									title={ALERT_TEXT[pushState]}
+									className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
+								>
+									{pushState === "on" ? <BellRinging size={20} weight="duotone" className="text-emerald-500" /> : <BellSimple size={20} weight="duotone" />}
+									<span className="flex-1 text-left">Order alerts</span>
+									<span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${pushState === "on" ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400" : "bg-gray-100 dark:bg-gray-800 text-gray-500"}`}>
+										{pushState === "on" ? "On" : "Off"}
+									</span>
+								</button>
+							)}
 						</>
 					)}
 
@@ -649,6 +705,9 @@ export const ProtectedLayout = () => {
 				</nav>
 			)}
 
+			<PushBridge signedIn={!!user} />
+			<InstallGuide />
+
 			{/* ─── "Me" sheet ─── */}
 			{meOpen && (
 				<div className="md:hidden fixed inset-0 z-50" role="dialog" aria-label="Me">
@@ -695,6 +754,28 @@ export const ProtectedLayout = () => {
 										</span>
 									)
 								)}
+							{user &&
+								pushState !== "unsupported" &&
+								pushState !== "loading" &&
+								sheetRow(
+									pushState === "on" ? <BellRinging size={20} weight="duotone" className="text-emerald-500" /> : <BellSimple size={20} weight="duotone" />,
+									"Order alerts",
+									toggleAlerts,
+									false,
+									ALERT_TEXT[pushState],
+									<span
+										className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold ${
+											pushState === "on" ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400" : pushState === "needs-install" ? "bg-[#fbbf24] text-black" : "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
+										}`}
+									>
+										{pushState === "on" ? "On" : pushState === "needs-install" ? "Set up" : "Off"}
+									</span>
+								)}
+							{!installed &&
+								sheetRow(<DownloadSimple size={20} weight="duotone" />, "Install the app", () => {
+									setMeOpen(false);
+									openInstallGuide();
+								}, true, "Opens full screen, with instant order alerts")}
 							{sheetRow(<PaintBrush size={20} weight="duotone" />, "Art Works", () => handleTabChange("artworks"))}
 							{sheetRow(<MagnifyingGlass size={20} />, "Search", () => handleTabChange("search"))}
 							{sheetRow(
