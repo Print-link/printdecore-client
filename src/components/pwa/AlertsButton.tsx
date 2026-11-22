@@ -48,7 +48,7 @@ export const AlertsButton = ({ size = "sm" }: { size?: "sm" | "md" }) => {
 					const result = await enablePush();
 					if (result === "on") {
 						toast.success("Order alerts are on");
-						sendTestPush().catch(() => {});
+						sendTestPush().catch(() => { });
 					} else if (result === "denied") toast.info("Notifications were blocked. You can allow them in your browser settings.");
 					else if (result === "unavailable") toast.info("Order alerts aren't available yet — we'll still show updates here.");
 				} catch {

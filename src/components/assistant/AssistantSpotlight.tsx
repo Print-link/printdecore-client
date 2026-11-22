@@ -69,9 +69,6 @@ export const AssistantSpotlight = () => {
 								<br />
 								<span className="bg-gradient-to-r from-amber-200 via-amber-400 to-orange-400 bg-clip-text text-transparent">Just say what you need.</span>
 							</h2>
-							<p className="mt-2 text-[13px] sm:text-sm leading-snug text-gray-300 max-w-[34ch]">
-								Describe it or send your file — Printy finds the right product, prices it and gets it printed near you.
-							</p>
 						</div>
 
 						<div className="relative w-[136px] sm:w-[210px] shrink-0 pt-12 sm:pt-10 pr-2 sm:pr-4">
