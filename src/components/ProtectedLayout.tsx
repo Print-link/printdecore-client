@@ -516,7 +516,8 @@ export const ProtectedLayout = () => {
 							</>
 						)}
 						<div className="ml-auto flex items-center">
-							{activeTab !== "search" && (
+							{/* Home has its own search bar, and Search is the search */}
+							{activeTab !== "search" && !(topLevel && activeTab === "home") && (
 								<button onClick={() => navigate("/home/search")} className="tap p-2.5 text-gray-700 dark:text-gray-300 rounded-full" aria-label="Search">
 									<MagnifyingGlass size={22} weight="regular" />
 								</button>
@@ -555,78 +556,7 @@ export const ProtectedLayout = () => {
 								</div>
 							</div>
 
-							<div className="flex items-center gap-2 shrink-0">
-								{user && (
-									<div className="hidden sm:flex flex-col items-end">
-										<p className="text-[11px] text-gray-400">Welcome back,</p>
-										<p className="text-sm font-bold text-gray-900 dark:text-white truncate max-w-[140px]">
-											{user?.firstName}
-										</p>
-									</div>
-								)}
-
-								<div className="flex items-center bg-gray-50 dark:bg-gray-800/50 p-1 rounded-xl border border-gray-100 dark:border-gray-800 gap-0.5">
-									<button
-										onClick={() => {
-											navigate("/home/search");
-											if (window.innerWidth < 768) setDrawerOpen(false);
-										}}
-										className="md:hidden p-2 text-gray-600 dark:text-gray-400 hover:text-[#fbbf24] rounded-lg transition-colors"
-										aria-label="Search"
-									>
-										<MagnifyingGlass size={20} weight="regular" />
-									</button>
-
-									<button
-										onClick={toggleTheme}
-										className="p-2 text-gray-600 dark:text-gray-400 hover:text-[#fbbf24] rounded-lg transition-colors"
-										aria-label="Toggle theme"
-									>
-										{theme === "light" ? (
-											<Moon size={20} weight="duotone" />
-										) : (
-											<Sun size={20} weight="duotone" className="text-[#fbbf24]" />
-										)}
-									</button>
-
-									{!user && (
-										<button
-											onClick={() => navigate("/login")}
-											className="md:hidden p-2 text-gray-600 dark:text-gray-400 hover:text-[#fbbf24] rounded-lg transition-colors"
-											aria-label="Login"
-										>
-											<SignIn size={20} weight="bold" />
-										</button>
-									)}
-								</div>
-
-								<div className="hidden md:flex items-center gap-2">
-									{user ? (
-										<button
-											onClick={handleLogout}
-											className="flex items-center gap-2 px-3 py-2 text-sm font-bold text-gray-600 dark:text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all"
-										>
-											<SignOut size={16} weight="bold" />
-											Logout
-										</button>
-									) : (
-										<>
-											<button
-												onClick={() => navigate("/login")}
-												className="text-sm font-bold text-gray-700 dark:text-gray-300 hover:text-[#fbbf24] px-3 py-2 transition-colors"
-											>
-												Sign In
-											</button>
-											<button
-												onClick={() => navigate("/register")}
-												className="px-4 py-2 bg-[#fbbf24] hover:bg-[#f59e0b] text-black text-sm font-black rounded-xl shadow-sm shadow-amber-200/50 transition-all hover:-translate-y-0.5"
-											>
-												Get Started
-											</button>
-										</>
-									)}
-								</div>
-							</div>
+							{/* Theme, account, sign in and logout are all in the sidebar beside this header */}
 						</div>
 					</div>
 				</header>
@@ -777,13 +707,7 @@ export const ProtectedLayout = () => {
 									openInstallGuide();
 								}, true, "Opens full screen, with instant order alerts")}
 							{sheetRow(<PaintBrush size={20} weight="duotone" />, "Art Works", () => handleTabChange("artworks"))}
-							{sheetRow(<MagnifyingGlass size={20} />, "Search", () => handleTabChange("search"))}
-							{sheetRow(
-								theme === "light" ? <Moon size={20} weight="duotone" /> : <Sun size={20} weight="duotone" className="text-[#fbbf24]" />,
-								theme === "light" ? "Dark mode" : "Light mode",
-								toggleTheme,
-								false,
-							)}
+							{/* Search and dark mode are in the header above, on every screen */}
 						</div>
 						{user && (
 							<div className="mx-4 mb-4 rounded-2xl bg-gray-50 dark:bg-[#222222] overflow-hidden">

@@ -275,6 +275,7 @@ export const OrderDetails = () => {
 				hasLocation={hasLocation}
 				onGetDirections={handleGetDirections}
 				onReportIssue={() => setIsReportModalOpen(true)}
+				hideNote={waiting}
 			/>
 
 			{waiting && (
@@ -341,8 +342,6 @@ export const OrderDetails = () => {
 				{/* Right Column - Order Info, Branch & Executed By (1 column on desktop) */}
 				<div className="space-y-4">
 					<OrderSummary
-						status={order.status}
-						createdAt={order.createdAt}
 						submittedBy={order.submittedBy}
 						executedByModel={order.executedByModel}
 					/>
@@ -353,8 +352,8 @@ export const OrderDetails = () => {
 				</div>
 			</div>
 
-			{/* Delivery Notice */}
-			<DeliveryNotice hasLocation={hasLocation} />
+			{/* Delivery Notice — a request's spec already says pickup or delivery */}
+			{!printRequest && <DeliveryNotice hasLocation={hasLocation} />}
 
 			{/* Rating Section */}
 			{order.branch?.id && (

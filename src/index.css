@@ -602,6 +602,11 @@ button, a, [role="button"] {
 .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
 .h-tabbar { height: calc(4rem + env(safe-area-inset-bottom)); }
 .pb-tabbar { padding-bottom: calc(5.5rem + env(safe-area-inset-bottom)); }
+/* Sticks just under the app header: 3.5rem + the notch on phones (installed or not), 4rem from tablet up */
+.top-under-header { top: calc(3.5rem + env(safe-area-inset-top)); }
+@media (min-width: 768px) {
+	.top-under-header { top: 4rem; }
+}
 
 /* Screens slide in gently, like an app */
 @keyframes screen-in {

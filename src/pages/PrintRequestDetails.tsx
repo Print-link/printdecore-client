@@ -112,7 +112,7 @@ export const PrintRequestDetails = () => {
 					title={request.orderStatus === "QUOTED" ? "Your price is ready" : "Your order is confirmed"}
 					text={
 						request.orderStatus === "QUOTED"
-							? `${price ? money(price) : "Your price"} — review it and pay to start printing.`
+							? "Review it and pay to start printing."
 							: `${shopName ?? "The shop"} has confirmed it and set a ready-by time.`
 					}
 					action={
@@ -126,9 +126,10 @@ export const PrintRequestDetails = () => {
 			)}
 
 			<div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1e1e1e] p-5 mb-5">
-				{status && !waiting && <p className="text-sm font-semibold text-[#d97706]">{status}</p>}
-				<p className="text-2xl font-black text-gray-900 dark:text-white mt-1">{price ? money(price) : waiting ? "Price on its way" : "Quote on request"}</p>
-				<dl className="mt-3 space-y-1 text-sm text-gray-700 dark:text-gray-300">
+				{status && !waiting && !arrived && <p className="text-sm font-semibold text-[#d97706]">{status}</p>}
+				{/* While waiting, the tracker above already says the price is on its way */}
+				{(price || !waiting) && <p className="text-2xl font-black text-gray-900 dark:text-white mt-1">{price ? money(price) : "Quote on request"}</p>}
+				<dl className="mt-3 first:mt-0 space-y-1 text-sm text-gray-700 dark:text-gray-300">
 					{request.quantity !== undefined && (
 						<div>
 							<dt className="inline text-gray-500">Quantity: </dt>
