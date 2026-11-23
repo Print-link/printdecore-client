@@ -78,12 +78,12 @@ export const PrintRequestDetails = () => {
 		}
 	};
 
-	if (isLoading) return <SpinnerGap size={20} className="animate-spin text-[#fbbf24]" />;
+	if (isLoading) return <SpinnerGap size={20} className="animate-spin text-brand-ink" />;
 	if (isError || !request) {
 		return (
 			<div className="max-w-2xl mx-auto">
 				<PageHeader title="Request" />
-				<p className="text-sm text-gray-500">This request couldn't be found.</p>
+				<p className="text-sm text-ink-2">This request couldn't be found.</p>
 			</div>
 		);
 	}
@@ -117,7 +117,7 @@ export const PrintRequestDetails = () => {
 					}
 					action={
 						request.orderId && (
-							<Link to={`/home/order/${request.orderId}`} className="inline-flex px-4 py-2.5 rounded-xl bg-[#fbbf24] text-black text-sm font-black">
+							<Link to={`/home/order/${request.orderId}`} className="tap inline-flex items-center h-10 px-4 rounded-xl bg-brand text-black text-sm font-semibold">
 								{request.orderStatus === "QUOTED" ? "Review price and pay" : "View order"}
 							</Link>
 						)
@@ -125,30 +125,30 @@ export const PrintRequestDetails = () => {
 				/>
 			)}
 
-			<div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1e1e1e] p-5 mb-5">
-				{status && !waiting && !arrived && <p className="text-sm font-semibold text-[#d97706]">{status}</p>}
+			<div className="mb-6 pb-6 border-b border-line">
+				{status && !waiting && !arrived && <p className="text-sm font-semibold text-brand-ink">{status}</p>}
 				{/* While waiting, the tracker above already says the price is on its way */}
-				{(price || !waiting) && <p className="text-2xl font-black text-gray-900 dark:text-white mt-1">{price ? money(price) : "Quote on request"}</p>}
-				<dl className="mt-3 first:mt-0 space-y-1 text-sm text-gray-700 dark:text-gray-300">
+				{(price || !waiting) && <p className="num text-3xl font-bold title-tight text-ink mt-1">{price ? money(price) : "Quote on request"}</p>}
+				<dl className="mt-3 first:mt-0 space-y-1 text-sm text-ink">
 					{request.quantity !== undefined && (
 						<div>
-							<dt className="inline text-gray-500">Quantity: </dt>
+							<dt className="inline text-ink-2">Quantity: </dt>
 							<dd className="inline">{request.quantity}</dd>
 						</div>
 					)}
 					{(request.pages ?? request.filePages) !== undefined && (
 						<div>
-							<dt className="inline text-gray-500">Pages: </dt>
+							<dt className="inline text-ink-2">Pages: </dt>
 							<dd className="inline">{request.pages ?? request.filePages}</dd>
 						</div>
 					)}
 					<div>
-						<dt className="inline text-gray-500">{request.fulfilmentType === "pickup" ? "Pickup" : "Delivery"}: </dt>
+						<dt className="inline text-ink-2">{request.fulfilmentType === "pickup" ? "Pickup" : "Delivery"}: </dt>
 						<dd className="inline">{request.fulfilmentType === "pickup" ? "you'll collect it" : request.deliveryAddress}</dd>
 					</div>
 				</dl>
 				{detailLines(request.additionalDetails).length > 0 && (
-					<ul className="mt-3 space-y-1.5 text-sm text-gray-700 dark:text-gray-300 list-disc pl-5">
+					<ul className="mt-3 space-y-1.5 text-sm text-ink list-disc pl-5">
 						{detailLines(request.additionalDetails).map((line, i) => (
 							<li key={i}>{line}</li>
 						))}
@@ -158,7 +158,7 @@ export const PrintRequestDetails = () => {
 					<ul className="mt-3 space-y-1">
 						{request.attachments.map((f, i) => (
 							<li key={f.publicId || i}>
-								<a href={f.url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-[#d97706] hover:underline">
+								<a href={f.url} target="_blank" rel="noreferrer" className="flex items-center gap-2 h-10 px-3 rounded-lg bg-fill text-sm text-ink truncate">
 									<Paperclip size={14} /> {f.name}
 								</a>
 							</li>
@@ -168,16 +168,16 @@ export const PrintRequestDetails = () => {
 				{request.orderId && !(arrived && !waiting) && (
 					<Link
 						to={`/home/order/${request.orderId}`}
-						className="mt-4 inline-block px-4 py-2.5 bg-[#fbbf24] hover:bg-[#f59e0b] text-black text-sm font-bold rounded-xl"
+						className="tap mt-4 inline-flex items-center h-11 px-4 bg-brand hover:bg-brand-press text-black text-sm font-semibold rounded-xl"
 					>
 						{request.orderStatus === "QUOTED" ? "Review price and pay" : "View order"}
 					</Link>
 				)}
 			</div>
 
-			<h2 className="text-base font-bold text-gray-900 dark:text-white mb-3">Messages</h2>
+			<h2 className="text-lg font-bold title-tight text-ink mb-3">Messages</h2>
 			<div className="space-y-2 mb-3">
-				{messages.length === 0 && <p className="text-sm text-gray-500">Questions about this job? Message the team here.</p>}
+				{messages.length === 0 && <p className="text-sm text-ink-2">Questions about this job? Message the team here.</p>}
 				{messages.map((m) => {
 					const mine = m.senderType === "customer";
 					const quote = m.cardType === "quote" && m.cardPayload?.amount !== undefined;
@@ -185,12 +185,12 @@ export const PrintRequestDetails = () => {
 						<div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
 							<div
 								className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-sm ${
-									mine ? "bg-[#fbbf24] text-black" : "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+									mine ? "bg-brand text-black rounded-br-md" : "bg-fill text-ink rounded-bl-md"
 								}`}
 							>
 								{quote && <p className="font-bold">Price: {money(m.cardPayload!.amount!)}</p>}
 								{m.body && <p className="whitespace-pre-wrap">{m.body}</p>}
-								<p className={`text-[10px] mt-1 ${mine ? "text-black/60" : "text-gray-500"}`}>{new Date(m.createdAt).toLocaleString()}</p>
+								<p className={`num text-xs mt-1 ${mine ? "opacity-60" : "text-ink-3"}`}>{new Date(m.createdAt).toLocaleString()}</p>
 							</div>
 						</div>
 					);
@@ -209,12 +209,12 @@ export const PrintRequestDetails = () => {
 					onChange={(e) => setMessage(e.target.value)}
 					placeholder="Write a message"
 					aria-label="Message"
-					className="flex-1 px-3 py-2.5 text-sm bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#fbbf24]/50"
+					className="flex-1 h-11 px-3 text-base bg-fill border border-transparent rounded-xl text-ink placeholder:text-ink-3 focus:outline-none focus:border-ink"
 				/>
 				<button
 					type="submit"
 					disabled={sending || !message.trim()}
-					className="px-4 rounded-xl bg-[#fbbf24] text-black disabled:opacity-50"
+					className="tap w-11 h-11 shrink-0 flex items-center justify-center rounded-xl bg-brand text-black"
 					aria-label="Send message"
 				>
 					{sending ? <SpinnerGap size={16} className="animate-spin" /> : <PaperPlaneRight size={16} />}

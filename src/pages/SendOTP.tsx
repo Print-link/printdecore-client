@@ -42,40 +42,40 @@ export const SendOTP = () => {
 	};
 
 	return (
-		<div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-			<div className="w-full max-w-md bg-white rounded-2xl p-8">
-				<div className="text-center mb-8">
-					<div className="flex justify-center mb-4">
-						<Logo size="lg" />
+		<div className="min-h-dvh bg-page flex flex-col items-center sm:justify-center px-5 pt-safe pb-safe">
+			<div className="w-full max-w-sm py-10 sm:py-12">
+				<div className="mb-8">
+					<div className="mb-10">
+						<Logo size="md" />
 					</div>
-					<h1 className="text-3xl font-bold text-gray-900 mb-2">
+					<h1 className="text-3xl font-bold title-tight text-ink mb-1">
 						Verify Your Email
 					</h1>
-					<p className="text-gray-600">
+					<p className="text-ink-2">
 						We'll send a verification code to your email address
 					</p>
 				</div>
 
 				{error && (
-					<div className="mb-6 p-4 bg-red-50 text-red-800 rounded-lg flex items-center">
-						<WarningCircle size={20} weight="duotone" className="mr-3 shrink-0" />
+					<div className="mb-6 p-3 bg-bad-tint text-bad rounded-xl flex items-center">
+						<WarningCircle size={20} weight="regular" className="mr-3 shrink-0" />
 						<p className="text-sm font-medium">{error}</p>
 					</div>
 				)}
 
-				<form onSubmit={handleSubmit} className="space-y-6">
+				<form onSubmit={handleSubmit} className="space-y-5">
 					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-2">
+						<label className="block text-sm text-ink-2 mb-1.5">
 							Email Address
 						</label>
 						<div className="relative">
-							<EnvelopeSimple size={20} weight="regular" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+							<EnvelopeSimple size={20} weight="regular" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-3 pointer-events-none" />
 							<input
 								type="email"
 								value={email}
 								onChange={(e) => setEmail(e.target.value)}
 								placeholder="Enter your email"
-								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+								className="w-full h-12 pl-10 pr-4 bg-fill border border-transparent rounded-xl text-ink placeholder:text-ink-3 focus:outline-none focus:border-ink"
 								required
 								disabled={isLoading}
 							/>
@@ -85,15 +85,11 @@ export const SendOTP = () => {
 					<button
 						type="submit"
 						disabled={isLoading}
-						className={`w-full py-3 rounded-xl font-semibold text-white transition-all flex items-center justify-center ${
-							isLoading
-								? 'bg-gray-400 cursor-not-allowed'
-								: 'bg-[#fbbf24] hover:bg-[#fbbf24] '
-						}`}
+						className="tap w-full h-12 rounded-xl text-base font-semibold text-black bg-brand hover:bg-brand-press disabled:opacity-45 flex items-center justify-center"
 					>
 						{isLoading ? (
 							<>
-								<div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+								<div className="w-4 h-4 border-2 border-current border-r-transparent rounded-full animate-spin mr-2"></div>
 								Sending OTP...
 							</>
 						) : (
@@ -106,11 +102,11 @@ export const SendOTP = () => {
 				</form>
 
 				<div className="mt-6 text-center">
-					<p className="text-sm text-gray-600">
+					<p className="text-sm text-ink-2">
 						Already have an account?{' '}
 						<Link
 							to="/login"
-							className="text-[#fbbf24] font-semibold hover:text-[#fbbf24]"
+							className="font-semibold text-ink underline underline-offset-2"
 						>
 							Sign in
 						</Link>

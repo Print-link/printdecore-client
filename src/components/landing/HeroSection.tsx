@@ -18,7 +18,7 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
 					loading="eager"
 				/>
 				{/* Responsive overlay - darker on mobile for better text readability */}
-				<div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/60 md:from-black/30 md:via-black/20 md:to-black/40"></div>
+				<div className="absolute inset-0"></div>
 			</div>
 
 			{/* Content - Positioned to work with image text */}
@@ -33,52 +33,52 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
 					{/* Main Tagline - Print • Share • Connect */}
 					<div className="text-center mb-6 md:mb-8">
 						<div className="flex items-center justify-center gap-2 md:gap-3 lg:gap-4 flex-wrap">
-							<h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white drop-shadow-2xl">
+							<h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white">
 								Print
 							</h1>
-							<span className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-[#fbbf24] drop-shadow-2xl">
+							<span className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-brand-ink">
 								•
 							</span>
-							<h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white drop-shadow-2xl">
+							<h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white">
 								Share
 							</h1>
-							<span className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-[#fbbf24] drop-shadow-2xl">
+							<span className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-brand-ink">
 								•
 							</span>
-							<h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white drop-shadow-2xl">
+							<h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white">
 								Connect
 							</h1>
 						</div>
 					</div>
 
 					{/* Subheading */}
-					<p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white mb-6 md:mb-8 max-w-3xl mx-auto text-center leading-relaxed drop-shadow-lg px-2">
+					<p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white mb-6 md:mb-8 max-w-3xl mx-auto text-center leading-relaxed px-2">
 						Order custom print jobs from nearby print shops. Upload your
 						designs, get instant quotes, and track your orders in real-time.
 					</p>
 
 					{/* Key Benefits - Stack on mobile */}
 					<div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 md:gap-4 mb-6 md:mb-8 px-2">
-						<div className="flex items-center gap-2 bg-white/15 backdrop-blur-md px-4 py-2.5 md:px-5 md:py-3 rounded-full border border-white/30 shadow-lg text-sm md:text-base">
+						<div className="flex items-center gap-2 bg-white/15 px-4 py-2.5 md:px-5 md:py-3 rounded-full border border-white/30 text-sm md:text-base">
 							<>
-								<Check size={16} weight="bold" className="text-[#fbbf24] flex-shrink-0 md:hidden" />
-								<Check size={20} weight="bold" className="text-[#fbbf24] flex-shrink-0 hidden md:block" />
+								<Check size={16} weight="bold" className="text-brand-ink flex-shrink-0 md:hidden" />
+								<Check size={20} weight="bold" className="text-brand-ink flex-shrink-0 hidden md:block" />
 							</>
 							<span className="font-semibold text-white whitespace-nowrap">
 								Find Nearby Stations
 							</span>
 						</div>
-						<div className="flex items-center gap-2 bg-white/15 backdrop-blur-md px-4 py-2.5 md:px-5 md:py-3 rounded-full border border-white/30 shadow-lg text-sm md:text-base">
+						<div className="flex items-center gap-2 bg-white/15 px-4 py-2.5 md:px-5 md:py-3 rounded-full border border-white/30 text-sm md:text-base">
 							<>
-								<Check size={16} weight="bold" className="text-[#fbbf24] flex-shrink-0 md:hidden" />
-								<Check size={20} weight="bold" className="text-[#fbbf24] flex-shrink-0 hidden md:block" />
+								<Check size={16} weight="bold" className="text-brand-ink flex-shrink-0 md:hidden" />
+								<Check size={20} weight="bold" className="text-brand-ink flex-shrink-0 hidden md:block" />
 							</>
 							<span className="font-semibold text-white whitespace-nowrap">Instant Pricing</span>
 						</div>
-						<div className="flex items-center gap-2 bg-white/15 backdrop-blur-md px-4 py-2.5 md:px-5 md:py-3 rounded-full border border-white/30 shadow-lg text-sm md:text-base">
+						<div className="flex items-center gap-2 bg-white/15 px-4 py-2.5 md:px-5 md:py-3 rounded-full border border-white/30 text-sm md:text-base">
 							<>
-								<Check size={16} weight="bold" className="text-[#fbbf24] flex-shrink-0 md:hidden" />
-								<Check size={20} weight="bold" className="text-[#fbbf24] flex-shrink-0 hidden md:block" />
+								<Check size={16} weight="bold" className="text-brand-ink flex-shrink-0 md:hidden" />
+								<Check size={20} weight="bold" className="text-brand-ink flex-shrink-0 hidden md:block" />
 							</>
 							<span className="font-semibold text-white whitespace-nowrap">Real-Time Tracking</span>
 						</div>
@@ -88,7 +88,7 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
 					<div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 md:gap-4 mb-4 md:mb-6 px-2">
 						<button
 							onClick={onGetStarted}
-							className="inline-flex items-center justify-center gap-2 bg-[#fbbf24] text-black px-6 py-3 md:px-8 md:py-4 rounded-lg text-base md:text-lg font-semibold hover:bg-[#fcd34d] transition-all transform hover:scale-105 shadow-2xl w-full sm:w-auto"
+							className="inline-flex items-center justify-center gap-2 bg-brand text-black px-6 py-3 md:px-8 md:py-4 rounded-lg text-base md:text-lg font-semibold hover:bg-brand transition-all transform hover:scale-105 w-full sm:w-auto"
 							aria-label="Find print stations near you"
 						>
 							Get Started Now
@@ -96,7 +96,7 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
 						</button>
 						<button
 							onClick={onGetStarted}
-							className="inline-flex items-center justify-center gap-2 bg-white/15 backdrop-blur-md text-white border-2 border-white/40 px-6 py-3 md:px-8 md:py-4 rounded-lg text-base md:text-lg font-semibold hover:bg-white/25 transition-all shadow-lg w-full sm:w-auto"
+							className="inline-flex items-center justify-center gap-2 bg-white/15 text-white border-2 border-white/40 px-6 py-3 md:px-8 md:py-4 rounded-lg text-base md:text-lg font-semibold hover:bg-white/25 transition-all w-full sm:w-auto"
 							aria-label="Find print stations using location"
 						>
 							<MapPin size={20} weight="bold" />
@@ -105,14 +105,14 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
 					</div>
 
 					{/* Trust Indicator */}
-					<p className="text-center text-white/90 text-xs sm:text-sm drop-shadow-md px-2">
+					<p className="text-center text-white/90 text-xs sm:text-sm px-2">
 						Free to use • No hidden fees • Secure payments
 					</p>
 				</div>
 			</div>
 
 			{/* Decorative Elements - Smooth transition to next section */}
-			<div className="absolute bottom-0 left-0 right-0 h-24 md:h-32 bg-gradient-to-t from-white to-transparent"></div>
+			<div className="absolute bottom-0 left-0 right-0 h-24 md:h-32"></div>
 		</section>
 	);
 };

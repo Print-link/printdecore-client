@@ -1,32 +1,19 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-	Package,
-	CalendarBlank,
-	Clock,
-	CaretRight,
-	WarningCircle,
-	Tray,
-	Funnel,
-	HashStraight,
-} from "@phosphor-icons/react";
+import { CaretRight, Tray, WarningCircle } from "@phosphor-icons/react";
+import { Button, Chip, EmptyState, RowSkeleton } from "../components/ui";
 import { useAuth } from "../hooks/useAuth";
 import { useOrders } from "../hooks/useOrders";
 import type { Order, OrderStatus } from "../services/orderApi";
-import { ORDER_STEPS, orderStatusStyle, statusStyle, stepIndex } from "../utils/orderStatus";
+import { ORDER_STEPS, orderStatusStyle, stepIndex } from "../utils/orderStatus";
 
 /** Filters follow the customer's steps, so "In production" also finds Printing and Quality check */
 const STATUS_FILTERS: { key: string; label: string; statuses?: OrderStatus[] }[] = [
-	{ key: "all", label: "All Orders" },
+	{ key: "all", label: "All" },
 	...ORDER_STEPS.map((step) => ({ key: step.key, label: step.label, statuses: step.statuses })),
 	{ key: "cancelled", label: "Cancelled", statuses: ["CANCELLED"] },
 ];
 
-const FILTER_ICONS: Record<string, React.ReactNode> = {
-	all: <Funnel size={14} weight="duotone" />,
-	...Object.fromEntries(ORDER_STEPS.map((step) => [step.key, step.icon(14)])),
-	cancelled: statusStyle("CANCELLED").icon(14),
-};
 
 export const History = () => {
 	const { user } = useAuth();
@@ -38,11 +25,7 @@ export const History = () => {
 
 	const formatDate = (timestamp: string) => {
 		const date = new Date(timestamp);
-		return date.toLocaleDateString("en-US", {
-			year: "numeric",
-			month: "short",
-			day: "numeric",
-		});
+		return date.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 	};
 
 	const formatTime = (timestamp: string) => {
@@ -62,173 +45,76 @@ export const History = () => {
 	);
 
 	return (
-		<div className="w-full max-w-6xl mx-auto">
-			{/* Filter Pills */}
-			<div className="mb-6">
-				<div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-					{STATUS_FILTERS.map(({ key, label }) => {
-						const isActive = filter === key;
-						const count = orderCounts[key] || 0;
-						return (
-							<button
-								key={key}
-								onClick={() => setFilter(key)}
-								className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-200 ${
-									isActive
-										? "bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-md shadow-gray-900/20 dark:shadow-white/10"
-										: "bg-white dark:bg-[#1e1e1e] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800"
-								}`}
-							>
-								{FILTER_ICONS[key]}
-								{label}
-								{count > 0 && (
-									<span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${
-										isActive ? "bg-white/20 text-white dark:bg-gray-900/20 dark:text-gray-900" : "bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400"
-									}`}>
-										{count}
-									</span>
-								)}
-							</button>
-						);
-					})}
-				</div>
+		<div className="w-full max-w-3xl mx-auto">
+			{/* Filters */}
+			<div className="-mx-4 px-4 sm:mx-0 sm:px-0 mb-4 flex gap-2 overflow-x-auto hide-scrollbar">
+				{STATUS_FILTERS.map(({ key, label }) => {
+					const count = orderCounts[key] || 0;
+					if (key !== "all" && count === 0 && filter !== key) return null;
+					return (
+						<Chip key={key} active={filter === key} onClick={() => setFilter(key)}>
+							{label}
+							<span className="num opacity-60">{count}</span>
+						</Chip>
+					);
+				})}
 			</div>
 
-			{/* Error State */}
 			{error && (
-				<div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl flex items-start gap-3">
-					<div className="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center shrink-0">
-						<WarningCircle size={16} weight="duotone" className="text-red-600" />
-					</div>
+				<div className="mb-4 flex items-start gap-3 rounded-xl bg-bad-tint p-3">
+					<WarningCircle size={18} className="text-bad shrink-0 mt-0.5" />
 					<div>
-						<p className="text-sm font-semibold text-red-900 dark:text-red-300">
-							Failed to load orders
-						</p>
-						<p className="text-xs mt-0.5 text-red-600 dark:text-red-400">
-							{error instanceof Error ? error.message : "Something went wrong. Please try again."}
-						</p>
+						<p className="text-sm font-semibold text-bad">Couldn't load your orders</p>
+						<p className="text-sm text-ink-2">{error instanceof Error ? error.message : "Something went wrong. Please try again."}</p>
 					</div>
 				</div>
 			)}
 
-			{/* Loading State */}
 			{isLoading ? (
-				<div className="space-y-4">
-					{[1, 2, 3].map((i) => (
-						<div key={i} className="bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-100 dark:border-gray-800 p-5 animate-pulse">
-							<div className="flex items-start gap-4">
-								<div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-xl" />
-								<div className="flex-1 space-y-3">
-									<div className="flex items-center gap-3">
-										<div className="h-5 w-32 bg-gray-100 dark:bg-gray-800 rounded-lg" />
-										<div className="h-5 w-20 bg-gray-100 dark:bg-gray-800 rounded-full" />
-									</div>
-									<div className="h-4 w-48 bg-gray-100 dark:bg-gray-800 rounded-lg" />
-									<div className="h-1 w-full bg-gray-100 dark:bg-gray-800 rounded-full" />
-								</div>
-							</div>
-						</div>
-					))}
-				</div>
+				<RowSkeleton rows={5} thumb={44} />
 			) : filteredOrders.length === 0 ? (
-				/* Empty State */
-				<div className="text-center py-16 bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-100 dark:border-gray-800">
-					<div className="w-16 h-16 rounded-2xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
-						<Tray size={32} weight="duotone" className="text-gray-300 dark:text-gray-600" />
-					</div>
-					<p className="text-gray-900 dark:text-white text-lg font-semibold mb-1">
-						No orders found
-					</p>
-					<p className="text-gray-400 dark:text-gray-500 text-sm max-w-sm mx-auto">
-						{filter === "all"
-							? "Your order history will appear here once you place your first order."
-							: `No ${(activeFilter?.label ?? "").toLowerCase()} orders at the moment.`}
-					</p>
-				</div>
+				<EmptyState
+					icon={<Tray size={26} />}
+					title={filter === "all" ? "No orders yet" : `No ${(activeFilter?.label ?? "").toLowerCase()} orders`}
+					body={filter === "all" ? "Your orders show up here once you place one." : "Try another filter."}
+					action={filter === "all" ? <Button onClick={() => navigate("/home")}>Start an order</Button> : undefined}
+				/>
 			) : (
-				/* Order Cards */
-				<div className="space-y-3">
+				<ul className="border-t border-line">
 					{filteredOrders.map((order: Order) => {
 						const config = orderStatusStyle(order);
-						const currentStep = stepIndex(order.status);
-						const progress = currentStep < 0 ? 0 : ((currentStep + 1) / ORDER_STEPS.length) * 100;
-
+						const step = stepIndex(order.status);
+						const items = order.items?.length ?? 0;
 						return (
-							<button
-								key={order.id}
-								onClick={() => navigate(`/home/order/${order.id}`)}
-								className="w-full group bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-100 dark:border-gray-800 p-5 text-left transition-all duration-300 hover:shadow-lg hover:shadow-gray-900/5 dark:hover:shadow-black/20 hover:border-gray-200 dark:hover:border-gray-700 active:scale-[0.995]"
-							>
-								<div className="flex items-start gap-4">
-									{/* Order Icon */}
-									<div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 flex items-center justify-center shrink-0 border border-gray-100 dark:border-gray-700 group-hover:from-amber-50 group-hover:to-amber-100 dark:group-hover:from-amber-900/20 dark:group-hover:to-amber-800/20 group-hover:border-amber-200 dark:group-hover:border-amber-800 transition-all duration-300">
-										<Package size={20} weight="duotone" className="text-gray-400 dark:text-gray-500 group-hover:text-[#d97706] transition-colors duration-300" />
-									</div>
-
-									{/* Order Content */}
-									<div className="flex-1 min-w-0">
-										{/* Top Row: ID + Status */}
-										<div className="flex items-center justify-between gap-3 mb-2">
-											<div className="flex items-center gap-2.5 min-w-0">
-												<div className="flex items-center gap-1.5">
-													<HashStraight size={14} weight="bold" className="text-gray-400 dark:text-gray-500" />
-													<h3 className="text-sm font-bold text-gray-900 dark:text-white tracking-tight">
-														{order.id.slice(0, 8).toUpperCase()}
-													</h3>
-												</div>
-												<span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${config.bg} ${config.color} ${config.border} border`}>
-													<span className={`w-1.5 h-1.5 rounded-full ${config.dot}`} />
-													{config.label}
-												</span>
-											</div>
-											<CaretRight size={16} weight="bold" className="text-gray-300 dark:text-gray-600 group-hover:text-[#fbbf24] group-hover:translate-x-0.5 transition-all duration-300 shrink-0" />
-										</div>
-
-										{/* Meta Row */}
-										<div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500 dark:text-gray-400 mb-3">
-											<span className="flex items-center gap-1.5">
-												<CalendarBlank size={14} weight="duotone" />
-												{formatDate(order.createdAt)}
+							<li key={order.id}>
+								<button onClick={() => navigate(`/home/order/${order.id}`)} className="tap w-full flex items-center gap-3 py-3.5 border-b border-line text-left">
+									<span className={`w-11 h-11 shrink-0 rounded-lg flex items-center justify-center ${config.bg} ${config.color}`}>{config.icon(20)}</span>
+									<span className="flex-1 min-w-0">
+										<span className="flex items-baseline justify-between gap-3">
+											<span className="num text-base font-semibold text-ink truncate">#{order.id.slice(0, 8).toUpperCase()}</span>
+											<span className="num shrink-0 text-base font-semibold text-ink">GHS {order.totalPrice.toFixed(2)}</span>
+										</span>
+										<span className="flex items-center justify-between gap-3 mt-0.5">
+											<span className={`text-sm font-medium truncate ${config.color}`}>{config.label}</span>
+											<span className="num shrink-0 text-xs text-ink-3">
+												{formatDate(order.createdAt)} · {formatTime(order.createdAt)}
 											</span>
-											<span className="flex items-center gap-1.5">
-												<Clock size={14} weight="duotone" />
-												{formatTime(order.createdAt)}
+										</span>
+										{step >= 0 && (
+											<span className="flex gap-1 mt-2" aria-label={`Step ${step + 1} of ${ORDER_STEPS.length}`}>
+												{ORDER_STEPS.map((s, i) => (
+													<span key={s.key} className={`h-1 flex-1 rounded-full ${i <= step ? config.dot : "bg-fill-press"}`} />
+												))}
 											</span>
-											{order.items && order.items.length > 0 && (
-												<span className="flex items-center gap-1.5">
-													<Package size={14} weight="duotone" />
-													{order.items.length} item{order.items.length !== 1 ? "s" : ""}
-												</span>
-											)}
-										</div>
-
-										{/* Progress Bar */}
-										<div className="mb-3">
-											<div className="h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
-												<div
-													className={`h-full rounded-full transition-all duration-500 ${
-														order.status === "COMPLETED" || order.status === "DELIVERED"
-															? "bg-gradient-to-r from-emerald-400 to-emerald-500"
-															: "bg-gradient-to-r from-[#fbbf24] to-[#d97706]"
-													}`}
-													style={{ width: `${progress}%` }}
-												/>
-											</div>
-										</div>
-
-										{/* Bottom Row: Price */}
-										<div className="flex items-center justify-between">
-											<span className="text-xs text-gray-400 dark:text-gray-500 font-medium">Total Amount</span>
-											<span className="text-base font-bold text-gray-900 dark:text-white">
-												GHS {order.totalPrice.toFixed(2)}
-											</span>
-										</div>
-									</div>
-								</div>
-							</button>
+										)}
+										{items > 1 && <span className="num block mt-1 text-xs text-ink-3">{items} items</span>}
+									</span>
+									<CaretRight size={16} className="shrink-0 text-ink-3" />
+								</button>
+							</li>
 						);
 					})}
-				</div>
+				</ul>
 			)}
 		</div>
 	);

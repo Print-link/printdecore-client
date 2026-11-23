@@ -1,4 +1,4 @@
-import { MapPin, Phone, EnvelopeSimple, Buildings } from "@phosphor-icons/react";
+import { MapPin, Phone, EnvelopeSimple } from "@phosphor-icons/react";
 
 interface BranchInfoProps {
 	branch: {
@@ -17,26 +17,23 @@ interface BranchInfoProps {
 
 export const BranchInfo = ({ branch }: BranchInfoProps) => {
 	return (
-		<div className="bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-100 dark:border-gray-800 p-5">
+		<div className="py-5 border-t border-line">
 			<div className="flex items-center gap-2.5 mb-4">
-				<div className="w-8 h-8 rounded-lg bg-gray-900 flex items-center justify-center">
-					<Buildings size={16} weight="duotone" className="text-white" />
-				</div>
-				<h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">
+				<h3 className="text-lg font-bold title-tight text-ink">
 					Branch
 				</h3>
 			</div>
 			<div className="space-y-3">
 				<div>
-					<p className="text-base font-bold text-gray-900 dark:text-white">
+					<p className="text-base font-bold text-ink">
 						{branch.name}
 					</p>
 				</div>
 
 				{branch.location?.address && (
 					<div className="flex items-start gap-2.5">
-						<MapPin size={16} weight="duotone" className="text-gray-400 dark:text-gray-500 mt-0.5 shrink-0" />
-						<p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+						<MapPin size={16} weight="regular" className="text-ink-3 mt-0.5 shrink-0" />
+						<p className="text-sm text-ink-2 leading-relaxed">
 							{branch.location.address}
 						</p>
 					</div>
@@ -44,8 +41,8 @@ export const BranchInfo = ({ branch }: BranchInfoProps) => {
 
 				{branch.phoneNumber && (
 					<div className="flex items-center gap-2.5">
-						<Phone size={16} weight="duotone" className="text-gray-400 dark:text-gray-500 shrink-0" />
-						<a href={`tel:${branch.phoneNumber}`} className="text-sm text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white transition-colors">
+						<Phone size={16} weight="regular" className="text-ink-3 shrink-0" />
+						<a href={`tel:${branch.phoneNumber}`} className="text-sm text-ink font-medium hover:text-ink transition-colors">
 							{branch.phoneNumber}
 						</a>
 					</div>
@@ -53,8 +50,8 @@ export const BranchInfo = ({ branch }: BranchInfoProps) => {
 
 				{branch.branchEmailAddress && (
 					<div className="flex items-center gap-2.5">
-						<EnvelopeSimple size={16} weight="duotone" className="text-gray-400 dark:text-gray-500 shrink-0" />
-						<a href={`mailto:${branch.branchEmailAddress}`} className="text-sm text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white transition-colors break-all">
+						<EnvelopeSimple size={16} weight="regular" className="text-ink-3 shrink-0" />
+						<a href={`mailto:${branch.branchEmailAddress}`} className="text-sm text-ink font-medium hover:text-ink transition-colors break-all">
 							{branch.branchEmailAddress}
 						</a>
 					</div>

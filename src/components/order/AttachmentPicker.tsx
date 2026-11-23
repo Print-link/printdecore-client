@@ -13,7 +13,7 @@ interface AttachmentPickerProps {
 }
 
 /** Design files for the job, uploaded as soon as they're picked (needs an account) */
-export const AttachmentPicker = ({ files, onChange, onUploadingChange, label = "Design files (optional)" }: AttachmentPickerProps) => {
+export const AttachmentPicker = ({ files, onChange, onUploadingChange, label = "Design files" }: AttachmentPickerProps) => {
 	const { user } = useAuth();
 	const location = useLocation();
 	const input = useRef<HTMLInputElement>(null);
@@ -38,17 +38,17 @@ export const AttachmentPicker = ({ files, onChange, onUploadingChange, label = "
 
 	return (
 		<div>
-			<p className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">{label}</p>
+			<p className="mb-3 text-lg font-bold title-tight text-ink">{label} <span className="text-sm font-normal text-ink-3">Optional</span></p>
 			{files.length > 0 && (
 				<ul className="mb-2 space-y-1.5">
 					{files.map((f, i) => (
-						<li key={f.publicId || i} className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-sm">
-							<Paperclip size={14} className="text-gray-400 shrink-0" />
-							<span className="flex-1 truncate text-gray-800 dark:text-gray-200">{f.name}</span>
+						<li key={f.publicId || i} className="flex items-center gap-2 h-11 px-3 rounded-xl bg-fill text-sm">
+							<Paperclip size={16} className="text-ink-2 shrink-0" />
+							<span className="flex-1 truncate text-ink">{f.name}</span>
 							<button
 								type="button"
 								onClick={() => onChange(files.filter((_, j) => j !== i))}
-								className="p-1 text-gray-400 hover:text-red-500"
+								className="tap p-1.5 -mr-1 text-ink-3 hover:text-bad"
 								aria-label={`Remove ${f.name}`}
 							>
 								<X size={14} />
@@ -63,7 +63,7 @@ export const AttachmentPicker = ({ files, onChange, onUploadingChange, label = "
 						type="button"
 						onClick={() => input.current?.click()}
 						disabled={uploading}
-						className="w-full flex items-center justify-center gap-2 px-3 py-3 text-sm rounded-lg border border-dashed border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-[#fbbf24] disabled:opacity-60"
+						className="tap w-full h-12 flex items-center justify-center gap-2 text-sm font-semibold rounded-xl border border-dashed border-line-strong text-ink"
 					>
 						{uploading ? <SpinnerGap size={16} className="animate-spin" /> : <Paperclip size={16} />}
 						{uploading ? "Uploading…" : "Attach files"}
@@ -71,8 +71,8 @@ export const AttachmentPicker = ({ files, onChange, onUploadingChange, label = "
 					<input ref={input} type="file" multiple className="hidden" onChange={(e) => pick(e.target.files)} />
 				</>
 			) : (
-				<p className="text-sm text-gray-500">
-					<Link to={`/login?returnUrl=${encodeURIComponent(location.pathname + location.search)}`} className="text-[#d97706] font-semibold hover:underline">
+				<p className="text-sm text-ink-2">
+					<Link to={`/login?returnUrl=${encodeURIComponent(location.pathname + location.search)}`} className="font-semibold text-ink underline underline-offset-2">
 						Sign in
 					</Link>{" "}
 					to attach your design files.

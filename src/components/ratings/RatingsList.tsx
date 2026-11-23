@@ -19,16 +19,16 @@ export const RatingsList = ({ branchId, limit: initialLimit = 10 }: RatingsListP
 				{Array.from({ length: 3 }).map((_, i) => (
 					<div
 						key={i}
-						className="bg-white border border-gray-200 rounded-lg p-4 animate-pulse"
+						className="border border-line rounded-xl p-4 animate-pulse"
 					>
 						<div className="flex items-center gap-3 mb-2">
-							<div className="w-10 h-10 bg-gray-200 rounded-full" />
+							<div className="w-10 h-10 bg-fill-press rounded-full" />
 							<div className="flex-1">
-								<div className="h-4 bg-gray-200 rounded w-32 mb-2" />
-								<div className="h-3 bg-gray-200 rounded w-24" />
+								<div className="h-4 bg-fill-press rounded w-32 mb-2" />
+								<div className="h-3 bg-fill-press rounded w-24" />
 							</div>
 						</div>
-						<div className="h-20 bg-gray-200 rounded" />
+						<div className="h-20 bg-fill-press rounded" />
 					</div>
 				))}
 			</div>
@@ -37,7 +37,7 @@ export const RatingsList = ({ branchId, limit: initialLimit = 10 }: RatingsListP
 
 	if (error) {
 		return (
-			<div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
+			<div className="bg-bad-tint rounded-lg p-4 text-bad">
 				Failed to load ratings. Please try again later.
 			</div>
 		);
@@ -45,8 +45,8 @@ export const RatingsList = ({ branchId, limit: initialLimit = 10 }: RatingsListP
 
 	if (!ratingsData || ratingsData.data.length === 0) {
 		return (
-			<div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center text-gray-500">
-				<Star size={48} weight="duotone" className="mx-auto mb-3 text-gray-400" />
+			<div className="bg-gray-50 border border-line rounded-lg p-8 text-center text-ink-2">
+				<Star size={48} weight="regular" className="mx-auto mb-3 text-ink-3" />
 				<p className="text-lg font-medium">No ratings yet</p>
 				<p className="text-sm mt-1">Be the first to rate this branch!</p>
 			</div>
@@ -77,11 +77,11 @@ export const RatingsList = ({ branchId, limit: initialLimit = 10 }: RatingsListP
 			{ratings.map((rating) => (
 				<div
 					key={rating.id}
-					className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+					className="border border-line rounded-xl p-4"
 				>
 					<div className="flex items-start gap-3 mb-3">
 						{/* Avatar */}
-						<div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+						<div className="w-10 h-10 bg-fill rounded-full flex items-center justify-center flex-shrink-0">
 							{rating.customer?.avatar ? (
 								<img
 									src={rating.customer.avatar}
@@ -89,7 +89,7 @@ export const RatingsList = ({ branchId, limit: initialLimit = 10 }: RatingsListP
 									className="w-10 h-10 rounded-full object-cover"
 								/>
 							) : (
-								<User size={24} weight="duotone" className="text-blue-600" />
+								<User size={24} weight="regular" className="text-ink-2" />
 							)}
 						</div>
 
@@ -97,12 +97,12 @@ export const RatingsList = ({ branchId, limit: initialLimit = 10 }: RatingsListP
 						<div className="flex-1 min-w-0">
 							<div className="flex items-center justify-between mb-1">
 								<div>
-									<p className="font-semibold text-gray-900">
+									<p className="font-semibold text-ink">
 										{getCustomerName(rating)}
 									</p>
 									<div className="flex items-center gap-2 mt-1">
 										<RatingDisplay rating={rating.rating} showNumbers={false} size="sm" />
-										<span className="text-xs text-gray-500">
+										<span className="text-xs text-ink-2">
 											{formatDate(rating.createdAt)}
 										</span>
 									</div>
@@ -111,7 +111,7 @@ export const RatingsList = ({ branchId, limit: initialLimit = 10 }: RatingsListP
 
 							{/* Review Text */}
 							{rating.review && (
-								<p className="text-gray-700 mt-2 whitespace-pre-wrap break-words">
+								<p className="text-ink mt-2 whitespace-pre-wrap break-words">
 									{rating.review}
 								</p>
 							)}
@@ -125,7 +125,7 @@ export const RatingsList = ({ branchId, limit: initialLimit = 10 }: RatingsListP
 				<div className="text-center">
 					<button
 						onClick={() => setLimit(limit + 10)}
-						className="px-4 py-2 text-blue-600 hover:text-blue-700 font-medium transition-colors"
+						className="px-4 py-2 text-ink underline underline-offset-2 font-medium transition-colors"
 					>
 						Load More Reviews
 					</button>

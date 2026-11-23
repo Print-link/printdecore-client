@@ -21,14 +21,14 @@ export const UpdatePrompt = () => {
 
 		const toastId = toast.info(
 			<div className="flex items-start gap-3">
-				<div className="w-9 h-9 rounded-full bg-[#fbbf24]/20 flex items-center justify-center shrink-0">
-					<ArrowClockwise size={18} weight="bold" className="text-[#fbbf24]" />
+				<div className="w-9 h-9 rounded-full bg-brand/20 flex items-center justify-center shrink-0">
+					<ArrowClockwise size={18} weight="bold" className="text-brand-ink" />
 				</div>
 				<div className="flex-1 min-w-0">
-					<p className="text-sm font-bold text-gray-900 dark:text-white">
+					<p className="text-sm font-bold text-ink">
 						A new version is available
 					</p>
-					<p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+					<p className="text-xs text-ink-2 mt-0.5">
 						Reload to get the latest improvements.
 					</p>
 					<div className="flex gap-2 mt-2">
@@ -36,7 +36,7 @@ export const UpdatePrompt = () => {
 							onClick={() => {
 								updateServiceWorker(true);
 							}}
-							className="px-3 py-1.5 bg-[#fbbf24] hover:bg-[#f59e0b] text-black text-xs font-bold rounded-lg transition-colors"
+							className="px-3 py-1.5 bg-brand hover:bg-brand-press text-black text-xs font-bold rounded-lg transition-colors"
 						>
 							Reload
 						</button>
@@ -45,7 +45,7 @@ export const UpdatePrompt = () => {
 								setNeedRefresh(false);
 								toast.dismiss(toastId);
 							}}
-							className="px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-semibold rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+							className="px-3 py-1.5 bg-fill text-ink-2 text-xs font-semibold rounded-lg hover:bg-fill-press transition-colors"
 						>
 							Later
 						</button>

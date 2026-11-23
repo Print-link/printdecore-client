@@ -43,9 +43,9 @@ export const TestimonialsSection = () => {
 					{testimonials.map((testimonial, index) => (
 						<div
 							key={index}
-							className="bg-white rounded-2xl p-8 border-2 border-gray-100 hover:border-[#fbbf24] transition-all hover:shadow-xl"
+							className="bg-white rounded-2xl p-8 border-2 border-gray-100 hover:border-brand transition-all"
 						>
-							<Quotes size={32} weight="duotone" className="text-[#fbbf24] mb-4" />
+							<Quotes size={32} weight="regular" className="text-brand-ink mb-4" />
 							<p className="text-gray-700 mb-6 leading-relaxed">"{testimonial.quote}"</p>
 							<div className="flex items-center gap-4">
 								<img

@@ -94,23 +94,23 @@ export const RatingForm = ({
 
 	if (!user) {
 		return (
-			<div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center text-gray-600">
+			<div className="bg-gray-50 border border-line rounded-lg p-4 text-center text-ink-2">
 				Please sign in to leave a rating
 			</div>
 		);
 	}
 
 	return (
-		<div className="bg-white border border-gray-200 rounded-lg p-6">
+		<div className="border border-line rounded-xl p-6">
 			<div className="flex items-center justify-between mb-4">
-				<h3 className="text-lg font-semibold text-gray-900">
+				<h3 className="text-lg font-semibold text-ink">
 					{myRating ? "Update Your Rating" : "Rate This Branch"}
 				</h3>
 				{onCancel && (
 					<button
 						type="button"
 						onClick={onCancel}
-						className="text-gray-400 hover:text-gray-600 transition-colors"
+						className="text-ink-3 hover:text-ink transition-colors"
 					>
 						<X size={20} weight="bold" />
 					</button>
@@ -120,8 +120,8 @@ export const RatingForm = ({
 			<form onSubmit={handleSubmit} className="space-y-4">
 				{/* Star Rating */}
 				<div>
-					<label className="block text-sm font-medium text-gray-700 mb-2">
-						Rating <span className="text-red-500">*</span>
+					<label className="block text-sm font-medium text-ink mb-2">
+						Rating <span className="text-bad">*</span>
 					</label>
 					<div className="flex items-center gap-1">
 						{Array.from({ length: 5 }).map((_, i) => {
@@ -141,15 +141,15 @@ export const RatingForm = ({
 										weight="fill"
 										className={
 											isActive
-												? "text-yellow-400"
-												: "text-gray-300"
+												? "text-brand"
+												: "text-ink-3"
 										}
 									/>
 								</button>
 							);
 						})}
 						{rating > 0 && (
-							<span className="ml-2 text-sm text-gray-600">
+							<span className="ml-2 text-sm text-ink-2">
 								{rating} {rating === 1 ? "star" : "stars"}
 							</span>
 						)}
@@ -160,7 +160,7 @@ export const RatingForm = ({
 				<div>
 					<label
 						htmlFor="review"
-						className="block text-sm font-medium text-gray-700 mb-2"
+						className="block text-sm font-medium text-ink mb-2"
 					>
 						Review (Optional)
 					</label>
@@ -170,10 +170,10 @@ export const RatingForm = ({
 						onChange={(e) => setReview(e.target.value)}
 						rows={4}
 						maxLength={1000}
-						className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+						className="w-full px-3 py-2 border border-line-strong rounded-md focus:outline-none focus:border-ink"
 						placeholder="Share your experience with this branch..."
 					/>
-					<p className="mt-1 text-xs text-gray-500">
+					<p className="mt-1 text-xs text-ink-2">
 						{review.length}/1000 characters
 					</p>
 				</div>
@@ -183,7 +183,7 @@ export const RatingForm = ({
 					<button
 						type="submit"
 						disabled={isSubmitting || rating === 0}
-						className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+						className="px-4 py-2 bg-ink text-page rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
 					>
 						{isSubmitting
 							? "Submitting..."
@@ -196,7 +196,7 @@ export const RatingForm = ({
 							type="button"
 							onClick={handleDelete}
 							disabled={isSubmitting}
-							className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+							className="px-4 py-2 bg-bad text-white rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
 						>
 							Delete
 						</button>
@@ -206,7 +206,7 @@ export const RatingForm = ({
 							type="button"
 							onClick={onCancel}
 							disabled={isSubmitting}
-							className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+							className="px-4 py-2 bg-fill text-ink rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
 						>
 							Cancel
 						</button>

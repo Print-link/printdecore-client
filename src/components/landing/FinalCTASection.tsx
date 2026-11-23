@@ -16,7 +16,7 @@ export const FinalCTASection = ({ onGetStarted }: FinalCTASectionProps) => {
 				</p>
 				<button
 					onClick={onGetStarted}
-					className="inline-flex items-center gap-2 bg-[#fbbf24] text-black px-8 py-4 rounded-lg text-lg font-semibold hover:bg-[#fcd34d] transition-all transform hover:scale-105 shadow-xl"
+					className="inline-flex items-center gap-2 bg-brand text-black px-8 py-4 rounded-lg text-lg font-semibold hover:bg-brand transition-all transform hover:scale-105"
 				>
 					Find Print Stations
 					<Compass size={20} weight="bold" />

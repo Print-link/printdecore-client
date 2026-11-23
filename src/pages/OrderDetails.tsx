@@ -253,11 +253,11 @@ export const OrderDetails = () => {
 	}
 
 	return (
-		<div className="w-full max-w-7xl mx-auto">
+		<div className="w-full max-w-5xl mx-auto">
 			{/* Back Button */}
 			<button
 				onClick={() => navigate("/home/history")}
-				className="mb-4 hidden md:flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+				className="mb-4 hidden md:flex items-center text-sm text-ink-2 hover:text-ink transition-colors"
 			>
 				<ArrowLeft size={16} weight="bold" className="mr-2" />
 				Back to History
@@ -300,9 +300,9 @@ export const OrderDetails = () => {
 			{(order.id || id) && <OrderPaymentPanel order={{ ...order, id: (order.id || id)! }} />}
 
 			{/* Main Content Grid */}
-			<div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-5">
+			<div className="grid grid-cols-1 lg:grid-cols-3 lg:gap-8 mb-5">
 				{/* Left Column - Order Items & Details (2 columns on desktop) */}
-				<div className="lg:col-span-2 space-y-4">
+				<div className="lg:col-span-2">
 					<OrderItemsList items={orderItems} loading={loadingItems} />
 
 					{printRequest && <PrintRequestSpec request={printRequest} />}
@@ -340,7 +340,7 @@ export const OrderDetails = () => {
 				</div>
 
 				{/* Right Column - Order Info, Branch & Executed By (1 column on desktop) */}
-				<div className="space-y-4">
+				<div>
 					<OrderSummary
 						submittedBy={order.submittedBy}
 						executedByModel={order.executedByModel}
@@ -357,7 +357,7 @@ export const OrderDetails = () => {
 
 			{/* Rating Section */}
 			{order.branch?.id && (
-				<div className="mt-12 pt-12 border-t border-gray-200 dark:border-gray-700">
+				<div className="mt-6 pt-6 border-t border-line">
 					<BranchRatingSection
 						branchId={order.branch.id}
 						averageRating={order.branch.averageRating}

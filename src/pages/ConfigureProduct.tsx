@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { SpinnerGap } from "@phosphor-icons/react";
+import { EmptyState, Skeleton } from "../components/ui";
 import { PageHeader } from "../components/common/PageHeader";
 import { ProductLoader } from "../components/order/ProductLoader";
 import { getServiceTemplateOrderDetails } from "../services/orderApi";
@@ -18,8 +18,8 @@ export const ConfigureProduct = () => {
 	return (
 		<div className="w-full max-w-2xl mx-auto">
 			<PageHeader title={service?.name ?? "Set up your order"} subtitle="Printdecore finds a printer near you and handles it" />
-			{isLoading && <SpinnerGap size={20} className="animate-spin text-[#fbbf24]" />}
-			{isError && <p className="text-sm text-gray-500">This product isn't available right now.</p>}
+			{isLoading && <Skeleton className="h-40" />}
+			{isError && <EmptyState title="Not available right now" body="This product can't be ordered at the moment." />}
 			{service && <ProductLoader service={service} onAdded={() => navigate("/home/tray")} />}
 		</div>
 	);

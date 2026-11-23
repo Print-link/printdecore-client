@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { SpinnerGap } from "@phosphor-icons/react";
+import { RowSkeleton, Skeleton } from "../ui";
 import type { CartVendor } from "../../contexts/CartContext";
 import type { ServiceTemplateOrderDetails } from "../../services/orderApi";
 import { getProduct } from "../../services/pricingApi";
@@ -25,14 +25,17 @@ export const ProductLoader = ({ service, vendor, ...rest }: ProductLoaderProps) 
 
 	if (isLoading) {
 		return (
-			<div className="flex items-center gap-2 text-sm text-gray-500 py-6">
-				<SpinnerGap size={16} className="animate-spin" /> Loading options…
+			<div className="space-y-3 py-2" role="status" aria-label="Loading options">
+				<Skeleton className="h-6 w-24" />
+				<div className="flex gap-2"><Skeleton className="h-14 w-24 rounded-xl" /><Skeleton className="h-14 w-24 rounded-xl" /><Skeleton className="h-14 w-24 rounded-xl" /></div>
+				<Skeleton className="h-6 w-28 mt-6" />
+				<RowSkeleton rows={3} thumb={0} />
 			</div>
 		);
 	}
 	if (isError || !product || product.pricingModel !== "v2" || (vendor && !product.shop)) {
 		return (
-			<p className="text-sm text-gray-500 py-6">
+			<p className="text-sm text-ink-2 py-6">
 				{vendor ? `${vendor.name} isn't taking orders for this right now.` : "This product isn't available to order right now."}
 			</p>
 		);

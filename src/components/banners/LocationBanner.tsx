@@ -1,27 +1,29 @@
 import { MapPin } from "@phosphor-icons/react";
 
+/** One quiet line under the header while location is off — not a yellow alert */
 export const LocationBanner = ({
-    hasLocation,
-    needsPermission
-  }: {
-    hasLocation: boolean;
-    needsPermission: boolean;
-  }) => {
-    if (hasLocation) return null;
-  
-    return (
-      <div className="px-4 py-3 bg-amber-50 dark:bg-amber-900/15 border-b border-amber-200 dark:border-amber-900/40">
-        <div className="flex items-start gap-2">
-          <MapPin size={16} weight="regular" className="text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium text-amber-900 dark:text-amber-200">
-              {needsPermission ? 'Location is off' : 'Getting location...'}
-            </p>
-            <p className="text-xs text-amber-700 dark:text-amber-300/80 mt-0.5">
-              Turn it on to see print shops near you
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  };
+	hasLocation,
+	needsPermission,
+	onTurnOn,
+}: {
+	hasLocation: boolean;
+	needsPermission: boolean;
+	onTurnOn?: () => void;
+}) => {
+	if (hasLocation) return null;
+	return (
+		<div className="bg-surface border-b border-line">
+			<div className="max-w-5xl mx-auto h-10 px-4 sm:px-6 lg:px-8 flex items-center gap-2 text-sm">
+				<MapPin size={16} className="shrink-0 text-ink-3" />
+				<p className="flex-1 min-w-0 truncate text-ink-2">
+					{needsPermission ? "Location is off — showing all shops" : "Finding your location…"}
+				</p>
+				{needsPermission && onTurnOn && (
+					<button onClick={onTurnOn} className="tap shrink-0 -mr-2 px-2 py-1 rounded-lg font-semibold text-ink hover:bg-fill">
+						Turn on
+					</button>
+				)}
+			</div>
+		</div>
+	);
+};

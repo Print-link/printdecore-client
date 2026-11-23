@@ -3,6 +3,7 @@ import { X } from "@phosphor-icons/react";
 import { useInstall } from "../../hooks/usePwa";
 import { openInstallGuide, promptInstall } from "../../pwa/install";
 import { inAppBrowser, isIOS } from "../../pwa/platform";
+import { Button } from "../ui";
 
 const KEY = "pd_install_banner_hidden_until";
 const hiddenNow = () => {
@@ -33,23 +34,22 @@ export const InstallBanner = () => {
 	};
 
 	return (
-		<section className="chat-in mb-5 flex items-center gap-3 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1a1a1a] p-3 shadow-sm" aria-label="Get the app">
-			<img src="/logoIcon-192.png" alt="" className="w-11 h-11 shrink-0 rounded-xl bg-white ring-1 ring-black/5" />
+		<section className="mb-5 flex items-center gap-3 rounded-xl border border-line bg-surface p-3" aria-label="Get the app">
+			<img src="/logoIcon-192.png" alt="" className="w-10 h-10 shrink-0 rounded-lg bg-white ring-1 ring-inset ring-line" />
 			<div className="flex-1 min-w-0">
-				<p className="text-sm font-bold text-gray-900 dark:text-white">Get the Printdecore app</p>
-				<p className="text-xs text-gray-500 dark:text-gray-400">Instant alerts when your price is ready. Free, no app store.</p>
+				<p className="text-sm font-semibold text-ink">Get the Printdecore app</p>
+				<p className="text-xs text-ink-2">Alerts when your price is ready. Free, no app store.</p>
 			</div>
-			<button
-				type="button"
+			<Button
+				size="sm"
 				onClick={async () => {
 					if (canPrompt && !isIOS) await promptInstall();
 					else openInstallGuide();
 				}}
-				className="tap shrink-0 rounded-xl bg-[#fbbf24] hover:bg-[#f59e0b] px-3.5 py-2 text-xs font-black text-black"
 			>
 				{canPrompt && !isIOS ? "Install" : "How?"}
-			</button>
-			<button type="button" onClick={dismiss} className="shrink-0 -mr-1 p-1.5 rounded-full text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="Not now">
+			</Button>
+			<button type="button" onClick={dismiss} className="tap shrink-0 -mr-1 p-1.5 rounded-full text-ink-3 hover:bg-fill" aria-label="Not now">
 				<X size={14} weight="bold" />
 			</button>
 		</section>

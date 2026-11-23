@@ -45,7 +45,7 @@ export const ArtWorkDetail = () => {
 	if (isLoading) {
 		return (
 			<div className="flex items-center justify-center py-20">
-				<SpinnerGap size={32} className="text-[#fbbf24] animate-spin" />
+				<SpinnerGap size={32} className="text-brand-ink animate-spin" />
 			</div>
 		);
 	}
@@ -53,12 +53,12 @@ export const ArtWorkDetail = () => {
 	if (!art) {
 		return (
 			<div className="flex flex-col items-center justify-center py-20 text-center">
-				<p className="text-sm font-bold text-gray-600 dark:text-gray-300">
+				<p className="text-sm font-bold text-ink-2">
 					Artwork not found
 				</p>
 				<button
 					onClick={() => navigate("/home/artworks")}
-					className="mt-4 px-4 py-2 bg-[#fbbf24] text-black text-sm font-bold rounded-xl"
+					className="mt-4 px-4 py-2 bg-brand text-black text-sm font-bold rounded-xl"
 				>
 					Back to Art Works
 				</button>
@@ -93,7 +93,7 @@ export const ArtWorkDetail = () => {
 			{/* Back button */}
 			<button
 				onClick={() => navigate("/home/artworks")}
-				className="hidden md:flex items-center gap-2 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-[#fbbf24] transition-colors"
+				className="hidden md:flex items-center gap-2 text-sm font-semibold text-ink-2 hover:text-ink transition-colors"
 			>
 				<ArrowLeft size={18} weight="bold" />
 				<span className="hidden sm:inline">Back to Art Works</span>
@@ -104,7 +104,7 @@ export const ArtWorkDetail = () => {
 				{/* Left column - Images */}
 				<div className="lg:col-span-2 space-y-3">
 					{/* Main image carousel */}
-					<div className="relative bg-white dark:bg-[#1e1e1e] rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800">
+					<div className="relative bg-surface rounded-xl overflow-hidden border border-line">
 						{art.images.length > 0 ? (
 							<div
 								ref={scrollRef}
@@ -125,8 +125,8 @@ export const ArtWorkDetail = () => {
 								))}
 							</div>
 						) : (
-							<div className="w-full aspect-[4/3] flex items-center justify-center bg-gray-100 dark:bg-gray-800">
-								<ImageBroken size={48} className="text-gray-300" />
+							<div className="w-full aspect-[4/3] flex items-center justify-center bg-fill">
+								<ImageBroken size={48} className="text-ink-3" />
 							</div>
 						)}
 
@@ -135,13 +135,13 @@ export const ArtWorkDetail = () => {
 							<>
 								<button
 									onClick={prevImage}
-									className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 p-1.5 sm:p-2 bg-black/40 hover:bg-black/60 backdrop-blur-sm text-white rounded-full transition-all"
+									className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 p-1.5 sm:p-2 bg-black/40 hover:bg-black/60 text-white rounded-full transition-all"
 								>
 									<CaretLeft size={16} weight="bold" />
 								</button>
 								<button
 									onClick={nextImage}
-									className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 p-1.5 sm:p-2 bg-black/40 hover:bg-black/60 backdrop-blur-sm text-white rounded-full transition-all"
+									className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 p-1.5 sm:p-2 bg-black/40 hover:bg-black/60 text-white rounded-full transition-all"
 								>
 									<CaretRight size={16} weight="bold" />
 								</button>
@@ -150,14 +150,14 @@ export const ArtWorkDetail = () => {
 
 						{/* Dots indicator */}
 						{art.images.length > 1 && (
-							<div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-2 py-1 bg-black/40 backdrop-blur-sm rounded-full">
+							<div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-2 py-1 bg-black/40 rounded-full">
 								{art.images.map((_, i) => (
 									<button
 										key={i}
 										onClick={() => scrollToImage(i)}
 										className={`rounded-full transition-all ${
 											i === currentImage
-												? "w-5 h-1.5 bg-[#fbbf24]"
+												? "w-5 h-1.5 bg-brand"
 												: "w-1.5 h-1.5 bg-white/60 hover:bg-white"
 										}`}
 									/>
@@ -175,7 +175,7 @@ export const ArtWorkDetail = () => {
 									onClick={() => scrollToImage(i)}
 									className={`shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 transition-all ${
 										i === currentImage
-											? "border-[#fbbf24] ring-2 ring-[#fbbf24]/30"
+											? "border-brand ring-2 ring-brand/30"
 											: "border-transparent opacity-60 hover:opacity-100"
 									}`}
 								>
@@ -213,8 +213,8 @@ export const ArtWorkDetail = () => {
 
 			{/* Related artworks */}
 			{related.length > 0 && (
-				<div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-800">
-					<h3 className="text-base sm:text-lg font-black text-gray-900 dark:text-white">
+				<div className="space-y-4 pt-4 border-t border-line">
+					<h3 className="text-base sm:text-lg font-bold text-ink">
 						More like this
 					</h3>
 					<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
@@ -227,7 +227,7 @@ export const ArtWorkDetail = () => {
 								}}
 								className="text-left group"
 							>
-								<div className="bg-white dark:bg-[#1e1e1e] rounded-xl sm:rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 hover:border-[#fbbf24]/50 transition-all">
+								<div className="bg-surface rounded-xl overflow-hidden border border-line hover:border-brand/50 transition-all">
 									<div className="relative overflow-hidden">
 										{item.images[0] ? (
 											<img
@@ -236,16 +236,16 @@ export const ArtWorkDetail = () => {
 												className="w-full aspect-[4/3] object-cover transition-transform duration-500 group-hover:scale-105"
 											/>
 										) : (
-											<div className="w-full aspect-[4/3] bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-												<ImageBroken size={24} className="text-gray-300" />
+											<div className="w-full aspect-[4/3] bg-fill flex items-center justify-center">
+												<ImageBroken size={24} className="text-ink-3" />
 											</div>
 										)}
 									</div>
 									<div className="p-2 sm:p-3">
-										<p className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white line-clamp-1">
+										<p className="text-xs sm:text-sm font-bold text-ink line-clamp-1">
 											{item.title}
 										</p>
-										<p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+										<p className="text-xs text-ink-2 mt-0.5">
 											{item.branchName}
 										</p>
 									</div>
@@ -268,10 +268,10 @@ const ContentSection = ({
 	isLiked: boolean;
 	onToggleLike: () => void;
 }) => (
-	<div className="bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-100 dark:border-gray-800 p-4 sm:p-5 space-y-4">
+	<div className="bg-surface rounded-xl border border-line p-4 sm:p-5 space-y-4">
 		{/* Title & actions */}
 		<div className="flex items-start justify-between gap-3">
-			<h1 className="text-lg sm:text-xl font-black text-gray-900 dark:text-white leading-tight">
+			<h1 className="text-lg sm:text-xl font-bold text-ink leading-tight">
 				{art.title}
 			</h1>
 			<div className="flex items-center gap-2 shrink-0">
@@ -279,13 +279,13 @@ const ContentSection = ({
 					onClick={onToggleLike}
 					className={`p-2 rounded-xl transition-all ${
 						isLiked
-							? "bg-red-50 dark:bg-red-900/20 text-red-500"
-							: "bg-gray-100 dark:bg-gray-800 text-gray-500 hover:text-red-500"
+							? "bg-bad-tint text-bad"
+							: "bg-fill text-ink-2 hover:text-bad"
 					}`}
 				>
 					<Heart size={18} weight={isLiked ? "fill" : "regular"} />
 				</button>
-				<button className="p-2 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-500 hover:text-[#fbbf24] transition-all">
+				<button className="p-2 rounded-xl bg-fill text-ink-2 hover:text-ink transition-all">
 					<ShareNetwork size={18} weight="regular" />
 				</button>
 			</div>
@@ -293,7 +293,7 @@ const ContentSection = ({
 
 		{/* Description */}
 		{art.description && (
-			<p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+			<p className="text-sm text-ink-2 leading-relaxed">
 				{art.description}
 			</p>
 		)}
@@ -304,7 +304,7 @@ const ContentSection = ({
 				{art.tags.map((tag) => (
 					<span
 						key={tag}
-						className="px-2.5 py-1 bg-gray-100 dark:bg-gray-800 text-xs font-semibold text-gray-600 dark:text-gray-400 rounded-lg"
+						className="px-2.5 py-1 bg-fill text-xs font-semibold text-ink-2 rounded-lg"
 					>
 						{tag}
 					</span>
@@ -313,12 +313,12 @@ const ContentSection = ({
 		)}
 
 		{/* Meta */}
-		<div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-3 border-t border-gray-100 dark:border-gray-800">
-			<span className="flex items-center gap-1.5 text-xs text-gray-500">
+		<div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-3 border-t border-line">
+			<span className="flex items-center gap-1.5 text-xs text-ink-2">
 				<CalendarBlank
 					size={13}
-					weight="duotone"
-					className="text-gray-400"
+					weight="regular"
+					className="text-ink-3"
 				/>
 				{new Date(art.createdAt).toLocaleDateString("en-GB", {
 					day: "numeric",
@@ -337,8 +337,8 @@ const BranchCard = ({
 	art: ArtworkWithBranch;
 	onViewBranch: () => void;
 }) => (
-	<div className="bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-100 dark:border-gray-800 p-4 sm:p-5 space-y-4">
-		<p className="text-[10px] sm:text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+	<div className="bg-surface rounded-xl border border-line p-4 sm:p-5 space-y-4">
+		<p className="text-xs font-bold text-ink-3">
 			Posted by branch
 		</p>
 
@@ -348,11 +348,11 @@ const BranchCard = ({
 				<img
 					src={art.branchAvatar}
 					alt={art.branchName}
-					className="w-11 h-11 sm:w-12 sm:h-12 rounded-full object-cover shadow-md"
+					className="w-11 h-11 sm:w-12 sm:h-12 rounded-full object-cover"
 				/>
 			) : (
-				<div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-linear-to-br from-[#fbbf24] to-[#f59e0b] flex items-center justify-center shrink-0 shadow-md shadow-amber-200/30">
-					<span className="text-sm sm:text-base font-black text-black">
+				<div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shrink-0">
+					<span className="text-sm sm:text-base font-bold text-black">
 						{art.branchName
 							.split(" ")
 							.map((w) => w[0])
@@ -362,7 +362,7 @@ const BranchCard = ({
 				</div>
 			)}
 			<div className="min-w-0">
-				<h3 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white truncate">
+				<h3 className="text-sm sm:text-base font-bold text-ink truncate">
 					{art.branchName}
 				</h3>
 			</div>
@@ -374,20 +374,20 @@ const BranchCard = ({
 				<div className="flex items-start gap-2.5">
 					<MapTrifold
 						size={16}
-						weight="duotone"
-						className="text-[#fbbf24] mt-0.5 shrink-0"
+						weight="regular"
+						className="text-brand-ink mt-0.5 shrink-0"
 					/>
-					<span className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
+					<span className="text-xs sm:text-sm text-ink-2">
 						{art.branchLocation}
 					</span>
 				</div>
 				<div className="flex items-center gap-2.5">
 					<MapPin
 						size={16}
-						weight="duotone"
-						className="text-[#fbbf24] shrink-0"
+						weight="regular"
+						className="text-brand-ink shrink-0"
 					/>
-					<span className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
+					<span className="text-xs sm:text-sm text-ink-2">
 						Ghana
 					</span>
 				</div>
@@ -397,7 +397,7 @@ const BranchCard = ({
 		{/* View branch button */}
 		<button
 			onClick={onViewBranch}
-			className="w-full py-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-[#fbbf24] hover:text-black text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-bold rounded-xl transition-all"
+			className="w-full py-2.5 bg-fill hover:bg-brand hover:text-black text-ink text-xs sm:text-sm font-bold rounded-xl transition-all"
 		>
 			View Branch
 		</button>

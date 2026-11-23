@@ -10,18 +10,18 @@ export const OrderSummary = ({ submittedBy, executedByModel }: OrderSummaryProps
 	if (!submittedBy && !executedByModel) return null;
 
 	return (
-		<div className="bg-white dark:bg-[#1e1e1e] rounded-2xl border border-gray-100 dark:border-gray-800 p-5">
-			<h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-4">
+		<div className="py-5 border-t border-line">
+			<h3 className="text-lg font-bold title-tight text-ink mb-4">
 				Order Summary
 			</h3>
 			<div className="space-y-4">
 				{submittedBy && (
 					<div className="flex items-center justify-between">
-						<span className="text-xs text-gray-400 dark:text-gray-500 font-medium flex items-center gap-1.5">
-							<UserCircle size={14} weight="duotone" />
+						<span className="text-xs text-ink-3 font-medium flex items-center gap-1.5">
+							<UserCircle size={14} weight="regular" />
 							Submitted By
 						</span>
-						<span className="text-sm font-semibold text-gray-900 dark:text-white">
+						<span className="text-sm font-semibold text-ink">
 							{submittedBy}
 						</span>
 					</div>
@@ -29,11 +29,11 @@ export const OrderSummary = ({ submittedBy, executedByModel }: OrderSummaryProps
 
 				{executedByModel && (
 					<div className="flex items-center justify-between">
-						<span className="text-xs text-gray-400 dark:text-gray-500 font-medium flex items-center gap-1.5">
-							<Cpu size={14} weight="duotone" />
+						<span className="text-xs text-ink-3 font-medium flex items-center gap-1.5">
+							<Cpu size={14} weight="regular" />
 							Model
 						</span>
-						<span className="text-sm font-semibold text-gray-900 dark:text-white">
+						<span className="text-sm font-semibold text-ink">
 							{executedByModel}
 						</span>
 					</div>

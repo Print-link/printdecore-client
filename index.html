@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Printdecore" />
   <meta name="mobile-web-app-capable" content="yes" />
-  <!-- iPhone/iPad launch images: the splash's first frame, so the hand-off to the animation is seamless -->
+  <!-- iPhone/iPad launch images: the same picture as the splash below, so the hand-off is seamless -->
   <!-- pd-startup-images:start -->
   <!-- iPhone 16 Pro Max -->
   <link rel="apple-touch-startup-image" href="/splash/launch-1320x2868.png" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
@@ -100,175 +100,99 @@
       var deepLink = !/^\/(home\/?)?$/.test(location.pathname);
       window.__pdSplash = {
         t0: performance.now(),
-        min: reduced ? 500 : deepLink ? 650 : 1700,
+        min: deepLink || reduced ? 300 : 700,
         max: 8000
       };
 
       // Dark status bar while the splash is up (restored on hand-off)
       var meta = document.querySelector('meta[name="theme-color"]');
-      if (meta) { window.__pdSplash.theme = meta.content; meta.content = '#111111'; }
+      if (meta) { window.__pdSplash.theme = meta.content; meta.content = '#0e0e0e'; }
     })();
   </script>
   <style>
+    /* Launch splash: flat and still, like a native launch screen. The iPhone
+       launch images are this exact picture, so the hand-off is seamless. */
     #pd-splash { display: none; }
-    html.pd-splash, html.pd-splash body { overflow: hidden; background: #111111; }
+    html.pd-splash, html.pd-splash body { overflow: hidden; background: #0e0e0e; }
     html.pd-splash #pd-splash { display: block; }
 
     #pd-splash {
       position: fixed; inset: 0; z-index: 2147483000;
-      background: #111111; color: #fff;
+      background: #0e0e0e; color: #fff;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
       -webkit-font-smoothing: antialiased;
       -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent;
-      transition: opacity .42s cubic-bezier(.4, 0, .2, 1), visibility .42s;
-    }
-    #pd-splash .pd-glow {
-      position: absolute; inset: 0; opacity: 0;
-      background:
-        radial-gradient(46vmax 30vmax at 50% 50%, rgba(251, 191, 36, .16), rgba(251, 191, 36, 0) 70%),
-        radial-gradient(80vmax 60vmax at 50% 120%, rgba(251, 191, 36, .07), rgba(251, 191, 36, 0) 70%);
-      animation: pdFade 1.2s .1s ease-out both;
-    }
-    #pd-splash .pd-stage {
-      position: absolute; inset: 0;
-      transition: transform .42s cubic-bezier(.4, 0, .2, 1), filter .42s;
+      transition: opacity .3s cubic-bezier(.4, 0, .2, 1), visibility .3s;
     }
 
-    /* The app icon, centred exactly — the launch images draw it in the same place */
+    /* The app icon, centred exactly */
     #pd-splash .pd-tile {
       position: absolute; left: 50%; top: 50%;
-      width: 112px; height: 112px; margin: -56px 0 0 -56px;
-      border-radius: 26px; background: #fff;
-      box-shadow: 0 0 0 1px rgba(255, 255, 255, .06), 0 22px 48px -18px rgba(251, 191, 36, .45);
-      animation: pdBreathe 1.5s .05s cubic-bezier(.45, 0, .2, 1) both;
+      width: 96px; height: 96px; margin: -48px 0 0 -48px;
+      border-radius: 22px; background: #fff;
     }
-    #pd-splash .pd-tile svg { position: absolute; left: 14px; top: 14px; width: 84px; height: 84px; overflow: visible; }
-    #pd-splash .pd-ring {
-      position: absolute; inset: -1px; border-radius: 27px;
-      border: 2px solid #fbbf24; opacity: 0; pointer-events: none;
-    }
-    #pd-splash .pd-ring.r1 { animation: pdRing 1.1s .2s cubic-bezier(.2, .7, .3, 1) both; }
-    #pd-splash .pd-ring.r2 { animation: pdRing 1.2s 1.25s cubic-bezier(.2, .7, .3, 1) both; }
+    #pd-splash .pd-tile svg { position: absolute; left: 12px; top: 12px; width: 72px; height: 72px; }
 
-    /* Printer parts */
-    #pd-splash .pd-in { animation: pdFeed .5s .45s cubic-bezier(.65, 0, .35, 1) both; }
-    #pd-splash .pd-slot { animation: pdSlot .9s .7s ease-in-out both; }
-    #pd-splash .pd-shine { animation: pdShine .7s .72s cubic-bezier(.45, 0, .2, 1) both; }
-    #pd-splash .pd-out { transform: translateY(-150px); animation: pdEject .62s .82s cubic-bezier(.2, .9, .25, 1.08) both; }
-    #pd-splash .pd-ln { transform-box: fill-box; transform-origin: left center; transform: scaleX(0); }
-    #pd-splash .pd-ln.l1 { animation: pdPrint .3s 1.06s cubic-bezier(.3, 0, .2, 1) both; }
-    #pd-splash .pd-ln.l2 { animation: pdPrint .3s 1.15s cubic-bezier(.3, 0, .2, 1) both; }
-    #pd-splash .pd-ln.l3 { animation: pdPrint .3s 1.24s cubic-bezier(.3, 0, .2, 1) both; }
-
-    /* Wordmark, below the icon */
     #pd-splash .pd-word {
-      position: absolute; left: 0; right: 0; top: calc(50% + 80px);
+      position: absolute; left: 0; right: 0; top: calc(50% + 68px);
       text-align: center; white-space: nowrap;
-      font-size: 32px; font-weight: 900; font-style: italic; letter-spacing: -.02em; line-height: 1;
+      font-size: 26px; font-weight: 900; font-style: italic; letter-spacing: -.02em; line-height: 1;
     }
-    #pd-splash .pd-word span { display: inline-block; opacity: 0; animation: pdRise .6s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(1.0s + var(--i) * 32ms); }
     #pd-splash .pd-word .d { color: #fbbf24; }
     #pd-splash .pd-tag {
-      position: absolute; left: 0; right: 0; top: calc(50% + 124px);
-      text-align: center; font-size: 13px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase;
-      color: rgba(255, 255, 255, .5); opacity: 0;
-      animation: pdRise .7s 1.42s cubic-bezier(.2, .8, .2, 1) both;
+      position: absolute; left: 0; right: 0; top: calc(50% + 104px);
+      text-align: center; font-size: 15px; color: rgba(255, 255, 255, .55);
     }
 
-    /* Only seen when the app takes longer than the animation */
+    /* Only seen when the app takes a while */
     #pd-splash .pd-load {
       position: absolute; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 56px);
-      width: 120px; height: 3px; margin-left: -60px; border-radius: 3px; overflow: hidden;
-      background: rgba(255, 255, 255, .08); opacity: 0;
-      animation: pdFade .4s 2.2s ease-out both;
+      width: 96px; height: 2px; margin-left: -48px; border-radius: 2px; overflow: hidden;
+      background: rgba(255, 255, 255, .1); opacity: 0;
+      animation: pdFade .3s 1.6s ease-out both;
     }
     #pd-splash .pd-load::after {
-      content: ''; position: absolute; top: 0; bottom: 0; width: 40%; border-radius: 3px;
-      background: linear-gradient(90deg, rgba(251, 191, 36, 0), #fbbf24, rgba(251, 191, 36, 0));
-      animation: pdBar 1.1s 2.2s ease-in-out infinite both;
+      content: ''; position: absolute; top: 0; bottom: 0; width: 40%; border-radius: 2px;
+      background: #fbbf24;
+      animation: pdBar 1s 1.6s ease-in-out infinite both;
     }
 
     /* Hand-off to the app */
     #pd-splash.pd-exit { opacity: 0; visibility: hidden; }
-    #pd-splash.pd-exit .pd-stage { transform: scale(1.08); filter: blur(3px); }
 
     @keyframes pdFade { from { opacity: 0 } to { opacity: 1 } }
-    @keyframes pdBreathe { 0% { transform: scale(1) } 22% { transform: scale(.93) } 48% { transform: scale(1.04) } 70%, 100% { transform: scale(1) } }
-    @keyframes pdRing { 0% { opacity: 0; transform: scale(1) } 8% { opacity: .75; transform: scale(1.03) } 100% { opacity: 0; transform: scale(1.65) } }
-    @keyframes pdFeed { 0% { transform: translateY(0) } 100% { transform: translateY(34px) } }
-    @keyframes pdSlot { 0%, 100% { fill: #fff } 35%, 60% { fill: #fde68a } }
-    @keyframes pdShine { from { transform: translateX(0) } to { transform: translateX(620px) } }
-    @keyframes pdEject { from { transform: translateY(-150px) } to { transform: translateY(0) } }
-    @keyframes pdPrint { from { transform: scaleX(0) } to { transform: scaleX(1) } }
-    @keyframes pdRise { from { opacity: 0; transform: translateY(14px); filter: blur(6px) } to { opacity: 1; transform: none; filter: none } }
     @keyframes pdBar { from { left: -40% } to { left: 100% } }
 
-    /* First frame only (launch images) */
-    html.pd-splash-still #pd-splash *, html.pd-splash-still #pd-splash *::after { animation: none !important; }
-
-    /* Reduce Motion: the finished picture, and a plain fade out */
+    html.pd-splash-still #pd-splash .pd-load { display: none; }
     @media (prefers-reduced-motion: reduce) {
-      #pd-splash *, #pd-splash *::after { animation: none !important; }
-      #pd-splash .pd-glow, #pd-splash .pd-word span, #pd-splash .pd-tag { opacity: 1; }
-      #pd-splash .pd-out, #pd-splash .pd-ln { transform: none; }
-      #pd-splash .pd-in { transform: translateY(34px); }
-      #pd-splash.pd-exit .pd-stage { transform: none; filter: none; }
+      #pd-splash .pd-load::after { animation: none; left: 30%; }
     }
   </style>
 </head>
 
 <body>
   <div id="pd-splash" aria-hidden="true">
-    <div class="pd-glow"></div>
-    <div class="pd-stage">
-      <div class="pd-tile">
-        <span class="pd-ring r1"></span>
-        <span class="pd-ring r2"></span>
-        <svg viewBox="0 0 512 512">
-          <defs>
-            <clipPath id="pd-clip-out"><rect x="0" y="282" width="512" height="230" /></clipPath>
-            <clipPath id="pd-clip-slot"><rect x="60" y="260" width="412" height="26" rx="13" /></clipPath>
-            <linearGradient id="pd-shine" x1="0" x2="1">
-              <stop offset="0" stop-color="#fff" stop-opacity="0" />
-              <stop offset=".5" stop-color="#fbbf24" />
-              <stop offset="1" stop-color="#fff" stop-opacity="0" />
-            </linearGradient>
-          </defs>
-          <!-- top housing -->
-          <rect x="128" y="30" width="256" height="150" rx="8" fill="#111" />
-          <rect x="106" y="86" width="300" height="90" rx="8" fill="#111" />
-          <!-- paper going in -->
-          <g class="pd-in">
-            <path d="M158 56h196l-12 152H148z" fill="#fbbf24" stroke="#111" stroke-width="10" stroke-linejoin="round" />
-            <rect x="190" y="86" width="62" height="44" rx="6" fill="#111" />
-            <rect x="266" y="116" width="72" height="13" rx="6.5" fill="#111" />
-            <rect x="200" y="146" width="144" height="13" rx="6.5" fill="#111" />
-            <rect x="200" y="172" width="150" height="13" rx="6.5" fill="#111" />
-          </g>
-          <!-- body and output tray -->
-          <rect x="8" y="146" width="496" height="268" rx="72" fill="#111" />
-          <path d="M98 300h316l30 178H68z" fill="#111" />
-          <!-- paper slot -->
-          <rect class="pd-slot" x="60" y="260" width="412" height="26" rx="13" fill="#fff" />
-          <g clip-path="url(#pd-clip-slot)">
-            <rect class="pd-shine" x="-160" y="260" width="160" height="26" fill="url(#pd-shine)" />
-          </g>
-          <!-- printed page coming out -->
-          <g clip-path="url(#pd-clip-out)">
-            <g class="pd-out">
-              <path d="M132 330h248l22 122H110z" fill="#fbbf24" />
-              <rect class="pd-ln l1" x="160" y="362" width="200" height="10" rx="5" fill="#f59e0b" />
-              <rect class="pd-ln l2" x="156" y="388" width="208" height="10" rx="5" fill="#f59e0b" />
-              <rect class="pd-ln l3" x="152" y="414" width="216" height="10" rx="5" fill="#f59e0b" />
-            </g>
-          </g>
-          <!-- status light -->
-          <rect x="428" y="362" width="50" height="20" rx="10" fill="#fff" />
-        </svg>
-      </div>
-      <div class="pd-word"><span style="--i:0">p</span><span style="--i:1">r</span><span style="--i:2">i</span><span style="--i:3">n</span><span style="--i:4">t</span><span class="d" style="--i:5">d</span><span class="d" style="--i:6">e</span><span class="d" style="--i:7">c</span><span class="d" style="--i:8">o</span><span class="d" style="--i:9">r</span><span class="d" style="--i:10">e</span></div>
-      <div class="pd-tag">Print services across Africa</div>
+    <div class="pd-tile">
+      <svg viewBox="0 0 512 512">
+        <rect x="128" y="30" width="256" height="150" rx="8" fill="#111" />
+        <rect x="106" y="86" width="300" height="90" rx="8" fill="#111" />
+        <g transform="translate(0 34)">
+          <path d="M158 56h196l-12 152H148z" fill="#fbbf24" stroke="#111" stroke-width="10" stroke-linejoin="round" />
+          <rect x="190" y="86" width="62" height="44" rx="6" fill="#111" />
+          <rect x="266" y="116" width="72" height="13" rx="6.5" fill="#111" />
+        </g>
+        <rect x="8" y="146" width="496" height="268" rx="72" fill="#111" />
+        <path d="M98 300h316l30 178H68z" fill="#111" />
+        <rect x="60" y="260" width="412" height="26" rx="13" fill="#fff" />
+        <path d="M132 330h248l22 122H110z" fill="#fbbf24" />
+        <rect x="160" y="362" width="200" height="10" rx="5" fill="#f59e0b" />
+        <rect x="156" y="388" width="208" height="10" rx="5" fill="#f59e0b" />
+        <rect x="152" y="414" width="216" height="10" rx="5" fill="#f59e0b" />
+        <rect x="428" y="362" width="50" height="20" rx="10" fill="#fff" />
+      </svg>
     </div>
+    <div class="pd-word">print<span class="d">decore</span></div>
+    <div class="pd-tag">Print services across Africa</div>
     <div class="pd-load"></div>
   </div>
   <script>
@@ -289,7 +213,7 @@
         setTimeout(function () {
           el.parentNode && el.parentNode.removeChild(el);
           document.documentElement.classList.remove('pd-splash', 'pd-splash-still');
-        }, 450);
+        }, 320);
       }
       function schedule() {
         clearTimeout(timer);

@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { CaretDown, CaretRight, Clock, MapPin, Phone, SpinnerGap, Star, Storefront } from "@phosphor-icons/react";
-import { PageHeader } from "../components/common/PageHeader";
-import { PrintyAvatar } from "../components/assistant/PrintyAvatar";
+import { CaretDown, CaretRight, Clock, MapPin, Phone, Star, Storefront } from "@phosphor-icons/react";
+import { Button, EmptyState, ListRow, RowSkeleton, SectionHeader, Skeleton } from "../components/ui";
+import { ghs } from "../utils/ghs";
 import { ShopAssistantCard } from "../components/assistant/ShopAssistantCard";
 import { useMarketplaceVendor } from "../hooks/useMarketplace";
 import type { VendorService } from "../services/marketplaceApi";
@@ -24,16 +24,22 @@ export const Shop = () => {
 		return [...byCategory.entries()];
 	}, [shop?.services]);
 
-	if (isLoading) return <SpinnerGap size={20} className="animate-spin text-[#fbbf24]" />;
+	if (isLoading)
+		return (
+			<div className="max-w-3xl mx-auto">
+				<Skeleton className="h-48 -mx-4 sm:mx-0 rounded-none sm:rounded-xl" />
+				<Skeleton className="h-7 w-1/2 mt-4" />
+				<Skeleton className="h-4 w-1/3 mt-2" />
+				<div className="mt-6"><RowSkeleton rows={4} thumb={0} /></div>
+			</div>
+		);
 	if (error || !shop) {
 		return (
-			<div className="max-w-2xl mx-auto">
-				<PageHeader title="Shop" />
-				<p className="font-semibold text-gray-900 dark:text-white">This shop isn't taking orders right now</p>
-				<button type="button" onClick={() => navigate("/home/shops")} className="mt-3 text-sm font-semibold text-[#d97706]">
-					See other shops
-				</button>
-			</div>
+			<EmptyState
+				icon={<Storefront size={26} />}
+				title="This shop isn't taking orders right now"
+				action={<Button variant="secondary" onClick={() => navigate("/home/shops")}>See other shops</Button>}
+			/>
 		);
 	}
 
@@ -44,114 +50,94 @@ export const Shop = () => {
 
 	return (
 		<div className="w-full max-w-3xl mx-auto">
-			<PageHeader title={shop.name} />
-			<div className="relative h-44 rounded-2xl overflow-hidden bg-amber-50 dark:bg-gray-800 flex items-center justify-center mb-4">
-				{shop.coverImage ? <img src={shop.coverImage} alt="" className="absolute inset-0 w-full h-full object-cover" /> : <Storefront size={40} className="text-[#fbbf24]" />}
+			{/* Cover runs edge to edge on phones */}
+			<div className="relative -mx-4 -mt-4 sm:mx-0 sm:mt-0 h-48 sm:h-56 sm:rounded-xl overflow-hidden bg-fill flex items-center justify-center sm:ring-1 sm:ring-inset sm:ring-line">
+				{shop.coverImage ? <img src={shop.coverImage} alt="" className="absolute inset-0 w-full h-full object-cover" /> : <Storefront size={40} className="text-ink-3" />}
 			</div>
 
-			<div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm mb-2">
+			<h1 className="mt-4 text-3xl font-bold title-tight text-ink">{shop.name}</h1>
+			<p className="num mt-1 flex flex-wrap items-center gap-x-1.5 text-sm text-ink-2">
 				{shop.rating.count > 0 ? (
-					<span className="flex items-center gap-1 font-semibold text-gray-900 dark:text-white">
-						<Star size={14} weight="fill" className="text-[#fbbf24]" /> {shop.rating.average.toFixed(1)}
-						<span className="font-normal text-gray-500">
+					<span className="inline-flex items-center gap-1 font-semibold text-ink">
+						<Star size={14} weight="fill" className="text-brand" /> {shop.rating.average.toFixed(1)}
+						<span className="font-normal text-ink-2">
 							({shop.rating.count} review{shop.rating.count === 1 ? "" : "s"})
 						</span>
 					</span>
 				) : (
-					<span className="font-semibold text-[#d97706]">New on Printdecore</span>
+					<span className="font-semibold text-brand-ink">New on Printdecore</span>
 				)}
-				{shop.distanceKm !== undefined && <span className="text-gray-500">· {shop.distanceKm} km</span>}
-			</div>
+				{shop.distanceKm !== undefined && <span>· {shop.distanceKm} km away</span>}
+			</p>
 
-			{open && (
-				<button
-					type="button"
-					onClick={() => hasHours && setShowHours((v) => !v)}
-					aria-expanded={showHours}
-					className={`flex items-center gap-1.5 text-sm font-medium ${shop.isOpenNow ? "text-green-600" : "text-gray-700 dark:text-gray-300"}`}
-				>
-					<Clock size={15} /> {open}
-					{hasHours && <CaretDown size={13} className={showHours ? "rotate-180" : ""} />}
-				</button>
-			)}
-			{showHours && (
-				<dl className="mt-2 p-3 rounded-xl border border-gray-200 dark:border-gray-800 text-sm space-y-1">
-					{daysFromToday().map((day, i) => {
-						const h = shop.operatingHours[day];
-						return (
-							<div key={day} className="flex justify-between">
-								<dt className={i === 0 ? "font-semibold text-gray-900 dark:text-white" : "text-gray-700 dark:text-gray-300"}>{i === 0 ? "Today" : DAY_LABELS[day]}</dt>
-								<dd className="text-gray-500">{h ? formatHours(h) : "Closed"}</dd>
-							</div>
-						);
-					})}
-				</dl>
-			)}
-
-			<div className="mt-3 space-y-1.5 text-sm text-gray-700 dark:text-gray-300">
-				{shop.address && (
-					<p className="flex items-center gap-2">
-						<MapPin size={15} className="text-gray-400" />
-						{mapsUrl ? (
-							<a href={mapsUrl} target="_blank" rel="noreferrer" className="hover:underline">
-								{shop.address}
-							</a>
-						) : (
-							shop.address
+			{/* Facts: hours, address, phone — one hairline list */}
+			<div className="mt-4 border-t border-line">
+				{open && (
+					<>
+						<button
+							type="button"
+							onClick={() => hasHours && setShowHours((v) => !v)}
+							aria-expanded={showHours}
+							className="tap w-full flex items-center gap-3 py-3 border-b border-line text-left text-sm"
+						>
+							<Clock size={18} className="text-ink-2" />
+							<span className={`flex-1 font-semibold ${shop.isOpenNow ? "text-ok" : "text-ink"}`}>{open}</span>
+							{hasHours && <CaretDown size={14} className={`text-ink-3 transition-transform ${showHours ? "rotate-180" : ""}`} />}
+						</button>
+						{showHours && (
+							<dl className="py-2 pl-[30px] border-b border-line text-sm">
+								{daysFromToday().map((day, i) => {
+									const h = shop.operatingHours[day];
+									return (
+										<div key={day} className="flex justify-between py-1">
+											<dt className={i === 0 ? "font-semibold text-ink" : "text-ink-2"}>{i === 0 ? "Today" : DAY_LABELS[day]}</dt>
+											<dd className="num text-ink-2">{h ? formatHours(h) : "Closed"}</dd>
+										</div>
+									);
+								})}
+							</dl>
 						)}
-					</p>
+					</>
+				)}
+				{shop.address && (
+					<a
+						href={mapsUrl ?? undefined}
+						target="_blank"
+						rel="noreferrer"
+						className="flex items-center gap-3 py-3 border-b border-line text-sm text-ink"
+					>
+						<MapPin size={18} className="text-ink-2" />
+						<span className="flex-1 min-w-0 truncate">{shop.address}</span>
+						{mapsUrl && <CaretRight size={14} className="text-ink-3" />}
+					</a>
 				)}
 				{shop.phoneNumber && (
-					<p className="flex items-center gap-2">
-						<Phone size={15} className="text-gray-400" />
-						<a href={`tel:${shop.phoneNumber}`} className="hover:underline">
-							{shop.phoneNumber}
-						</a>
-					</p>
+					<a href={`tel:${shop.phoneNumber}`} className="num flex items-center gap-3 py-3 border-b border-line text-sm text-ink">
+						<Phone size={18} className="text-ink-2" />
+						<span className="flex-1">{shop.phoneNumber}</span>
+						<span className="font-semibold">Call</span>
+					</a>
 				)}
 			</div>
 
 			<ShopAssistantCard shopId={shop.id} shopName={shop.name} shopImage={shop.coverImage} />
 
-			<h2 className="text-lg font-bold text-gray-900 dark:text-white mt-8 mb-3">What they print</h2>
-			{groups.length === 0 && <p className="text-sm text-gray-500">This shop hasn't listed any products yet.</p>}
-			<div className="space-y-5">
-				{groups.map(([category, services]) => (
-					<section key={category}>
-						<h3 className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-2">{category}</h3>
-						<div className="rounded-xl border border-gray-200 dark:border-gray-800 divide-y divide-gray-100 dark:divide-gray-800 overflow-hidden bg-white dark:bg-[#1e1e1e]">
-							{services.map((s) => (
-								<button
-									key={s.agentServiceId}
-									type="button"
-									onClick={() => navigate(`/home/shops/${shop.id}/products/${s.agentServiceId}`)}
-									className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-gray-50 dark:hover:bg-gray-800/50"
-								>
-									<span className="flex-1 text-sm font-medium text-gray-800 dark:text-gray-200">{s.name}</span>
-									{s.startingPrice !== undefined && <span className="text-xs text-gray-500">from GHS {s.startingPrice.toLocaleString()}</span>}
-									<CaretRight size={14} className="text-gray-400" />
-								</button>
-							))}
-						</div>
-					</section>
-				))}
-			</div>
-
-			{/* Not in the list: back to the shop's assistant */}
-			{groups.length > 0 && (
-				<button
-					type="button"
-					onClick={() => navigate(`/home/shops/${shop.id}/assistant`)}
-					className="mt-6 w-full flex items-center gap-3 p-3.5 rounded-2xl border border-dashed border-amber-300 dark:border-amber-900/50 text-left hover:border-[#fbbf24]"
-				>
-					<PrintyAvatar size={30} />
-					<span className="flex-1 text-sm">
-						<span className="font-bold text-gray-900 dark:text-white">Don't see it? </span>
-						<span className="text-gray-600 dark:text-gray-400">Ask {shop.name} for a quote</span>
-					</span>
-					<CaretRight size={16} className="text-gray-400" />
-				</button>
-			)}
+			{groups.length === 0 && <EmptyState title="No products listed yet" body="Ask the shop for a quote instead." />}
+			{groups.map(([category, services]) => (
+				<section key={category} className="mt-8">
+					<SectionHeader title={category} />
+					<div className="border-t border-line">
+						{services.map((s) => (
+							<ListRow
+								key={s.agentServiceId}
+								title={s.name}
+								sub={s.startingPrice !== undefined ? <span className="num">From {ghs(s.startingPrice)}</span> : undefined}
+								onClick={() => navigate(`/home/shops/${shop.id}/products/${s.agentServiceId}`)}
+							/>
+						))}
+					</div>
+				</section>
+			))}
 		</div>
 	);
 };

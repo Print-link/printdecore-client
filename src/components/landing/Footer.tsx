@@ -59,19 +59,19 @@ export const Footer = () => {
 						{/* Contact Info */}
 						<div className="space-y-3 mb-6">
 							<div className="flex items-center gap-3 text-sm text-gray-400 dark:text-gray-500">
-								<EnvelopeSimple size={16} weight="regular" className="text-[#fbbf24]" />
-								<a href="mailto:printdecoreofficial@gmail.com" className="hover:text-[#fbbf24] transition-colors">
+								<EnvelopeSimple size={16} weight="regular" className="text-brand-ink" />
+								<a href="mailto:printdecoreofficial@gmail.com" className="hover:text-brand-ink transition-colors">
 									printdecoreofficial@gmail.com
 								</a>
 							</div>
 							<div className="flex items-center gap-3 text-sm text-gray-400 dark:text-gray-500">
-								<Phone size={16} weight="regular" className="text-[#fbbf24]" />
-								<a href="tel:+233123456789" className="hover:text-[#fbbf24] transition-colors">
+								<Phone size={16} weight="regular" className="text-brand-ink" />
+								<a href="tel:+233123456789" className="hover:text-brand-ink transition-colors">
 									+233 123 456 789
 								</a>
 							</div>
 							<div className="flex items-center gap-3 text-sm text-gray-400 dark:text-gray-500">
-								<MapPin size={16} weight="regular" className="text-[#fbbf24]" />
+								<MapPin size={16} weight="regular" className="text-brand-ink" />
 								<span>Accra, Ghana</span>
 							</div>
 						</div>
@@ -85,7 +85,7 @@ export const Footer = () => {
 										key={social.name}
 										href={social.href}
 										aria-label={social.name}
-										className="w-10 h-10 rounded-full bg-gray-800 dark:bg-gray-900 flex items-center justify-center hover:bg-[#fbbf24] hover:text-black transition-all group"
+										className="w-10 h-10 rounded-full bg-gray-800 dark:bg-gray-900 flex items-center justify-center hover:bg-brand hover:text-black transition-all group"
 									>
 										<Icon size={20} weight="regular" className="text-gray-400 group-hover:text-black transition-colors" />
 									</a>
@@ -104,7 +104,7 @@ export const Footer = () => {
 								<li key={link.name}>
 									<a
 										href={link.href}
-										className="text-gray-400 dark:text-gray-500 hover:text-[#fbbf24] transition-colors text-sm"
+										className="text-gray-400 dark:text-gray-500 hover:text-brand-ink transition-colors text-sm"
 									>
 										{link.name}
 									</a>
@@ -123,7 +123,7 @@ export const Footer = () => {
 								<li key={link.name}>
 									<a
 										href={link.href}
-										className="text-gray-400 dark:text-gray-500 hover:text-[#fbbf24] transition-colors text-sm"
+										className="text-gray-400 dark:text-gray-500 hover:text-brand-ink transition-colors text-sm"
 									>
 										{link.name}
 									</a>
@@ -142,7 +142,7 @@ export const Footer = () => {
 								<li key={link.name}>
 									<a
 										href={link.href}
-										className="text-gray-400 dark:text-gray-500 hover:text-[#fbbf24] transition-colors text-sm"
+										className="text-gray-400 dark:text-gray-500 hover:text-brand-ink transition-colors text-sm"
 									>
 										{link.name}
 									</a>
@@ -157,7 +157,7 @@ export const Footer = () => {
 								<li key={link.name}>
 									<a
 										href={link.href}
-										className="text-gray-400 dark:text-gray-500 hover:text-[#fbbf24] transition-colors text-sm"
+										className="text-gray-400 dark:text-gray-500 hover:text-brand-ink transition-colors text-sm"
 									>
 										{link.name}
 									</a>
@@ -174,25 +174,25 @@ export const Footer = () => {
 				<div className="flex flex-col md:flex-row justify-between items-center gap-4">
 					<div className="text-sm text-gray-400 dark:text-gray-500">
 						<p>
-							© {currentYear} <span className="text-[#fbbf24]">piper & co</span>. All rights reserved.
+							© {currentYear} <span className="text-brand-ink">piper & co</span>. All rights reserved.
 						</p>
 					</div>
 					<div className="flex items-center gap-6 text-sm">
 						<a
 							href="#privacy"
-							className="text-gray-400 dark:text-gray-500 hover:text-[#fbbf24] transition-colors"
+							className="text-gray-400 dark:text-gray-500 hover:text-brand-ink transition-colors"
 						>
 							Privacy Policy
 						</a>
 						<a
 							href="#terms"
-							className="text-gray-400 dark:text-gray-500 hover:text-[#fbbf24] transition-colors"
+							className="text-gray-400 dark:text-gray-500 hover:text-brand-ink transition-colors"
 						>
 							Terms of Service
 						</a>
 						<a
 							href="#cookies"
-							className="text-gray-400 dark:text-gray-500 hover:text-[#fbbf24] transition-colors"
+							className="text-gray-400 dark:text-gray-500 hover:text-brand-ink transition-colors"
 						>
 							Cookie Policy
 						</a>

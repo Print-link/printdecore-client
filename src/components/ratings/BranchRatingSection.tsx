@@ -43,10 +43,10 @@ export const BranchRatingSection = ({
 	return (
 		<div className="space-y-6">
 			{/* Rating Overview */}
-			<div className="bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+			<div className="bg-surface border border-line rounded-lg p-6">
 				<div className="flex items-start justify-between mb-6">
 					<div>
-						<h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+						<h2 className="text-2xl font-bold text-ink mb-2">
 							Customer Reviews
 						</h2>
 						<div className="flex items-center gap-4">
@@ -56,7 +56,7 @@ export const BranchRatingSection = ({
 								size="lg"
 							/>
 							{totalRatings > 0 && (
-								<span className="text-sm text-gray-600 dark:text-gray-400">
+								<span className="text-sm text-ink-2">
 									Based on {totalRatings} {totalRatings === 1 ? "review" : "reviews"}
 								</span>
 							)}
@@ -64,7 +64,7 @@ export const BranchRatingSection = ({
 					</div>
 					<button
 						onClick={() => setShowRatingForm(!showRatingForm)}
-						className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors flex items-center gap-2"
+						className="px-4 py-2 bg-ink text-page rounded-xl transition-colors flex items-center gap-2"
 					>
 						<ChatCenteredText size={16} weight="regular" />
 						{myRating ? "Update Review" : "Write a Review"}
@@ -79,18 +79,18 @@ export const BranchRatingSection = ({
 							return (
 								<div key={rating} className="flex items-center gap-3">
 									<div className="flex items-center gap-1 w-20">
-										<span className="text-sm font-medium text-gray-700 dark:text-gray-300 w-3">
+										<span className="text-sm font-medium text-ink w-3">
 											{rating}
 										</span>
-										<Star size={16} weight="fill" className="text-yellow-400" />
+										<Star size={16} weight="fill" className="text-brand" />
 									</div>
-									<div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+									<div className="flex-1 bg-fill-press rounded-full h-2 overflow-hidden">
 										<div
-											className="bg-yellow-400 h-full transition-all duration-300"
+											className="bg-brand h-full transition-all duration-300"
 											style={{ width: `${percentage}%` }}
 										/>
 									</div>
-									<span className="text-sm text-gray-600 dark:text-gray-400 w-12 text-right">
+									<span className="text-sm text-ink-2 w-12 text-right">
 										{stats.distribution[rating] || 0}
 									</span>
 								</div>
@@ -111,7 +111,7 @@ export const BranchRatingSection = ({
 
 			{/* Ratings List */}
 			<div>
-				<h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+				<h3 className="text-xl font-semibold text-ink mb-4">
 					All Reviews ({totalRatings})
 				</h3>
 				<RatingsList branchId={branchId} />

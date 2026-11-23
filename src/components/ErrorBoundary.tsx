@@ -59,16 +59,16 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 		return (
 			<div
 				role="alert"
-				className={`flex items-center justify-center px-4 ${this.props.inline ? "py-16" : "min-h-screen bg-white dark:bg-[#121212]"}`}
+				className={`flex items-center justify-center px-4 ${this.props.inline ? "py-16" : "min-h-screen bg-page"}`}
 			>
 				<div className="w-full max-w-sm text-center">
-					<span className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-[#d97706] dark:bg-amber-900/20 dark:text-amber-300">
-						<WarningOctagon size={30} weight="duotone" />
+					<span className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-brand-tint text-brand-ink">
+						<WarningOctagon size={30} weight="regular" />
 					</span>
-					<h1 className="text-lg font-bold text-gray-900 dark:text-white">
+					<h1 className="text-lg font-bold text-ink">
 						{update ? "A new version is available" : "Something went wrong on this page"}
 					</h1>
-					<p className="mt-1.5 text-sm text-gray-600 dark:text-gray-400">
+					<p className="mt-1.5 text-sm text-ink-2">
 						{update
 							? "Reload to get the latest Printdecore."
 							: "Your orders and payments are safe. Reload the page, or head home and try again."}
@@ -77,14 +77,14 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 						<button
 							type="button"
 							onClick={() => window.location.reload()}
-							className="inline-flex items-center gap-1.5 rounded-xl bg-[#fbbf24] px-4 py-2.5 text-sm font-bold text-black hover:bg-[#f59e0b] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d97706]"
+							className="inline-flex items-center gap-1.5 rounded-xl bg-brand px-4 py-2.5 text-sm font-bold text-black hover:bg-brand-press focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
 						>
 							<ArrowClockwise size={16} weight="bold" /> Reload
 						</button>
 						{!update && (
 							<a
 								href="/home"
-								className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+								className="inline-flex items-center gap-1.5 rounded-xl border border-line px-4 py-2.5 text-sm font-semibold text-ink hover:bg-gray-50 dark:border-gray-700 dark:text-ink-3 dark:hover:bg-gray-800"
 							>
 								<House size={16} /> Home
 							</a>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Crosshair, MapPin, SpinnerGap, Storefront, Truck } from "@phosphor-icons/react";
 import { useGeolocation } from "../../hooks/useGeolocation";
+import { Button } from "../ui";
 import { deliveryReady, type Delivery } from "../../services/orderApi";
 import { searchPlaces, type PlaceSuggestion } from "../../services/geocoding";
 
@@ -12,7 +13,7 @@ interface DeliveryChoiceProps {
 }
 
 const inputClass =
-	"w-full px-3 py-2.5 text-sm bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#fbbf24]/50 focus:border-[#fbbf24]";
+	"w-full h-11 px-3 text-base bg-fill border border-transparent rounded-xl text-ink placeholder:text-ink-3 focus:outline-none focus:border-ink";
 
 /** Delivery (with an address found on the map) or pickup, and a phone to reach the customer on */
 export const DeliveryChoice = ({ delivery, onChange, onContinue }: DeliveryChoiceProps) => {
@@ -52,13 +53,11 @@ export const DeliveryChoice = ({ delivery, onChange, onContinue }: DeliveryChoic
 
 	const choose = (fulfilment: Delivery["fulfilment"]) => onChange({ ...d, fulfilment });
 	const option = (active: boolean) =>
-		`flex-1 flex items-center justify-center gap-2 px-3 py-3 text-sm font-semibold rounded-xl border transition-colors ${
-			active ? "border-[#fbbf24] bg-amber-50 dark:bg-amber-900/10 text-gray-900 dark:text-white" : "border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300"
-		}`;
+		`tap flex-1 flex items-center justify-center gap-2 h-10 text-sm font-semibold rounded-[10px] ${active ? "bg-surface text-ink ring-1 ring-line" : "text-ink-2"}`;
 
 	return (
 		<div className="space-y-4">
-			<div className="flex gap-2" role="radiogroup" aria-label="Delivery or pickup">
+			<div className="flex p-1 rounded-xl bg-fill" role="radiogroup" aria-label="Delivery or pickup">
 				<button type="button" role="radio" aria-checked={d.fulfilment === "delivery"} className={option(d.fulfilment === "delivery")} onClick={() => choose("delivery")}>
 					<Truck size={18} /> Deliver to me
 				</button>
@@ -69,12 +68,12 @@ export const DeliveryChoice = ({ delivery, onChange, onContinue }: DeliveryChoic
 
 			{d.fulfilment === "delivery" && (
 				<div className="relative">
-					<label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2" htmlFor="delivery-address">
+					<label className="block text-sm text-ink-2 mb-1.5" htmlFor="delivery-address">
 						Delivery address
 					</label>
 					<div className="flex gap-2">
 						<div className="relative flex-1">
-							<MapPin size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+							<MapPin size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-3" />
 							<input
 								id="delivery-address"
 								className={`${inputClass} pl-9`}
@@ -87,7 +86,7 @@ export const DeliveryChoice = ({ delivery, onChange, onContinue }: DeliveryChoic
 								placeholder="Search for a street, area or landmark"
 								autoComplete="off"
 							/>
-							{searching && <SpinnerGap size={14} className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-gray-400" />}
+							{searching && <SpinnerGap size={14} className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-ink-3" />}
 						</div>
 						<button
 							type="button"
@@ -95,7 +94,7 @@ export const DeliveryChoice = ({ delivery, onChange, onContinue }: DeliveryChoic
 								setLocating(true);
 								requestLocation();
 							}}
-							className="px-3 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-[#fbbf24]"
+							className="tap w-11 h-11 shrink-0 flex items-center justify-center rounded-xl bg-fill text-ink"
 							title="Use my current location"
 							aria-label="Use my current location"
 						>
@@ -103,12 +102,12 @@ export const DeliveryChoice = ({ delivery, onChange, onContinue }: DeliveryChoic
 						</button>
 					</div>
 					{suggestions.length > 0 && (
-						<ul className="absolute z-20 mt-1 w-full bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden">
+						<ul className="absolute z-20 mt-1 w-full bg-surface border border-line-strong rounded-xl overflow-hidden divide-y divide-line">
 							{suggestions.map((s) => (
 								<li key={s.id}>
 									<button
 										type="button"
-										className="w-full text-left px-3 py-2.5 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800"
+										className="w-full text-left px-3 py-3 text-sm text-ink hover:bg-fill"
 										onClick={() => {
 											setQuery(s.label);
 											setSuggestions([]);
@@ -122,15 +121,15 @@ export const DeliveryChoice = ({ delivery, onChange, onContinue }: DeliveryChoic
 						</ul>
 					)}
 					{d.address && d.latitude != null ? (
-						<p className="mt-1 text-xs text-green-600">Address pinned</p>
+						<p className="mt-1.5 text-xs font-semibold text-ok">Address pinned</p>
 					) : (
-						<p className="mt-1 text-xs text-gray-500">Pick an address from the suggestions, or use your current location.</p>
+						<p className="mt-1.5 text-xs text-ink-3">Pick an address from the suggestions, or use your current location.</p>
 					)}
 				</div>
 			)}
 
 			<label className="block">
-				<span className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">Phone number</span>
+				<span className="block text-sm text-ink-2 mb-1.5">Phone number</span>
 				<input
 					className={inputClass}
 					type="tel"
@@ -141,14 +140,9 @@ export const DeliveryChoice = ({ delivery, onChange, onContinue }: DeliveryChoic
 			</label>
 
 			{onContinue && (
-				<button
-					type="button"
-					onClick={onContinue}
-					disabled={!deliveryReady(d)}
-					className="w-full py-3 bg-[#fbbf24] hover:bg-[#f59e0b] text-black font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
-				>
+				<Button block onClick={onContinue} disabled={!deliveryReady(d)}>
 					Continue
-				</button>
+				</Button>
 			)}
 		</div>
 	);

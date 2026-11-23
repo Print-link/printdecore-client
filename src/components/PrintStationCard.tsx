@@ -30,14 +30,14 @@ export const PrintStationCard = ({
 
 	return (
 		<div
-			className={`relative bg-white dark:bg-[#1e1e1e] rounded-lg border-2 transition-all overflow-hidden ${
+			className={`relative bg-surface rounded-lg border-2 transition-all overflow-hidden ${
 				isClickable
-					? "border-gray-200 dark:border-gray-700 group cursor-pointer hover:border-[#fbbf24]"
-					: "border-gray-200 dark:border-gray-700 opacity-75 cursor-not-allowed"
+					? "border-line group cursor-pointer hover:border-brand"
+					: "border-line opacity-75 cursor-not-allowed"
 			}`}
 		>
 			{!isClickable && (
-				<div className="absolute inset-0 bg-white/60 dark:bg-black/30 backdrop-blur-[1px] z-10 rounded-xl" />
+				<div className="absolute inset-0 bg-white/60 dark:bg-black/30 z-10 rounded-xl" />
 			)}
 
 			<div className="flex flex-row md:flex-col">
@@ -54,7 +54,7 @@ export const PrintStationCard = ({
 								isOpen ? "group-hover:bg-slate-200" : ""
 							}`}
 						>
-							<Printer size={48} weight="duotone" className="text-[#fbbf24]" />
+							<Printer size={48} weight="regular" className="text-brand-ink" />
 						</div>
 					)}
 					<div className="absolute top-2 right-2 z-20">
@@ -66,7 +66,7 @@ export const PrintStationCard = ({
 					</div>
 					{station.activeDiscount && (
 						<div className="absolute top-2 left-2 z-20">
-							<div className="flex items-center gap-1 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg">
+							<div className="flex items-center gap-1 bg-bad text-white text-xs font-bold px-2 py-1 rounded-full">
 								<Tag size={10} weight="fill" />
 								{station.activeDiscount.discountType === 'percentage'
 									? `${station.activeDiscount.discountValue}% OFF`
@@ -88,26 +88,26 @@ export const PrintStationCard = ({
 							<h3
 								className={`text-base md:text-lg font-bold line-clamp-1 transition-colors flex-1 ${
 									isClickable
-										? "text-gray-900 dark:text-white group-hover:text-[#fbbf24]"
-										: "text-gray-500 dark:text-gray-400"
+										? "text-ink group-hover:text-brand-ink"
+										: "text-ink-2"
 								}`}
 							>
 								{station?.businessName || station.name}
 							</h3>
 							<div className="flex items-center gap-1.5 shrink-0 ml-2">
 								{station.performanceTier && (
-									<span className={`text-[9px] font-black px-1.5 py-0.5 rounded-full leading-none ${
+									<span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none ${
 										station.performanceTier === 'diamond'
-											? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white'
-											: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+											? '   text-white'
+											: 'bg-brand-tint text-brand-ink'
 									}`}>
 										{station.performanceTier === 'diamond' ? '◆' : station.performanceTier}
 									</span>
 								)}
 								{station.averageRating !== undefined && station.averageRating > 0 && (
 									<div className="flex items-center gap-0.5">
-										<Star size={14} weight="fill" className="text-yellow-500" />
-										<span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+										<Star size={14} weight="fill" className="text-brand" />
+										<span className="text-xs font-semibold text-ink">
 											{station.averageRating?.toFixed(1)}
 										</span>
 									</div>
@@ -117,8 +117,8 @@ export const PrintStationCard = ({
 
 						<div className="space-y-1 md:space-y-2">
 							{station.location?.address && (
-								<div className="flex items-start text-xs md:text-sm text-gray-600 dark:text-gray-400">
-									<MapPin size={16} weight="regular" className="mr-1 md:mr-2 text-gray-400 dark:text-gray-500 mt-0.5 shrink-0" />
+								<div className="flex items-start text-xs md:text-sm text-ink-2">
+									<MapPin size={16} weight="regular" className="mr-1 md:mr-2 text-ink-3 mt-0.5 shrink-0" />
 									<span className="line-clamp-1 md:line-clamp-2">
 										{station.location.address}
 									</span>
@@ -135,18 +135,18 @@ export const PrintStationCard = ({
 								</div>
 							)}
 							{/* {station.email && (
-								<div className="flex items-center text-xs md:text-sm text-gray-600">
-									<Mail className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2 text-gray-400 shrink-0" />
+								<div className="flex items-center text-xs md:text-sm text-ink-2">
+									<Mail className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2 text-ink-3 shrink-0" />
 									<span className="truncate">{station.email}</span>
 								</div>
 							)} */}
 
 							{/* Agent Services */}
 							{station.agentServices && station.agentServices.length > 0 && (
-								<div className="md:pt-2 md:mt-2 border-t border-gray-200 dark:border-gray-700">
+								<div className="md:pt-2 md:mt-2 border-t border-line">
 									<div className="flex items-center gap-1.5 mb-1.5">
-										<Package size={16} weight="duotone" className="text-[#fbbf24] shrink-0" />
-										<span className="text-xs md:text-sm font-bold text-gray-900 dark:text-white">
+										<Package size={16} weight="regular" className="text-brand-ink shrink-0" />
+										<span className="text-xs md:text-sm font-bold text-ink">
 											Services (
 											{station.totalServicesCount ||
 												station.agentServices.length}
@@ -157,14 +157,14 @@ export const PrintStationCard = ({
 										{station.agentServices.slice(0, 5).map((service) => (
 											<span
 												key={service.id}
-												className="px-2 py-0.5 text-xs font-bold text-[#fbbf24] bg-[#fbbf24]/10 border border-[#fbbf24]/30 rounded"
+												className="px-2 py-0.5 text-xs font-bold text-brand-ink bg-brand/10 border border-brand/30 rounded"
 											>
 												{service.serviceName}
 											</span>
 										))}
 										{(station.totalServicesCount ||
 											station.agentServices.length) > 5 && (
-											<span className="px-2 py-0.5 text-xs font-semibold text-gray-600 dark:text-gray-400">
+											<span className="px-2 py-0.5 text-xs font-semibold text-ink-2">
 												+
 												{(station.totalServicesCount ||
 													station.agentServices.length) - 5}{" "}

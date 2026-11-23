@@ -77,7 +77,7 @@ export const ServiceCard = ({ service, serviceIndex }: ServiceCardProps) => {
 
 	return (
 		<div
-			className="bg-white rounded-xl overflow-hidden border-2 border-gray-200 hover:border-[#fbbf24] transition-all cursor-pointer group"
+			className="bg-white rounded-xl overflow-hidden border-2 border-gray-200 hover:border-brand transition-all cursor-pointer group"
 			onMouseEnter={() => setIsPaused(true)}
 			onMouseLeave={() => setIsPaused(false)}
 		>
@@ -95,7 +95,7 @@ export const ServiceCard = ({ service, serviceIndex }: ServiceCardProps) => {
 						}`}
 					/>
 				))}
-				<div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+				<div className="absolute inset-0"></div>
 
 				{/* Navigation Buttons */}
 				{service.images.length > 1 && (
@@ -145,7 +145,7 @@ export const ServiceCard = ({ service, serviceIndex }: ServiceCardProps) => {
 				)}
 			</div>
 			<div className="p-4">
-				<h3 className="font-semibold text-gray-900 mb-1 group-hover:text-[#fbbf24] transition-colors">
+				<h3 className="font-semibold text-gray-900 mb-1 group-hover:text-brand-ink transition-colors">
 					{service.name}
 				</h3>
 				<p className="text-sm text-gray-600">{service.examples}</p>

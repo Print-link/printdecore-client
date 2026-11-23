@@ -15,7 +15,7 @@ export const PrintStationCTA = ({ onJoinClick }: PrintStationCTAProps) => {
 	return (
 		<section className="py-16 bg-white dark:bg-[var(--bg-primary)]">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="bg-gradient-to-br from-gray-50 to-white dark:from-[var(--bg-secondary)] dark:to-[var(--bg-primary)] rounded-2xl p-8 md:p-12 border-2 border-gray-200 dark:border-[var(--border-color)]">
+				<div className="rounded-2xl p-8 md:p-12 border-2 border-gray-200 dark:border-[var(--border-color)]">
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
 						<div>
 							<h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-[var(--text-primary)] mb-4">
@@ -28,22 +28,22 @@ export const PrintStationCTA = ({ onJoinClick }: PrintStationCTAProps) => {
 							<ul className="space-y-3 mb-6">
 								{benefits.map((benefit, index) => (
 									<li key={index} className="flex items-center gap-3">
-										<Check size={20} weight="bold" className="text-[#fbbf24]" />
+										<Check size={20} weight="bold" className="text-brand-ink" />
 										<span className="text-gray-700 dark:text-[var(--text-secondary)]">{benefit}</span>
 									</li>
 								))}
 							</ul>
 							<button
 								onClick={onJoinClick}
-								className="inline-flex items-center gap-2 bg-[#fbbf24] text-black px-6 py-3 rounded-lg font-semibold hover:bg-[#fcd34d] transition-all"
+								className="inline-flex items-center gap-2 bg-brand text-black px-6 py-3 rounded-lg font-semibold hover:bg-brand transition-all"
 							>
 								Join as Print Station
 								<ArrowRight size={20} weight="bold" />
 							</button>
 						</div>
 						<div className="hidden md:block">
-							<div className="bg-[#fbbf24]/10 dark:bg-[#fbbf24]/20 rounded-xl p-8">
-								<Printer size={128} weight="duotone" className="text-[#fbbf24] mx-auto" />
+							<div className="bg-brand/10 dark:bg-brand/20 rounded-xl p-8">
+								<Printer size={128} weight="regular" className="text-brand-ink mx-auto" />
 							</div>
 						</div>
 					</div>

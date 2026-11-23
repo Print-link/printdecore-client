@@ -10,6 +10,7 @@ import { useMarketplaceVendors } from "../hooks/useMarketplace";
 import { CategoryCardHorizontal } from "../components/CategoryCardHorizontal";
 import { HorizontalScrollSection } from "../components/HorizontalScrollSection";
 import { VendorCard } from "../components/marketplace/VendorCard";
+import { Field, ListRow, SectionHeader, Thumb } from "../components/ui";
 
 /**
  * Two ways to order: let Printdecore handle it (the catalogue, or the Print
@@ -26,22 +27,20 @@ export const Home = () => {
 		<div className="w-full max-w-5xl mx-auto">
 			{/* Search comes first and stays on screen: it sticks under the app header
 			    (which itself clears the iPhone notch) while the page scrolls under it */}
-			<div className="sticky top-under-header z-20 -mx-4 sm:-mx-6 lg:-mx-8 -mt-4 md:-mt-6 mb-5 px-4 sm:px-6 lg:px-8 pt-3 pb-3 bg-gray-50 dark:bg-[#111111]">
+			<div className="sticky top-under-header z-20 -mx-4 sm:-mx-6 lg:-mx-8 -mt-4 md:-mt-6 mb-4 px-4 sm:px-6 lg:px-8 py-3 bg-page">
 				<form
 					onSubmit={(e) => {
 						e.preventDefault();
 						if (search.trim()) navigate(`/home/search?q=${encodeURIComponent(search.trim())}`);
 					}}
-					className="relative"
 				>
-					<MagnifyingGlass size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-					<input
+					<Field
 						type="search"
 						value={search}
 						onChange={(e) => setSearch(e.target.value)}
 						placeholder="Business cards, banners, flyers…"
 						aria-label="Search products"
-						className="w-full pl-10 pr-4 py-3 text-sm bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-2xl text-gray-800 dark:text-gray-200 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#fbbf24]/50 focus:border-[#fbbf24]"
+						leading={<MagnifyingGlass size={18} />}
 					/>
 				</form>
 			</div>
@@ -49,17 +48,6 @@ export const Home = () => {
 			<ActiveOrdersStrip />
 			<InstallBanner />
 			<AssistantSpotlight />
-			<button
-				type="button"
-				onClick={() => navigate("/home/shops")}
-				className="tap w-full mb-8 flex items-center gap-3 p-4 text-left rounded-2xl bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-800 hover:border-[#fbbf24]"
-			>
-				<Storefront size={28} weight="duotone" className="text-[#d97706] shrink-0" />
-				<span className="flex-1 min-w-0">
-					<span className="block font-bold text-gray-900 dark:text-white">Choose a print shop</span>
-					<span className="block text-sm text-gray-600 dark:text-gray-400">Order from a shop near you at its prices, and pay now.</span>
-				</span>
-			</button>
 
 			{!categoriesLoading && categories.length > 0 && (
 				<HorizontalScrollSection title="Order through Printdecore" subtitle="We find a printer near you and handle it">
@@ -73,8 +61,19 @@ export const Home = () => {
 				</HorizontalScrollSection>
 			)}
 
+			{shops.length === 0 && <section className="mb-7">
+				<SectionHeader title="Order from a shop" />
+				<ListRow
+					leading={<Thumb size={44}><Storefront size={22} /></Thumb>}
+					title="Choose a print shop"
+					sub="Their prices, paid now, ready by a set time"
+					onClick={() => navigate("/home/shops")}
+					divider={false}
+				/>
+			</section>}
+
 			{shops.length > 0 && (
-				<HorizontalScrollSection title="Print shops near you" showAllLink="/home/shops">
+				<HorizontalScrollSection title="Print shops near you" subtitle="Order at their prices and pay now" showAllLink="/home/shops">
 					{shops.slice(0, 10).map((shop) => (
 						<VendorCard key={shop.id} vendor={shop} compact onClick={() => navigate(`/home/shops/${shop.id}`)} />
 					))}
