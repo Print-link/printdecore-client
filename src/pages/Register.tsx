@@ -136,18 +136,18 @@ export const Register = () => {
 	};
 
 	return (
-		<div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-			<div className="w-full max-w-md bg-white rounded-2xl p-8">
-				<div className="text-center mb-8">
-					<div className="flex justify-center mb-4">
-						<Logo size="lg" />
+		<div className="min-h-dvh bg-page flex flex-col items-center sm:justify-center px-5 pt-safe pb-safe">
+			<div className="w-full max-w-sm py-10 sm:py-12">
+				<div className="mb-8">
+					<div className="mb-10">
+						<Logo size="md" />
 					</div>
-					<h1 className="text-3xl font-bold text-gray-900 mb-2">
+					<h1 className="text-3xl font-bold title-tight text-ink mb-1">
 						Create Account
 					</h1>
-					<p className="text-gray-600">Complete your registration</p>
+					<p className="text-ink-2">Complete your registration</p>
 					{isVerified && (
-						<div className="mt-3 inline-flex items-center px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium">
+						<div className="mt-3 inline-flex items-center h-6 px-2 bg-ok-tint text-ok rounded-md text-xs font-semibold">
 							<CheckCircle size={16} weight="regular" className="mr-1.5" />
 							Email verified
 						</div>
@@ -155,7 +155,7 @@ export const Register = () => {
 				</div>
 
 				{error && (
-					<div className="mb-6 p-4 bg-red-50 text-red-800 rounded-lg flex items-center">
+					<div className="mb-6 p-3 bg-bad-tint text-bad rounded-xl flex items-center">
 						<WarningCircle size={20} weight="regular" className="mr-3" />
 						<p className="text-sm font-medium">{error}</p>
 					</div>
@@ -163,81 +163,81 @@ export const Register = () => {
 
 				<form onSubmit={handleSubmit} className="space-y-5">
 					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-2">
+						<label className="block text-sm text-ink-2 mb-1.5">
 							First Name
 						</label>
 						<div className="relative">
-							<User size={20} weight="regular" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+							<User size={20} weight="regular" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-3 pointer-events-none" />
 							<input
 								type="text"
 								value={firstName}
 								onChange={(e) => setFirstName(e.target.value)}
 								placeholder="Enter your first name"
-								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
+								className="w-full h-12 pl-10 pr-4 bg-fill border border-transparent rounded-xl text-ink placeholder:text-ink-3 focus:outline-none focus:border-ink"
 								required
 							/>
 						</div>
 					</div>
 					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-2">
+						<label className="block text-sm text-ink-2 mb-1.5">
 							Last Name
 						</label>
 						<div className="relative">
-							<User size={20} weight="regular" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+							<User size={20} weight="regular" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-3 pointer-events-none" />
 							<input
 								type="text"
 								value={lastName}
 								onChange={(e) => setLastName(e.target.value)}
 								placeholder="Enter your last name"
-								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
+								className="w-full h-12 pl-10 pr-4 bg-fill border border-transparent rounded-xl text-ink placeholder:text-ink-3 focus:outline-none focus:border-ink"
 								required
 							/>
 						</div>
 					</div>
 
 					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-2">
+						<label className="block text-sm text-ink-2 mb-1.5">
 							Email Address
 						</label>
 						<div className="relative">
-							<EnvelopeSimple size={20} weight="regular" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+							<EnvelopeSimple size={20} weight="regular" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-3 pointer-events-none" />
 							<input
 								type="email"
 								value={email}
 								onChange={(e) => setEmail(e.target.value)}
 								placeholder="Enter your email"
-								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent bg-gray-50"
+								className="w-full h-12 pl-10 pr-4 bg-fill border border-transparent rounded-xl text-ink placeholder:text-ink-3 focus:outline-none focus:border-ink opacity-70"
 								required
 								disabled
 								readOnly
 							/>
 							{isVerified && (
-								<CheckCircle size={20} weight="regular" className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-600" />
+								<CheckCircle size={20} weight="regular" className="absolute right-3 top-1/2 transform -translate-y-1/2 text-ok" />
 							)}
 						</div>
-						<p className="mt-1 text-xs text-gray-500">
+						<p className="mt-1 text-xs text-ink-2">
 							Email verified and locked
 						</p>
 					</div>
 
 					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-2">
+						<label className="block text-sm text-ink-2 mb-1.5">
 							Phone Number
 						</label>
 						<div className="relative">
-							<Phone size={20} weight="regular" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+							<Phone size={20} weight="regular" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-3 pointer-events-none" />
 							<input
 								type="tel"
 								value={phoneNumber}
 								onChange={(e) => setPhoneNumber(e.target.value)}
 								placeholder="Enter your phone number (e.g., +233 XX XXX XXXX)"
-								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
+								className="w-full h-12 pl-10 pr-4 bg-fill border border-transparent rounded-xl text-ink placeholder:text-ink-3 focus:outline-none focus:border-ink"
 								required
 								maxLength={20}
 							/>
 						</div>
 						{phoneNumber && (
-							<p className="mt-1 text-xs text-gray-500">
+							<p className="mt-1 text-xs text-ink-2">
 								{detectCountryFromPhone(phoneNumber)
 									? `Detected: ${
 											supportedCountries.find(
@@ -250,20 +250,20 @@ export const Register = () => {
 					</div>
 
 					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-2">
+						<label className="block text-sm text-ink-2 mb-1.5">
 							Country
 							{detectingCountry && (
-								<span className="ml-2 text-xs text-gray-500">
+								<span className="ml-2 text-xs text-ink-2">
 									(Detecting...)
 								</span>
 							)}
 						</label>
 						<div className="relative">
-							<GlobeSimple size={20} weight="regular" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+							<GlobeSimple size={20} weight="regular" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-3 pointer-events-none" />
 							<select
 								value={country}
 								onChange={(e) => setCountry(e.target.value)}
-								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent appearance-none bg-white"
+								className="w-full h-12 pl-10 pr-4 bg-fill border border-transparent rounded-xl text-ink placeholder:text-ink-3 focus:outline-none focus:border-ink appearance-none"
 								required
 							>
 								<option value="">Select your country</option>
@@ -276,7 +276,7 @@ export const Register = () => {
 							</select>
 						</div>
 						{country && (
-							<p className="mt-1 text-xs text-gray-500">
+							<p className="mt-1 text-xs text-ink-2">
 								Currency: {getCurrencyByCountry(country)} -{" "}
 								{
 									supportedCountries.find((c) => c.code === country)
@@ -287,17 +287,17 @@ export const Register = () => {
 					</div>
 
 					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-2">
+						<label className="block text-sm text-ink-2 mb-1.5">
 							Password
 						</label>
 						<div className="relative">
-							<LockSimple size={20} weight="regular" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+							<LockSimple size={20} weight="regular" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-3 pointer-events-none" />
 							<input
 								type="password"
 								value={password}
 								onChange={(e) => setPassword(e.target.value)}
 								placeholder="Create a password"
-								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
+								className="w-full h-12 pl-10 pr-4 bg-fill border border-transparent rounded-xl text-ink placeholder:text-ink-3 focus:outline-none focus:border-ink"
 								required
 								minLength={6}
 							/>
@@ -305,17 +305,17 @@ export const Register = () => {
 					</div>
 
 					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-2">
+						<label className="block text-sm text-ink-2 mb-1.5">
 							Confirm Password
 						</label>
 						<div className="relative">
-							<LockSimple size={20} weight="regular" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+							<LockSimple size={20} weight="regular" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-3 pointer-events-none" />
 							<input
 								type="password"
 								value={confirmPassword}
 								onChange={(e) => setConfirmPassword(e.target.value)}
 								placeholder="Confirm your password"
-								className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent"
+								className="w-full h-12 pl-10 pr-4 bg-fill border border-transparent rounded-xl text-ink placeholder:text-ink-3 focus:outline-none focus:border-ink"
 								required
 								minLength={6}
 							/>
@@ -325,15 +325,11 @@ export const Register = () => {
 					<button
 						type="submit"
 						disabled={isLoading}
-						className={`w-full py-3 rounded-xl font-semibold text-white transition-all ${
-							isLoading
-								? "bg-gray-400 cursor-not-allowed"
-								: "bg-[#fbbf24] hover:bg-[#fbbf24] "
-						}`}
+						className="tap w-full h-12 rounded-xl text-base font-semibold text-black bg-brand hover:bg-brand-press disabled:opacity-45 flex items-center justify-center"
 					>
 						{isLoading ? (
 							<span className="flex items-center justify-center">
-								<div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+								<div className="w-4 h-4 border-2 border-current border-r-transparent rounded-full animate-spin mr-2"></div>
 								Creating account...
 							</span>
 						) : (
@@ -343,11 +339,11 @@ export const Register = () => {
 				</form>
 
 				<div className="mt-6 text-center">
-					<p className="text-sm text-gray-600">
+					<p className="text-sm text-ink-2">
 						Already have an account?{" "}
 						<Link
 							to="/login"
-							className="text-[#fbbf24] font-semibold hover:text-[#fbbf24]"
+							className="font-semibold text-ink underline underline-offset-2"
 						>
 							Sign in
 						</Link>

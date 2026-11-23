@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import {
 	ArrowDown,
 	ArrowLeft,
+	Check,
 	CheckCircle,
 	CloudArrowUp,
 	NotePencil,
@@ -19,7 +20,7 @@ import {
 import { toast } from "react-toastify";
 import { DeliveryChoice } from "../components/order/DeliveryChoice";
 import { ChatHeader, ChatProgress, ChatWelcome, DaySeparator, FileTile, MessageRow, TypingIndicator, type ChatShop } from "../components/assistant/ChatParts";
-import { PrintyMascot } from "../components/assistant/PrintyMascot";
+import { PrintyAvatar } from "../components/assistant/PrintyAvatar";
 import { useAuth } from "../hooks/useAuth";
 import { useGeolocation } from "../hooks/useGeolocation";
 import { useMarketplaceVendor } from "../hooks/useMarketplace";
@@ -85,16 +86,16 @@ export const ShopAssistant = () => {
 	if (isLoading) {
 		return (
 			<div className="py-16 flex justify-center">
-				<SpinnerGap size={22} className="animate-spin text-[#fbbf24]" />
+				<SpinnerGap size={22} className="animate-spin text-ink-3" />
 			</div>
 		);
 	}
 	if (error || !shop) {
 		return (
-			<div className="max-w-2xl mx-auto rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1a1a1a] p-6 text-center">
-				<Storefront size={32} className="mx-auto text-gray-400" />
-				<p className="mt-2 font-semibold text-gray-900 dark:text-white">This shop isn't taking requests right now</p>
-				<button type="button" onClick={() => navigate("/home/shops")} className="mt-3 text-sm font-semibold text-[#d97706]">
+			<div className="max-w-2xl mx-auto py-14 text-center">
+				<Storefront size={32} className="mx-auto text-ink-3" />
+				<p className="mt-2 font-semibold text-ink">This shop isn't taking requests right now</p>
+				<button type="button" onClick={() => navigate("/home/shops")} className="tap mt-4 h-10 px-4 rounded-xl bg-fill text-sm font-semibold text-ink">
 					See other shops
 				</button>
 			</div>
@@ -114,24 +115,24 @@ const AssistantPage = ({ shop }: { shop?: ChatShop }) => {
 			) : (
 				<>
 					<ChatHeader shop={shop} />
-					<div className="mt-4 rounded-3xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1a1a1a] p-6 sm:p-8 text-center">
-						<PrintyMascot className="w-28 h-28 mx-auto" />
-						<p className="mt-2 text-lg font-black text-gray-900 dark:text-white">Sign in to chat with Printy</p>
-						<p className="mt-1 text-sm text-gray-500 max-w-sm mx-auto">
+					<div className="mt-4 py-10 text-center">
+						<span className="mx-auto w-16 h-16 rounded-xl bg-fill flex items-center justify-center"><PrintyAvatar size={44} /></span>
+						<p className="mt-4 text-xl font-bold title-tight text-ink">Sign in to chat with Printy</p>
+						<p className="mt-1 text-sm text-ink-2 max-w-sm mx-auto">
 							{shop
 								? `Describe what you need and Printy puts your request together for ${shop.name} to price.`
 								: "Printy finds the right product, prices your job and puts the order together for you."}
 						</p>
 						<Link
 							to={`/login?returnUrl=${encodeURIComponent(pathname)}`}
-							className="mt-5 inline-block px-6 py-3 bg-[#fbbf24] hover:bg-[#f59e0b] text-black font-bold rounded-xl"
+							className="tap mt-5 inline-flex items-center h-12 px-6 bg-brand hover:bg-brand-press text-black text-base font-semibold rounded-xl"
 						>
 							Sign in to continue
 						</Link>
 						{!shop && (
-							<p className="mt-4 text-sm text-gray-500">
+							<p className="mt-4 text-sm text-ink-2">
 								Or{" "}
-								<Link to={FORM_PATH} className="text-[#d97706] font-semibold hover:underline">
+								<Link to={FORM_PATH} className="font-semibold text-ink underline underline-offset-2">
 									fill in the request form
 								</Link>{" "}
 								without signing in first.
@@ -235,8 +236,8 @@ const AgentChat = ({ shop }: { shop?: ChatShop }) => {
 		return (
 			<>
 				<ChatHeader shop={shop} />
-				<div className="py-16 flex flex-col items-center gap-2 text-sm text-gray-500">
-					<SpinnerGap size={22} className="animate-spin text-[#fbbf24]" />
+				<div className="py-16 flex flex-col items-center gap-2 text-sm text-ink-2">
+					<SpinnerGap size={22} className="animate-spin text-ink-3" />
 					Loading your conversation…
 				</div>
 			</>
@@ -248,7 +249,7 @@ const AgentChat = ({ shop }: { shop?: ChatShop }) => {
 			{shop ? (
 				<Link
 					to={`/home/shops/${shop.id}`}
-					className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-xs font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+					className="tap hidden md:inline-flex items-center gap-1.5 h-9 px-2.5 rounded-lg text-sm font-semibold text-ink-2 hover:bg-fill"
 				>
 					<ArrowLeft size={14} /> {shop.name}
 				</Link>
@@ -256,7 +257,7 @@ const AgentChat = ({ shop }: { shop?: ChatShop }) => {
 				<Link
 					to={FORM_PATH}
 					title="Use the request form instead"
-					className="inline-flex items-center gap-1.5 p-2 sm:px-2.5 rounded-lg text-xs font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+					className="tap inline-flex items-center gap-1.5 h-9 px-2 sm:px-2.5 rounded-lg text-sm font-semibold text-ink-2 hover:bg-fill"
 				>
 					<NotePencil size={16} /> <span className="hidden sm:inline">Use the form</span>
 				</Link>
@@ -266,7 +267,7 @@ const AgentChat = ({ shop }: { shop?: ChatShop }) => {
 					type="button"
 					onClick={startOver}
 					title="Start a new chat"
-					className="inline-flex items-center gap-1.5 p-2 sm:px-2.5 rounded-lg text-xs font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+					className="tap inline-flex items-center gap-1.5 h-9 px-2 sm:px-2.5 rounded-lg text-sm font-semibold text-ink-2 hover:bg-fill"
 				>
 					<Plus size={16} weight="bold" /> <span className="hidden sm:inline">New chat</span>
 				</button>
@@ -311,7 +312,7 @@ const AgentChat = ({ shop }: { shop?: ChatShop }) => {
 				)}
 				{pending && <TypingIndicator shop={!!shop} />}
 				{failed && (
-					<p className="mt-2 flex items-center justify-end gap-1.5 text-xs text-red-500" role="alert">
+					<p className="mt-2 flex items-center justify-end gap-1.5 text-xs text-bad" role="alert">
 						<WarningCircle size={14} /> {failed.error}
 					</p>
 				)}
@@ -347,17 +348,17 @@ const AgentChat = ({ shop }: { shop?: ChatShop }) => {
 				)}
 
 				{conversation?.printRequestId && !openDraft && (
-					<div className="chat-in mt-5 flex items-center gap-3 rounded-2xl border border-emerald-200 dark:border-emerald-900/40 bg-emerald-50 dark:bg-emerald-900/10 p-4">
-						<span className="w-10 h-10 shrink-0 rounded-full bg-emerald-500 text-white flex items-center justify-center">
+					<div className="chat-in mt-5 flex items-center gap-3 rounded-xl bg-ok-tint p-4">
+						<span className="w-10 h-10 shrink-0 rounded-full bg-ok text-white flex items-center justify-center">
 							<CheckCircle size={22} weight="fill" />
 						</span>
 						<span className="flex-1 min-w-0">
-							<span className="block text-sm font-bold text-gray-900 dark:text-white">{shop ? `Sent to ${shop.name}` : "Your order was sent"}</span>
-							<span className="block text-xs text-gray-600 dark:text-gray-400">You'll get a notification when there's an update.</span>
+							<span className="block text-sm font-bold text-ink">{shop ? `Sent to ${shop.name}` : "Your order was sent"}</span>
+							<span className="block text-xs text-ink-2">You'll get a notification when there's an update.</span>
 						</span>
 						<Link
 							to={`/home/print-request/${conversation.printRequestId}`}
-							className="shrink-0 px-3.5 py-2 rounded-xl bg-gray-900 dark:bg-white text-white dark:text-black text-sm font-bold"
+							className="shrink-0 px-3.5 py-2 rounded-xl bg-ink text-page text-sm font-bold"
 						>
 							View
 						</Link>
@@ -365,13 +366,13 @@ const AgentChat = ({ shop }: { shop?: ChatShop }) => {
 				)}
 
 				{waitingForStaff && (
-					<div className="chat-in mt-5 flex items-start gap-3 rounded-2xl border border-blue-200 dark:border-blue-900/40 bg-blue-50 dark:bg-blue-900/10 p-4 text-sm text-gray-800 dark:text-gray-200">
-						<span className="w-9 h-9 shrink-0 rounded-full bg-blue-600 text-white flex items-center justify-center">
+					<div className="chat-in mt-5 flex items-start gap-3 rounded-xl bg-fill p-4 text-sm text-ink">
+						<span className="w-9 h-9 shrink-0 rounded-full bg-ink text-page flex items-center justify-center">
 							<UserCircle size={20} weight="fill" />
 						</span>
 						<span>
-							<span className="block font-bold text-gray-900 dark:text-white">A person from our team is taking over</span>
-							<span className="block text-gray-600 dark:text-gray-400">Someone will get back to you shortly — you can keep adding details here.</span>
+							<span className="block font-bold text-ink">A person from our team is taking over</span>
+							<span className="block text-ink-2">Someone will get back to you shortly — you can keep adding details here.</span>
 						</span>
 					</div>
 				)}
@@ -380,9 +381,9 @@ const AgentChat = ({ shop }: { shop?: ChatShop }) => {
 			</div>
 
 			{conversation?.status === "closed" ? (
-				<div className="rounded-2xl bg-gray-100 dark:bg-[#1e1e1e] p-4 text-sm text-gray-700 dark:text-gray-300 flex items-center justify-between gap-3">
+				<div className="rounded-xl bg-fill p-4 text-sm text-ink flex items-center justify-between gap-3">
 					<span>This chat is closed.</span>
-					<button type="button" onClick={startOver} className="font-semibold text-[#d97706] hover:underline">
+					<button type="button" onClick={startOver} className="font-semibold text-brand-ink hover:underline">
 						Start a new chat
 					</button>
 				</div>
@@ -495,16 +496,16 @@ const Composer = ({
 	return (
 		<>
 			{dragging && (
-				<div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-6 pointer-events-none">
-					<div className="w-full max-w-md rounded-3xl border-2 border-dashed border-[#fbbf24] bg-white dark:bg-[#1a1a1a] p-8 text-center shadow-2xl">
-						<CloudArrowUp size={40} weight="duotone" className="mx-auto text-[#f59e0b]" />
-						<p className="mt-2 font-black text-gray-900 dark:text-white">Drop to attach</p>
-						<p className="text-sm text-gray-500">Any format, up to 25MB each</p>
+				<div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-6 pointer-events-none">
+					<div className="w-full max-w-md rounded-xl border-2 border-dashed border-ink bg-surface p-8 text-center">
+						<CloudArrowUp size={36} className="mx-auto text-ink" />
+						<p className="mt-2 font-bold text-ink">Drop to attach</p>
+						<p className="text-sm text-ink-2">Any format, up to 25MB each</p>
 					</div>
 				</div>
 			)}
 			<div
-				className={`sticky md:bottom-0 z-10 bg-gradient-to-t from-gray-50 via-gray-50 to-gray-50/0 dark:from-[#111111] dark:via-[#111111] dark:to-[#111111]/0 pt-4 md:pb-[max(0.75rem,env(safe-area-inset-bottom))] ${
+				className={`sticky md:bottom-0 z-10 bg-page pt-3 md:pb-[max(0.75rem,env(safe-area-inset-bottom))] ${
 					// On phones the main Assistant sits above the tab bar; a shop's chat has none
 					aboveTabBar ? "bottom-[calc(4rem+env(safe-area-inset-bottom))] pb-2" : "bottom-0 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
 				}`}
@@ -513,21 +514,21 @@ const Composer = ({
 					<button
 						type="button"
 						onClick={jump}
-						className="absolute -top-8 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 rounded-full bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:text-gray-200 shadow-lg"
+						className="tap absolute -top-9 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 h-8 rounded-full bg-ink text-page px-3 text-xs font-semibold"
 					>
 						<ArrowDown size={12} weight="bold" /> Latest
 					</button>
 				)}
-				<div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1e1e1e] shadow-[0_8px_30px_-12px_rgba(0,0,0,0.18)] focus-within:border-[#fbbf24] focus-within:ring-4 focus-within:ring-[#fbbf24]/15 transition-shadow">
+				<div className="rounded-xl border border-transparent bg-fill focus-within:border-ink transition-colors">
 					{(files.length > 0 || uploading > 0) && (
 						<div className="flex gap-1.5 overflow-x-auto hide-scrollbar px-2.5 pt-2.5">
 							{files.map((f) => (
 								<FileTile key={f.url} file={f} onRemove={() => setFiles((all) => all.filter((x) => x.url !== f.url))} />
 							))}
 							{uploading > 0 && (
-								<span className="shrink-0 flex items-center gap-2 p-1.5 pr-3 rounded-xl border border-dashed border-gray-300 dark:border-gray-600 text-xs text-gray-500">
-									<span className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-										<SpinnerGap size={16} className="animate-spin text-[#f59e0b]" />
+								<span className="shrink-0 flex items-center gap-2 p-1.5 pr-3 rounded-lg bg-surface text-xs text-ink-2">
+									<span className="w-9 h-9 rounded-lg bg-fill flex items-center justify-center">
+										<SpinnerGap size={16} className="animate-spin text-ink-2" />
 									</span>
 									Uploading {uploading} file{uploading === 1 ? "" : "s"}…
 								</span>
@@ -556,26 +557,26 @@ const Composer = ({
 						maxLength={MAX_CHARS}
 						placeholder={busy ? "Printy is replying…" : shopName ? `Describe what you need from ${shopName}…` : "Describe what you need printed…"}
 						aria-label="Message Printy"
-						className="chat-input block w-full resize-none max-h-48 min-h-[3rem] px-4 pt-3 pb-1 text-sm bg-transparent text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none field-sizing-content"
+						className="chat-input block w-full resize-none max-h-48 min-h-[3rem] px-3.5 pt-3 pb-1 text-base bg-transparent text-ink placeholder:text-ink-3 focus:outline-none field-sizing-content"
 					/>
 					<div className="flex items-center gap-2 px-2 pb-2">
 						<button
 							type="button"
 							onClick={() => fileInput.current?.click()}
 							disabled={uploading > 0 || files.length >= MAX_AGENT_FILES}
-							className="inline-flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-xs font-semibold text-gray-600 dark:text-gray-300 hover:text-[#d97706] hover:bg-amber-50 dark:hover:bg-amber-900/10 disabled:opacity-50"
+							className="tap inline-flex items-center gap-1.5 h-9 px-2.5 rounded-lg text-sm font-semibold text-ink-2 hover:text-ink hover:bg-fill-press"
 							aria-label="Attach files"
 							title="Attach files — any format, up to 10"
 						>
-							<Paperclip size={17} /> <span className="hidden sm:inline">Attach</span>
+							<Paperclip size={18} /> <span className="hidden sm:inline">Attach</span>
 						</button>
 						<input ref={fileInput} type="file" multiple className="hidden" onChange={(e) => attach(e.target.files)} />
-						<span className="flex-1 hidden md:block text-[11px] text-gray-400">
+						<span className="flex-1 hidden md:block text-xs text-ink-3">
 							<kbd className="font-sans font-semibold">Enter</kbd> to send · <kbd className="font-sans font-semibold">Shift + Enter</kbd> for a new line · drop or paste files
 						</span>
 						<span className="flex-1 md:hidden" />
 						{text.length > MAX_CHARS - 500 && (
-							<span className={`text-[11px] tabular-nums ${text.length >= MAX_CHARS ? "text-red-500" : "text-gray-400"}`}>
+							<span className={`text-xs tabular-nums ${text.length >= MAX_CHARS ? "text-bad" : "text-ink-3"}`}>
 								{text.length}/{MAX_CHARS}
 							</span>
 						)}
@@ -583,7 +584,7 @@ const Composer = ({
 							type="button"
 							onClick={submit}
 							disabled={!canSend}
-							className="inline-flex items-center gap-1.5 pl-3 pr-3.5 py-2 rounded-xl bg-[#fbbf24] hover:bg-[#f59e0b] text-black text-sm font-bold disabled:bg-gray-200 disabled:text-gray-400 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 transition-colors"
+							className="tap inline-flex items-center justify-center gap-1.5 h-9 min-w-9 px-2.5 sm:px-3.5 rounded-lg bg-brand hover:bg-brand-press text-black text-sm font-semibold disabled:bg-fill-press disabled:text-ink-3 disabled:opacity-100"
 							aria-label="Send"
 						>
 							{busy ? <SpinnerGap size={16} className="animate-spin" /> : <PaperPlaneRight size={16} weight="fill" />}
@@ -591,7 +592,7 @@ const Composer = ({
 						</button>
 					</div>
 				</div>
-				<p className="mt-1.5 text-center text-[11px] text-gray-400">Printy can make mistakes — you review everything before it's sent.</p>
+				<p className="mt-1.5 text-center text-xs text-ink-3">Printy can make mistakes — you review everything before it's sent.</p>
 			</div>
 		</>
 	);
@@ -645,33 +646,33 @@ const DraftCard = ({
 	const label = shopName ? `Request for ${shopName}` : draft.custom ? "Custom request" : "Order summary";
 
 	return (
-		<section className="rounded-3xl border border-amber-300/70 dark:border-amber-500/30 bg-white dark:bg-[#1a1a1a] shadow-[0_20px_50px_-24px_rgba(217,119,6,0.45)] overflow-hidden" aria-label="Your order">
+		<section className="rounded-xl border border-line-strong bg-surface overflow-hidden" aria-label="Your order">
 			{/* Header */}
-			<div className="flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-amber-50 to-white dark:from-amber-400/10 dark:to-transparent border-b border-amber-100 dark:border-amber-500/20">
-				<span className="min-w-0 truncate text-[11px] font-bold uppercase tracking-wider text-[#b45309] dark:text-amber-300">{label}</span>
-				<span className="ml-auto shrink-0 whitespace-nowrap inline-flex items-center gap-1 rounded-full bg-amber-100 dark:bg-amber-400/15 px-2 py-0.5 text-[11px] font-bold text-[#b45309] dark:text-amber-300">
-					<span className="w-1.5 h-1.5 rounded-full bg-[#f59e0b] animate-pulse" /> Ready to review
+			<div className="flex items-center gap-3 px-4 h-11 border-b border-line">
+				<span className="min-w-0 truncate text-sm font-semibold text-ink-2">{label}</span>
+				<span className="ml-auto shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 h-6 rounded-md bg-brand-tint px-2 text-xs font-semibold text-brand-ink">
+					<span className="w-1.5 h-1.5 rounded-full bg-brand" /> Ready to review
 				</span>
 			</div>
 
-			<div className="p-5">
-				<h2 className="text-lg font-black text-gray-900 dark:text-white leading-snug">
+			<div className="p-4">
+				<h2 className="text-lg font-bold title-tight text-ink">
 					<span className="tabular-nums">{draft.quantity.toLocaleString()}</span> × {draft.serviceName}
 				</h2>
 
 				{draft.summary.length > 0 && (
-					<dl className="mt-3 rounded-2xl border border-gray-100 dark:border-gray-800 divide-y divide-gray-100 dark:divide-gray-800">
+					<dl className="mt-3 border-t border-line">
 						{draft.summary.map((line, i) => {
 							// "Size: A5" reads as a spec row; anything else as a line
 							const m = line.match(/^([^:]{1,32}):\s*(.+)$/);
 							return m ? (
-								<div key={i} className="flex justify-between gap-4 px-3.5 py-2 text-sm">
-									<dt className="text-gray-500 dark:text-gray-400">{m[1]}</dt>
-									<dd className="text-right font-semibold text-gray-900 dark:text-white">{m[2]}</dd>
+								<div key={i} className="flex justify-between gap-4 py-2.5 border-b border-line text-sm">
+									<dt className="text-ink-2">{m[1]}</dt>
+									<dd className="text-right font-semibold text-ink">{m[2]}</dd>
 								</div>
 							) : (
-								<div key={i} className="flex gap-2 px-3.5 py-2 text-sm text-gray-700 dark:text-gray-300">
-									<CheckCircle size={16} weight="fill" className="text-emerald-500 shrink-0 mt-0.5" />
+								<div key={i} className="flex gap-2 py-2.5 border-b border-line text-sm text-ink">
+									<Check size={16} weight="bold" className="text-ink-3 shrink-0 mt-0.5" />
 									<span>{line}</span>
 								</div>
 							);
@@ -682,7 +683,7 @@ const DraftCard = ({
 				{/* Files */}
 				{allFiles.length > 0 && (
 					<div className="mt-3">
-						<p className="mb-1.5 text-xs font-bold text-gray-500 uppercase tracking-wide">Files</p>
+						<p className="mb-1.5 text-sm font-semibold text-ink">Files</p>
 						<div className="flex flex-wrap gap-1.5">
 							{draft.attachments.map((f) => (
 								<FileTile key={f.url} file={f} />
@@ -694,18 +695,18 @@ const DraftCard = ({
 					</div>
 				)}
 				{draft.fileRequired && draft.attachments.length === 0 && (
-					<div className={`mt-3 rounded-2xl border p-3.5 ${needsFile ? "border-red-200 bg-red-50 dark:border-red-900/40 dark:bg-red-900/10" : "border-emerald-200 bg-emerald-50 dark:border-emerald-900/40 dark:bg-emerald-900/10"}`}>
-						<p className="flex items-center gap-1.5 text-sm font-semibold text-gray-900 dark:text-white">
-							{needsFile ? <WarningCircle size={16} weight="fill" className="text-red-500" /> : <CheckCircle size={16} weight="fill" className="text-emerald-500" />}
+					<div className={`mt-3 rounded-xl p-3 ${needsFile ? "bg-bad-tint" : "bg-ok-tint"}`}>
+						<p className="flex items-center gap-1.5 text-sm font-semibold text-ink">
+							{needsFile ? <WarningCircle size={16} weight="fill" className="text-bad" /> : <CheckCircle size={16} weight="fill" className="text-ok" />}
 							{needsFile ? "Required: " : "Attached: "}
 							{draft.fileNeeded ?? "your file"}
 						</p>
-						<p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">The shop needs it to make your order. Any format, up to 25MB each.</p>
+						<p className="text-xs text-ink-2 mt-0.5">The shop needs it to make your order. Any format, up to 25MB each.</p>
 						<button
 							type="button"
 							onClick={() => fileInput.current?.click()}
 							disabled={uploading}
-							className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white dark:bg-[#111] border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-800 dark:text-gray-200 hover:border-[#fbbf24] disabled:opacity-50"
+							className="tap mt-2.5 inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-surface text-sm font-semibold text-ink"
 						>
 							{uploading ? <SpinnerGap size={14} className="animate-spin" /> : <Paperclip size={14} />}
 							{cardFiles.length ? "Add more files" : "Attach file"}
@@ -714,21 +715,21 @@ const DraftCard = ({
 					</div>
 				)}
 				{!draft.fileRequired && draft.attachments.length === 0 && (
-					<p className="mt-3 text-xs text-gray-500">No file needed — if you have a design, logo or reference, you can send it in the chat.</p>
+					<p className="mt-3 text-xs text-ink-2">No file needed — if you have a design, logo or reference, you can send it in the chat.</p>
 				)}
 
 				{/* Price */}
-				<div className="mt-4 rounded-2xl bg-gray-900 dark:bg-black/40 dark:ring-1 dark:ring-gray-800 p-4 text-white">
+				<div className="mt-4 pt-4 border-t border-line">
 					<div className="flex flex-wrap items-end justify-between gap-x-3 gap-y-2">
 						<div>
-							<p className="text-xs text-gray-400">{draft.price ? "Total" : "Price"}</p>
-							<p className="text-2xl font-black tabular-nums whitespace-nowrap">{draft.price ? money(draft.price.total, draft.price.currency) : "Quote on request"}</p>
+							<p className="text-sm text-ink-2">{draft.price ? "Total" : "Price"}</p>
+							<p className="num text-2xl font-bold title-tight text-ink whitespace-nowrap">{draft.price ? money(draft.price.total, draft.price.currency) : "Quote on request"}</p>
 						</div>
-						<span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-white/10 px-2 py-1 text-[11px] font-semibold text-emerald-300">
+						<span className="inline-flex items-center gap-1 whitespace-nowrap h-6 rounded-md bg-ok-tint px-2 text-xs font-semibold text-ok">
 							<ShieldCheck size={13} weight="fill" /> Nothing charged now
 						</span>
 					</div>
-					<p className="mt-2 text-xs leading-relaxed text-gray-300">
+					<p className="mt-2 text-sm text-ink-2">
 						{draft.price
 							? "The shop confirms the price and availability in about 10 minutes, then you pay from your order."
 							: shopName
@@ -741,9 +742,9 @@ const DraftCard = ({
 
 				{/* Delivery */}
 				<div className="mt-5">
-					<p className="text-sm font-bold text-gray-900 dark:text-white mb-2">Delivery or pickup</p>
+					<p className="text-lg font-bold title-tight text-ink mb-3">Delivery or pickup</p>
 					{spokenAddress && delivery?.fulfilment === "delivery" && !delivery.address && (
-						<p className="text-xs text-gray-500 mb-2">You mentioned {spokenAddress} — search for the exact place below.</p>
+						<p className="text-xs text-ink-2 mb-2">You mentioned {spokenAddress} — search for the exact place below.</p>
 					)}
 					<DeliveryChoice delivery={delivery} onChange={setDelivery} />
 				</div>
@@ -757,19 +758,19 @@ const DraftCard = ({
 						await onConfirm(delivery, cardFiles);
 						setSending(false);
 					}}
-					className="mt-5 w-full flex items-center justify-center gap-2 py-3.5 bg-[#fbbf24] hover:bg-[#f59e0b] text-black font-black rounded-2xl shadow-lg shadow-amber-500/20 disabled:opacity-50 disabled:shadow-none disabled:cursor-not-allowed"
+					className="tap mt-5 w-full flex items-center justify-center gap-2 h-12 bg-brand hover:bg-brand-press text-black text-base font-semibold rounded-xl"
 				>
 					{sending ? <SpinnerGap size={16} className="animate-spin" /> : <PaperPlaneRight size={16} weight="fill" />}
 					{draft.price ? "Confirm and send" : shopName ? `Send to ${shopName}` : draft.custom ? "Send custom request" : "Confirm and ask for a quote"}
 				</button>
 				{!ready && (
-					<p className="mt-2 text-xs text-center text-gray-500">
+					<p className="mt-2 text-xs text-center text-ink-2">
 						{needsFile
 							? `Attach ${(draft.fileNeeded ?? "your file").replace(/^Your /, "your ")} to send it.`
 							: `Add a phone number${delivery?.fulfilment === "delivery" ? " and pick the delivery address" : ""} to send it.`}
 					</p>
 				)}
-				<p className="mt-2 flex items-center justify-center gap-1 text-xs text-gray-500">
+				<p className="mt-2 flex items-center justify-center gap-1 text-xs text-ink-2">
 					<PencilSimpleLine size={13} /> Want to change something? Just tell Printy.
 				</p>
 			</div>

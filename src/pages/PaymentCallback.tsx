@@ -98,26 +98,26 @@ export const PaymentCallback = () => {
 			<div className="bg-white rounded-lg max-w-md w-full p-6 text-center">
 				{paymentReference ? (
 					<>
-						<SpinnerGap size={48} weight="bold" className="text-[#fbbf24] animate-spin mx-auto mb-4" />
-						<h3 className="text-lg font-semibold text-gray-900 mb-2">
+						<SpinnerGap size={48} weight="bold" className="text-brand-ink animate-spin mx-auto mb-4" />
+						<h3 className="text-lg font-semibold text-ink mb-2">
 							Verifying Payment
 						</h3>
-						<p className="text-sm text-gray-600">
+						<p className="text-sm text-ink-2">
 							Please wait while we verify your payment...
 						</p>
 						{paymentReference && (
-							<p className="text-xs text-gray-500 mt-2">
+							<p className="text-xs text-ink-2 mt-2">
 								Reference: {paymentReference}
 							</p>
 						)}
 					</>
 				) : (
 					<>
-						<WarningCircle size={48} weight="duotone" className="text-yellow-600 mx-auto mb-4" />
-						<h3 className="text-lg font-semibold text-gray-900 mb-2">
+						<WarningCircle size={48} weight="regular" className="text-brand-ink mx-auto mb-4" />
+						<h3 className="text-lg font-semibold text-ink mb-2">
 							No Payment Reference
 						</h3>
-						<p className="text-sm text-gray-600">Redirecting you back...</p>
+						<p className="text-sm text-ink-2">Redirecting you back...</p>
 					</>
 				)}
 			</div>

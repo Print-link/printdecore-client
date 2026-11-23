@@ -21,7 +21,7 @@ interface OrderPaymentPanelProps {
 	};
 }
 
-const card = "rounded-2xl border p-5 mb-5";
+const card = "rounded-xl p-4 mb-6";
 
 /**
  * What the customer does next with an order: wait while Printdecore confirms
@@ -90,13 +90,13 @@ export const OrderPaymentPanel = ({ order }: OrderPaymentPanelProps) => {
 
 	if (order.status === "QUOTED" && pending?.amount) {
 		return (
-			<div className={`${card} border-[#fbbf24] bg-white dark:bg-[#1e1e1e]`}>
-				<p className="text-sm text-gray-500">Your confirmed price</p>
-				<p className="text-3xl font-black text-gray-900 dark:text-white">{money(pending.amount)}</p>
+			<div className={`${card} border border-line-strong bg-surface`}>
+				<p className="text-sm text-ink-2">Your confirmed price</p>
+				<p className="num text-3xl font-bold title-tight text-ink">{money(pending.amount)}</p>
 				{declining ? (
-					<div className="mt-4 rounded-xl border border-gray-200 dark:border-gray-700 p-3">
-						<label htmlFor={`decline-${order.id}`} className="text-sm font-semibold text-gray-900 dark:text-white">
-							Why are you declining? <span className="font-normal text-gray-500">(optional)</span>
+					<div className="mt-4 rounded-xl bg-fill p-3">
+						<label htmlFor={`decline-${order.id}`} className="text-sm font-semibold text-ink">
+							Why are you declining? <span className="font-normal text-ink-2">(optional)</span>
 						</label>
 						<div className="mt-2 flex flex-wrap gap-1.5">
 							{["Too expensive", "I need changes to the job", "It takes too long", "I found another option"].map((r) => (
@@ -104,11 +104,7 @@ export const OrderPaymentPanel = ({ order }: OrderPaymentPanelProps) => {
 									key={r}
 									type="button"
 									onClick={() => setReason(r)}
-									className={`rounded-full px-3 py-1 text-xs font-medium border transition-colors ${
-										reason === r
-											? "border-[#d97706] bg-amber-50 text-[#b45309] dark:bg-amber-900/20 dark:text-amber-300"
-											: "border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
-									}`}
+									className={`tap h-8 px-3 rounded-lg text-sm font-medium ${reason === r ? "bg-ink text-page" : "bg-surface text-ink ring-1 ring-inset ring-line"}`}
 								>
 									{r}
 								</button>
@@ -120,15 +116,15 @@ export const OrderPaymentPanel = ({ order }: OrderPaymentPanelProps) => {
 							onChange={(e) => setReason(e.target.value.slice(0, 300))}
 							rows={2}
 							placeholder="Tell them what would work for you"
-							className="mt-2 w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#fbbf24]"
+							className="mt-2 w-full rounded-xl border border-transparent bg-surface px-3 py-3 text-base text-ink placeholder:text-ink-3 focus:outline-none focus:border-ink resize-none"
 						/>
-						<p className="mt-1 text-xs text-gray-500">{who === "Our team" ? "We'll" : `${who} will`} see this and can send you a new price.</p>
+						<p className="mt-1 text-xs text-ink-2">{who === "Our team" ? "We'll" : `${who} will`} see this and can send you a new price.</p>
 						<div className="mt-3 flex gap-2">
 							<button
 								type="button"
 								onClick={() => setDeclining(false)}
 								disabled={busy}
-								className="flex-1 py-2.5 text-sm font-semibold rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 disabled:opacity-50"
+								className="tap flex-1 h-10 text-sm font-semibold rounded-xl bg-surface ring-1 ring-inset ring-line text-ink"
 							>
 								Keep this price
 							</button>
@@ -136,7 +132,7 @@ export const OrderPaymentPanel = ({ order }: OrderPaymentPanelProps) => {
 								type="button"
 								onClick={decline}
 								disabled={busy}
-								className="flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-bold rounded-xl bg-gray-900 text-white dark:bg-white dark:text-black disabled:opacity-50"
+								className="tap flex-1 flex items-center justify-center gap-2 h-10 text-sm font-semibold rounded-xl bg-ink text-page"
 							>
 								{busy ? <SpinnerGap size={16} className="animate-spin" /> : <XCircle size={16} />} Decline price
 							</button>
@@ -148,7 +144,7 @@ export const OrderPaymentPanel = ({ order }: OrderPaymentPanelProps) => {
 							type="button"
 							onClick={acceptAndPay}
 							disabled={busy}
-							className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#fbbf24] hover:bg-[#f59e0b] text-black font-bold rounded-xl disabled:opacity-50"
+							className="tap flex-1 flex items-center justify-center gap-2 h-12 bg-brand hover:bg-brand-press text-black text-base font-semibold rounded-xl"
 						>
 							{busy ? <SpinnerGap size={16} className="animate-spin" /> : <CreditCard size={16} />} Accept and pay
 						</button>
@@ -156,7 +152,7 @@ export const OrderPaymentPanel = ({ order }: OrderPaymentPanelProps) => {
 							type="button"
 							onClick={() => setDeclining(true)}
 							disabled={busy}
-							className="px-4 py-3 text-sm font-semibold rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 disabled:opacity-50"
+							className="tap h-12 px-4 text-base font-semibold rounded-xl bg-fill text-ink"
 						>
 							Decline
 						</button>
@@ -169,12 +165,11 @@ export const OrderPaymentPanel = ({ order }: OrderPaymentPanelProps) => {
 	// A price they declined: waiting for a new one
 	if (order.status === "PENDING" && latest?.status === "REJECTED") {
 		return (
-			<div className={`${card} relative overflow-hidden border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-900/40`}>
-				<span aria-hidden="true" className="absolute inset-y-0 left-0 w-1 bg-gray-400" />
-				<p className="flex items-center gap-2 font-bold text-gray-900 dark:text-white">
-					<ArrowCounterClockwise size={18} className="text-gray-500" /> You declined {latest.amount ? `the price of ${money(latest.amount)}` : "the price"}
+			<div className={`${card} bg-fill`}>
+								<p className="flex items-center gap-2 font-bold text-ink">
+					<ArrowCounterClockwise size={18} className="text-ink-2" /> You declined {latest.amount ? `the price of ${money(latest.amount)}` : "the price"}
 				</p>
-				<p className="text-sm text-gray-700 dark:text-gray-300 mt-1">
+				<p className="text-sm text-ink mt-1">
 					{who} has been told and can send you a new one. We'll notify you when it arrives — nothing is charged until you accept.
 				</p>
 			</div>
@@ -183,8 +178,8 @@ export const OrderPaymentPanel = ({ order }: OrderPaymentPanelProps) => {
 
 	if (order.channel === "marketplace" && order.status === "AWAITING_PAYMENT" && order.totalPrice) {
 		return (
-			<div className={`${card} border-[#fbbf24] bg-white dark:bg-[#1e1e1e]`}>
-				<p className="flex items-center gap-2 text-sm text-gray-500">
+			<div className={`${card} border border-line-strong bg-surface`}>
+				<p className="flex items-center gap-2 text-sm text-ink-2">
 					<Clock size={15} /> Waiting for payment{order.branch?.name ? ` to ${order.branch.name}` : ""}
 				</p>
 				{/* The amount is the order header's Total Amount, right above */}
@@ -192,7 +187,7 @@ export const OrderPaymentPanel = ({ order }: OrderPaymentPanelProps) => {
 					type="button"
 					onClick={() => pay(order.totalPrice!)}
 					disabled={busy}
-					className="mt-3 w-full flex items-center justify-center gap-2 py-3 bg-[#fbbf24] hover:bg-[#f59e0b] text-black font-bold rounded-xl disabled:opacity-50"
+					className="tap mt-3 w-full flex items-center justify-center gap-2 h-12 bg-brand hover:bg-brand-press text-black text-base font-semibold rounded-xl"
 				>
 					{busy ? <SpinnerGap size={16} className="animate-spin" /> : <CreditCard size={16} />} Pay now
 				</button>
@@ -203,13 +198,12 @@ export const OrderPaymentPanel = ({ order }: OrderPaymentPanelProps) => {
 	if (order.declineReason) {
 		const unpaid = !order.refundStatus;
 		return (
-			<div role="status" className={`${card} relative overflow-hidden border-red-200 bg-red-50 dark:border-red-900/40 dark:bg-red-900/10`}>
-				<span aria-hidden="true" className="absolute inset-y-0 left-0 w-1 bg-red-500" />
-				<p className="flex items-center gap-2 font-bold text-gray-900 dark:text-white">
-					<WarningCircle size={18} className="text-red-500" /> {who === "Our team" ? "We" : who} couldn't take this order
+			<div role="status" className={`${card} bg-bad-tint`}>
+								<p className="flex items-center gap-2 font-bold text-ink">
+					<WarningCircle size={18} className="text-bad" /> {who === "Our team" ? "We" : who} couldn't take this order
 				</p>
-				<p className="text-sm text-gray-700 dark:text-gray-300 mt-1">“{order.declineReason}”</p>
-				<p className="text-sm text-gray-700 dark:text-gray-300 mt-2">
+				<p className="text-sm text-ink mt-1">“{order.declineReason}”</p>
+				<p className="text-sm text-ink mt-2">
 					{unpaid
 						? "Nothing was charged."
 						: order.refundStatus === "processed"
@@ -220,7 +214,7 @@ export const OrderPaymentPanel = ({ order }: OrderPaymentPanelProps) => {
 				</p>
 				<Link
 					to="/home"
-					className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-[#fbbf24] hover:bg-[#f59e0b] px-4 py-2 text-sm font-bold text-black"
+					className="tap mt-3 inline-flex items-center gap-1.5 h-10 rounded-xl bg-brand hover:bg-brand-press px-4 text-sm font-semibold text-black"
 				>
 					Order from another shop
 				</Link>

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { CaretDown, CaretUp, Check, FileText, SpinnerGap, Warning, X } from "@phosphor-icons/react";
+import { CaretDown, CaretUp, Check, FileText, Minus, Plus, SpinnerGap, Warning, X } from "@phosphor-icons/react";
+import { ActionBar, BarTotal, Button } from "../ui";
 import { toast } from "react-toastify";
 import { useAuth } from "../../hooks/useAuth";
 import { useCart, type CartVendor } from "../../contexts/CartContext";
@@ -73,8 +74,11 @@ function artworkWarnings(spec: ArtworkSpec | undefined, files: FileInfo[], size?
 }
 
 const inputClass =
-	"w-full px-3 py-2.5 text-sm bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#fbbf24]/50 focus:border-[#fbbf24]";
-const labelClass = "block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2";
+	"w-full h-11 px-3 text-base bg-fill border border-transparent rounded-xl text-ink placeholder:text-ink-3 focus:outline-none focus:border-ink";
+const sectionTitle = "block mb-3 text-lg font-bold title-tight text-ink";
+const fieldLabel = "block mb-1.5 text-sm text-ink-2";
+const tile = (active: boolean) =>
+	`tap min-w-[88px] px-3.5 py-2.5 rounded-xl text-left ${active ? "bg-ink text-page" : "bg-fill text-ink hover:bg-fill-press"}`;
 
 /**
  * Set up a product on the new pricing: drawn from the product's definition
@@ -310,18 +314,22 @@ export const ProductConfigurator = ({ product, service, onAdded, vendor, onConfi
 		onAdded?.();
 	};
 
-	const chip = (active: boolean) =>
-		`px-3.5 py-2 text-sm rounded-lg border transition-colors text-left ${
-			active
-				? "border-[#fbbf24] bg-[#fbbf24] text-black"
-				: "border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 hover:border-[#fbbf24]/60"
-		}`;
+	const priceText = calculating ? "Calculating…" : quote ? money(quote.total, quote.currency) : "—";
+	const hint = !calculating && !quote
+		? waitingFor ??
+			(noPrice
+				? onConfigured
+					? "Not priced yet — continue and we'll send you a quote"
+					: "Not priced yet — try another option, or ask the Print Assistant for a quote"
+				: (generalErrors[0]?.message ?? (errors.length ? "Check the options above" : "")))
+		: "";
+	const submitLabel = onConfigured ? (asQuoteRequest ? "Ask for a quote" : "Continue") : "Add to tray";
 
 	return (
-		<div className="space-y-5">
+		<div>
 			{(sizeAttr || takesCustom) && product.sizeMode !== "none" && (
-				<div>
-					<p className={labelClass}>Size</p>
+				<section className="pb-6">
+					<h3 className={sectionTitle}>Size</h3>
 					<div className="flex flex-wrap gap-2">
 						{sizeAttr?.options
 							.filter((o) => offered(sizeAttr.key, o.key))
@@ -331,58 +339,54 @@ export const ProductConfigurator = ({ product, service, onAdded, vendor, onConfi
 									<button
 										type="button"
 										key={o.key}
-										className={chip(active)}
+										className={tile(active)}
 										aria-pressed={active}
 										onClick={() => {
 											setCustomSize(false);
 											pick(sizeAttr.key, o.key, "one", true);
 										}}
 									>
-										<span className="font-medium block">{o.name}</span>
+										<span className="block text-sm font-semibold">{o.name}</span>
 										{o.specs?.widthMm && o.specs?.heightMm ? (
-											<span className={`text-xs ${active ? "text-black/70" : "text-gray-500"}`}>
-												{fmtSize(o.specs.widthMm, o.specs.heightMm, unit)}
-											</span>
+											<span className={`num block text-xs ${active ? "opacity-70" : "text-ink-2"}`}>{fmtSize(o.specs.widthMm, o.specs.heightMm, unit)}</span>
 										) : null}
 									</button>
 								);
 							})}
 						{takesCustom && sizeAttr && (
-							<button type="button" className={chip(customSize)} aria-pressed={customSize} onClick={() => setCustomSize(true)}>
-								<span className="font-medium">Custom size</span>
+							<button type="button" className={tile(customSize)} aria-pressed={customSize} onClick={() => setCustomSize(true)}>
+								<span className="block text-sm font-semibold">Custom size</span>
 							</button>
 						)}
 					</div>
 					{customSize && (
-						<div className="mt-3 space-y-2">
-							<div className="flex gap-1.5" role="group" aria-label="Unit">
+						<div className="mt-3 space-y-3">
+							<div className="inline-flex p-0.5 rounded-lg bg-fill" role="group" aria-label="Unit">
 								{LENGTH_UNITS.map((u) => (
 									<button
 										type="button"
 										key={u}
 										onClick={() => setUnit(u)}
 										aria-pressed={unit === u}
-										className={`px-3 py-1 text-xs rounded-full border ${
-											unit === u ? "border-[#fbbf24] font-semibold text-gray-900 dark:text-white" : "border-gray-200 dark:border-gray-700 text-gray-500"
-										}`}
+										className={`h-8 px-3 text-sm rounded-md ${unit === u ? "bg-surface text-ink font-semibold ring-1 ring-line" : "text-ink-2"}`}
 									>
 										{u}
 									</button>
 								))}
 							</div>
 							<div className="grid grid-cols-2 gap-3">
-								<label className="text-xs text-gray-500">
-									Width ({unit})
-									<input className={`${inputClass} mt-1`} inputMode="decimal" value={width} onChange={(e) => setWidth(e.target.value)} />
+								<label className="block">
+									<span className={fieldLabel}>Width ({unit})</span>
+									<input className={inputClass} inputMode="decimal" value={width} onChange={(e) => setWidth(e.target.value)} />
 								</label>
-								<label className="text-xs text-gray-500">
-									Height ({unit})
-									<input className={`${inputClass} mt-1`} inputMode="decimal" value={height} onChange={(e) => setHeight(e.target.value)} />
+								<label className="block">
+									<span className={fieldLabel}>Height ({unit})</span>
+									<input className={inputClass} inputMode="decimal" value={height} onChange={(e) => setHeight(e.target.value)} />
 								</label>
 							</div>
 						</div>
 					)}
-				</div>
+				</section>
 			)}
 
 			{otherAttrs.map((a) => {
@@ -390,12 +394,13 @@ export const ProductConfigurator = ({ product, service, onAdded, vendor, onConfi
 				if (!opts.length) return null;
 				const err = errorFor(a.key);
 				return (
-					<fieldset key={a.key}>
-						<legend className={labelClass}>
+					<fieldset key={a.key} className="pb-6">
+						<legend className={sectionTitle}>
 							{a.name}
-							{!a.required && a.selection === "one" && <span className="ml-2 text-xs font-normal text-gray-400">optional</span>}
+							{!a.required && a.selection === "one" && <span className="ml-2 text-sm font-normal text-ink-3">Optional</span>}
+							{a.selection === "any" && <span className="ml-2 text-sm font-normal text-ink-3">Choose any</span>}
 						</legend>
-						<div className={`rounded-xl border divide-y divide-gray-100 dark:divide-gray-800 overflow-hidden ${err ? "border-red-400" : "border-gray-200 dark:border-gray-700"}`}>
+						<div className="border-t border-line">
 							{opts.map((o) => {
 								const active = isChosen(a.key, o.key);
 								return (
@@ -405,51 +410,77 @@ export const ProductConfigurator = ({ product, service, onAdded, vendor, onConfi
 										role={a.selection === "one" ? "radio" : "checkbox"}
 										aria-checked={active}
 										onClick={() => pick(a.key, o.key, a.selection, a.required)}
-										className="w-full flex items-center gap-3 px-4 py-3 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-800/50"
+										className="tap w-full flex items-center gap-3 min-h-12 py-3 border-b border-line text-left"
 									>
-										<span
-											className={`w-5 h-5 shrink-0 flex items-center justify-center border-2 ${a.selection === "one" ? "rounded-full" : "rounded"} ${
-												active ? "border-[#fbbf24] bg-[#fbbf24]" : "border-gray-300 dark:border-gray-600"
-											}`}
-										>
-											{active && (a.selection === "one" ? <span className="w-2 h-2 rounded-full bg-black" /> : <Check size={12} weight="bold" />)}
-										</span>
-										<span className="font-medium text-gray-800 dark:text-gray-200">{o.name}</span>
+										<span className={`flex-1 text-base ${active ? "font-semibold text-ink" : "text-ink"}`}>{o.name}</span>
+										{a.selection === "one" ? (
+											<span className={`w-5 h-5 shrink-0 rounded-full ${active ? "border-[6px] border-ink" : "border-[1.5px] border-line-strong"}`} />
+										) : (
+											<span className={`w-5 h-5 shrink-0 rounded-md flex items-center justify-center ${active ? "bg-ink text-page" : "border-[1.5px] border-line-strong"}`}>
+												{active && <Check size={12} weight="bold" />}
+											</span>
+										)}
 									</button>
 								);
 							})}
 						</div>
-						{err && <p className="mt-1 text-xs text-red-500">{err}</p>}
+						{err && <p className="mt-2 text-sm text-bad">{err}</p>}
 					</fieldset>
 				);
 			})}
 
-			<label className="block">
-				<span className={labelClass}>Quantity</span>
-				<input className={inputClass} inputMode="numeric" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
-				{(product.limits.minQuantity || product.limits.maxQuantity) && (
-					<span className="block mt-1 text-xs text-gray-500">
-						{[product.limits.minQuantity && `From ${product.limits.minQuantity}`, product.limits.maxQuantity && `up to ${product.limits.maxQuantity}`]
-							.filter(Boolean)
-							.join(" · ")}
-					</span>
-				)}
-			</label>
+			<section className="pb-6">
+				<h3 className={sectionTitle}>Quantity</h3>
+				<div className="flex items-center gap-3">
+					<div className="inline-flex items-center h-11 rounded-xl bg-fill">
+						<button
+							type="button"
+							aria-label="Fewer"
+							onClick={() => setQuantity(String(Math.max(product.limits.minQuantity ?? 1, (Number(quantity) || 1) - 1)))}
+							className="tap w-11 h-11 flex items-center justify-center text-ink"
+						>
+							<Minus size={16} weight="bold" />
+						</button>
+						<input
+							className="num w-16 h-11 bg-transparent text-center text-base font-semibold text-ink outline-none"
+							inputMode="numeric"
+							aria-label="Quantity"
+							value={quantity}
+							onChange={(e) => setQuantity(e.target.value.replace(/[^0-9]/g, ""))}
+						/>
+						<button
+							type="button"
+							aria-label="More"
+							onClick={() => setQuantity(String((Number(quantity) || 0) + 1))}
+							className="tap w-11 h-11 flex items-center justify-center text-ink"
+						>
+							<Plus size={16} weight="bold" />
+						</button>
+					</div>
+					{(product.limits.minQuantity || product.limits.maxQuantity) && (
+						<span className="num text-sm text-ink-2">
+							{[product.limits.minQuantity && `From ${product.limits.minQuantity}`, product.limits.maxQuantity && `up to ${product.limits.maxQuantity}`]
+								.filter(Boolean)
+								.join(" · ")}
+						</span>
+					)}
+				</div>
+			</section>
 
 			{product.usesPages && (
-				<div>
-					<p className={labelClass}>Document</p>
+				<section className="pb-6">
+					<h3 className={sectionTitle}>Document</h3>
 					{document ? (
-						<div className="flex items-center gap-3 px-3 py-2.5 mb-2 rounded-lg border border-gray-200 dark:border-gray-700">
-							<FileText size={18} className="text-[#d97706] shrink-0" />
-							<span className="flex-1 min-w-0 truncate text-sm text-gray-800 dark:text-gray-200">{document.name}</span>
+						<div className="flex items-center gap-3 h-12 px-3 mb-3 rounded-xl bg-fill">
+							<FileText size={18} className="text-ink-2 shrink-0" />
+							<span className="flex-1 min-w-0 truncate text-sm text-ink">{document.name}</span>
 							<button
 								type="button"
 								onClick={() => {
 									setDocument(null);
 									setPages("");
 								}}
-								className="p-1 text-gray-400 hover:text-red-500"
+								className="tap p-1.5 -mr-1 text-ink-3 hover:text-bad"
 								aria-label="Remove document"
 							>
 								<X size={14} />
@@ -460,25 +491,27 @@ export const ProductConfigurator = ({ product, service, onAdded, vendor, onConfi
 							type="button"
 							onClick={() => documentInput.current?.click()}
 							disabled={readingDocument}
-							className="w-full mb-2 flex items-center justify-center gap-2 px-3 py-3 text-sm rounded-lg border border-dashed border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-[#fbbf24] disabled:opacity-60"
+							className="tap w-full h-12 mb-3 flex items-center justify-center gap-2 text-sm font-semibold rounded-xl border border-dashed border-line-strong text-ink"
 						>
 							{readingDocument ? <SpinnerGap size={16} className="animate-spin" /> : <FileText size={16} />}
 							{readingDocument ? "Reading your document…" : "Add a PDF to count its pages"}
 						</button>
 					)}
 					<input ref={documentInput} type="file" accept="application/pdf,.pdf" className="hidden" onChange={(e) => pickDocument(e.target.files?.[0])} />
-					<label className="text-xs text-gray-500">
-						Pages
-						<input className={`${inputClass} mt-1`} inputMode="numeric" value={pages} onChange={(e) => setPages(e.target.value)} />
+					<label className="block">
+						<span className={fieldLabel}>Pages</span>
+						<input className={inputClass} inputMode="numeric" value={pages} onChange={(e) => setPages(e.target.value)} />
 					</label>
-				</div>
+				</section>
 			)}
 
-			<AttachmentPicker files={files} onChange={setFiles} onUploadingChange={setUploading} />
+			<section className="pb-6">
+				<AttachmentPicker files={files} onChange={setFiles} onUploadingChange={setUploading} />
+			</section>
 
 			{warnings.length > 0 && (
-				<div className="flex gap-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/10 text-sm text-gray-800 dark:text-gray-200">
-					<Warning size={16} className="text-amber-600 shrink-0 mt-0.5" />
+				<div className="flex gap-2.5 mb-6 p-3 rounded-xl bg-brand-tint text-sm text-ink">
+					<Warning size={18} className="text-brand-ink shrink-0" />
 					<div className="space-y-1">
 						{warnings.map((w, i) => (
 							<p key={i}>{w}</p>
@@ -488,10 +521,10 @@ export const ProductConfigurator = ({ product, service, onAdded, vendor, onConfi
 			)}
 
 			{onConfigured && (
-				<label className="block">
-					<span className={labelClass}>Additional details (optional)</span>
+				<label className="block pb-6">
+					<span className={sectionTitle}>Additional details <span className="text-sm font-normal text-ink-3">Optional</span></span>
 					<textarea
-						className={inputClass}
+						className={`${inputClass} h-auto py-3`}
 						rows={3}
 						value={additionalDetails}
 						onChange={(e) => setAdditionalDetails(e.target.value)}
@@ -500,60 +533,55 @@ export const ProductConfigurator = ({ product, service, onAdded, vendor, onConfi
 				</label>
 			)}
 
-			<div className="rounded-2xl border border-gray-200 dark:border-gray-700 p-5 text-center" aria-live="polite">
-				<p className="text-sm text-gray-500">Your price</p>
-				<p className="text-3xl font-black text-gray-900 dark:text-white mt-1">
-					{calculating ? "Calculating…" : quote ? money(quote.total, quote.currency) : "—"}
-				</p>
-				{!calculating && quote && request.quantity > 1 && (
-					<p className="text-xs text-gray-500 mt-1">
-						{quote.currency} {(quote.total / request.quantity).toFixed(2)} each
-					</p>
-				)}
-				{!calculating && !quote && (
-					<p className={`text-xs mt-1 ${generalErrors.length ? "text-red-500" : "text-gray-500"}`}>
-						{waitingFor ??
-							(noPrice
-								? onConfigured
-									? "This isn't priced yet — continue and we'll send you a quote"
-									: "This isn't priced yet — try another option, or use the Print Assistant to ask for a quote"
-								: (generalErrors[0]?.message ?? (errors.length ? "Check the options above" : "")))}
-					</p>
-				)}
-				{quote && (
+			{/* How the price is made up */}
+			{quote && !calculating && (
+				<section className="pb-6">
 					<button
 						type="button"
 						onClick={() => setShowLines(!showLines)}
-						className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-[#d97706]"
+						className="tap w-full flex items-center justify-between py-3 border-y border-line text-sm"
 						aria-expanded={showLines}
 					>
-						{showLines ? "Hide" : "How it's worked out"}
-						{showLines ? <CaretUp size={12} /> : <CaretDown size={12} />}
+						<span className="font-semibold text-ink">Price breakdown</span>
+						<span className="num flex items-center gap-1.5 text-ink-2">
+							{request.quantity > 1 && `${quote.currency} ${(quote.total / request.quantity).toFixed(2)} each`}
+							{showLines ? <CaretUp size={14} /> : <CaretDown size={14} />}
+						</span>
 					</button>
-				)}
-				{quote && showLines && (
-					<dl className="mt-3 space-y-1.5 text-left text-sm">
-						{quote.lines.map((l, i) => (
-							<div key={i} className="flex gap-3">
-								<dt className="flex-1 text-gray-800 dark:text-gray-200">
-									{l.label}
-									{l.detail && <span className="block text-xs text-gray-500">{l.detail}</span>}
-								</dt>
-								<dd className="text-gray-800 dark:text-gray-200 tabular-nums">{l.amount.toFixed(2)}</dd>
-							</div>
-						))}
-					</dl>
-				)}
-			</div>
+					{showLines && (
+						<dl className="py-2 border-b border-line">
+							{quote.lines.map((l, i) => (
+								<div key={i} className="flex gap-3 py-1.5 text-sm">
+									<dt className="flex-1 text-ink">
+										{l.label}
+										{l.detail && <span className="block text-xs text-ink-3">{l.detail}</span>}
+									</dt>
+									<dd className="num text-ink">{l.amount.toFixed(2)}</dd>
+								</div>
+							))}
+						</dl>
+					)}
+				</section>
+			)}
 
-			<button
-				type="button"
-				onClick={handleSubmit}
-				disabled={!canAdd}
-				className="w-full py-3 bg-[#fbbf24] hover:bg-[#f59e0b] text-black font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-			>
-				{onConfigured ? (asQuoteRequest ? "Continue — ask for a quote" : "Continue") : "Add to tray"}
-			</button>
+			{onConfigured ? (
+				<div className="pt-2" aria-live="polite">
+					<div className="flex items-baseline justify-between mb-3">
+						<span className="text-sm text-ink-2">Your price</span>
+						<span className="num text-xl font-bold text-ink">{priceText}</span>
+					</div>
+					{hint && <p className={`mb-3 text-sm ${generalErrors.length ? "text-bad" : "text-ink-2"}`}>{hint}</p>}
+					<Button block onClick={handleSubmit} disabled={!canAdd}>{submitLabel}</Button>
+				</div>
+			) : (
+				<>
+					{hint && <p className={`mb-2 text-sm ${generalErrors.length ? "text-bad" : "text-ink-2"}`} aria-live="polite">{hint}</p>}
+					<ActionBar>
+						<BarTotal label="Your price" value={priceText} />
+						<Button onClick={handleSubmit} disabled={!canAdd}>{submitLabel}</Button>
+					</ActionBar>
+				</>
+			)}
 		</div>
 	);
 };

@@ -2,37 +2,37 @@ import { MapPin, Calculator, UploadSimple, Clock, ShieldCheck, Lightning } from 
 
 const features = [
 	{
-		icon: <MapPin size={32} weight="duotone" />,
+		icon: <MapPin size={32} weight="regular" />,
 		title: "Location-Based",
 		description:
 			"Find print stations near you. Get your orders faster with local pickup or delivery.",
 	},
 	{
-		icon: <Calculator size={32} weight="duotone" />,
+		icon: <Calculator size={32} weight="regular" />,
 		title: "Instant Pricing",
 		description:
 			"Get real-time price calculations based on your specifications. No surprises.",
 	},
 	{
-		icon: <UploadSimple size={32} weight="duotone" />,
+		icon: <UploadSimple size={32} weight="regular" />,
 		title: "Easy File Upload",
 		description:
 			"Upload multiple design files. Support for images, PDFs, and more.",
 	},
 	{
-		icon: <Clock size={32} weight="duotone" />,
+		icon: <Clock size={32} weight="regular" />,
 		title: "Order Tracking",
 		description:
 			"Track your order status from pending to completion in real-time.",
 	},
 	{
-		icon: <ShieldCheck size={32} weight="duotone" />,
+		icon: <ShieldCheck size={32} weight="regular" />,
 		title: "Secure Payments",
 		description:
 			"Pay securely with Paystack. Your payment is protected and verified.",
 	},
 	{
-		icon: <Lightning size={32} weight="duotone" />,
+		icon: <Lightning size={32} weight="regular" />,
 		title: "Fast Turnaround",
 		description:
 			"Connect directly with local print shops for quick order fulfillment.",
@@ -55,9 +55,9 @@ export const KeyFeaturesSection = () => {
 					{features.map((feature, index) => (
 						<div
 							key={index}
-							className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 border-2 border-gray-100 hover:border-[#fbbf24] transition-all hover:shadow-xl group"
+							className="rounded-2xl p-8 border-2 border-gray-100 hover:border-brand transition-all group"
 						>
-							<div className="text-[#fbbf24] mb-6 group-hover:scale-110 transition-transform">
+							<div className="text-brand-ink mb-6 group-hover:scale-110 transition-transform">
 								{feature.icon}
 							</div>
 							<h3 className="text-xl font-bold text-gray-900 mb-3">

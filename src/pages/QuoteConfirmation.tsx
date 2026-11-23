@@ -177,24 +177,24 @@ export const QuoteConfirmation = () => {
 
 	if (fetching) {
 		return (
-			<div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#161616]">
-				<div className="w-8 h-8 border-4 border-[#fbbf24] border-t-transparent rounded-full animate-spin"></div>
+			<div className="min-h-screen flex items-center justify-center bg-fill">
+				<div className="w-8 h-8 border-4 border-brand border-t-transparent rounded-full animate-spin"></div>
 			</div>
 		);
 	}
 
 	if (error && !quoteData) {
 		return (
-			<div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#161616] px-4">
-				<div className="max-w-md w-full bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-lg p-8">
-					<div className="flex items-center gap-3 text-red-600 mb-4">
-						<WarningCircle size={24} weight="duotone" />
+			<div className="min-h-screen flex items-center justify-center bg-fill px-4">
+				<div className="max-w-md w-full bg-surface border border-line rounded-lg p-8">
+					<div className="flex items-center gap-3 text-bad mb-4">
+						<WarningCircle size={24} weight="regular" />
 						<h2 className="text-xl font-semibold">Error</h2>
 					</div>
-					<p className="text-gray-700 dark:text-gray-300 mb-6">{error}</p>
+					<p className="text-ink mb-6">{error}</p>
 					<button
 						onClick={() => navigate("/home")}
-						className="w-full py-3 px-4 bg-[#fbbf24] text-white rounded-lg hover:bg-[#fbbf24] transition-colors font-medium"
+						className="w-full py-3 px-4 bg-brand text-white rounded-lg hover:bg-brand transition-colors font-medium"
 					>
 						Go to Home
 					</button>
@@ -208,11 +208,11 @@ export const QuoteConfirmation = () => {
 	}
 
 	return (
-		<div className="min-h-screen bg-gray-50 dark:bg-[#161616] py-12 px-4">
+		<div className="min-h-screen bg-fill py-12 px-4">
 			<div className="max-w-3xl mx-auto">
 				{/* Business Header */}
 				{quoteData.adminId && (
-					<div className="bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-lg mb-6">
+					<div className="bg-surface border border-line rounded-lg mb-6">
 						<div className="px-8 py-6">
 							<div className="flex items-start gap-6">
 								{quoteData.adminId.businessLogo && !logoError ? (
@@ -222,31 +222,31 @@ export const QuoteConfirmation = () => {
 											alt={
 												quoteData.adminId.businessName || quoteData.adminId.name
 											}
-											className="w-20 h-20 object-contain rounded-lg border border-gray-200 dark:border-gray-700"
+											className="w-20 h-20 object-contain rounded-lg border border-line"
 											onError={() => setLogoError(true)}
 										/>
 									</div>
 								) : (
-									<div className="w-20 h-20 bg-slate-100 rounded-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center shrink-0">
-										<FileText size={40} weight="duotone" className="text-slate-400" />
+									<div className="w-20 h-20 bg-slate-100 rounded-lg border border-line flex items-center justify-center shrink-0">
+										<FileText size={40} weight="regular" className="text-slate-400" />
 									</div>
 								)}
 								<div className="flex-1 min-w-0">
-									<h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+									<h2 className="text-2xl font-bold text-ink mb-1">
 										{quoteData.adminId.businessName || quoteData.adminId.name}
 									</h2>
 									{quoteData.adminId.businessName && quoteData.adminId.name && (
-										<p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+										<p className="text-sm text-ink-2 mb-2">
 											{quoteData.adminId.name}
 										</p>
 									)}
 									{quoteData.adminId.businessAddress && (
-										<p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+										<p className="text-sm text-ink-2 leading-relaxed">
 											{quoteData.adminId.businessAddress}
 										</p>
 									)}
 									{quoteData.adminId.email && (
-										<p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+										<p className="text-sm text-ink-2 mt-1">
 											{quoteData.adminId.email}
 										</p>
 									)}
@@ -259,24 +259,24 @@ export const QuoteConfirmation = () => {
 				{/* Header Section */}
 				<div className="mb-8">
 					<div className="flex items-center gap-3 mb-3">
-						<div className="w-10 h-10 bg-[#fbbf24] rounded-lg flex items-center justify-center">
-							<FileText size={24} weight="duotone" className="text-white" />
+						<div className="w-10 h-10 bg-brand rounded-lg flex items-center justify-center">
+							<FileText size={24} weight="regular" className="text-white" />
 						</div>
-						<h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+						<h1 className="text-3xl font-bold text-ink">
 							Quote Confirmation
 						</h1>
 					</div>
-					<p className="text-gray-600 dark:text-gray-400 text-lg">
+					<p className="text-ink-2 text-lg">
 						Review your quote details and proceed with payment to confirm your
 						order.
 					</p>
 				</div>
 
 				{/* Quote Details Card */}
-				<div className="bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-lg mb-6">
+				<div className="bg-surface border border-line rounded-lg mb-6">
 					{/* Card Header */}
-					<div className="border-b border-gray-200 dark:border-gray-700 px-8 py-6">
-						<h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+					<div className="border-b border-line px-8 py-6">
+						<h2 className="text-xl font-semibold text-ink">
 							Order Information
 						</h2>
 					</div>
@@ -286,10 +286,10 @@ export const QuoteConfirmation = () => {
 						<div className="space-y-6">
 							{quoteData.orderDescription && (
 								<div>
-									<label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+									<label className="block text-sm text-ink-2 mb-2">
 										Order Description
 									</label>
-									<p className="text-gray-900 dark:text-white text-base leading-relaxed">
+									<p className="text-ink text-base leading-relaxed">
 										{quoteData.orderDescription}
 									</p>
 								</div>
@@ -297,30 +297,30 @@ export const QuoteConfirmation = () => {
 
 							{quoteData.quantity && (
 								<div>
-									<label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+									<label className="block text-sm text-ink-2 mb-2">
 										Quantity
 									</label>
-									<p className="text-gray-900 dark:text-white text-base font-medium">
+									<p className="text-ink text-base font-medium">
 										{quoteData.quantity}
 									</p>
 								</div>
 							)}
 
 							<div>
-								<label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+								<label className="block text-sm text-ink-2 mb-2">
 									Specifications
 								</label>
-								<p className="text-gray-900 dark:text-white text-base leading-relaxed whitespace-pre-wrap">
+								<p className="text-ink text-base leading-relaxed whitespace-pre-wrap">
 									{quoteData.specifications}
 								</p>
 							</div>
 
 							{quoteData.internalNotes && (
-								<div className="pt-4 border-t border-gray-100 dark:border-gray-800">
-									<label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+								<div className="pt-4 border-t border-line">
+									<label className="block text-sm text-ink-2 mb-2">
 										Additional Notes
 									</label>
-									<p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed italic">
+									<p className="text-ink-2 text-sm leading-relaxed italic">
 										{quoteData.internalNotes}
 									</p>
 								</div>
@@ -330,13 +330,13 @@ export const QuoteConfirmation = () => {
 				</div>
 
 				{/* Price Summary Card */}
-				<div className="bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-lg mb-6">
+				<div className="bg-surface border border-line rounded-lg mb-6">
 					<div className="px-8 py-6">
 						<div className="flex items-center justify-between">
-							<span className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+							<span className="text-sm font-semibold text-ink-2">
 								Total Amount
 							</span>
-							<span className="text-3xl font-bold text-[#fbbf24]">
+							<span className="text-3xl font-bold text-brand-ink">
 								₵{quoteData.totalPrice.toFixed(2)}
 							</span>
 						</div>
@@ -344,12 +344,12 @@ export const QuoteConfirmation = () => {
 				</div>
 
 				{/* Action Buttons */}
-				<div className="bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+				<div className="bg-surface border border-line rounded-lg p-6">
 					<div className="flex flex-col sm:flex-row gap-4">
 						<button
 							onClick={() => navigate("/home")}
 							disabled={loading}
-							className="flex-1 py-3.5 px-6 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-semibold hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+							className="flex-1 py-3.5 px-6 border border-line-strong text-ink rounded-xl font-semibold hover:bg-fill transition-all disabled:opacity-50 disabled:cursor-not-allowed"
 						>
 							Cancel
 						</button>
@@ -360,7 +360,7 @@ export const QuoteConfirmation = () => {
 								!quoteData.adminId?.businessPaystackSubaccountCode ||
 								!user
 							}
-							className="flex-1 py-3.5 px-6 bg-[#fbbf24] text-white rounded-lg font-semibold hover:bg-[#fbbf24] active:bg-[#fbbf24] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+							className="flex-1 py-3.5 px-6 bg-brand text-white rounded-lg font-semibold hover:bg-brand active:bg-brand transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
 						>
 							{loading ? (
 								<>

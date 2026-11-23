@@ -46,18 +46,18 @@ export const HowItWorksSection = () => {
 							<div key={index} className="relative">
 								{/* Connection Line */}
 								{index < steps.length - 1 && (
-									<div className="hidden lg:block absolute top-12 left-full w-full h-0.5 bg-gradient-to-r from-[#fbbf24] to-transparent z-0">
-										<ArrowRight size={16} weight="bold" className="absolute right-0 top-1/2 -translate-y-1/2 text-[#fbbf24]" />
+									<div className="hidden lg:block absolute top-12 left-full w-full h-0.5 z-0">
+										<ArrowRight size={16} weight="bold" className="absolute right-0 top-1/2 -translate-y-1/2 text-brand-ink" />
 									</div>
 								)}
-								<div className="relative bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 border-2 border-gray-100 hover:border-[#fbbf24] transition-all hover:shadow-xl">
+								<div className="relative rounded-2xl p-8 border-2 border-gray-100 hover:border-brand transition-all">
 									{/* Step Number */}
-									<div className="absolute -top-4 -left-4 w-12 h-12 bg-[#fbbf24] rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">
+									<div className="absolute -top-4 -left-4 w-12 h-12 bg-brand rounded-full flex items-center justify-center text-white font-bold text-lg">
 										{item.number}
 									</div>
 									{/* Icon */}
-									<div className="text-[#fbbf24] mb-4 mt-4 flex justify-center">
-										<Icon size={40} weight="duotone" />
+									<div className="text-brand-ink mb-4 mt-4 flex justify-center">
+										<Icon size={40} weight="regular" />
 									</div>
 									{/* Content */}
 									<h3 className="text-xl font-bold text-gray-900 mb-3 text-center">

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Info, Plus, SpinnerGap, Storefront, Trash } from "@phosphor-icons/react";
+import { Plus, Printer, Storefront, Trash } from "@phosphor-icons/react";
+import { ActionBar, BarTotal, Button, EmptyState } from "../components/ui";
 import { toast } from "react-toastify";
 import { PageHeader } from "../components/common/PageHeader";
 import { DeliveryChoice } from "../components/order/DeliveryChoice";
@@ -86,16 +87,12 @@ export const Tray = () => {
 
 	if (cart.length === 0) {
 		return (
-			<div className="max-w-2xl mx-auto">
-				<PageHeader title="Your tray" />
-				<div className="text-center py-12">
-					<p className="font-semibold text-gray-900 dark:text-white">Your tray is empty</p>
-					<p className="text-sm text-gray-500 mt-1">Choose a product, set it up, and add it here to order.</p>
-					<button type="button" onClick={() => navigate("/home")} className="mt-4 px-4 py-2.5 bg-[#fbbf24] text-black text-sm font-bold rounded-xl">
-						Browse products
-					</button>
-				</div>
-			</div>
+			<EmptyState
+				icon={<Printer size={26} />}
+				title="Your tray is empty"
+				body="Choose a product, set it up, and add it here to order."
+				action={<Button onClick={() => navigate("/home")}>Browse products</Button>}
+			/>
 		);
 	}
 
@@ -103,87 +100,75 @@ export const Tray = () => {
 		<div className="w-full max-w-2xl mx-auto">
 			<PageHeader title="Your tray" />
 
-			{vendor ? (
-				<div className="flex items-center gap-2 mb-4 px-4 py-3 rounded-xl bg-amber-50 dark:bg-amber-900/10 text-sm text-gray-800 dark:text-gray-200">
-					<Storefront size={18} className="text-[#d97706]" />
-					<span className="flex-1">
-						Ordering from <strong>{vendor.name}</strong> at their prices
-					</span>
-					<Link to={`/home/shops/${vendor.id}`} className="font-semibold text-[#d97706] hover:underline">
-						Add more
-					</Link>
-				</div>
-			) : (
-				<div className="flex items-center gap-2 mb-4 px-4 py-3 rounded-xl bg-amber-50 dark:bg-amber-900/10 text-sm text-gray-800 dark:text-gray-200">
-					<Info size={18} className="text-[#d97706]" />
-					<span className="flex-1">Printdecore finds a printer near you.</span>
-					<Link to="/home" className="flex items-center gap-1 font-semibold text-[#d97706] hover:underline">
-						<Plus size={14} /> Add more
-					</Link>
-				</div>
-			)}
+			{/* Who's printing it */}
+			<div className="flex items-center gap-3 pb-3 border-b border-line">
+				<span className="w-10 h-10 shrink-0 rounded-lg bg-fill text-ink flex items-center justify-center">
+					{vendor ? <Storefront size={20} /> : <Printer size={20} />}
+				</span>
+				<span className="flex-1 min-w-0">
+					<span className="block text-base font-semibold text-ink truncate">{vendor ? vendor.name : "Printdecore"}</span>
+					<span className="block text-sm text-ink-2 truncate">{vendor ? "Their prices, paid now" : "We find a printer near you"}</span>
+				</span>
+				<Link to={vendor ? `/home/shops/${vendor.id}` : "/home"} className="tap shrink-0 inline-flex items-center gap-1 h-8 px-3 rounded-lg bg-fill text-sm font-semibold text-ink">
+					<Plus size={14} weight="bold" /> Add
+				</Link>
+			</div>
 
-			<ul className="rounded-xl border border-gray-200 dark:border-gray-800 divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-[#1e1e1e] mb-6">
+			<ul className="mb-8">
 				{cart.map((item) => (
-					<li key={item.id} className="flex gap-3 px-4 py-3">
+					<li key={item.id} className="flex gap-3 py-3.5 border-b border-line">
 						<div className="flex-1 min-w-0">
-							<p className="font-semibold text-gray-900 dark:text-white">{item.serviceName}</p>
-							<p className="text-xs text-gray-500 mt-0.5">{item.summaryLines.join(" · ")}</p>
+							<p className="text-base font-semibold text-ink">{item.serviceName}</p>
+							<p className="text-sm text-ink-2 mt-0.5">{item.summaryLines.join(" · ")}</p>
 							{item.files.length > 0 && (
-								<p className="text-xs text-gray-500 mt-0.5">
+								<p className="num text-xs text-ink-3 mt-1">
 									{item.files.length} file{item.files.length === 1 ? "" : "s"} attached
 								</p>
 							)}
 						</div>
-						<div className="text-right">
-							<p className="font-bold text-gray-900 dark:text-white tabular-nums">{money(item.calculatedPrice)}</p>
+						<div className="flex flex-col items-end justify-between">
+							<p className="num text-base font-semibold text-ink">{money(item.calculatedPrice)}</p>
 							<button
 								type="button"
 								onClick={() => removeFromCart(item.id)}
-								className="mt-1 p-1 text-gray-400 hover:text-red-500"
+								className="tap -mr-1.5 p-1.5 rounded-lg text-ink-3 hover:text-bad"
 								aria-label={`Remove ${item.serviceName}`}
 							>
-								<Trash size={15} />
+								<Trash size={16} />
 							</button>
 						</div>
 					</li>
 				))}
 			</ul>
 
-			<h2 className="text-base font-bold text-gray-900 dark:text-white mb-3">Delivery or pickup</h2>
+			<h2 className="mb-3 text-lg font-bold title-tight text-ink">Delivery or pickup</h2>
 			<DeliveryChoice delivery={delivery} onChange={setDelivery} />
 
-			<label className="block mt-5">
-				<span className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">Note for the printer (optional)</span>
+			<label className="block mt-6">
+				<span className="block mb-1.5 text-sm text-ink-2">Note for the printer <span className="text-ink-3">· optional</span></span>
 				<textarea
 					rows={2}
 					value={comment}
 					onChange={(e) => setComment(e.target.value)}
-					className="w-full px-3 py-2.5 text-sm bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#fbbf24]/50"
+					className="w-full px-3 py-3 text-base bg-fill border border-transparent rounded-xl text-ink placeholder:text-ink-3 focus:outline-none focus:border-ink resize-none"
 				/>
 			</label>
 
-			<div className="mt-6 p-4 rounded-2xl border border-gray-200 dark:border-gray-800">
-				<div className="flex justify-between items-baseline">
-					<span className="text-sm text-gray-500">Total</span>
-					<span className="text-2xl font-black text-gray-900 dark:text-white tabular-nums">{money(getCartTotal())}</span>
-				</div>
-				<p className="text-xs text-gray-500 mt-1">
-					{vendor
-						? "You pay now. The shop then confirms a ready-by time, or you're refunded if they can't take it."
-						: "Nothing is charged now. We confirm the price and availability, then you pay from your order."}
-				</p>
-				<button
-					type="button"
-					onClick={placeOrder}
-					disabled={!ready || submitting}
-					className="mt-4 w-full flex items-center justify-center gap-2 py-3 bg-[#fbbf24] hover:bg-[#f59e0b] text-black font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
-				>
-					{submitting && <SpinnerGap size={16} className="animate-spin" />}
-					{!user ? "Sign in to place your order" : vendor ? "Place order and pay" : "Send order"}
-				</button>
-				{!deliveryReady(delivery) && <p className="text-xs text-gray-500 mt-2 text-center">Add your phone number{delivery?.fulfilment !== "pickup" && " and a delivery address"} to continue.</p>}
-			</div>
+			<p className="mt-6 text-sm text-ink-2">
+				{vendor
+					? "You pay now. The shop then confirms a ready-by time, or you're refunded if they can't take it."
+					: "Nothing is charged now. We confirm the price and availability, then you pay from your order."}
+			</p>
+			{!deliveryReady(delivery) && (
+				<p className="mt-2 text-sm text-ink-3">Add your phone number{delivery?.fulfilment !== "pickup" && " and a delivery address"} to continue.</p>
+			)}
+
+			<ActionBar>
+				<BarTotal value={money(getCartTotal())} />
+				<Button onClick={placeOrder} disabled={!ready} loading={submitting}>
+					{!user ? "Sign in to order" : vendor ? "Order and pay" : "Send order"}
+				</Button>
+			</ActionBar>
 		</div>
 	);
 };

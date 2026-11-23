@@ -14,6 +14,7 @@ import { createPrintRequest } from "../services/printRequestApi";
 import { money } from "../services/pricingApi";
 import { searchServices, type ServiceSearchResult } from "../services/serviceSearchApi";
 import { countPdfPages } from "../utils/pdfUtils";
+import { ghs } from "../utils/ghs";
 
 type Section = "service" | "specs" | "delivery" | "review";
 const ORDER: Section[] = ["service", "specs", "delivery", "review"];
@@ -156,14 +157,14 @@ export const PrintAssistant = () => {
 				subtitle="Tell us what you need — we'll price it or send you a quote"
 				right={
 					selection ? (
-						<button type="button" onClick={startOver} className="mt-1 p-2 rounded-lg text-[#d97706] hover:bg-amber-50 dark:hover:bg-amber-900/10" aria-label="Start over">
+						<button type="button" onClick={startOver} className="mt-1 p-2 rounded-lg text-brand-ink hover:bg-fill" aria-label="Start over">
 							<ArrowCounterClockwise size={18} />
 						</button>
 					) : undefined
 				}
 			/>
 
-			<Link to="/home/print-assistant" className="-mt-3 mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-[#d97706] hover:underline">
+			<Link to="/home/print-assistant" className="-mt-3 mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-ink hover:underline">
 				<ChatCircleText size={16} />
 				Prefer to just describe it? Chat with the assistant
 			</Link>
@@ -187,7 +188,7 @@ export const PrintAssistant = () => {
 					onChange={() => update({ section: "specs" })}
 				>
 					{loadingService || !service ? (
-						<SpinnerGap size={18} className="animate-spin text-[#fbbf24]" />
+						<SpinnerGap size={18} className="animate-spin text-brand-ink" />
 					) : (
 						<ProductLoader key={service.id} service={service} initial={initialSpecs} onConfigured={configure} />
 					)}
@@ -204,21 +205,21 @@ export const PrintAssistant = () => {
 				</SheetSection>
 
 				<SheetSection index={4} title="Review & send" state={stateOf("review")}>
-					<div className="rounded-xl bg-amber-50 dark:bg-amber-900/10 p-4">
-						<p className="text-sm text-gray-500">{priced ? "Your price" : "Price"}</p>
-						<p className="text-2xl font-black text-gray-900 dark:text-white">{priced ? money(configured!.calculatedPrice!) : "Quote on request"}</p>
-						<p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+					<div className="rounded-xl bg-brand-tint p-4">
+						<p className="text-sm text-ink-2">{priced ? "Your price" : "Price"}</p>
+						<p className="text-2xl font-bold text-ink">{priced ? money(configured!.calculatedPrice!) : "Quote on request"}</p>
+						<p className="text-sm text-ink-2 mt-1">
 							{priced
 								? "We'll confirm the price and availability in about 10 minutes, then you pay from your order. Nothing is charged now."
 								: "We'll send you a price on this request. Nothing is charged until you accept it."}
 						</p>
 					</div>
-					{error && <p className="text-sm text-red-500 mt-3">{error}</p>}
+					{error && <p className="text-sm text-bad mt-3">{error}</p>}
 					<button
 						type="button"
 						onClick={submit}
 						disabled={submitting || !configured || !deliveryReady(delivery)}
-						className="mt-4 w-full flex items-center justify-center gap-2 py-3 bg-[#fbbf24] hover:bg-[#f59e0b] text-black font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
+						className="mt-4 w-full flex items-center justify-center gap-2 py-3 bg-brand hover:bg-brand-press text-black font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
 					>
 						{submitting && <SpinnerGap size={16} className="animate-spin" />}
 						{!user ? "Sign in to send" : priced ? "Send request" : "Ask for a quote"}
@@ -245,27 +246,27 @@ const SheetSection = ({
 	children: ReactNode;
 }) => (
 	<section
-		className={`rounded-2xl border bg-white dark:bg-[#1e1e1e] ${state === "open" ? "border-[#fbbf24] p-5" : "border-gray-200 dark:border-gray-800 px-5 py-4"}`}
+		className={`rounded-xl border bg-surface ${state === "open" ? "border-brand p-5" : "border-line px-5 py-4"}`}
 		aria-current={state === "open" ? "step" : undefined}
 	>
 		<div className="flex items-center gap-3">
 			{state === "done" ? (
-				<CheckCircle size={22} weight="fill" className="text-green-600 shrink-0" />
+				<CheckCircle size={22} weight="fill" className="text-ok shrink-0" />
 			) : (
 				<span
 					className={`w-6 h-6 shrink-0 rounded-full text-xs font-bold flex items-center justify-center ${
-						state === "open" ? "bg-[#fbbf24] text-black" : "bg-gray-100 dark:bg-gray-800 text-gray-500"
+						state === "open" ? "bg-brand text-black" : "bg-fill text-ink-2"
 					}`}
 				>
 					{index}
 				</span>
 			)}
 			<div className="flex-1 min-w-0">
-				<h2 className={`font-bold ${state === "upcoming" ? "text-gray-400" : "text-gray-900 dark:text-white"}`}>{title}</h2>
-				{state === "done" && summary && <p className="text-xs text-gray-500 truncate">{summary}</p>}
+				<h2 className={`font-bold ${state === "upcoming" ? "text-ink-3" : "text-ink"}`}>{title}</h2>
+				{state === "done" && summary && <p className="text-xs text-ink-2 truncate">{summary}</p>}
 			</div>
 			{state === "done" && onChange && (
-				<button type="button" onClick={onChange} className="text-sm font-semibold text-[#d97706] hover:underline">
+				<button type="button" onClick={onChange} className="text-sm font-semibold text-brand-ink hover:underline">
 					Change
 				</button>
 			)}
@@ -321,60 +322,60 @@ const ServicePicker = ({
 	return (
 		<div className="space-y-3">
 			{starter ? (
-				<div className="flex items-center gap-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/10">
-					<FileText size={20} className="text-[#d97706] shrink-0" />
+				<div className="flex items-center gap-3 p-3 rounded-xl bg-brand-tint">
+					<FileText size={20} className="text-brand-ink shrink-0" />
 					<div className="flex-1 min-w-0">
-						<p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{starter.file.name}</p>
-						<p className="text-xs text-gray-500">
+						<p className="text-sm font-semibold text-ink truncate">{starter.file.name}</p>
+						<p className="text-xs text-ink-2">
 							{starter.pages ? `${starter.pages} page${starter.pages === 1 ? "" : "s"} · ` : ""}we'll attach it for you
 						</p>
 					</div>
-					<button type="button" onClick={() => onStarter(null)} className="p-1 text-gray-400 hover:text-red-500" aria-label="Remove file">
+					<button type="button" onClick={() => onStarter(null)} className="p-1 text-ink-3 hover:text-bad" aria-label="Remove file">
 						<X size={16} />
 					</button>
 				</div>
 			) : (
 				<div className="relative">
-					<MagnifyingGlass size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+					<MagnifyingGlass size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-3" />
 					<input
 						value={text}
 						onChange={(e) => setText(e.target.value)}
 						placeholder="e.g. business cards, banner, flyers"
 						aria-label="What do you need printed?"
-						className="w-full pl-10 pr-4 py-3 text-sm bg-white dark:bg-[#141414] border border-gray-200 dark:border-gray-700 rounded-xl text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#fbbf24]/50"
+						className="w-full pl-10 pr-4 py-3 text-sm bg-surface border border-line rounded-xl text-ink focus:outline-none focus:border-ink"
 					/>
 				</div>
 			)}
 
-			<p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">
+			<p className="text-xs font-bold text-ink-3">
 				{starter ? "How should we print it?" : searching ? "Results" : "Popular"}
 			</p>
 			{isLoading ? (
-				<SpinnerGap size={18} className="animate-spin text-[#fbbf24]" />
+				<SpinnerGap size={18} className="animate-spin text-brand-ink" />
 			) : results?.length ? (
-				<div className="rounded-xl border border-gray-200 dark:border-gray-800 divide-y divide-gray-100 dark:divide-gray-800 overflow-hidden">
+				<div className="rounded-xl border border-line divide-y divide-line overflow-hidden">
 					{results.map((r) => (
 						<button
 							key={r.serviceTemplateId}
 							type="button"
 							onClick={() => onChoose(toSelection(r))}
-							className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800/50"
+							className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-fill"
 						>
 							<span className="flex-1 min-w-0">
-								<span className="block text-sm font-semibold text-gray-900 dark:text-white">{r.name}</span>
-								<span className="block text-xs text-gray-500">
+								<span className="block text-sm font-semibold text-ink">{r.name}</span>
+								<span className="block text-xs text-ink-2">
 									{r.categoryName}
-									{r.quoteOnRequest ? " · quote on request" : r.startingPrice !== undefined ? ` · from GHS ${r.startingPrice.toLocaleString()}` : ""}
+									{r.quoteOnRequest ? " · quote on request" : r.startingPrice !== undefined ? ` · from ${ghs(r.startingPrice)}` : ""}
 								</span>
 							</span>
-							<CaretRight size={14} className="text-gray-400" />
+							<CaretRight size={14} className="text-ink-3" />
 						</button>
 					))}
 				</div>
 			) : (
-				<p className="text-sm text-gray-500">
+				<p className="text-sm text-ink-2">
 					Nothing called "{query}" yet. Pick the closest match and describe the rest in the details, or{" "}
-					<Link to="/home" className="text-[#d97706] font-semibold hover:underline">
+					<Link to="/home" className="text-brand-ink font-semibold hover:underline">
 						browse the catalogue
 					</Link>
 					.
@@ -388,7 +389,7 @@ const ServicePicker = ({
 							type="button"
 							onClick={() => fileInput.current?.click()}
 							disabled={reading}
-							className="w-full flex items-center justify-center gap-2 px-3 py-3 text-sm rounded-xl border border-dashed border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-[#fbbf24] disabled:opacity-60"
+							className="w-full flex items-center justify-center gap-2 px-3 py-3 text-sm rounded-xl border border-dashed border-line-strong text-ink hover:border-brand disabled:opacity-60"
 						>
 							{reading ? <SpinnerGap size={16} className="animate-spin" /> : <Upload size={16} />}
 							{reading ? "Reading your file…" : "Or start from your file"}
@@ -396,8 +397,8 @@ const ServicePicker = ({
 						<input ref={fileInput} type="file" accept="application/pdf,image/*" className="hidden" onChange={(e) => pickDocument(e.target.files?.[0])} />
 					</>
 				) : (
-					<p className="text-xs text-gray-500">
-						<Link to={`/login?returnUrl=${encodeURIComponent("/home/print-assistant/form")}`} className="text-[#d97706] font-semibold hover:underline">
+					<p className="text-xs text-ink-2">
+						<Link to={`/login?returnUrl=${encodeURIComponent("/home/print-assistant/form")}`} className="text-brand-ink font-semibold hover:underline">
 							Sign in
 						</Link>{" "}
 						to start from your own file.

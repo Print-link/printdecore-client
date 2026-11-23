@@ -26,14 +26,15 @@ export interface StatusStyle {
 	icon: (size: number) => ReactNode;
 }
 
-const amber = { color: "text-amber-700 dark:text-amber-300", bg: "bg-amber-50 dark:bg-amber-900/20", border: "border-amber-200 dark:border-amber-800", dot: "bg-amber-500" };
-const blue = { color: "text-blue-700 dark:text-blue-300", bg: "bg-blue-50 dark:bg-blue-900/20", border: "border-blue-200 dark:border-blue-800", dot: "bg-blue-500" };
-const green = { color: "text-emerald-700 dark:text-emerald-300", bg: "bg-emerald-50 dark:bg-emerald-900/20", border: "border-emerald-200 dark:border-emerald-800", dot: "bg-emerald-500" };
-const cyan = { color: "text-cyan-700 dark:text-cyan-300", bg: "bg-cyan-50 dark:bg-cyan-900/20", border: "border-cyan-200 dark:border-cyan-800", dot: "bg-cyan-500" };
-const violet = { color: "text-violet-700 dark:text-violet-300", bg: "bg-violet-50 dark:bg-violet-900/20", border: "border-violet-200 dark:border-violet-800", dot: "bg-violet-500" };
-const gray = { color: "text-gray-600 dark:text-gray-300", bg: "bg-gray-50 dark:bg-gray-800/40", border: "border-gray-200 dark:border-gray-700", dot: "bg-gray-400" };
+// Few tones, each with a meaning: amber = waiting on someone, ink = being made, green = ready or done, red = turned down
+const amber = { color: "text-brand-ink", bg: "bg-brand-tint", border: "border-transparent", dot: "bg-brand" };
+const blue = amber;
+const green = { color: "text-ok", bg: "bg-ok-tint", border: "border-transparent", dot: "bg-ok" };
+const cyan = green;
+const violet = { color: "text-ink", bg: "bg-fill", border: "border-transparent", dot: "bg-ink" };
+const gray = { color: "text-ink-3", bg: "bg-fill", border: "border-transparent", dot: "bg-ink-3" };
 
-const icon = (C: typeof Package) => (size: number) => <C size={size} weight="duotone" />;
+const icon = (C: typeof Package) => (size: number) => <C size={size} weight="regular" />;
 
 export const ORDER_STATUS: Record<OrderStatus, StatusStyle> = {
 	PENDING: { ...amber, label: "Pending", icon: icon(ClockCountdown) },
@@ -56,7 +57,7 @@ export const ORDER_STATUS: Record<OrderStatus, StatusStyle> = {
 export const statusStyle = (status?: string): StatusStyle =>
 	ORDER_STATUS[(status || "PENDING").toUpperCase() as OrderStatus] ?? ORDER_STATUS.PENDING;
 
-const red = { color: "text-red-700 dark:text-red-300", bg: "bg-red-50 dark:bg-red-900/20", border: "border-red-200 dark:border-red-800", dot: "bg-red-500" };
+const red = { color: "text-bad", bg: "bg-bad-tint", border: "border-transparent", dot: "bg-bad" };
 
 /**
  * How to show an order's status: like statusStyle, except an order the shop

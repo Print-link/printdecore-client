@@ -19,7 +19,7 @@ const FileTile = ({ file }: { file: OrderFile }) => (
 );
 
 const iconBtn =
-	"inline-flex h-9 w-9 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d97706]";
+	"inline-flex h-9 w-9 items-center justify-center rounded-lg text-ink-2 hover:bg-fill hover:text-ink transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand";
 
 /**
  * Files on an order or request: what each one is, how big, and buttons to
@@ -52,12 +52,12 @@ export const FileList = ({ files, title = "Files" }: FileListProps) => {
 	};
 
 	return (
-		<section aria-label={title} className="rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
-			<header className="flex items-center justify-between gap-2 px-4 py-2.5 bg-gray-50 dark:bg-gray-900/40 border-b border-gray-200 dark:border-gray-800">
-				<p className="flex items-center gap-1.5 text-xs font-semibold text-gray-900 dark:text-white">
+		<section aria-label={title} className="rounded-xl border border-line overflow-hidden">
+			<header className="flex items-center justify-between gap-2 px-4 py-2.5 bg-fill border-b border-line">
+				<p className="flex items-center gap-1.5 text-xs font-semibold text-ink">
 					<Paperclip size={14} weight="bold" />
 					{title}
-					<span className="font-normal text-gray-500">
+					<span className="font-normal text-ink-2">
 						· {files.length}
 						{total > 0 ? ` · ${formatBytes(total)}` : ""}
 					</span>
@@ -67,7 +67,7 @@ export const FileList = ({ files, title = "Files" }: FileListProps) => {
 						type="button"
 						onClick={downloadAll}
 						disabled={savingAll}
-						className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold text-[#b45309] dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-60"
+						className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold text-brand-ink hover:bg-fill transition-colors disabled:opacity-60"
 					>
 						{savingAll ? <CircleNotch size={14} className="animate-spin" /> : <DownloadSimple size={14} weight="bold" />}
 						{savingAll ? "Downloading…" : "Download all"}
@@ -75,7 +75,7 @@ export const FileList = ({ files, title = "Files" }: FileListProps) => {
 				)}
 			</header>
 
-			<ul className="divide-y divide-gray-100 dark:divide-gray-800">
+			<ul className="divide-y divide-line">
 				{files.map((file, i) => {
 					const s = state[i] ?? "idle";
 					const meta = [file.ext, formatBytes(file.size), file.width && file.height ? `${file.width}×${file.height}px` : ""].filter(Boolean);
@@ -83,10 +83,10 @@ export const FileList = ({ files, title = "Files" }: FileListProps) => {
 						<li key={`${file.url}-${i}`} className="flex items-center gap-3 px-4 py-2.5">
 							<FileTile file={file} />
 							<div className="min-w-0 flex-1">
-								<p className="truncate text-sm font-medium text-gray-900 dark:text-gray-100" title={file.name}>
+								<p className="truncate text-sm font-medium text-ink" title={file.name}>
 									{file.name}
 								</p>
-								<p className="text-xs text-gray-500">{meta.join(" · ")}</p>
+								<p className="text-xs text-ink-2">{meta.join(" · ")}</p>
 							</div>
 							<div className="flex shrink-0 items-center gap-0.5">
 								<a href={file.url} target="_blank" rel="noreferrer" className={iconBtn} aria-label={`Open ${file.name}`} title="Open">
@@ -103,7 +103,7 @@ export const FileList = ({ files, title = "Files" }: FileListProps) => {
 									{s === "saving" ? (
 										<CircleNotch size={18} className="animate-spin" />
 									) : s === "saved" ? (
-										<Check size={18} weight="bold" className="text-emerald-500" />
+										<Check size={18} weight="bold" className="text-ok" />
 									) : (
 										<DownloadSimple size={18} />
 									)}

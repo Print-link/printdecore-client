@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { MagnifyingGlass, MapPin, SpinnerGap, X } from "@phosphor-icons/react";
+import { MagnifyingGlass, MapPin, Storefront, X } from "@phosphor-icons/react";
 import { PageHeader } from "../components/common/PageHeader";
 import { VendorCard } from "../components/marketplace/VendorCard";
 import { useGeolocation } from "../hooks/useGeolocation";
 import { useMarketplaceVendors } from "../hooks/useMarketplace";
+import { Button, EmptyState, Field, Skeleton } from "../components/ui";
 
 /** The marketplace: print shops that take orders directly, nearest first */
 export const Shops = () => {
@@ -22,51 +23,49 @@ export const Shops = () => {
 		<div className="w-full max-w-5xl mx-auto">
 			<PageHeader title="Print shops" subtitle="Choose a shop and order at its prices. Pay now — they confirm a ready-by time." />
 
-			<div className="relative mb-4">
-				<MagnifyingGlass size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-				<input
-					value={search}
-					onChange={(e) => setSearch(e.target.value)}
-					placeholder="Search shops or what they print (e.g. banners)"
-					aria-label="Search shops"
-					className="w-full pl-10 pr-10 py-3 text-sm bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 rounded-2xl text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#fbbf24]/50"
-				/>
-				{search && (
-					<button type="button" onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" aria-label="Clear search">
-						<X size={16} />
-					</button>
-				)}
-			</div>
+			<Field
+				wrapClassName="mb-4"
+				value={search}
+				onChange={(e) => setSearch(e.target.value)}
+				placeholder="Search shops or what they print"
+				aria-label="Search shops"
+				leading={<MagnifyingGlass size={18} />}
+				trailing={
+					search ? (
+						<button type="button" onClick={() => setSearch("")} className="tap p-1 -mr-1 text-ink-3" aria-label="Clear search">
+							<X size={16} />
+						</button>
+					) : undefined
+				}
+			/>
 
 			{!userLocation && (
-				<button
-					type="button"
-					onClick={requestLocation}
-					className="w-full mb-4 flex items-center gap-2 px-4 py-3 rounded-xl bg-amber-50 dark:bg-amber-900/10 text-sm text-gray-800 dark:text-gray-200"
-				>
-					<MapPin size={16} className="text-[#d97706]" /> Turn on location to see the shops closest to you
+				<button type="button" onClick={requestLocation} className="tap w-full mb-4 flex items-center gap-2 text-sm text-ink-2">
+					<MapPin size={16} /> <span className="flex-1 text-left">Sorted by name.</span> <span className="font-semibold text-ink">Show nearest first</span>
 				</button>
 			)}
 
 			{isLoading ? (
-				<SpinnerGap size={20} className="animate-spin text-[#fbbf24]" />
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-6">
+					{[0, 1, 2].map((i) => (
+						<div key={i}>
+							<Skeleton className="h-40 rounded-xl" />
+							<Skeleton className="h-4 w-2/3 mt-3" />
+							<Skeleton className="h-3 w-1/3 mt-2" />
+						</div>
+					))}
+				</div>
 			) : error ? (
-				<div className="text-center py-10">
-					<p className="font-semibold text-gray-900 dark:text-white">Couldn't load shops</p>
-					<button type="button" onClick={() => refetch()} className="mt-3 text-sm font-semibold text-[#d97706]">
-						Try again
-					</button>
-				</div>
+				<EmptyState title="Couldn't load shops" body="Check your connection and try again." action={<Button variant="secondary" onClick={() => refetch()}>Try again</Button>} />
 			) : vendors.length === 0 ? (
-				<div className="text-center py-10">
-					<p className="font-semibold text-gray-900 dark:text-white">{query ? `No shops match "${query}"` : "No shops near you yet"}</p>
-					<p className="text-sm text-gray-500 mt-1">You can still order — Printdecore finds a printer and handles everything.</p>
-					<button type="button" onClick={() => navigate("/home")} className="mt-4 px-4 py-2.5 bg-[#fbbf24] text-black text-sm font-bold rounded-xl">
-						Order through Printdecore
-					</button>
-				</div>
+				<EmptyState
+					icon={<Storefront size={26} />}
+					title={query ? `No shops match "${query}"` : "No shops near you yet"}
+					body="You can still order. Printdecore finds a printer and handles everything."
+					action={<Button onClick={() => navigate("/home")}>Order through Printdecore</Button>}
+				/>
 			) : (
-				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-6">
 					{vendors.map((v) => (
 						<VendorCard key={v.id} vendor={v} onClick={() => navigate(`/home/shops/${v.id}`)} />
 					))}

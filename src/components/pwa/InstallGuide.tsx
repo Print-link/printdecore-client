@@ -6,17 +6,17 @@ import { useInstall } from "../../hooks/usePwa";
 
 const Step = ({ n, title, children, muted }: { n: number; title: ReactNode; children?: ReactNode; muted?: boolean }) => (
 	<li className={`flex gap-3 ${muted ? "opacity-60" : ""}`}>
-		<span className="w-7 h-7 shrink-0 rounded-full bg-[#fbbf24] text-black text-sm font-black flex items-center justify-center">{n}</span>
+		<span className="num w-6 h-6 shrink-0 rounded-full bg-ink text-page text-xs font-bold flex items-center justify-center">{n}</span>
 		<div className="min-w-0 pt-0.5">
-			<p className="text-sm font-bold text-gray-900 dark:text-white">{title}</p>
-			{children && <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">{children}</div>}
+			<p className="text-sm font-semibold text-ink">{title}</p>
+			{children && <div className="mt-0.5 text-sm text-ink-2">{children}</div>}
 		</div>
 	</li>
 );
 
 /** An icon as it looks in the browser's toolbar, so they can find it */
 const Key = ({ children }: { children: ReactNode }) => (
-	<span className="inline-flex items-center gap-1 align-middle rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#222] px-1.5 py-0.5 text-[11px] font-semibold text-gray-800 dark:text-gray-200">
+	<span className="inline-flex items-center gap-1 align-middle rounded-md bg-fill px-1.5 py-0.5 text-xs font-semibold text-ink">
 		{children}
 	</span>
 );
@@ -67,14 +67,14 @@ export const InstallGuide = () => {
 
 	let body: ReactNode;
 	if (installed) {
-		body = <p className="text-sm text-gray-600 dark:text-gray-400">Printdecore is already installed on this device. Open it from your home screen.</p>;
+		body = <p className="text-sm text-ink-2">Printdecore is already installed on this device. Open it from your home screen.</p>;
 	} else if (isIOS && !isIOSSafari) {
 		body = (
 			<>
-				<div className="rounded-2xl bg-amber-50 dark:bg-amber-400/10 border border-amber-200 dark:border-amber-400/20 p-3.5 text-sm text-gray-800 dark:text-gray-200">
+				<div className="rounded-xl bg-brand-tint p-3 text-sm text-ink">
 					You're using <b>{iosBrowserName}</b>. On iPhone, the app is added to your Home Screen from <b>Safari</b> — it takes a few seconds.
 				</div>
-				<p className="mt-4 mb-2 text-[11px] font-bold uppercase tracking-wider text-gray-400">First, open this page in Safari</p>
+				<p className="mt-5 mb-3 text-base font-bold text-ink">First, open this page in Safari</p>
 				<ol className="space-y-3.5">
 					{inAppBrowser ? (
 						<>
@@ -96,7 +96,7 @@ export const InstallGuide = () => {
 						</>
 					)}
 				</ol>
-				<p className="mt-5 mb-2 text-[11px] font-bold uppercase tracking-wider text-gray-400">Then, in Safari</p>
+				<p className="mt-6 mb-3 text-base font-bold text-ink">Then, in Safari</p>
 				<ol className="space-y-3.5">
 					<SafariSteps start={inAppBrowser ? 3 : 4} muted />
 				</ol>
@@ -115,7 +115,7 @@ export const InstallGuide = () => {
 				onClick={async () => {
 					if (await promptInstall()) closeInstallGuide();
 				}}
-				className="tap w-full py-3.5 rounded-2xl bg-[#fbbf24] hover:bg-[#f59e0b] text-black font-black"
+				className="tap w-full h-12 rounded-xl bg-brand hover:bg-brand-press text-black text-base font-semibold"
 			>
 				Install Printdecore
 			</button>
@@ -141,34 +141,34 @@ export const InstallGuide = () => {
 
 	return (
 		<div className="fixed inset-0 z-[60]" role="dialog" aria-modal="true" aria-label="Install the Printdecore app">
-			<div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]" onClick={closeInstallGuide} />
-			<div className="sheet-up absolute bottom-0 inset-x-0 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:bottom-8 md:w-[440px] max-h-[90dvh] overflow-y-auto rounded-t-3xl md:rounded-3xl bg-white dark:bg-[#1a1a1a] pb-safe shadow-2xl">
-				<div className="sticky top-0 bg-white dark:bg-[#1a1a1a] px-5 pt-3 pb-3 flex items-start gap-3 border-b border-gray-100 dark:border-gray-800">
-					<img src="/logoIcon-192.png" alt="" className="w-12 h-12 rounded-2xl bg-white ring-1 ring-black/5" />
+			<div className="absolute inset-0 bg-black/50" onClick={closeInstallGuide} />
+			<div className="sheet-up absolute bottom-0 inset-x-0 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:bottom-8 md:w-[440px] max-h-[90dvh] overflow-y-auto rounded-t-3xl md:rounded-3xl bg-surface pb-safe">
+				<div className="sticky top-0 bg-surface px-5 pt-3 pb-3 flex items-start gap-3 border-b border-line">
+					<img src="/logoIcon-192.png" alt="" className="w-11 h-11 rounded-xl bg-white ring-1 ring-inset ring-line" />
 					<div className="flex-1 min-w-0">
-						<p className="text-base font-black text-gray-900 dark:text-white">Get the Printdecore app</p>
-						<p className="text-xs text-gray-500 dark:text-gray-400">Free · no app store · takes a few seconds</p>
+						<p className="text-lg font-bold title-tight text-ink">Get the Printdecore app</p>
+						<p className="text-sm text-ink-2">Free · no app store · takes a few seconds</p>
 					</div>
-					<button type="button" onClick={closeInstallGuide} className="p-2 -mr-2 rounded-full text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="Close">
+					<button type="button" onClick={closeInstallGuide} className="tap w-10 h-10 -mr-2 flex items-center justify-center rounded-full text-ink-2 hover:bg-fill" aria-label="Close">
 						<X size={18} weight="bold" />
 					</button>
 				</div>
 				<div className="px-5 py-4">
-					<ul className="mb-5 grid grid-cols-3 gap-2 text-center">
+					<ul className="mb-5 grid grid-cols-3 border-y border-line divide-x divide-line text-center">
 						{[
-							{ icon: <BellRinging size={18} weight="duotone" />, text: "Alerts when your price is ready" },
-							{ icon: <Lightning size={18} weight="duotone" />, text: "Opens instantly, full screen" },
+							{ icon: <BellRinging size={18} weight="regular" />, text: "Alerts when your price is ready" },
+							{ icon: <Lightning size={18} weight="regular" />, text: "Opens instantly, full screen" },
 							{ icon: <Check size={18} weight="bold" />, text: "Track every order live" },
 						].map((b) => (
-							<li key={b.text} className="rounded-xl bg-gray-50 dark:bg-white/[0.03] px-2 py-2.5">
-								<span className="mx-auto w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-400/15 text-[#b45309] dark:text-amber-300 flex items-center justify-center">{b.icon}</span>
-								<span className="mt-1.5 block text-[11px] leading-tight font-semibold text-gray-700 dark:text-gray-300">{b.text}</span>
+							<li key={b.text} className="px-2 py-3">
+								<span className="mx-auto w-8 h-8 rounded-lg bg-fill text-ink flex items-center justify-center">{b.icon}</span>
+								<span className="mt-1.5 block text-xs leading-tight font-semibold text-ink">{b.text}</span>
 							</li>
 						))}
 					</ul>
 					{body}
 					{isIOS && oldIOS && (
-						<p className="mt-4 rounded-xl bg-gray-50 dark:bg-white/[0.03] p-3 text-xs text-gray-600 dark:text-gray-400">
+						<p className="mt-4 rounded-xl bg-fill p-3 text-sm text-ink-2">
 							Order alerts on iPhone need iOS 16.4 or later. Update in <b>Settings › General › Software Update</b> — the app still works without it.
 						</p>
 					)}
@@ -180,11 +180,11 @@ export const InstallGuide = () => {
 
 const CopyLink = ({ link, copied, onCopy }: { link: string; copied: boolean; onCopy: () => void }) => (
 	<span className="mt-2 flex items-center gap-2">
-		<span className="flex-1 min-w-0 truncate rounded-lg bg-gray-100 dark:bg-gray-800 px-2.5 py-2 font-mono text-[11px] text-gray-700 dark:text-gray-300">{link}</span>
+		<span className="flex-1 min-w-0 truncate rounded-lg bg-fill px-2.5 py-2 font-mono text-xs text-ink">{link}</span>
 		<button
 			type="button"
 			onClick={onCopy}
-			className={`tap shrink-0 inline-flex items-center gap-1 rounded-lg px-3 py-2 text-xs font-bold ${copied ? "bg-emerald-500 text-white" : "bg-gray-900 text-white dark:bg-white dark:text-black"}`}
+			className={`tap shrink-0 inline-flex items-center gap-1 h-9 rounded-lg px-3 text-sm font-semibold ${copied ? "bg-ok text-white" : "bg-ink text-page"}`}
 		>
 			{copied ? <Check size={13} weight="bold" /> : <Copy size={13} weight="bold" />} {copied ? "Copied" : "Copy link"}
 		</button>

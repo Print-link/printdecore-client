@@ -13,28 +13,28 @@ import { enablePush, sendTestPush } from "../../pwa/push";
 export const AlertsButton = ({ size = "sm" }: { size?: "sm" | "md" }) => {
 	const state = usePushState();
 	const [busy, setBusy] = useState(false);
-	const pad = size === "md" ? "px-4 py-2.5 text-sm" : "px-3 py-2 text-xs";
+	const pad = size === "md" ? "h-10 px-4 text-sm" : "h-8 px-3 text-sm";
 
 	if (state === "loading" || state === "unsupported" || state === "unavailable") return null;
 
 	if (state === "on") {
 		return (
-			<span className={`inline-flex items-center gap-1.5 rounded-xl bg-emerald-500/10 font-semibold text-emerald-700 dark:text-emerald-400 ${pad}`}>
-				<CheckCircle size={15} weight="fill" /> Alerts on — even when the app is closed
+			<span className={`inline-flex items-center gap-1.5 rounded-lg bg-ok-tint font-semibold text-ok ${pad}`}>
+				<CheckCircle size={15} /> Alerts on — even when the app is closed
 			</span>
 		);
 	}
 	if (state === "denied") {
 		return (
-			<span className={`inline-flex items-center gap-1.5 rounded-xl bg-gray-100 dark:bg-white/5 font-semibold text-gray-600 dark:text-gray-400 ${pad}`} title="Allow notifications for this site in your browser settings">
+			<span className={`inline-flex items-center gap-1.5 rounded-lg bg-fill font-semibold text-ink-2 ${pad}`} title="Allow notifications for this site in your browser settings">
 				<BellSlash size={15} /> Notifications are blocked in your browser settings
 			</span>
 		);
 	}
 	if (state === "needs-install") {
 		return (
-			<button type="button" onClick={openInstallGuide} className={`tap inline-flex items-center gap-1.5 rounded-xl bg-gray-900 dark:bg-[#fbbf24] font-bold text-white dark:text-black ${pad}`}>
-				<DeviceMobile size={15} weight="fill" /> Get alerts on your iPhone
+			<button type="button" onClick={openInstallGuide} className={`tap inline-flex items-center gap-1.5 rounded-lg bg-ink font-semibold text-page ${pad}`}>
+				<DeviceMobile size={15} /> Get alerts on your iPhone
 			</button>
 		);
 	}
@@ -57,9 +57,9 @@ export const AlertsButton = ({ size = "sm" }: { size?: "sm" | "md" }) => {
 					setBusy(false);
 				}
 			}}
-			className={`tap inline-flex items-center gap-1.5 rounded-xl bg-gray-900 dark:bg-[#fbbf24] font-bold text-white dark:text-black disabled:opacity-60 ${pad}`}
+			className={`tap inline-flex items-center gap-1.5 rounded-lg bg-ink font-semibold text-page disabled:opacity-60 ${pad}`}
 		>
-			{busy ? <SpinnerGap size={15} className="animate-spin" /> : <BellRinging size={15} weight="fill" />} Turn on order alerts
+			{busy ? <SpinnerGap size={15} className="animate-spin" /> : <BellRinging size={15} />} Turn on order alerts
 		</button>
 	);
 };

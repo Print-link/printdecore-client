@@ -15,20 +15,20 @@ export const PageHeader = ({ title, subtitle, back = true, right, appTitle }: { 
 	const { pathname } = useLocation();
 	const tabRoot = appTitle || TAB_ROOTS.includes(pathname.replace(/\/$/, ""));
 	return (
-		<div className={`flex items-start gap-3 mb-4 md:mb-6 ${tabRoot && !subtitle && !right ? "hidden" : ""}`}>
+		<div className={`flex items-start gap-2 mb-5 md:mb-6 ${tabRoot && !subtitle && !right ? "hidden" : ""}`}>
 			{back && (
 				<button
 					type="button"
 					onClick={() => navigate(-1)}
-					className="hidden md:block mt-1 p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+					className="tap hidden md:flex -ml-2 w-10 h-10 items-center justify-center rounded-full text-ink hover:bg-fill"
 					aria-label="Back"
 				>
-					<ArrowLeft size={18} />
+					<ArrowLeft size={20} />
 				</button>
 			)}
 			<div className="flex-1 min-w-0">
-				<h1 className={`text-xl md:text-2xl font-black text-gray-900 dark:text-white leading-tight ${tabRoot ? "hidden" : ""}`}>{title}</h1>
-				{subtitle && <p className="text-sm text-gray-500 dark:text-gray-400 md:mt-1">{subtitle}</p>}
+				<h1 className={`text-2xl md:text-3xl font-bold title-tight text-ink ${tabRoot ? "hidden" : ""}`}>{title}</h1>
+				{subtitle && <p className="text-sm text-ink-2 mt-0.5">{subtitle}</p>}
 			</div>
 			{right}
 		</div>

@@ -132,29 +132,29 @@ export const VerifyOTP = () => {
 	};
 
 	return (
-		<div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-			<div className="w-full max-w-md bg-white rounded-2xl p-8">
-				<div className="text-center mb-8">
-					<div className="flex justify-center mb-4">
-						<Logo size="lg" />
+		<div className="min-h-dvh bg-page flex flex-col items-center sm:justify-center px-5 pt-safe pb-safe">
+			<div className="w-full max-w-sm py-10 sm:py-12">
+				<div className="mb-8">
+					<div className="mb-10">
+						<Logo size="md" />
 					</div>
-					<h1 className="text-3xl font-bold text-gray-900 mb-2">
+					<h1 className="text-3xl font-bold title-tight text-ink mb-1">
 						Enter Verification Code
 					</h1>
-					<p className="text-gray-600 mb-1">We've sent a 6-digit code to</p>
-					<p className="text-sm font-semibold text-gray-900">{email}</p>
+					<p className="text-ink-2 mb-1">We've sent a 6-digit code to</p>
+					<p className="text-sm font-semibold text-ink">{email}</p>
 				</div>
 
 				{error && (
-					<div className="mb-6 p-4 bg-red-50 text-red-800 rounded-lg flex items-center">
-						<WarningCircle size={20} weight="duotone" className="mr-3 shrink-0" />
+					<div className="mb-6 p-3 bg-bad-tint text-bad rounded-xl flex items-center">
+						<WarningCircle size={20} weight="regular" className="mr-3 shrink-0" />
 						<p className="text-sm font-medium">{error}</p>
 					</div>
 				)}
 
-				<form onSubmit={handleSubmit} className="space-y-6">
+				<form onSubmit={handleSubmit} className="space-y-5">
 					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-3 text-center">
+						<label className="block text-sm font-medium text-ink mb-3 text-center">
 							Enter the 6-digit code
 						</label>
 						<div className="flex justify-center gap-2 sm:gap-3">
@@ -169,7 +169,7 @@ export const VerifyOTP = () => {
 									onChange={(e) => handleOtpChange(index, e.target.value)}
 									onKeyDown={(e) => handleKeyDown(index, e)}
 									onPaste={handlePaste}
-									className="w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-bold border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-colors"
+									className="num w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-bold bg-fill text-ink border-2 border-transparent rounded-xl focus:outline-none focus:border-ink transition-colors"
 									disabled={isLoading}
 									autoFocus={index === 0}
 								/>
@@ -180,15 +180,11 @@ export const VerifyOTP = () => {
 					<button
 						type="submit"
 						disabled={isLoading || otp.join("").length !== 6}
-						className={`w-full py-3 rounded-xl font-semibold text-white transition-all flex items-center justify-center ${
-							isLoading || otp.join("").length !== 6
-								? "bg-gray-400 cursor-not-allowed"
-								: "bg-[#fbbf24] hover:bg-[#fbbf24] "
-						}`}
+						className="tap w-full h-12 rounded-xl text-base font-semibold text-black bg-brand hover:bg-brand-press disabled:opacity-45 flex items-center justify-center"
 					>
 						{isLoading ? (
 							<>
-								<div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+								<div className="w-4 h-4 border-2 border-current border-r-transparent rounded-full animate-spin mr-2"></div>
 								Verifying...
 							</>
 						) : (
@@ -205,7 +201,7 @@ export const VerifyOTP = () => {
 						type="button"
 						onClick={handleResend}
 						disabled={isLoading}
-						className="w-full text-sm text-[#fbbf24] hover:text-[#fbbf24] font-medium disabled:text-gray-400"
+						className="w-full h-10 text-sm font-semibold text-ink disabled:text-ink-3"
 					>
 						Didn't receive the code? Resend
 					</button>
@@ -215,19 +211,19 @@ export const VerifyOTP = () => {
 							type="button"
 							onClick={() => navigate("/send-otp")}
 							disabled={isLoading}
-							className="text-sm text-gray-600 hover:text-gray-700 flex items-center justify-center mx-auto"
+							className="text-sm text-ink-2 hover:text-ink flex items-center justify-center mx-auto"
 						>
 							<ArrowLeft size={16} weight="bold" className="mr-1" />
 							Change email address
 						</button>
 					</div>
 
-					<div className="text-center pt-2 border-t border-gray-200">
-						<p className="text-sm text-gray-600">
+					<div className="text-center pt-2 border-t border-line">
+						<p className="text-sm text-ink-2">
 							Already have an account?{" "}
 							<Link
 								to="/login"
-								className="text-[#fbbf24] font-semibold hover:text-[#fbbf24]"
+								className="font-semibold text-ink underline underline-offset-2"
 							>
 								Sign in
 							</Link>

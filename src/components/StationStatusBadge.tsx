@@ -27,10 +27,10 @@ export const StationStatusBadge = ({
 			<div
 				className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
 					isOpenStatus
-						? "bg-green-100 text-green-700"
+						? "bg-ok-tint text-ok"
 						: isClosedStatus
-						? "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
-						: "bg-amber-100 text-amber-700"
+						? "bg-fill text-ink-2"
+						: "bg-brand-tint text-brand-ink"
 				}`}
 			>
 				{isOpenStatus ? (
@@ -56,10 +56,10 @@ export const StationStatusBadge = ({
 			<div
 				className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
 					isOpenStatus
-						? "bg-green-100 text-green-700"
+						? "bg-ok-tint text-ok"
 						: isClosedStatus
-						? "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
-						: "bg-amber-100 text-amber-700"
+						? "bg-fill text-ink-2"
+						: "bg-brand-tint text-brand-ink"
 				}`}
 			>
 				{isOpenStatus ? (
@@ -77,7 +77,7 @@ export const StationStatusBadge = ({
 						: "Hours unavailable"}
 				</span>
 			</div>
-			<div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
+			<div className="flex items-center gap-1 text-xs text-ink-2">
 				<Clock size={12} weight="regular" />
 				<span className={isClosedStatus && nextOpenTime ? "font-bold" : ""}>
 					{isOpenStatus

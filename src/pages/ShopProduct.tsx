@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { SpinnerGap } from "@phosphor-icons/react";
+import { EmptyState, Skeleton } from "../components/ui";
 import { PageHeader } from "../components/common/PageHeader";
 import { ProductLoader } from "../components/order/ProductLoader";
 import { useMarketplaceVendor } from "../hooks/useMarketplace";
@@ -11,13 +11,10 @@ export const ShopProduct = () => {
 	const { data: shop, isLoading } = useMarketplaceVendor(id);
 	const listing = shop?.services.find((s) => s.agentServiceId === agentServiceId);
 
-	if (isLoading) return <SpinnerGap size={20} className="animate-spin text-[#fbbf24]" />;
+	if (isLoading) return <div className="max-w-2xl mx-auto"><Skeleton className="h-8 w-1/2" /><Skeleton className="h-4 w-1/3 mt-2" /></div>;
 	if (!shop || !listing) {
 		return (
-			<div className="max-w-2xl mx-auto">
-				<PageHeader title="Set up your order" />
-				<p className="text-sm text-gray-500">This product isn't available right now.</p>
-			</div>
+			<EmptyState title="Not available right now" body="This product can't be ordered at the moment." />
 		);
 	}
 	return (

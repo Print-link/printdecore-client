@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Check, ChatCircleText } from "@phosphor-icons/react";
-import { PrintyMascot } from "../assistant/PrintyMascot";
+import { PrintyAvatar } from "../assistant/PrintyAvatar";
+import { Button } from "../ui";
 import { AlertsButton } from "../pwa/AlertsButton";
 
 /**
@@ -83,114 +84,75 @@ export const QuoteTracker = ({
 	];
 
 	return (
-		<section
-			className="relative overflow-hidden rounded-3xl border border-amber-200/80 dark:border-amber-500/20 bg-gradient-to-br from-amber-50 via-white to-white dark:from-amber-400/[0.07] dark:via-[#1a1a1a] dark:to-[#1a1a1a] p-5 sm:p-6 mb-5"
-			aria-live="polite"
-		>
-			<span className="printy-glow pointer-events-none absolute -top-20 -right-16 w-64 h-64 rounded-full bg-amber-300/25 dark:bg-amber-400/10 blur-3xl" aria-hidden />
-
-			<div className="relative flex items-center gap-4">
-				<div className="relative shrink-0 w-20 h-20 sm:w-24 sm:h-24">
-					<span className="wait-ring absolute inset-1 rounded-full border-2 border-amber-300/70" aria-hidden />
-					<span className="wait-ring absolute inset-1 rounded-full border-2 border-amber-300/70" style={{ animationDelay: "1.2s" }} aria-hidden />
-					<PrintyMascot className="relative w-full h-full" />
-				</div>
+		<section className="mb-6 rounded-xl border border-line bg-surface p-4" aria-live="polite">
+			<div className="flex items-start gap-3">
+				<span className="w-12 h-12 shrink-0 rounded-xl bg-fill flex items-center justify-center">
+					<PrintyAvatar size={34} busy />
+				</span>
 				<div className="min-w-0">
-					<p className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
-						<span className="relative flex w-2 h-2">
-							<span className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-60" />
-							<span className="relative w-2 h-2 rounded-full bg-emerald-500" />
-						</span>
-						Live · updates on its own
+					<p className="flex items-center gap-1.5 text-xs font-semibold text-ok">
+						<span className="w-1.5 h-1.5 rounded-full bg-ok" /> Live
 					</p>
-					<h2 className="mt-1.5 text-lg sm:text-xl font-black leading-tight text-gray-900 dark:text-white">{title}</h2>
-					<p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+					<h2 className="mt-0.5 text-lg font-bold title-tight text-ink">{title}</h2>
+					<p className="mt-0.5 text-sm text-ink-2">
 						Sent {ago(elapsed)} · {timing}
 					</p>
 				</div>
 			</div>
 
 			{/* Progress: already a quarter done the moment it's sent */}
-			<div className="relative mt-5">
-				<div className="h-2 rounded-full bg-amber-100 dark:bg-white/5 overflow-hidden">
-					<div className="wait-bar relative h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-400 transition-[width] duration-1000 ease-out" style={{ width: `${progress}%` }} />
+			<div className="mt-4">
+				<div className="h-1 rounded-full bg-fill-press overflow-hidden">
+					<div className="h-full rounded-full bg-brand transition-[width] duration-1000 ease-out" style={{ width: `${progress}%` }} />
 				</div>
-				<div className="mt-1.5 flex justify-between text-[11px] text-gray-400">
+				<div className="num mt-1.5 flex justify-between text-xs text-ink-3">
 					<span>{lastChecked ? `Checked ${ago(now - lastChecked)}` : "Checking…"}</span>
 					<span>{late ? "Still on it" : "On track"}</span>
 				</div>
 			</div>
 
-			<ol className="relative mt-4 space-y-0">
+			<ol className="mt-4">
 				{steps.map((s, i) => (
-					<li key={s.label} className="relative flex gap-3 pb-3 last:pb-0">
-						{i < steps.length - 1 && (
-							<span className={`absolute left-[11px] top-6 bottom-0 w-0.5 ${s.state === "done" ? "bg-emerald-400" : "bg-gray-200 dark:bg-gray-800"}`} aria-hidden />
-						)}
+					<li key={s.label} className="relative flex gap-3 pb-3.5 last:pb-0">
+						{i < steps.length - 1 && <span className={`absolute left-[9px] top-5 bottom-0 w-px ${s.state === "done" ? "bg-ok" : "bg-line-strong"}`} aria-hidden />}
 						<span
-							className={`relative z-[1] w-6 h-6 shrink-0 rounded-full flex items-center justify-center ${s.state === "done"
-								? "bg-emerald-500 text-white"
-								: s.state === "active"
-									? "bg-[#fbbf24] text-black ring-4 ring-amber-300/30"
-									: "bg-white dark:bg-[#222] border-2 border-gray-200 dark:border-gray-700"
-								}`}
+							className={`relative z-[1] w-[19px] h-[19px] shrink-0 rounded-full flex items-center justify-center ${
+								s.state === "done" ? "bg-ok text-white" : s.state === "active" ? "bg-brand" : "bg-surface border-[1.5px] border-line-strong"
+							}`}
 						>
-							{s.state === "done" ? (
-								<Check size={13} weight="bold" />
-							) : s.state === "active" ? (
-								<span className="flex gap-0.5">
-									{[0, 1, 2].map((d) => (
-										<span key={d} className="chat-dot w-1 h-1 rounded-full bg-black" style={{ animationDelay: `${d * 0.15}s` }} />
-									))}
-								</span>
-							) : null}
+							{s.state === "done" ? <Check size={11} weight="bold" /> : s.state === "active" ? <span className="w-1.5 h-1.5 rounded-full bg-black" /> : null}
 						</span>
-						<span className="flex-1 min-w-0 flex items-baseline justify-between gap-3 pt-0.5">
-							<span
-								className={`text-sm ${s.state === "active" ? "font-bold text-gray-900 dark:text-white" : s.state === "done" ? "font-semibold text-gray-700 dark:text-gray-300" : "text-gray-500"
-									}`}
-							>
-								{s.label}
-							</span>
-							{s.note && (
-								<span className={`shrink-0 text-[11px] font-semibold ${s.state === "active" ? "text-[#d97706]" : "text-gray-400"}`}>{s.note}</span>
-							)}
+						<span className="flex-1 min-w-0 flex items-baseline justify-between gap-3">
+							<span className={`text-sm ${s.state === "active" ? "font-semibold text-ink" : s.state === "done" ? "text-ink" : "text-ink-3"}`}>{s.label}</span>
+							{s.note && <span className={`shrink-0 text-xs ${s.state === "active" ? "font-semibold text-brand-ink" : "text-ink-3"}`}>{s.note}</span>}
 						</span>
 					</li>
 				))}
 			</ol>
-			<div className="relative mt-3 flex flex-wrap gap-2">
+			<div className="mt-4 flex flex-wrap gap-2">
 				<AlertsButton />
 				{onAddDetails && (
-					<button
-						type="button"
-						onClick={onAddDetails}
-						className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1e1e1e] px-3 py-2 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:border-[#fbbf24]"
-					>
-						<ChatCircleText size={15} /> Add details while you wait
-					</button>
+					<Button variant="secondary" size="sm" onClick={onAddDetails} icon={<ChatCircleText size={15} />}>
+						Add details while you wait
+					</Button>
 				)}
 			</div>
 		</section>
 	);
 };
 
-/** The moment the wait ends: shown big, once, when it happens on screen */
+/** The moment the wait ends: shown once, when it happens on screen */
 export const ArrivedBanner = ({ title, text, action }: { title: string; text: string; action?: ReactNode }) => (
-	<section className="chat-in relative overflow-hidden rounded-3xl bg-gray-900 dark:bg-[#1a1a1a] dark:ring-1 dark:ring-amber-400/30 p-5 sm:p-6 mb-5 text-white shadow-[0_20px_50px_-20px_rgba(251,191,36,0.6)]" role="status">
-		<span className="pointer-events-none absolute -top-16 -right-10 w-56 h-56 rounded-full bg-amber-400/30 blur-3xl" aria-hidden />
-		{[12, 30, 52, 70, 86].map((x, i) => (
-			<span key={x} className="arrive-spark absolute top-3 w-1.5 h-1.5 rounded-full bg-amber-300" style={{ left: `${x}%`, animationDelay: `${i * 0.12}s` }} aria-hidden />
-		))}
-		<div className="relative flex items-center gap-4">
-			<span className="arrive-pop w-12 h-12 shrink-0 rounded-full bg-[#fbbf24] text-black flex items-center justify-center">
-				<Check size={24} weight="bold" />
+	<section className="chat-in mb-6 rounded-xl bg-ok-tint p-4" role="status">
+		<div className="flex items-center gap-3">
+			<span className="arrive-pop w-10 h-10 shrink-0 rounded-full bg-ok text-white flex items-center justify-center">
+				<Check size={20} weight="bold" />
 			</span>
 			<div className="flex-1 min-w-0">
-				<p className="text-lg font-black leading-tight">{title}</p>
-				<p className="text-sm text-gray-300">{text}</p>
+				<p className="text-base font-bold text-ink">{title}</p>
+				<p className="text-sm text-ink-2">{text}</p>
 			</div>
 		</div>
-		{action && <div className="relative mt-4">{action}</div>}
+		{action && <div className="mt-3">{action}</div>}
 	</section>
 );

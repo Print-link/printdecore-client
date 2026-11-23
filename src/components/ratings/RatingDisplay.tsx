@@ -40,7 +40,7 @@ export const RatingDisplay = ({
 						key={`full-${i}`}
 						size={iconSizes[size]}
 						weight="fill"
-						className="text-yellow-400"
+						className="text-brand"
 					/>
 				))}
 				{/* Half star */}
@@ -49,13 +49,13 @@ export const RatingDisplay = ({
 						<Star
 							size={iconSizes[size]}
 							weight="fill"
-							className="text-gray-300 dark:text-gray-600"
+							className="text-ink-3"
 						/>
 						<div className="absolute top-0 left-0 overflow-hidden" style={{ width: "50%" }}>
 							<Star
 								size={iconSizes[size]}
 								weight="fill"
-								className="text-yellow-400"
+								className="text-brand"
 							/>
 						</div>
 					</div>
@@ -66,15 +66,15 @@ export const RatingDisplay = ({
 						key={`empty-${i}`}
 						size={iconSizes[size]}
 						weight="fill"
-						className="text-gray-300 dark:text-gray-600"
+						className="text-ink-3"
 					/>
 				))}
 			</div>
 			{showNumbers && (
-				<span className={`${textSizeClasses[size]} font-medium text-gray-700 dark:text-gray-300`}>
+				<span className={`${textSizeClasses[size]} font-medium text-ink`}>
 					{rating.toFixed(1)}
 					{totalRatings !== undefined && (
-						<span className="text-gray-500 dark:text-gray-400 ml-1">({totalRatings})</span>
+						<span className="text-ink-2 ml-1">({totalRatings})</span>
 					)}
 				</span>
 			)}

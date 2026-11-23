@@ -49,18 +49,18 @@ export const ReportIssueModal = ({
 
 	return (
 		<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-			<div className="bg-white dark:bg-[#1e1e1e] rounded-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+			<div className="bg-surface rounded-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
 				{/* Header */}
-				<div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+				<div className="flex items-center justify-between p-4 sm:p-6 border-b border-line">
 					<div className="flex items-center gap-3">
-						<div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-							<WarningCircle size={20} weight="duotone" className="text-red-600" />
+						<div className="w-10 h-10 bg-bad-tint rounded-lg flex items-center justify-center">
+							<WarningCircle size={20} weight="regular" className="text-bad" />
 						</div>
 						<div>
-							<h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
+							<h2 className="text-lg sm:text-xl font-semibold text-ink">
 								Report Issue
 							</h2>
-							<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+							<p className="text-xs sm:text-sm text-ink-2">
 								Describe the issue you're experiencing
 							</p>
 						</div>
@@ -68,7 +68,7 @@ export const ReportIssueModal = ({
 					<button
 						onClick={handleClose}
 						disabled={loading}
-						className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+						className="p-2 text-ink-3 hover:text-ink dark:hover:text-ink-3 hover:bg-fill rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 						aria-label="Close modal"
 					>
 						<X size={20} weight="bold" />
@@ -78,16 +78,16 @@ export const ReportIssueModal = ({
 				{/* Content */}
 				<form onSubmit={handleSubmit} className="p-4 sm:p-6">
 					{error && (
-						<div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 rounded-lg flex items-start gap-2">
-							<WarningCircle size={20} weight="duotone" className="text-red-600 shrink-0 mt-0.5" />
-							<p className="text-sm text-red-800">{error}</p>
+						<div className="mb-4 p-3 bg-bad-tint rounded-lg flex items-start gap-2">
+							<WarningCircle size={20} weight="regular" className="text-bad shrink-0 mt-0.5" />
+							<p className="text-sm text-bad">{error}</p>
 						</div>
 					)}
 
 					<div className="mb-4 sm:mb-6">
 						<label
 							htmlFor="message"
-							className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+							className="block text-sm font-medium text-ink mb-2"
 						>
 							Message *
 						</label>
@@ -100,11 +100,11 @@ export const ReportIssueModal = ({
 							}}
 							placeholder="Please describe the issue you're experiencing with this order..."
 							rows={6}
-							className="w-full px-3 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent resize-none dark:bg-[#161616] dark:text-white"
+							className="w-full px-3 py-3 text-base bg-fill border border-transparent rounded-xl text-ink placeholder:text-ink-3 focus:outline-none focus:border-ink resize-none"
 							required
 							disabled={loading}
 						/>
-						<p className="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+						<p className="mt-1.5 text-xs text-ink-2">
 							Your message will be sent to the print station administrator
 						</p>
 					</div>
@@ -115,14 +115,14 @@ export const ReportIssueModal = ({
 							type="button"
 							onClick={handleClose}
 							disabled={loading}
-							className="px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+							className="px-4 py-2.5 text-sm font-medium text-ink bg-fill rounded-lg hover:bg-fill-press transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 						>
 							Cancel
 						</button>
 						<button
 							type="submit"
 							disabled={loading || !message.trim()}
-							className="px-4 py-2.5 text-sm font-medium text-white bg-[#fbbf24] rounded-lg hover:bg-[#fbbf24] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+							className="px-4 py-2.5 text-sm font-medium text-white bg-brand rounded-lg hover:bg-brand transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
 						>
 							{loading ? (
 								<>

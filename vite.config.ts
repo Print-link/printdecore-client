@@ -26,7 +26,7 @@ export default defineConfig({
         lang: 'en',
         categories: ['shopping', 'business', 'productivity'],
         theme_color: '#fbbf24',
-        background_color: '#111111',
+        background_color: '#0e0e0e',
         display: 'standalone',
         orientation: 'portrait',
         shortcuts: [
