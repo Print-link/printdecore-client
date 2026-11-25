@@ -48,14 +48,14 @@ export const Spinner = ({ className }: { className?: string }) => (
 );
 
 /* ─── Section header: bold title, optional quiet action ─── */
-export const SectionHeader = ({ title, sub, action, onAction, className }: { title: ReactNode; sub?: ReactNode; action?: string; onAction?: () => void; className?: string }) => (
+export const SectionHeader = ({ title, sub, action, onAction, className }: { title: ReactNode; sub?: ReactNode; action?: ReactNode; onAction?: () => void; className?: string }) => (
 	<div className={cx("flex items-end justify-between gap-3 mb-2", className)}>
 		<div className="min-w-0">
 			<h2 className="text-xl font-bold title-tight text-ink truncate">{title}</h2>
 			{sub && <p className="text-sm text-ink-2 truncate">{sub}</p>}
 		</div>
 		{action && (
-			<button onClick={onAction} className="tap shrink-0 -mr-2 px-2 py-1 text-sm font-semibold text-ink rounded-lg hover:bg-fill">
+			<button onClick={onAction} className="tap shrink-0 -mr-2 px-2 py-1 inline-flex items-center gap-1 text-sm font-semibold text-ink rounded-lg hover:bg-fill">
 				{action}
 			</button>
 		)}

@@ -4,6 +4,7 @@ import { MagnifyingGlass, Storefront } from "@phosphor-icons/react";
 import { AssistantSpotlight } from "../components/assistant/AssistantSpotlight";
 import { ActiveOrdersStrip } from "../components/order/ActiveOrdersStrip";
 import { InstallBanner } from "../components/pwa/InstallBanner";
+import { PromoCarousel } from "../components/banners/PromoCarousel";
 import { useGeolocation } from "../hooks/useGeolocation";
 import { useCategories } from "../hooks/useCategories";
 import { useMarketplaceVendors } from "../hooks/useMarketplace";
@@ -22,6 +23,11 @@ export const Home = () => {
 	const { userLocation } = useGeolocation();
 	const { data: categories = [], isLoading: categoriesLoading } = useCategories();
 	const { data: shops = [] } = useMarketplaceVendors(userLocation);
+	// Shops customers have rated, best first; a row only when there's something to compare
+	const topRated = shops
+		.filter((s) => s.rating.count > 0 && s.isOpenNow !== false)
+		.sort((a, b) => b.rating.average - a.rating.average || b.rating.count - a.rating.count)
+		.slice(0, 10);
 
 	return (
 		<div className="w-full max-w-5xl mx-auto">
@@ -61,6 +67,8 @@ export const Home = () => {
 				</HorizontalScrollSection>
 			)}
 
+			<PromoCarousel />
+
 			{shops.length === 0 && <section className="mb-7">
 				<SectionHeader title="Order from a shop" />
 				<ListRow
@@ -75,6 +83,14 @@ export const Home = () => {
 			{shops.length > 0 && (
 				<HorizontalScrollSection title="Print shops near you" subtitle="Order at their prices and pay now" showAllLink="/home/shops">
 					{shops.slice(0, 10).map((shop) => (
+						<VendorCard key={shop.id} vendor={shop} compact onClick={() => navigate(`/home/shops/${shop.id}`)} />
+					))}
+				</HorizontalScrollSection>
+			)}
+
+			{topRated.length >= 2 && (
+				<HorizontalScrollSection title="Top-rated" subtitle="What customers rate highest" showAllLink="/home/shops">
+					{topRated.map((shop) => (
 						<VendorCard key={shop.id} vendor={shop} compact onClick={() => navigate(`/home/shops/${shop.id}`)} />
 					))}
 				</HorizontalScrollSection>
