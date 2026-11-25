@@ -1,5 +1,6 @@
 import type { FileInfo } from "../../services/orderApi";
-import type { Choices } from "../../services/pricingApi";
+import type { Choices, FieldAnswers } from "../../services/pricingApi";
+import type { FieldDraft } from "./serviceFields";
 
 /**
  * A product the customer finished setting up, for a flow that takes over
@@ -11,6 +12,10 @@ export interface ConfiguredService {
 	choices: Choices;
 	size?: { widthMm: number; heightMm: number };
 	pages?: number;
+	/** Answers to the service's input fields, as the server takes them */
+	fields?: FieldAnswers;
+	/** The same answers as typed, to pick up where the customer left off */
+	fieldDrafts?: Record<string, FieldDraft>;
 	additionalDetails?: string;
 	attachments: FileInfo[];
 	calculatedPrice: number | null;

@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import type { Delivery, FileInfo, MeasurementUnit } from "../services/orderApi";
-import type { Choices } from "../services/pricingApi";
+import type { Choices, FieldAnswers } from "../services/pricingApi";
 
 /** One product in the tray, set up and priced by the server */
 export interface CartItem {
@@ -15,6 +15,8 @@ export interface CartItem {
 	choices: Choices;
 	size?: { widthMm: number; heightMm: number };
 	pages?: number;
+	/** Answers to the service's input fields (text, sizes, files, dates…) */
+	fields?: FieldAnswers;
 	/** Already uploaded, so the tray survives a reload */
 	files: FileInfo[];
 	summaryLines: string[];

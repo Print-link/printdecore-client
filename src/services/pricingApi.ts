@@ -1,6 +1,7 @@
 import axios from "axios";
 import type { ApiResponse } from "./api";
 import { BASE_URL, getAuthHeaders, handleApiError } from "./orderApi";
+import type { Condition } from "../utils/conditions";
 
 /**
  * Pricing v2: a product described by choices and options, priced by the
@@ -15,6 +16,35 @@ export interface ProductOption {
 	key: string;
 	name: string;
 	specs?: { sides?: number; widthMm?: number; heightMm?: number };
+	description?: string;
+	/** The shop's picture of this option */
+	imageUrl?: string;
+}
+
+/** What the customer fills in: pick from options, or an input */
+export type InputType = "select" | "multi_select" | "checkbox" | "text" | "number" | "measurement" | "dimensions" | "file" | "date";
+
+export interface FieldConfig {
+	placeholder?: string;
+	minLength?: number;
+	maxLength?: number;
+	multiline?: boolean;
+	min?: number;
+	max?: number;
+	step?: number;
+	integer?: boolean;
+	units?: LengthUnit[];
+	defaultUnit?: LengthUnit;
+	minMm?: number;
+	maxMm?: number;
+	minWidthMm?: number;
+	maxWidthMm?: number;
+	minHeightMm?: number;
+	maxHeightMm?: number;
+	maxFiles?: number;
+	accept?: string[];
+	minDaysAhead?: number;
+	maxDaysAhead?: number;
 }
 
 export interface ProductAttribute {
@@ -24,7 +54,26 @@ export interface ProductAttribute {
 	required: boolean;
 	defaultOptionKeys: string[];
 	options: ProductOption[];
+	/** Missing on older products: then it follows `selection` */
+	inputType?: InputType;
+	config?: FieldConfig;
+	/** Shown only when this holds (the server applies the same rule) */
+	visibleWhen?: Condition | null;
+	helpText?: string;
+	defaultValue?: unknown;
+	/** How to fill it in */
+	instructionImageUrl?: string;
 }
+
+/** Answers to input fields, as sent to the server */
+export type FieldAnswers = Record<string, unknown>;
+
+export const inputTypeOf = (a: Pick<ProductAttribute, "inputType" | "selection">): InputType =>
+	a.inputType ?? (a.selection === "any" ? "multi_select" : "select");
+export const isOptionField = (a: Pick<ProductAttribute, "inputType" | "selection">) => {
+	const t = inputTypeOf(a);
+	return t === "select" || t === "multi_select";
+};
 
 export interface ArtworkSpec {
 	fileTypes?: string[];
@@ -52,12 +101,17 @@ export interface ProductDefinition {
 	usesPages: boolean;
 	attributes: ProductAttribute[];
 	artworkSpec?: ArtworkSpec;
+	/** quote: the shop prices each job; the customer asks for a quote */
+	quoteMode?: "instant" | "quote";
+	description?: string;
+	gallery?: Array<{ url: string; alt?: string }>;
+	definitionVersionId?: string | null;
 	/** With a shop: null when it doesn't sell this on the new pricing, else the options it switched off */
 	shop?: { disabledOptionKeys: string[] } | null;
 }
 
 export interface QuoteLine {
-	kind: "base" | "modifier" | "setup" | "minimum" | "vat" | "rounding";
+	kind: "base" | "modifier" | "rule" | "setup" | "minimum" | "vat" | "rounding";
 	label: string;
 	detail?: string;
 	amount: number;
@@ -77,6 +131,9 @@ export interface Quote {
 	total: number;
 	unitPrice: number;
 	choices: Choices;
+	/** The answers the server accepted (visible fields only) */
+	fields?: FieldAnswers;
+	definitionVersionId?: string | null;
 }
 
 export interface QuoteInput {
@@ -87,6 +144,7 @@ export interface QuoteInput {
 	quantity: number;
 	size?: { widthMm: number; heightMm: number };
 	pages?: number;
+	fields?: FieldAnswers;
 }
 
 /** A quote the engine couldn't give, with every reason (e.g. a rule the choices break). */
@@ -104,7 +162,7 @@ export const getProduct = async (productId: string, branchId?: string): Promise<
 	try {
 		const response = await axios.get<ApiResponse<ProductDefinition>>(`${BASE_URL}/products/${productId}`, {
 			params: branchId ? { branchId } : undefined,
-			headers: getAuthHeaders(),
+			headers: { ...getAuthHeaders(), ...CLIENT_CAPABILITIES },
 		});
 		if (!response.data.data) throw new Error(response.data.message || "Product not found");
 		return response.data.data;
@@ -112,6 +170,9 @@ export const getProduct = async (productId: string, branchId?: string): Promise<
 		return handleApiError(error, "Couldn't load this product");
 	}
 };
+
+/** Tells the server this app can show every field type, so it may offer services that use them */
+export const CLIENT_CAPABILITIES = { "X-Client-Capabilities": "catalogue-fields-v1" };
 
 export const getQuote = async (input: QuoteInput): Promise<Quote> => {
 	try {
@@ -134,10 +195,11 @@ export const getQuote = async (input: QuoteInput): Promise<Quote> => {
 
 // ── Units: sizes are stored in millimetres, shown in the customer's unit ──
 
-export type LengthUnit = "mm" | "cm" | "in" | "ft";
+export type LengthUnit = "mm" | "cm" | "m" | "in" | "ft";
+/** Units for a product's own custom size */
 export const LENGTH_UNITS: LengthUnit[] = ["cm", "in", "ft", "mm"];
-const MM_PER: Record<LengthUnit, number> = { mm: 1, cm: 10, in: 25.4, ft: 304.8 };
-const DP: Record<LengthUnit, number> = { mm: 0, cm: 1, in: 2, ft: 2 };
+const MM_PER: Record<LengthUnit, number> = { mm: 1, cm: 10, m: 1000, in: 25.4, ft: 304.8 };
+const DP: Record<LengthUnit, number> = { mm: 0, cm: 1, m: 3, in: 2, ft: 2 };
 
 export const toMm = (value: number, unit: LengthUnit) => value * MM_PER[unit];
 export const fromMm = (mm: number, unit: LengthUnit) => mm / MM_PER[unit];

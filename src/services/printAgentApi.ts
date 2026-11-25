@@ -68,12 +68,37 @@ type Coords = { latitude: number; longitude: number };
 
 const url = (path: string) => `${BASE_URL}/print-agent${path}`;
 
-/** branchId: a chat started on that shop's page — its requests go to that shop for a quote */
-export const startAgentConversation = async (coords?: Coords, branchId?: string): Promise<AgentConversation> => {
+/** A shop's service priced on request, as the customer set it up on its page */
+export interface ServiceQuoteStart {
+	productId: string;
+	quantity: number;
+	choices?: Record<string, string | string[]>;
+	fields?: Record<string, unknown>;
+	size?: { widthMm: number; heightMm: number };
+	pages?: number;
+	notes?: string;
+	attachments?: FileInfo[];
+}
+
+/**
+ * branchId: a chat started on that shop's page — its requests go to that shop for a quote.
+ * service: the chat opens on that service's job (the server checks it and picks its shop).
+ */
+export const startAgentConversation = async (coords?: Coords, branchId?: string, service?: ServiceQuoteStart): Promise<AgentConversation> => {
 	try {
 		const response = await axios.post<ApiResponse<AgentConversation>>(
 			url("/conversations"),
-			{ channel: "web", ...coords, ...(branchId && { branchId }) },
+			{
+				channel: "web",
+				...coords,
+				...(branchId && { branchId }),
+				...(service && {
+					service: {
+						...service,
+						attachments: service.attachments?.map((f) => ({ url: f.url, name: f.name, type: f.type, size: f.size })),
+					},
+				}),
+			},
 			{ headers: getAuthHeaders() }
 		);
 		if (!response.data.data) throw new Error(response.data.message || "Couldn't start the assistant");

@@ -7,6 +7,7 @@ import { PageHeader } from "../components/common/PageHeader";
 import { DeliveryChoice } from "../components/order/DeliveryChoice";
 import { ProductLoader } from "../components/order/ProductLoader";
 import type { ConfiguredService } from "../components/order/configuredService";
+import { ASSISTANT_STORAGE_KEY, type AssistantShop } from "../components/order/assistantHandoff";
 import { useAuth } from "../hooks/useAuth";
 import { useGeolocation } from "../hooks/useGeolocation";
 import { deliveryReady, getServiceTemplateOrderDetails, uploadMultipleFiles, type Delivery, type FileInfo } from "../services/orderApi";
@@ -33,11 +34,13 @@ interface Saved {
 	configured: ConfiguredService | null;
 	delivery: Delivery | null;
 	starter: { file: FileInfo; pages?: number } | null;
+	/** Started from a shop's quote-on-request service: the request goes to that shop */
+	shop?: AssistantShop | null;
 }
 
 // Saved in the browser as it's entered, so signing in or reloading never loses it
-const STORAGE_KEY = "printdecore_assistant_v1";
-const EMPTY: Saved = { section: "service", selection: null, configured: null, delivery: null, starter: null };
+const STORAGE_KEY = ASSISTANT_STORAGE_KEY;
+const EMPTY: Saved = { section: "service", selection: null, configured: null, delivery: null, starter: null, shop: null };
 const load = (): Saved => {
 	try {
 		const raw = localStorage.getItem(STORAGE_KEY);
@@ -67,7 +70,7 @@ export const PrintAssistant = () => {
 	const [state, setState] = useState<Saved>(load);
 	const [submitting, setSubmitting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-	const { section, selection, configured, delivery, starter } = state;
+	const { section, selection, configured, delivery, starter, shop } = state;
 	const update = (patch: Partial<Saved>) => setState((s) => ({ ...s, ...patch }));
 
 	useEffect(() => {
@@ -92,7 +95,7 @@ export const PrintAssistant = () => {
 
 	const choose = (s: Selection) => {
 		if (s.serviceTemplateId === selection?.serviceTemplateId) update({ section: "specs" });
-		else update({ selection: s, configured: null, section: "specs" });
+		else update({ selection: s, configured: null, section: "specs", shop: null });
 	};
 
 	const configure = (spec: ConfiguredService) => {
@@ -102,7 +105,7 @@ export const PrintAssistant = () => {
 
 	const startOver = () => {
 		if (!window.confirm("Start over? This clears the product and specs. Your delivery details stay.")) return;
-		update({ section: "service", selection: null, configured: null, starter: null });
+		update({ section: "service", selection: null, configured: null, starter: null, shop: null });
 	};
 
 	const submit = async () => {
@@ -122,6 +125,8 @@ export const PrintAssistant = () => {
 				choices: configured.choices,
 				size: configured.size,
 				pages: configured.pages,
+				...(configured.fields && { fields: configured.fields }),
+				...(shop && { shopId: shop.id }),
 				additionalDetails: configured.additionalDetails,
 				attachments: configured.attachments,
 				coords: userLocation ?? undefined,
@@ -211,7 +216,9 @@ export const PrintAssistant = () => {
 						<p className="text-sm text-ink-2 mt-1">
 							{priced
 								? "We'll confirm the price and availability in about 10 minutes, then you pay from your order. Nothing is charged now."
-								: "We'll send you a price on this request. Nothing is charged until you accept it."}
+								: shop
+									? `${shop.name} will send you a price for this. Nothing is charged until you accept it.`
+									: "We'll send you a price on this request. Nothing is charged until you accept it."}
 						</p>
 					</div>
 					{error && <p className="text-sm text-bad mt-3">{error}</p>}

@@ -49,7 +49,7 @@ export const Shops = () => {
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-6">
 					{[0, 1, 2].map((i) => (
 						<div key={i}>
-							<Skeleton className="h-40 rounded-xl" />
+							<Skeleton className="aspect-[16/10] rounded-2xl" />
 							<Skeleton className="h-4 w-2/3 mt-3" />
 							<Skeleton className="h-3 w-1/3 mt-2" />
 						</div>

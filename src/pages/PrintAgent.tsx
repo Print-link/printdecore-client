@@ -19,7 +19,8 @@ import {
 } from "@phosphor-icons/react";
 import { toast } from "react-toastify";
 import { DeliveryChoice } from "../components/order/DeliveryChoice";
-import { ChatHeader, ChatProgress, ChatWelcome, DaySeparator, FileTile, MessageRow, TypingIndicator, type ChatShop } from "../components/assistant/ChatParts";
+import { readAgentConversation, saveAgentConversation } from "../components/order/assistantHandoff";
+import { ChatHeader, ChatWelcome, DaySeparator, FileTile, MessageRow, TypingIndicator, type ChatShop } from "../components/assistant/ChatParts";
 import { PrintyAvatar } from "../components/assistant/PrintyAvatar";
 import { useAuth } from "../hooks/useAuth";
 import { useGeolocation } from "../hooks/useGeolocation";
@@ -39,25 +40,9 @@ import {
 	type AgentMessage,
 } from "../services/printAgentApi";
 
-// The conversation in progress, so a reload or a trip to sign in picks it up
-// again — one for the Printdecore-wide assistant, one per shop
-const STORAGE_KEY = "printdecore_agent_conversation";
-const storageKey = (shopId?: string) => (shopId ? `${STORAGE_KEY}:shop:${shopId}` : STORAGE_KEY);
-const readSaved = (shopId?: string) => {
-	try {
-		return localStorage.getItem(storageKey(shopId));
-	} catch {
-		return null;
-	}
-};
-const writeSaved = (shopId: string | undefined, id: string | null) => {
-	try {
-		if (id) localStorage.setItem(storageKey(shopId), id);
-		else localStorage.removeItem(storageKey(shopId));
-	} catch {
-		// Storage blocked: the chat still works for this visit
-	}
-};
+// The conversation in progress (one per shop, one Printdecore-wide)
+const readSaved = readAgentConversation;
+const writeSaved = saveAgentConversation;
 
 const STARTERS = ["Business cards for my shop", "Print my document", "A banner for an event", "Wedding invitations"];
 const SHOP_STARTERS = ["Branded bags or packaging", "Custom mugs or T-shirts", "A large banner or sign", "Something else I need printed"];
@@ -114,7 +99,7 @@ const AssistantPage = ({ shop }: { shop?: ChatShop }) => {
 				<AgentChat key={shop?.id ?? "printdecore"} shop={shop} />
 			) : (
 				<>
-					<ChatHeader shop={shop} />
+					<ChatHeader shop={shop} pageHeader={!shop} />
 					<div className="mt-4 py-10 text-center">
 						<span className="mx-auto w-16 h-16 rounded-xl bg-fill flex items-center justify-center"><PrintyAvatar size={44} /></span>
 						<p className="mt-4 text-xl font-bold title-tight text-ink">Sign in to chat with Printy</p>
@@ -229,13 +214,12 @@ const AgentChat = ({ shop }: { shop?: ChatShop }) => {
 	const draft = conversation?.draft;
 	const openDraft = draft && !draft.printRequestId ? draft : null;
 	const messages = conversation?.messages ?? [];
-	const step: 0 | 1 | 2 = conversation?.printRequestId ? 2 : openDraft ? 1 : 0;
 	const started = messages.length > 0 || !!pending || !!failed;
 
 	if (loading) {
 		return (
 			<>
-				<ChatHeader shop={shop} />
+				<ChatHeader shop={shop} pageHeader={!shop} />
 				<div className="py-16 flex flex-col items-center gap-2 text-sm text-ink-2">
 					<SpinnerGap size={22} className="animate-spin text-ink-3" />
 					Loading your conversation…
@@ -277,8 +261,7 @@ const AgentChat = ({ shop }: { shop?: ChatShop }) => {
 
 	return (
 		<>
-			<ChatHeader shop={shop} busy={!!pending} actions={actions} />
-			{started && <ChatProgress step={step} shop={!!shop} />}
+			<ChatHeader shop={shop} busy={!!pending} actions={actions} pageHeader={!shop} />
 
 			<div className="flex-1 pb-4" role="log" aria-label="Conversation">
 				{!started && <ChatWelcome name={user?.firstName} shop={shop} starters={shop ? SHOP_STARTERS : STARTERS} onPick={(s) => send(s, [])} />}
@@ -340,7 +323,7 @@ const AgentChat = ({ shop }: { shop?: ChatShop }) => {
 								} catch (err) {
 									toast.error(err instanceof Error ? err.message : "Couldn't send your order");
 									// The draft may have changed: show the latest
-									getAgentConversation(conversation.id).then(setConversation).catch(() => {});
+									getAgentConversation(conversation.id).then(setConversation).catch(() => { });
 								}
 							}}
 						/>
@@ -508,7 +491,7 @@ const Composer = ({
 				className={`sticky md:bottom-0 z-10 bg-page pt-3 md:pb-[max(0.75rem,env(safe-area-inset-bottom))] ${
 					// On phones the main Assistant sits above the tab bar; a shop's chat has none
 					aboveTabBar ? "bottom-[calc(4rem+env(safe-area-inset-bottom))] pb-2" : "bottom-0 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
-				}`}
+					}`}
 			>
 				{jump && (
 					<button

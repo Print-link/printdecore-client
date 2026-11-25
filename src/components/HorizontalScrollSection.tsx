@@ -19,7 +19,7 @@ export const HorizontalScrollSection: React.FC<HorizontalScrollSectionProps> = (
 
 	return (
 		<section className="mb-7">
-			<SectionHeader title={title} sub={subtitle} action={showAllLink ? "See all" : undefined} onAction={() => showAllLink && navigate(showAllLink)} />
+			<SectionHeader title={title} sub={subtitle} action={showAllLink ? <>All <CaretRight size={14} weight="bold" /></> : undefined} onAction={() => showAllLink && navigate(showAllLink)} />
 			<div className="relative group">
 				<button
 					onClick={() => scroll("left")}

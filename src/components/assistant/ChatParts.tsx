@@ -2,7 +2,6 @@ import { Fragment, useEffect, useState, type ReactNode } from "react";
 import {
 	ArrowRight,
 	ArrowCounterClockwise,
-	Check,
 	Checks,
 	File as FileIcon,
 	FileImage,
@@ -23,8 +22,16 @@ export type ChatShop = { id: string; name: string; image?: string | null };
 
 /* ─── Header: who you're talking to, and what they do ─── */
 
-export const ChatHeader = ({ shop, busy, actions }: { shop?: ChatShop; busy?: boolean; actions?: ReactNode }) => (
-	<div className="flex items-center gap-3 pb-3 border-b border-line">
+export const ChatHeader = ({ shop, busy, actions, pageHeader }: { shop?: ChatShop; busy?: boolean; actions?: ReactNode; pageHeader?: boolean }) => (
+	<div
+		className={
+			pageHeader
+				? // The page's own header: pinned at the top, full width on phones
+					"sticky top-0 z-30 -mx-4 sm:-mx-6 lg:mx-0 px-4 sm:px-6 lg:px-0 pt-safe bg-surface md:bg-page border-b border-line"
+				: undefined
+		}
+	>
+	<div className={`flex items-center gap-3 ${pageHeader ? "py-3 md:pt-5" : "pb-3 border-b border-line"}`}>
 		<span className="relative shrink-0">
 			<span className="w-11 h-11 rounded-xl bg-fill flex items-center justify-center">
 				<PrintyAvatar size={34} busy={busy} />
@@ -43,43 +50,14 @@ export const ChatHeader = ({ shop, busy, actions }: { shop?: ChatShop; busy?: bo
 			</p>
 			<p className="mt-0.5 flex items-center gap-1.5 text-xs text-ink-2">
 				<span className={`w-1.5 h-1.5 rounded-full ${busy ? "bg-brand animate-pulse" : "bg-ok"}`} />
-				<span className="truncate">{busy ? "Typing…" : "Online · replies in seconds"}</span>
+				<span className="truncate">{busy ? "Typing…" : "Online"}</span>
 			</p>
 		</div>
 		{actions}
 	</div>
+	</div>
 );
 
-/* ─── Progress: where the order is ─── */
-
-export const ChatProgress = ({ step, shop }: { step: 0 | 1 | 2; shop?: boolean }) => {
-	const steps = ["Describe", "Review", shop ? "Quote requested" : "Sent"];
-	return (
-		<ol className="mt-3 flex items-center gap-2 px-1" aria-label="Progress">
-			{steps.map((label, i) => {
-				const done = i < step || (i === 2 && step === 2);
-				const current = i === step && !done;
-				return (
-					<Fragment key={label}>
-						<li className="flex items-center gap-1.5 shrink-0" aria-current={current ? "step" : undefined}>
-							<span
-								className={`num w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
-									done ? "bg-ok text-white" : current ? "bg-ink text-page" : "bg-fill-press text-ink-2"
-								}`}
-							>
-								{done ? <Check size={11} weight="bold" /> : i + 1}
-							</span>
-							<span className={`text-xs font-semibold ${current || done ? "text-ink" : "text-ink-3"}`}>{label}</span>
-						</li>
-						{i < steps.length - 1 && <li className={`flex-1 h-0.5 rounded ${i < step ? "bg-ok" : "bg-line-strong"}`} aria-hidden />}
-					</Fragment>
-				);
-			})}
-		</ol>
-	);
-};
-
-/* ─── The first screen ─── */
 
 const greeting = () => {
 	const h = new Date().getHours();
@@ -89,15 +67,15 @@ const greeting = () => {
 export const ChatWelcome = ({ name, shop, starters, onPick }: { name?: string; shop?: ChatShop; starters: string[]; onPick: (text: string) => void }) => {
 	const abilities = shop
 		? [
-				{ icon: Receipt, title: "Writes your brief", text: "Asks the right questions so nothing is missed" },
-				{ icon: Storefront, title: `Sends it to ${shop.name}`, text: "They price it and send you a quote" },
-				{ icon: ShieldCheck, title: "No surprise charges", text: "Nothing is charged until you accept" },
-			]
+			{ icon: Receipt, title: "Writes your brief", text: "Asks the right questions so nothing is missed" },
+			{ icon: Storefront, title: `Sends it to ${shop.name}`, text: "They price it and send you a quote" },
+			{ icon: ShieldCheck, title: "No surprise charges", text: "Nothing is charged until you accept" },
+		]
 		: [
-				{ icon: MagnifyingGlass, title: "Finds the product", text: "From what you say, in your own words" },
-				{ icon: Tag, title: "Prices it instantly", text: "Real prices from shops near you" },
-				{ icon: Truck, title: "Delivery or pickup", text: "You confirm before anything is sent" },
-			];
+			{ icon: MagnifyingGlass, title: "Finds the product", text: "From what you say, in your own words" },
+			{ icon: Tag, title: "Prices it instantly", text: "Real prices from shops near you" },
+			{ icon: Truck, title: "Delivery or pickup", text: "You confirm before anything is sent" },
+		];
 	return (
 		<div className="chat-in">
 			<div className="flex flex-col items-center text-center pt-4 pb-2">
@@ -191,9 +169,8 @@ export const FileTile = ({ file, onRemove, tone = "light" }: { file: AgentFile; 
 			</span>
 		</>
 	);
-	const cls = `flex items-center gap-2 p-1.5 pr-2.5 rounded-xl max-w-[15rem] ${
-		tone === "onAmber" ? "bg-black/[0.08] text-black" : "bg-white dark:bg-[#111] border border-line text-ink"
-	}`;
+	const cls = `flex items-center gap-2 p-1.5 pr-2.5 rounded-xl max-w-[15rem] ${tone === "onAmber" ? "bg-black/[0.08] text-black" : "bg-white dark:bg-[#111] border border-line text-ink"
+		}`;
 	if (onRemove) {
 		return (
 			<span className={cls}>
@@ -240,11 +217,10 @@ export const MessageRow = ({
 				{first && !mine && <span className="mb-1 ml-1 text-xs font-semibold text-ink-2">Printy</span>}
 				{message.text && (
 					<div
-						className={`px-3.5 py-2.5 text-[15px] leading-snug rounded-2xl ${
-							mine
-								? `bg-brand text-black ${last ? "rounded-br-md" : ""} ${status === "failed" ? "opacity-60" : ""}`
-								: `bg-fill text-ink ${last ? "rounded-bl-md" : ""}`
-						}`}
+						className={`px-3.5 py-2.5 text-[15px] leading-snug rounded-2xl ${mine
+							? `bg-brand text-black ${last ? "rounded-br-md" : ""} ${status === "failed" ? "opacity-60" : ""}`
+							: `bg-fill text-ink ${last ? "rounded-bl-md" : ""}`
+							}`}
 					>
 						<FormattedText text={message.text} />
 					</div>

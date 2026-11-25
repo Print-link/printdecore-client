@@ -651,6 +651,26 @@ export const uploadMultipleFiles = async (
 	}
 };
 
+/**
+ * Files a customer gives for a service's file field. They're stored under the
+ * customer's own folder, which the server checks when the order is placed.
+ */
+export const uploadPrintFiles = async (files: File[]): Promise<FileInfo[]> => {
+	try {
+		const formData = new FormData();
+		files.forEach((file) => formData.append("files", file));
+		// No Content-Type: the browser sets the multipart boundary
+		const token = localStorage.getItem("token");
+		const response = await axios.post<ApiResponse<FileInfo[]>>(`${BASE_URL}/upload/print-files`, formData, {
+			headers: token ? { Authorization: `Bearer ${token}` } : {},
+		});
+		if (!response.data.success || !response.data.data) throw new Error(response.data.message || "Upload failed");
+		return response.data.data;
+	} catch (error) {
+		return handleApiError(error, "Couldn't upload your files");
+	}
+};
+
 export const deleteFile = async (
 	publicId: string,
 	resourceType?: "image" | "video" | "raw" | "auto"
@@ -700,6 +720,8 @@ export interface PricedItemPayload {
 	choices: Record<string, string | string[]>;
 	size?: { widthMm: number; heightMm: number };
 	pages?: number;
+	/** Answers to the service's input fields */
+	fields?: Record<string, unknown>;
 	options?: { filePages?: number; files?: FileInfo[] };
 }
 
@@ -708,6 +730,8 @@ export interface ServiceTemplateOrderDetails {
 	id: string;
 	name: string;
 	measurementUnit: MeasurementUnit;
+	categoryId?: string;
+	subCategoryId?: string;
 }
 
 export const getServiceTemplateOrderDetails = async (

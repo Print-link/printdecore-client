@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { CaretDown, CaretUp, Check, FileText, Minus, Plus, SpinnerGap, Warning, X } from "@phosphor-icons/react";
 import { ActionBar, BarTotal, Button } from "../ui";
 import { toast } from "react-toastify";
@@ -9,13 +10,17 @@ import {
 	defaultUnit,
 	fmtSize,
 	getQuote,
+	inputTypeOf,
+	isOptionField,
 	LENGTH_UNITS,
 	money,
 	QuoteRejected,
 	toMm,
 	type ArtworkSpec,
 	type Choices,
+	type FieldAnswers,
 	type LengthUnit,
+	type ProductAttribute,
 	type ProductDefinition,
 	type Quote,
 	type QuoteError,
@@ -23,6 +28,10 @@ import {
 import { countPdfPages } from "../../utils/pdfUtils";
 import { AttachmentPicker } from "./AttachmentPicker";
 import type { ConfiguredService, ConfiguredStart } from "./configuredService";
+import { ServiceFieldInput } from "./ServiceFieldInput";
+import { answerForConditions, answerSummary, initialDraft, toAnswer, type FieldDraft } from "./serviceFields";
+import { evaluateCondition } from "../../utils/conditions";
+import { startChatQuote } from "./assistantHandoff";
 
 interface ProductConfiguratorProps {
 	product: ProductDefinition;
@@ -44,8 +53,9 @@ interface ProductConfiguratorProps {
 function startingChoices(product: ProductDefinition, offered: (attr: string, opt: string) => boolean): Choices {
 	const choices: Choices = {};
 	for (const a of product.attributes) {
+		if (!isOptionField(a)) continue;
 		const allowed = a.options.filter((o) => offered(a.key, o.key));
-		if (a.selection === "one") {
+		if (inputTypeOf(a) === "select") {
 			const key = a.defaultOptionKeys.find((k) => allowed.some((o) => o.key === k)) ?? (a.required ? allowed[0]?.key : undefined);
 			if (key) choices[a.key] = key;
 		} else {
@@ -87,6 +97,8 @@ const tile = (active: boolean) =>
  */
 export const ProductConfigurator = ({ product, service, onAdded, vendor, onConfigured, initial }: ProductConfiguratorProps) => {
 	const { user } = useAuth();
+	const navigate = useNavigate();
+	const quoteMode = product.quoteMode === "quote";
 	const { addToCart, cartTargetClash } = useCart();
 
 	const disabled = useMemo(() => new Set(product.shop?.disabledOptionKeys ?? []), [product.shop]);
@@ -116,7 +128,42 @@ export const ProductConfigurator = ({ product, service, onAdded, vendor, onConfi
 	const [noPrice, setNoPrice] = useState(false);
 	const [calculating, setCalculating] = useState(false);
 	const [showLines, setShowLines] = useState(false);
+	const [fieldDrafts, setFieldDrafts] = useState<Record<string, FieldDraft>>(() => {
+		const start: Record<string, FieldDraft> = {};
+		for (const a of product.attributes) if (!isOptionField(a)) start[a.key] = initial?.fieldDrafts?.[a.key] ?? initialDraft(a);
+		return start;
+	});
+	const [fieldUploads, setFieldUploads] = useState(0);
 	const documentInput = useRef<HTMLInputElement>(null);
+
+	/**
+	 * Which fields are shown, in order: a field's rule reads only the answers
+	 * above it (the server applies the same rules and ignores hidden answers)
+	 */
+	const visible = useMemo(() => {
+		const answers: Record<string, unknown> = {};
+		const shown = new Set<string>();
+		for (const a of product.attributes) {
+			if (!evaluateCondition(a.visibleWhen, answers)) continue;
+			shown.add(a.key);
+			answers[a.key] = isOptionField(a) ? choices[a.key] : answerForConditions(a, fieldDrafts[a.key]);
+		}
+		return shown;
+	}, [product.attributes, choices, fieldDrafts]);
+	const isShown = (a: ProductAttribute) => visible.has(a.key);
+
+	const fields = useMemo(() => {
+		const out: FieldAnswers = {};
+		for (const a of product.attributes) {
+			if (isOptionField(a) || !visible.has(a.key)) continue;
+			const v = toAnswer(a, fieldDrafts[a.key]);
+			if (v !== undefined) out[a.key] = v;
+		}
+		return out;
+	}, [product.attributes, visible, fieldDrafts]);
+	const missingField = product.attributes.find(
+		(a) => !isOptionField(a) && a.required && inputTypeOf(a) !== "checkbox" && visible.has(a.key) && fields[a.key] === undefined
+	);
 
 	const sizeMm = useMemo(() => {
 		if (customSize) {
@@ -130,16 +177,18 @@ export const ProductConfigurator = ({ product, service, onAdded, vendor, onConfi
 	}, [customSize, width, height, unit, sizeAttr, choices]);
 
 	const request = useMemo(() => {
-		const sent = { ...choices };
-		// A custom size replaces the preset
+		const sent: Choices = {};
+		// Hidden choices aren't sent; a custom size replaces the preset
+		for (const [k, v] of Object.entries(choices)) if (visible.has(k)) sent[k] = v;
 		if (customSize && sizeAttr) delete sent[sizeAttr.key];
 		return {
 			choices: sent,
 			quantity: Number(quantity),
 			...(customSize && sizeMm && { size: sizeMm }),
 			...(product.usesPages && Number(pages) > 0 && { pages: Number(pages) }),
+			...(Object.keys(fields).length > 0 && { fields }),
 		};
-	}, [choices, customSize, sizeAttr, quantity, sizeMm, product.usesPages, pages]);
+	}, [choices, visible, customSize, sizeAttr, quantity, sizeMm, product.usesPages, pages, fields]);
 
 	const waitingFor =
 		!(request.quantity >= 1)
@@ -148,7 +197,9 @@ export const ProductConfigurator = ({ product, service, onAdded, vendor, onConfi
 				? "Enter the width and height"
 				: product.usesPages && !(Number(pages) > 0)
 					? "Add your document or enter its pages"
-					: null;
+					: missingField
+						? `Fill in ${missingField.name.toLowerCase()}`
+						: null;
 
 	// Debounced, so typing "500" asks once, not three times
 	useEffect(() => {
@@ -174,8 +225,9 @@ export const ProductConfigurator = ({ product, service, onAdded, vendor, onConfi
 					setQuote(null);
 					const list: QuoteError[] =
 						err instanceof QuoteRejected ? err.errors : [{ code: "error", message: err?.message ?? "Couldn't price this" }];
-					setNoPrice(list.some((e) => e.code === "no_price") || (err instanceof QuoteRejected && err.status === 409));
-					setErrors(list.filter((e) => e.code !== "no_price"));
+					// A quote-on-request service answers "quote_required" once the answers are complete
+					setNoPrice(list.some((e) => e.code === "no_price" || e.code === "quote_required") || (err instanceof QuoteRejected && err.status === 409));
+					setErrors(list.filter((e) => e.code !== "no_price" && e.code !== "quote_required"));
 				})
 				.finally(() => {
 					if (!cancelled) setCalculating(false);
@@ -238,6 +290,12 @@ export const ProductConfigurator = ({ product, service, onAdded, vendor, onConfi
 		const lines: string[] = [];
 		for (const a of product.attributes) {
 			if (customSize && a === sizeAttr) continue;
+			if (!isShown(a)) continue;
+			if (!isOptionField(a)) {
+				const line = answerSummary(a, fieldDrafts[a.key]);
+				if (line) lines.push(line);
+				continue;
+			}
 			const v = (quote?.choices ?? choices)[a.key];
 			const keys = Array.isArray(v) ? v : v ? [v] : [];
 			const names = keys.map((k) => a.options.find((o) => o.key === k)?.name).filter(Boolean);
@@ -249,9 +307,10 @@ export const ProductConfigurator = ({ product, service, onAdded, vendor, onConfi
 		return lines;
 	};
 
-	// The Print Assistant takes a combination with no price yet as a quote request
-	const asQuoteRequest = !!onConfigured && !quote && noPrice && !waitingFor && errors.length === 0;
-	const canAdd = (!!quote || asQuoteRequest) && !calculating && !uploading && !readingDocument;
+	// The Print Assistant takes a combination with no price yet as a quote request;
+	// a quote-on-request service always goes that way, from any page
+	const asQuoteRequest = (!!onConfigured || quoteMode) && !quote && noPrice && !waitingFor && errors.length === 0;
+	const canAdd = (!!quote || asQuoteRequest) && !calculating && !uploading && !readingDocument && fieldUploads === 0;
 
 	const reset = () => {
 		setChoices(startingChoices(product, offered));
@@ -262,23 +321,55 @@ export const ProductConfigurator = ({ product, service, onAdded, vendor, onConfi
 		setDocument(null);
 		setFiles([]);
 		setQuote(null);
+		setFieldDrafts(Object.fromEntries(product.attributes.filter((a) => !isOptionField(a)).map((a) => [a.key, initialDraft(a)])));
 	};
 
-	const handleSubmit = () => {
+	const configuredNow = (): ConfiguredService => ({
+		serviceTemplateId: service.id,
+		quantity: request.quantity,
+		choices: quote?.choices ?? request.choices,
+		...(request.size && { size: request.size }),
+		...(request.pages && { pages: request.pages }),
+		...(request.fields && { fields: request.fields, fieldDrafts }),
+		additionalDetails: additionalDetails.trim() || undefined,
+		attachments: allFiles,
+		calculatedPrice: quote ? quote.total : null,
+		quoteOnRequest: !quote,
+		summaryLines: summaryLines(),
+	});
+
+	const [askingQuote, setAskingQuote] = useState(false);
+	const handleSubmit = async () => {
 		if (!canAdd) return;
 		if (onConfigured) {
-			onConfigured({
-				serviceTemplateId: service.id,
-				quantity: request.quantity,
-				choices: quote?.choices ?? request.choices,
-				...(request.size && { size: request.size }),
-				...(request.pages && { pages: request.pages }),
-				additionalDetails: additionalDetails.trim() || undefined,
-				attachments: allFiles,
-				calculatedPrice: quote ? quote.total : null,
-				quoteOnRequest: !quote,
-				summaryLines: summaryLines(),
-			});
+			onConfigured(configuredNow());
+			return;
+		}
+		if (!quote && quoteMode) {
+			// The shop prices it: Printy opens the shop's chat on this job to explain it,
+			// answer questions and send it for the shop's quote
+			if (!user) {
+				navigate(`/login?returnUrl=${encodeURIComponent(location.pathname + location.search)}`);
+				return;
+			}
+			setAskingQuote(true);
+			try {
+				const path = await startChatQuote(
+					{
+						productId: product.id,
+						...request,
+						notes: additionalDetails.trim() || undefined,
+						attachments: allFiles.length ? allFiles : undefined,
+					},
+					undefined,
+					vendor?.id,
+				);
+				navigate(path);
+			} catch (err) {
+				toast.error(err instanceof Error ? err.message : "Couldn't start the chat with the shop");
+			} finally {
+				setAskingQuote(false);
+			}
 			return;
 		}
 		if (!quote) return;
@@ -303,6 +394,7 @@ export const ProductConfigurator = ({ product, service, onAdded, vendor, onConfi
 				choices: request.choices,
 				size: request.size,
 				pages: request.pages,
+				...(request.fields && { fields: request.fields }),
 				files: allFiles,
 				summaryLines: summaryLines(),
 				calculatedPrice: quote.total,
@@ -318,15 +410,39 @@ export const ProductConfigurator = ({ product, service, onAdded, vendor, onConfi
 	const hint = !calculating && !quote
 		? waitingFor ??
 			(noPrice
-				? onConfigured
-					? "Not priced yet — continue and we'll send you a quote"
-					: "Not priced yet — try another option, or ask the Print Assistant for a quote"
+				? quoteMode
+					? vendor
+						? `${vendor.name} prices this job on request — send it for a quote`
+						: "This job is priced on request — send it for a quote"
+					: onConfigured
+						? "Not priced yet — continue and we'll send you a quote"
+						: "Not priced yet — try another option, or ask the Print Assistant for a quote"
 				: (generalErrors[0]?.message ?? (errors.length ? "Check the options above" : "")))
 		: "";
-	const submitLabel = onConfigured ? (asQuoteRequest ? "Ask for a quote" : "Continue") : "Add to tray";
+	const submitLabel = onConfigured ? (asQuoteRequest ? "Ask for a quote" : "Continue") : asQuoteRequest ? "Ask for a quote" : "Add to tray";
+	const priceLabel = quoteMode ? "Price" : "Your price";
+	const shownPrice = quoteMode && !quote ? (calculating ? "Checking…" : "On request") : priceText;
 
 	return (
 		<div>
+			{(product.gallery?.length || product.description) && (
+				<section className="pb-6">
+					{product.gallery && product.gallery.length > 0 && (
+						<div className="-mx-4 px-4 flex gap-2 overflow-x-auto snap-x pb-1" aria-label="Pictures of this service">
+							{product.gallery.map((g, i) => (
+								<img
+									key={g.url}
+									src={g.url}
+									alt={g.alt ?? `${product.name} ${i + 1}`}
+									loading="lazy"
+									className="snap-start shrink-0 w-64 h-44 object-cover rounded-xl bg-fill ring-1 ring-inset ring-line"
+								/>
+							))}
+						</div>
+					)}
+					{product.description && <p className="mt-3 text-sm text-ink-2 whitespace-pre-line">{product.description}</p>}
+				</section>
+			)}
 			{(sizeAttr || takesCustom) && product.sizeMode !== "none" && (
 				<section className="pb-6">
 					<h3 className={sectionTitle}>Size</h3>
@@ -390,16 +506,44 @@ export const ProductConfigurator = ({ product, service, onAdded, vendor, onConfi
 			)}
 
 			{otherAttrs.map((a) => {
+				if (!isShown(a)) return null;
+				const err = errorFor(a.key);
+				if (!isOptionField(a)) {
+					const type = inputTypeOf(a);
+					return (
+						<fieldset key={a.key} className="pb-6">
+							<legend className={sectionTitle}>
+								{a.name}
+								{!a.required && type !== "checkbox" && <span className="ml-2 text-sm font-normal text-ink-3">Optional</span>}
+							</legend>
+							{a.helpText && type !== "checkbox" && <p className="-mt-1.5 mb-3 text-sm text-ink-2">{a.helpText}</p>}
+							{a.instructionImageUrl && (
+								<img src={a.instructionImageUrl} alt={`How to fill in ${a.name.toLowerCase()}`} loading="lazy" className="mb-3 w-full max-h-56 object-contain rounded-xl bg-fill ring-1 ring-inset ring-line" />
+							)}
+							<ServiceFieldInput
+								attr={a}
+								value={fieldDrafts[a.key]}
+								onChange={(v) => setFieldDrafts((prev) => ({ ...prev, [a.key]: v }))}
+								onUploadingChange={(busy) => setFieldUploads((n) => Math.max(0, n + (busy ? 1 : -1)))}
+							/>
+							{err && <p className="mt-2 text-sm text-bad">{err}</p>}
+						</fieldset>
+					);
+				}
+				const selection = inputTypeOf(a) === "select" ? "one" : "any";
 				const opts = a.options.filter((o) => offered(a.key, o.key));
 				if (!opts.length) return null;
-				const err = errorFor(a.key);
 				return (
 					<fieldset key={a.key} className="pb-6">
 						<legend className={sectionTitle}>
 							{a.name}
-							{!a.required && a.selection === "one" && <span className="ml-2 text-sm font-normal text-ink-3">Optional</span>}
-							{a.selection === "any" && <span className="ml-2 text-sm font-normal text-ink-3">Choose any</span>}
+							{!a.required && selection === "one" && <span className="ml-2 text-sm font-normal text-ink-3">Optional</span>}
+							{selection === "any" && <span className="ml-2 text-sm font-normal text-ink-3">Choose any</span>}
 						</legend>
+						{a.helpText && <p className="-mt-1.5 mb-3 text-sm text-ink-2">{a.helpText}</p>}
+						{a.instructionImageUrl && (
+							<img src={a.instructionImageUrl} alt={`About ${a.name.toLowerCase()}`} loading="lazy" className="mb-3 w-full max-h-56 object-contain rounded-xl bg-fill ring-1 ring-inset ring-line" />
+						)}
 						<div className="border-t border-line">
 							{opts.map((o) => {
 								const active = isChosen(a.key, o.key);
@@ -407,13 +551,17 @@ export const ProductConfigurator = ({ product, service, onAdded, vendor, onConfi
 									<button
 										type="button"
 										key={o.key}
-										role={a.selection === "one" ? "radio" : "checkbox"}
+										role={selection === "one" ? "radio" : "checkbox"}
 										aria-checked={active}
-										onClick={() => pick(a.key, o.key, a.selection, a.required)}
+										onClick={() => pick(a.key, o.key, selection, a.required)}
 										className="tap w-full flex items-center gap-3 min-h-12 py-3 border-b border-line text-left"
 									>
-										<span className={`flex-1 text-base ${active ? "font-semibold text-ink" : "text-ink"}`}>{o.name}</span>
-										{a.selection === "one" ? (
+										{o.imageUrl && <img src={o.imageUrl} alt="" loading="lazy" className="w-12 h-12 shrink-0 object-cover rounded-lg bg-fill ring-1 ring-inset ring-line" />}
+										<span className="flex-1 min-w-0">
+											<span className={`block text-base ${active ? "font-semibold text-ink" : "text-ink"}`}>{o.name}</span>
+											{o.description && <span className="block text-sm text-ink-2">{o.description}</span>}
+										</span>
+										{selection === "one" ? (
 											<span className={`w-5 h-5 shrink-0 rounded-full ${active ? "border-[6px] border-ink" : "border-[1.5px] border-line-strong"}`} />
 										) : (
 											<span className={`w-5 h-5 shrink-0 rounded-md flex items-center justify-center ${active ? "bg-ink text-page" : "border-[1.5px] border-line-strong"}`}>
@@ -567,18 +715,18 @@ export const ProductConfigurator = ({ product, service, onAdded, vendor, onConfi
 			{onConfigured ? (
 				<div className="pt-2" aria-live="polite">
 					<div className="flex items-baseline justify-between mb-3">
-						<span className="text-sm text-ink-2">Your price</span>
-						<span className="num text-xl font-bold text-ink">{priceText}</span>
+						<span className="text-sm text-ink-2">{priceLabel}</span>
+						<span className="num text-xl font-bold text-ink">{shownPrice}</span>
 					</div>
 					{hint && <p className={`mb-3 text-sm ${generalErrors.length ? "text-bad" : "text-ink-2"}`}>{hint}</p>}
-					<Button block onClick={handleSubmit} disabled={!canAdd}>{submitLabel}</Button>
+					<Button block onClick={handleSubmit} disabled={!canAdd} loading={askingQuote}>{submitLabel}</Button>
 				</div>
 			) : (
 				<>
 					{hint && <p className={`mb-2 text-sm ${generalErrors.length ? "text-bad" : "text-ink-2"}`} aria-live="polite">{hint}</p>}
 					<ActionBar>
-						<BarTotal label="Your price" value={priceText} />
-						<Button onClick={handleSubmit} disabled={!canAdd}>{submitLabel}</Button>
+						<BarTotal label={priceLabel} value={shownPrice} />
+						<Button onClick={handleSubmit} disabled={!canAdd} loading={askingQuote}>{submitLabel}</Button>
 					</ActionBar>
 				</>
 			)}

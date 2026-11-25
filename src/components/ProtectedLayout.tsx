@@ -79,6 +79,9 @@ const isTopLevel = (path: string) => Object.values(TAB_PATHS).includes(path.repl
 /** A shop's chat keeps its message box at the bottom and has a back button, so the tab bar steps aside */
 const isChat = (path: string) => /\/home\/shops\/[^/]+\/assistant/.test(path);
 
+/** Printy's own page: its chat bar (Printy AI, online) is the header, so the app's header steps aside */
+const isPrintyPage = (path: string) => path.replace(/\/$/, "") === "/home/print-assistant";
+
 /** The phone header's title for a screen */
 const screenTitle = (path: string, tab: Tab): string => {
 	if (/\/order\//.test(path)) return "Order";
@@ -116,6 +119,7 @@ export const ProtectedLayout = () => {
 	const [meOpen, setMeOpen] = useState(false);
 	const topLevel = isTopLevel(location.pathname);
 	const chat = isChat(location.pathname);
+	const printyPage = isPrintyPage(location.pathname);
 	const goBack = () => (window.history.length > 1 ? navigate(-1) : navigate(TAB_PATHS[activeTab]));
 	// Location is optional: once skipped, don't ask again this visit
 	const [locationSkipped, setLocationSkipped] = useState(() => sessionStorage.getItem("location_skipped") === "1");
@@ -379,7 +383,7 @@ export const ProtectedLayout = () => {
 			{/* Main content */}
 			<div className="flex-1 flex flex-col min-w-0">
 				{/* ─── Phone header: title, and a back button on inner screens ─── */}
-				<header className="md:hidden sticky top-0 z-30 pt-safe bg-surface border-b border-line">
+				{!printyPage && <header className="md:hidden sticky top-0 z-30 pt-safe bg-surface border-b border-line">
 					<div className="h-14 px-2 flex items-center gap-1">
 						{topLevel ? (
 							activeTab === "home" ? (
@@ -407,20 +411,22 @@ export const ProtectedLayout = () => {
 							</IconButton>
 						</div>
 					</div>
-				</header>
+				</header>}
 
 				{/* Top header (tablet and up) */}
-				<header className="hidden md:flex items-center bg-surface border-b border-line sticky top-0 z-30 h-16 px-6 lg:px-8">
-					<h1 className="text-xl font-bold title-tight text-ink truncate">
-						{topLevel ? TAB_TITLES[activeTab] : screenTitle(location.pathname, activeTab)}
-					</h1>
-				</header>
+				{!printyPage && (
+					<header className="hidden md:flex items-center bg-surface border-b border-line sticky top-0 z-30 h-16 px-6 lg:px-8">
+						<h1 className="text-xl font-bold title-tight text-ink truncate">
+							{topLevel ? TAB_TITLES[activeTab] : screenTitle(location.pathname, activeTab)}
+						</h1>
+					</header>
+				)}
 
 				<LocationBanner hasLocation={hasLocation} needsPermission={needsPermission} onTurnOn={requestLocation} />
 
 				{/* Page content */}
 				<main className={`flex-1 bg-page ${chat ? "" : "pb-tabbar md:pb-0"}`}>
-					<div key={location.pathname} className="screen-in max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-6 md:py-6">
+					<div key={location.pathname} className={`screen-in max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 ${printyPage ? "pb-6" : "pt-4 pb-6 md:py-6"}`}>
 						{/* A crashed page keeps the menu around it, and clears when you navigate */}
 						<ErrorBoundary inline resetKey={location.pathname}>
 							<Suspense

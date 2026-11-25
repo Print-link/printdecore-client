@@ -20,6 +20,7 @@ const itemPayload = (item: CartItem): PricedItemPayload => ({
 	choices: item.choices,
 	size: item.size,
 	pages: item.pages,
+	...(item.fields && { fields: item.fields }),
 	options: item.pages !== undefined || item.files.length ? { filePages: item.pages, files: item.files.length ? item.files : undefined } : undefined,
 });
 

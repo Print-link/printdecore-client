@@ -41,6 +41,10 @@ export interface CreatePrintRequestInput {
 	size?: { widthMm: number; heightMm: number };
 	/** Pages in the document, for products priced by the page */
 	pages?: number;
+	/** Answers to the service's input fields */
+	fields?: Record<string, unknown>;
+	/** Asked from a shop's own service: the shop quotes it */
+	shopId?: string;
 	additionalDetails?: string;
 	attachments?: FileInfo[];
 	coords?: { latitude: number; longitude: number };
