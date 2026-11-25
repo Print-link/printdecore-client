@@ -46,7 +46,7 @@ export const Shops = () => {
 			)}
 
 			{isLoading ? (
-				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-6">
+				<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-3 gap-y-5">
 					{[0, 1, 2].map((i) => (
 						<div key={i}>
 							<Skeleton className="aspect-[16/10] rounded-2xl" />
@@ -65,7 +65,7 @@ export const Shops = () => {
 					action={<Button onClick={() => navigate("/home")}>Order through Printdecore</Button>}
 				/>
 			) : (
-				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-6">
+				<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-3 gap-y-5">
 					{vendors.map((v) => (
 						<VendorCard key={v.id} vendor={v} onClick={() => navigate(`/home/shops/${v.id}`)} />
 					))}

@@ -75,7 +75,7 @@ export const Search = () => {
 			{shops.length > 0 && (
 				<section className="mt-8">
 					<SectionHeader title={q ? "Shops that print it" : "Print shops near you"} />
-					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-6">
+					<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-3 gap-y-5">
 						{shops.map((s) => (
 							<VendorCard key={s.id} vendor={s} onClick={() => navigate(`/home/shops/${s.id}`)} />
 						))}
