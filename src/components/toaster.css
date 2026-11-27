@@ -1,14 +1,29 @@
 /*
  * Toasts. react-toastify injects its own sheet first in <head>; these rules
- * come later and are scoped under .pd-toaster, so they win. Flat: no shadow,
- * a dark card in light mode, a lifted grey card with a hairline in dark mode.
+ * come later and are scoped under .pd-toaster, so they win. Flat: no shadow.
+ * Light mode is a white card with a hairline edge; dark mode a charcoal card a
+ * step above the page. Every colour is a variable, so each theme is one block.
  */
 .pd-toaster {
-	--pd-toast-bg: #111111;
-	--pd-toast-line: transparent;
-	--pd-toast-ink: #ffffff;
-	--pd-toast-ink-2: rgba(255, 255, 255, 0.62);
-	--pd-toast-track: rgba(255, 255, 255, 0.1);
+	/* Light: white card, hairline edge, soft tinted icon tiles */
+	--pd-toast-bg: #ffffff;
+	--pd-toast-line: rgb(0 0 0 / 0.12);
+	--pd-toast-ink: #121212;
+	--pd-toast-ink-2: #5a5a56;
+	--pd-toast-track: rgb(0 0 0 / 0.07);
+	--pd-toast-hover: #f1f1ef;
+	--pd-toast-ok-bg: #e7f6ec;
+	--pd-toast-ok: #15803d;
+	--pd-toast-ok-bar: #16a34a;
+	--pd-toast-bad-bg: #fdecec;
+	--pd-toast-bad: #dc2626;
+	--pd-toast-bad-bar: #dc2626;
+	--pd-toast-warn-bg: #fff3d1;
+	--pd-toast-warn: #b45309;
+	--pd-toast-info-bg: #f1f1ef;
+	--pd-toast-info: #121212;
+	--pd-toast-brand-bar: #f59e0b;
+	--pd-toast-spin-track: rgb(0 0 0 / 0.12);
 	--toastify-toast-width: min(400px, calc(100vw - 24px));
 	--toastify-toast-offset: 12px;
 	--toastify-toast-top: calc(env(safe-area-inset-top) + 12px);
@@ -16,8 +31,25 @@
 	font-family: inherit;
 }
 .dark .pd-toaster {
-	--pd-toast-bg: #262626;
-	--pd-toast-line: #383838;
+	/* Dark: charcoal card a step above the page, tiles that glow */
+	--pd-toast-bg: #1c1c1c;
+	--pd-toast-line: rgb(255 255 255 / 0.1);
+	--pd-toast-ink: #f2f2f0;
+	--pd-toast-ink-2: #a8a8a3;
+	--pd-toast-track: rgb(255 255 255 / 0.1);
+	--pd-toast-hover: rgb(255 255 255 / 0.08);
+	--pd-toast-ok-bg: rgb(34 197 94 / 0.16);
+	--pd-toast-ok: #4ade80;
+	--pd-toast-ok-bar: #22c55e;
+	--pd-toast-bad-bg: rgb(239 68 68 / 0.16);
+	--pd-toast-bad: #f87171;
+	--pd-toast-bad-bar: #ef4444;
+	--pd-toast-warn-bg: rgb(251 191 36 / 0.16);
+	--pd-toast-warn: #fbbf24;
+	--pd-toast-info-bg: rgb(255 255 255 / 0.08);
+	--pd-toast-info: #f2f2f0;
+	--pd-toast-brand-bar: #fbbf24;
+	--pd-toast-spin-track: rgb(255 255 255 / 0.2);
 }
 
 /* Same place on phones and desktop: centred, under the status bar */
@@ -70,18 +102,18 @@
 	animation: pd-toast-draw 0.42s 0.26s cubic-bezier(0.65, 0, 0.35, 1) forwards;
 }
 .pd-toast-icon svg path + path { animation-delay: 0.38s; }
-.pd-toast-icon--success { background: #16a34a; color: #fff; }
-.pd-toast-icon--error { background: #dc2626; color: #fff; }
-.pd-toast-icon--warning { background: #fbbf24; color: #111; }
-.pd-toast-icon--info { background: rgba(251, 191, 36, 0.16); color: #fbbf24; }
+.pd-toast-icon--success { background: var(--pd-toast-ok-bg); color: var(--pd-toast-ok); }
+.pd-toast-icon--error { background: var(--pd-toast-bad-bg); color: var(--pd-toast-bad); }
+.pd-toast-icon--warning { background: var(--pd-toast-warn-bg); color: var(--pd-toast-warn); }
+.pd-toast-icon--info { background: var(--pd-toast-info-bg); color: var(--pd-toast-info); }
 .pd-toast-icon--default,
-.pd-toast-icon--loading { background: rgba(255, 255, 255, 0.1); color: #fff; }
+.pd-toast-icon--loading { background: var(--pd-toast-info-bg); color: var(--pd-toast-info); }
 .pd-toast-spinner {
 	width: 16px;
 	height: 16px;
 	border-radius: 50%;
-	border: 2px solid rgba(255, 255, 255, 0.2);
-	border-top-color: #fbbf24;
+	border: 2px solid var(--pd-toast-spin-track);
+	border-top-color: var(--pd-toast-brand-bar);
 	animation: pd-toast-spin 0.7s linear infinite;
 }
 
@@ -100,15 +132,15 @@
 	transition: background-color 0.15s, color 0.15s;
 }
 .pd-toast-close svg { width: 15px; height: 15px; }
-.pd-toast-close:hover { background: rgba(255, 255, 255, 0.08); color: var(--pd-toast-ink); }
+.pd-toast-close:hover { background: var(--pd-toast-hover); color: var(--pd-toast-ink); }
 .pd-toast-close:active { transform: scale(0.92); }
 
 /* Timer: a hairline along the foot, in the toast's colour */
 .pd-toaster .Toastify__progress-bar--wrp { height: 2px; left: 12px; right: 12px; width: auto; bottom: 6px; border-radius: 2px; }
 .pd-toaster .Toastify__progress-bar--bg.Toastify__progress-bar--bg { background: var(--pd-toast-track); opacity: 1; }
-.pd-toaster .Toastify__progress-bar[role="progressbar"] { opacity: 1; border-radius: 2px; background: #fbbf24; }
-.pd-toaster .Toastify__progress-bar[role="progressbar"].Toastify__progress-bar--success { background: #22c55e; }
-.pd-toaster .Toastify__progress-bar[role="progressbar"].Toastify__progress-bar--error { background: #ef4444; }
+.pd-toaster .Toastify__progress-bar[role="progressbar"] { opacity: 1; border-radius: 2px; background: var(--pd-toast-brand-bar); }
+.pd-toaster .Toastify__progress-bar[role="progressbar"].Toastify__progress-bar--success { background: var(--pd-toast-ok-bar); }
+.pd-toaster .Toastify__progress-bar[role="progressbar"].Toastify__progress-bar--error { background: var(--pd-toast-bad-bar); }
 
 /* Stacked deck: cards behind the newest peek out; hover or tap fans them out */
 .pd-toaster[data-stacked="true"] { width: var(--toastify-toast-width); }
