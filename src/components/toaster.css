@@ -1,0 +1,149 @@
+/*
+ * Toasts. react-toastify injects its own sheet first in <head>; these rules
+ * come later and are scoped under .pd-toaster, so they win. Flat: no shadow,
+ * a dark card in light mode, a lifted grey card with a hairline in dark mode.
+ */
+.pd-toaster {
+	--pd-toast-bg: #111111;
+	--pd-toast-line: transparent;
+	--pd-toast-ink: #ffffff;
+	--pd-toast-ink-2: rgba(255, 255, 255, 0.62);
+	--pd-toast-track: rgba(255, 255, 255, 0.1);
+	--toastify-toast-width: min(400px, calc(100vw - 24px));
+	--toastify-toast-offset: 12px;
+	--toastify-toast-top: calc(env(safe-area-inset-top) + 12px);
+	--toastify-z-index: 2147482000;
+	font-family: inherit;
+}
+.dark .pd-toaster {
+	--pd-toast-bg: #262626;
+	--pd-toast-line: #383838;
+}
+
+/* Same place on phones and desktop: centred, under the status bar */
+.pd-toaster.Toastify__toast-container {
+	width: var(--toastify-toast-width);
+	top: var(--toastify-toast-top);
+	left: 50%;
+	transform: translateX(-50%);
+	padding: 0;
+}
+
+.pd-toaster .Toastify__toast {
+	--toastify-toast-width: 100%;
+	width: 100%;
+	min-height: 0;
+	margin: 0 0 8px;
+	padding: 10px 10px 12px 10px;
+	gap: 12px;
+	align-items: center;
+	border-radius: 16px;
+	background: var(--pd-toast-bg);
+	color: var(--pd-toast-ink);
+	border: 1px solid var(--pd-toast-line);
+	box-shadow: none;
+	overflow: hidden;
+	font-size: 14px;
+	line-height: 20px;
+	font-weight: 500;
+	-webkit-font-smoothing: antialiased;
+}
+.pd-toaster .Toastify__toast-body { padding: 0; margin: 0; flex: 1; min-width: 0; }
+.pd-toaster .Toastify__toast-body > div:last-child { flex: 1; }
+.pd-toaster .Toastify__toast-icon { width: auto; margin: 0; animation: none; }
+
+/* Icon tile: tinted square, the mark draws itself after the card lands */
+.pd-toast-icon {
+	width: 32px;
+	height: 32px;
+	border-radius: 10px;
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	animation: pd-toast-pop 0.5s 0.08s cubic-bezier(0.2, 1.5, 0.4, 1) both;
+}
+.pd-toast-icon svg { width: 18px; height: 18px; }
+.pd-toast-icon svg path {
+	stroke-dasharray: 24;
+	stroke-dashoffset: 24;
+	animation: pd-toast-draw 0.42s 0.26s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+.pd-toast-icon svg path + path { animation-delay: 0.38s; }
+.pd-toast-icon--success { background: #16a34a; color: #fff; }
+.pd-toast-icon--error { background: #dc2626; color: #fff; }
+.pd-toast-icon--warning { background: #fbbf24; color: #111; }
+.pd-toast-icon--info { background: rgba(251, 191, 36, 0.16); color: #fbbf24; }
+.pd-toast-icon--default,
+.pd-toast-icon--loading { background: rgba(255, 255, 255, 0.1); color: #fff; }
+.pd-toast-spinner {
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	border: 2px solid rgba(255, 255, 255, 0.2);
+	border-top-color: #fbbf24;
+	animation: pd-toast-spin 0.7s linear infinite;
+}
+
+.pd-toast-close {
+	flex-shrink: 0;
+	width: 28px;
+	height: 28px;
+	margin-left: auto;
+	margin-right: -2px;
+	border-radius: 9px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--pd-toast-ink-2);
+	background: transparent;
+	transition: background-color 0.15s, color 0.15s;
+}
+.pd-toast-close svg { width: 15px; height: 15px; }
+.pd-toast-close:hover { background: rgba(255, 255, 255, 0.08); color: var(--pd-toast-ink); }
+.pd-toast-close:active { transform: scale(0.92); }
+
+/* Timer: a hairline along the foot, in the toast's colour */
+.pd-toaster .Toastify__progress-bar--wrp { height: 2px; left: 12px; right: 12px; width: auto; bottom: 6px; border-radius: 2px; }
+.pd-toaster .Toastify__progress-bar--bg.Toastify__progress-bar--bg { background: var(--pd-toast-track); opacity: 1; }
+.pd-toaster .Toastify__progress-bar[role="progressbar"] { opacity: 1; border-radius: 2px; background: #fbbf24; }
+.pd-toaster .Toastify__progress-bar[role="progressbar"].Toastify__progress-bar--success { background: #22c55e; }
+.pd-toaster .Toastify__progress-bar[role="progressbar"].Toastify__progress-bar--error { background: #ef4444; }
+
+/* Stacked deck: cards behind the newest peek out; hover or tap fans them out */
+.pd-toaster[data-stacked="true"] { width: var(--toastify-toast-width); }
+.pd-toaster .Toastify__toast--stacked { margin: 0; }
+.pd-toaster .Toastify__toast--stacked:not(:last-child) { background: var(--pd-toast-bg); }
+/* The message is a bare text node, so the library's "hide children" rule misses it */
+.pd-toaster .Toastify__toast--stacked { transition: transform 0.35s cubic-bezier(0.2, 1, 0.3, 1), color 0.15s; }
+.pd-toaster .Toastify__toast--stacked[data-collapsed="true"]:not(:last-child) { color: transparent; }
+
+/* Motion. translate/scale (not transform) so they add to the deck's own transform */
+.pd-toast-in { animation: pd-toast-in 0.55s cubic-bezier(0.2, 1.3, 0.35, 1) both; }
+.pd-toast-out { animation: pd-toast-out 0.24s cubic-bezier(0.4, 0, 1, 1) both; }
+
+@keyframes pd-toast-in {
+	from { opacity: 0; translate: 0 -24px; scale: 0.92; }
+	45% { opacity: 1; }
+	to { opacity: 1; translate: 0 0; scale: 1; }
+}
+@keyframes pd-toast-out {
+	to { opacity: 0; translate: 0 -14px; scale: 0.94; }
+}
+@keyframes pd-toast-pop {
+	from { scale: 0.4; opacity: 0; rotate: -12deg; }
+	to { scale: 1; opacity: 1; rotate: 0deg; }
+}
+@keyframes pd-toast-draw { to { stroke-dashoffset: 0; } }
+@keyframes pd-toast-spin { to { rotate: 360deg; } }
+
+@media (prefers-reduced-motion: reduce) {
+	.pd-toast-in, .pd-toast-out { animation-duration: 0.01s; }
+	.pd-toast-icon, .pd-toast-icon svg path { animation: none; stroke-dashoffset: 0; }
+}
+
+/* react-toastify's phone rules make toasts full-bleed squares; keep ours */
+@media only screen and (max-width: 480px) {
+	.pd-toaster.Toastify__toast-container { left: 50%; transform: translateX(-50%); top: var(--toastify-toast-top); }
+	.pd-toaster .Toastify__toast { border-radius: 16px; margin-bottom: 8px; }
+}

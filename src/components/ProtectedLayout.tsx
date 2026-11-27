@@ -202,7 +202,7 @@ export const ProtectedLayout = () => {
 				<Icon size={20} weight={isActive ? "fill" : "regular"} className={isActive ? "text-ink" : ""} />
 				<span className="flex-1 text-left">{label}</span>
 				{badge !== undefined && badge > 0 && (
-					<span className={`num min-w-5 h-5 px-1.5 rounded-full text-xs font-bold flex items-center justify-center ${urgent ? "bg-bad text-white" : "bg-brand text-black"}`} title={urgent ? "An order needs you" : "Orders in progress"}>
+					<span className={`num min-w-5 h-5 px-1.5 rounded-full text-xs font-bold flex items-center justify-center ${urgent ? "bg-bad text-white" : "bg-brand text-black"}`} title={urgent ? "An order needs paying" : "An order is ready for you"}>
 						{badge}
 					</span>
 				)}
@@ -288,7 +288,7 @@ export const ProtectedLayout = () => {
 						<>
 							<p className="px-3 pt-6 pb-2 text-xs font-semibold text-ink-3">Your account</p>
 							<div className="space-y-0.5">
-								{navItem("history", ClockCounterClockwise, "My orders", activeOrders.count, orderBadgeUrgent)}
+								{navItem("history", ClockCounterClockwise, "My orders", activeOrders.attention, orderBadgeUrgent)}
 								{navItem("cart", Printer, "Printing tray", cart.length)}
 								{pushState !== "unsupported" && pushState !== "loading" && (
 									<button
@@ -455,7 +455,7 @@ export const ProtectedLayout = () => {
 							"history",
 							UserCircle,
 							"Me",
-							user ? (orderBadgeUrgent ? activeOrders.toPay : activeOrders.count) : undefined,
+							user ? activeOrders.attention : undefined,
 							orderBadgeUrgent,
 							() => setMeOpen(true),
 							meActive
@@ -501,9 +501,9 @@ export const ProtectedLayout = () => {
 									() => handleTabChange("history"),
 									true,
 									activeOrders.active[0]?.line,
-									activeOrders.count > 0 && (
+									activeOrders.attention > 0 && (
 										<Tag tone={orderBadgeUrgent ? "bad" : "brand"}>
-											<span className="num">{orderBadgeUrgent ? `${activeOrders.toPay} to pay` : `${activeOrders.count} active`}</span>
+											<span className="num">{activeOrders.attention} need you</span>
 										</Tag>
 									)
 								)}

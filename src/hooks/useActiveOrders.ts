@@ -72,6 +72,9 @@ export const useActiveOrders = () => {
 				waiting: WAITING.includes(order.status),
 				ready: READY.includes(order.status),
 			}));
-		return { active, count: active.length, toPay: active.filter((a) => a.toPay).length };
+		const toPay = active.filter((a) => a.toPay).length;
+		/** What the badges count: orders waiting on the customer (pay, collect, receive) */
+		const attention = toPay + active.filter((a) => a.ready).length;
+		return { active, count: active.length, toPay, attention };
 	}, [orders]);
 };
