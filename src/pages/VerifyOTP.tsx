@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { WarningCircle, ArrowRight, ArrowLeft } from '@phosphor-icons/react';
 import { apiService } from '../services/api';
-import { Logo } from "../components/Logo";
+import { AuthLayout } from "../components/auth/AuthLayout";
 
 export const VerifyOTP = () => {
 	const [otp, setOtp] = useState(["", "", "", "", "", ""]);
@@ -132,106 +132,93 @@ export const VerifyOTP = () => {
 	};
 
 	return (
-		<div className="min-h-dvh bg-page flex flex-col items-center sm:justify-center px-5 pt-safe pb-safe">
-			<div className="w-full max-w-sm py-10 sm:py-12">
-				<div className="mb-8">
-					<div className="mb-10">
-						<Logo size="md" />
+		<AuthLayout art="code-sent" title="Check your email" subtitle={<>We sent a 6-digit code to <span className="font-semibold text-ink">{email}</span></>}>
+			{error && (
+				<div className="mb-6 p-3 bg-bad-tint text-bad rounded-xl flex items-center">
+					<WarningCircle size={20} weight="regular" className="mr-3 shrink-0" />
+					<p className="text-sm font-medium">{error}</p>
+				</div>
+			)}
+
+			<form onSubmit={handleSubmit} className="space-y-5">
+				<div>
+					<label className="block text-sm font-medium text-ink mb-3 text-center">
+						Enter the 6-digit code
+					</label>
+					<div className="flex justify-center gap-2 sm:gap-3">
+						{otp.map((digit, index) => (
+							<input
+								key={index}
+								id={`otp-${index}`}
+								type="text"
+								inputMode="numeric"
+								maxLength={1}
+								value={digit}
+								onChange={(e) => handleOtpChange(index, e.target.value)}
+								onKeyDown={(e) => handleKeyDown(index, e)}
+								onPaste={handlePaste}
+								className="num w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-bold bg-fill text-ink border-2 border-transparent rounded-xl focus:outline-none focus:border-ink transition-colors"
+								disabled={isLoading}
+								autoFocus={index === 0}
+							/>
+						))}
 					</div>
-					<h1 className="text-3xl font-bold title-tight text-ink mb-1">
-						Enter Verification Code
-					</h1>
-					<p className="text-ink-2 mb-1">We've sent a 6-digit code to</p>
-					<p className="text-sm font-semibold text-ink">{email}</p>
 				</div>
 
-				{error && (
-					<div className="mb-6 p-3 bg-bad-tint text-bad rounded-xl flex items-center">
-						<WarningCircle size={20} weight="regular" className="mr-3 shrink-0" />
-						<p className="text-sm font-medium">{error}</p>
-					</div>
-				)}
+				<button
+					type="submit"
+					disabled={isLoading || otp.join("").length !== 6}
+					className="tap w-full h-12 rounded-xl text-base font-semibold text-black bg-brand hover:bg-brand-press disabled:opacity-45 flex items-center justify-center"
+				>
+					{isLoading ? (
+						<>
+							<div className="w-4 h-4 border-2 border-current border-r-transparent rounded-full animate-spin mr-2"></div>
+							Verifying…
+						</>
+					) : (
+						<>
+							Verify Code
+							<ArrowRight size={20} weight="bold" className="ml-2" />
+						</>
+					)}
+				</button>
+			</form>
 
-				<form onSubmit={handleSubmit} className="space-y-5">
-					<div>
-						<label className="block text-sm font-medium text-ink mb-3 text-center">
-							Enter the 6-digit code
-						</label>
-						<div className="flex justify-center gap-2 sm:gap-3">
-							{otp.map((digit, index) => (
-								<input
-									key={index}
-									id={`otp-${index}`}
-									type="text"
-									inputMode="numeric"
-									maxLength={1}
-									value={digit}
-									onChange={(e) => handleOtpChange(index, e.target.value)}
-									onKeyDown={(e) => handleKeyDown(index, e)}
-									onPaste={handlePaste}
-									className="num w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-bold bg-fill text-ink border-2 border-transparent rounded-xl focus:outline-none focus:border-ink transition-colors"
-									disabled={isLoading}
-									autoFocus={index === 0}
-								/>
-							))}
-						</div>
-					</div>
+			<div className="mt-6 space-y-3">
+				<button
+					type="button"
+					onClick={handleResend}
+					disabled={isLoading}
+					className="w-full h-10 text-sm font-semibold text-ink disabled:text-ink-3"
+				>
+					Didn't receive the code? Resend
+				</button>
 
-					<button
-						type="submit"
-						disabled={isLoading || otp.join("").length !== 6}
-						className="tap w-full h-12 rounded-xl text-base font-semibold text-black bg-brand hover:bg-brand-press disabled:opacity-45 flex items-center justify-center"
-					>
-						{isLoading ? (
-							<>
-								<div className="w-4 h-4 border-2 border-current border-r-transparent rounded-full animate-spin mr-2"></div>
-								Verifying...
-							</>
-						) : (
-							<>
-								Verify Code
-								<ArrowRight size={20} weight="bold" className="ml-2" />
-							</>
-						)}
-					</button>
-				</form>
-
-				<div className="mt-6 space-y-3">
+				<div className="text-center">
 					<button
 						type="button"
-						onClick={handleResend}
+						onClick={() => navigate("/send-otp")}
 						disabled={isLoading}
-						className="w-full h-10 text-sm font-semibold text-ink disabled:text-ink-3"
+						className="text-sm text-ink-2 hover:text-ink flex items-center justify-center mx-auto"
 					>
-						Didn't receive the code? Resend
+						<ArrowLeft size={16} weight="bold" className="mr-1" />
+						Change email address
 					</button>
+				</div>
 
-					<div className="text-center">
-						<button
-							type="button"
-							onClick={() => navigate("/send-otp")}
-							disabled={isLoading}
-							className="text-sm text-ink-2 hover:text-ink flex items-center justify-center mx-auto"
+				<div className="text-center pt-2 border-t border-line">
+					<p className="text-sm text-ink-2">
+						Already have an account?{" "}
+						<Link
+							to="/login"
+							className="font-semibold text-ink underline underline-offset-2"
 						>
-							<ArrowLeft size={16} weight="bold" className="mr-1" />
-							Change email address
-						</button>
-					</div>
-
-					<div className="text-center pt-2 border-t border-line">
-						<p className="text-sm text-ink-2">
-							Already have an account?{" "}
-							<Link
-								to="/login"
-								className="font-semibold text-ink underline underline-offset-2"
-							>
-								Sign in
-							</Link>
-						</p>
-					</div>
+							Sign in
+						</Link>
+					</p>
 				</div>
 			</div>
-		</div>
+		</AuthLayout>
 	);
 };
 
